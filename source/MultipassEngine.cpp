@@ -1,4 +1,8 @@
 #include "MultipassEngine.h"
+#include <vector>
+#include <stdio.h>
+
+using namespace std;
 
 //Used to increase the overlap between multipass slices.
 //Might be useful to reduce visible seams. Higher values make the 3DS
@@ -7,6 +11,12 @@
 #ifndef CLIPPING_FUDGE_FACTOR
 #define CLIPPING_FUDGE_FACTOR 0
 #endif
+
+//As polygon counts are estimated (can't use the hardware to directly count)
+//we need to be able to fudge on the max per pass to achieve a good balance
+//between performance (average closer to 2048 polygons every pass) and
+//sanity (not accidentally omitting polygons because we guess badly)
+#define MAX_POLYGONS_PER_PASS 1800
 
 void MultipassEngine::addEntity(DrawableEntity* entity) {
 	entities.push_back(entity);
@@ -49,14 +59,12 @@ void MultipassEngine::gatherDrawList() {
 	//First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	clipFriendly_Perspective(floattof32(0.1), floattof32(20.0), 70.0);
+	clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
 	glMatrixMode(GL_MODELVIEW);
 	
 	//cheat at cameras (TODO: NOT THIS)
 	glLoadIdentity();
-	gluLookAt(	0.0, 5.0, 6.0,		//camera possition
-				0.0, 0.0, 0.5,		//look at
-				0.0, 1.0, 0.0);		//up
+	applyCameraTransform();
 				
 	for (auto entity = entities.begin(); entity != entities.end(); entity++) {
 		//cache this object, in case we need to reuse it for multiple passes
@@ -68,8 +76,8 @@ void MultipassEngine::gatherDrawList() {
 		EntityContainer container;
 		container.entity = *entity;
 		s32 object_center = (*entity)->getRealModelCenter();
-		container.far_z  = object_center - state.radius;
-		container.near_z = object_center + state.radius;
+		container.far_z  = object_center + state.radius;
+		container.near_z = object_center - state.radius;
 		
 		drawList.push(container);
 	}
@@ -104,6 +112,13 @@ void MultipassEngine::setVRAMforPass(int pass) {
 	}
 }
 
+void MultipassEngine::applyCameraTransform() {
+	//TODO: Make this not static
+	gluLookAt(	0.0, 5.0, 6.0,		//camera possition
+				0.0, 0.0, 0.5,		//look at
+				0.0, 1.0, 0.0);		//up
+}
+
 void MultipassEngine::draw() {
 	
 	if (drawList.empty()) {
@@ -113,72 +128,95 @@ void MultipassEngine::draw() {
 		
 		//to be extra sure, clear the overlap list
 		//(it *should* be empty already at this point.)
-		overlapList.clear();
+		overlap_list.clear();
 		current_pass = 0;
-		
-		
-	} else {
-		//Enable the rear plane, using the last frame's render result
-		//TODO: THIS
 	}
+	
+	
 	
 	//PROCESS LIST
 	int polycount = 0;
+	unsigned int initial_length = drawList.size();
 	
-	while (!drawList.empty() && polycount < 1800) {
-		EntityContainer container = drawList.top();
+	//Come up with a pass_list; how many objects can we draw in a single frame?
+	vector<EntityContainer> pass_list;
+	
+	//if there are any overlap objects, we need to start by re-drawing those
+	for(auto i = overlap_list.begin(); i != overlap_list.end(); i++) {
+		pass_list.push_back(*i);
+		polycount += pass_list.back().entity->getCachedState().cull_cost;
+	}
+	overlap_list.clear();
+	
+	//now proceed to add objects from the remaining objects in the real draw list
+	while (!drawList.empty() && polycount < MAX_POLYGONS_PER_PASS) {
+		pass_list.push_back(drawList.top());
+		polycount += pass_list.back().entity->getCachedState().cull_cost;
 		drawList.pop();
-		
-		glPushMatrix();
-		container.entity->draw();
-		glPopMatrix(1);
-		
-		polycount += container.entity->getCachedState().cull_cost;
 	}
 	
+	//if our drawlist made no progress, we either drew no objects, or managed to somehow make no
+	//meaningful progress this frame; either way, we bail early. (In the latter case, this will
+	//prevent the engine from hanging if there are too many objects in a row or something.)
+	if (drawList.size() == initial_length) {
+		if (!drawList.empty()) {
+			printf("Impossible pass detected! Bailing.\n");
+			
+			//forcibly empty the draw list
+			while (!drawList.empty()) {
+				drawList.pop();
+			}
+		}
 	
-	//TODO: THIS
-	
-	if (drawList.empty()) {
-		///Draw directly to the screen, set up LCD capture to bank C
-		//TODO: THIS
-	} else {
-		//This is a multipass frame; capture to either bank A or B
-		//TODO: THIS
+		GFX_FLUSH = 0;
+		swiWaitForVBlank();
+		return;
 	}
 	
-	//make sure our draw calls get processed
-	GFX_FLUSH = 0;
+	//using the pass list, we can set our near/far clip planes
+	s32 far_plane = pass_list.front().far_z;
+	if (far_plane > floattof32(256.0)) {
+		far_plane = floattof32(256.0); //real back clip plane; actually cull objects here regardless of what the engine thinks
+	}
+	s32 near_plane = floattof32(0.1);
+	if (!drawList.empty()) {
+		//set this pass's near plane *behind* the very next object in the list; this is where we
+		//need to clip all of the objects we have just drawn.
+		near_plane = drawList.top().far_z;
+		//yet! if for some weird reason that would put our near clip plane in negative space, well...
+		//let's not do that!
+		if (near_plane < floattof32(0.1)) {
+			near_plane = floattof32(0.1);
+		}
+	}
 	
-	return; //skip all that V
-	
-	
-	//DEBUG STUFF
-	//setup projection for the draw
+	//set the new projection and camera matrix
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	clipFriendly_Perspective(floattof32(0.1), floattof32(20.0), 70.0);
+	clipFriendly_Perspective(near_plane, far_plane, 70.0);
 	glMatrixMode(GL_MODELVIEW);
-	
-	//cheat at cameras
 	glLoadIdentity();
-	gluLookAt(	0.0, 5.0, 6.0,		//camera possition
-				0.0, 0.0, 0.5,		//look at
-				0.0, 1.0, 0.0);		//up
+	applyCameraTransform();
 	
-	
-	//for now? ignore all that. pikmin. Onscreen. Now.
-	for (auto entity = entities.begin(); entity != entities.end(); entity++) {
-		(*entity)->setCache();
+	//actually draw the pass_list
+	for (auto container = pass_list.begin(); container != pass_list.end(); container++) {
+		glPushMatrix();
+		container->entity->draw();
+		glPopMatrix(1);
 		
-		glPushMatrix(); //preserve state
-		(*entity)->draw();
-		glPopMatrix(1); //restore state
+		//if this object is not fully drawn, add it to the overlap list for the next pass
+		if (container->near_z < near_plane && near_plane > floattof32(0.1)) {
+			overlap_list.push_back(*container);
+		}
 	}
 	
+	
+	//make sure our draw calls get processed
 	GFX_FLUSH = 0;
 	swiWaitForVBlank();
 	
 	setVRAMforPass(current_pass);
 	current_pass++;
+	
+	return;
 }

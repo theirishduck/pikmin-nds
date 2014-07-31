@@ -68,5 +68,6 @@ s32 DrawableEntity::getRealModelCenter() {
 		(current.model_center.z >> 6) * (clip[10] >> 6) + 
 		(floattov16(1.0) >> 6)     * (clip[14] >> 6) ;
 		
+	printf("%f\n", ((float)cz) / (0x1 << 12));
 	return cz;
 }

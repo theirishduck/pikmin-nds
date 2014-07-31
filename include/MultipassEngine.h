@@ -17,12 +17,13 @@ class MultipassEngine {
 		std::priority_queue<EntityContainer> drawList;
 		std::vector<DrawableEntity*> entities;
 		
-		std::vector<EntityContainer> overlapList;
+		std::vector<EntityContainer> overlap_list;
 		
 		int current_pass = 0;
 		
 		void gatherDrawList();
 		void setVRAMforPass(int pass);
+		void applyCameraTransform();
 		
 	public:
 		void drawEntity(DrawableEntity entity);
