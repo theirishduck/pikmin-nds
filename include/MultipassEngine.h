@@ -22,6 +22,7 @@ class MultipassEngine {
 		int current_pass = 0;
 		
 		void gatherDrawList();
+		void setVRAMforPass(int pass);
 		
 	public:
 		void drawEntity(DrawableEntity entity);

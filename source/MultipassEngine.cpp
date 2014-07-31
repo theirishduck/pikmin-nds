@@ -75,7 +75,34 @@ void MultipassEngine::gatherDrawList() {
 	}
 }
 
-//setup 
+void MultipassEngine::setVRAMforPass(int pass) {
+	//Setup VRAM for the rear-plane captures. Basically, we'll swap between banks A and B
+	//based on the parity of the frame, so that each rear plane is the result of the previous
+	//frame's capture. (The rear plane for frame 0 is simply not drawn.)
+	if ((current_pass & 0x1) == 0) {
+		vramSetBankA(VRAM_A_LCD);
+		vramSetBankB(VRAM_B_TEXTURE_SLOT0);
+		REG_DISPCAPCNT = DCAP_BANK(0) | DCAP_ENABLE | DCAP_SRC(1) | DCAP_SIZE(3);
+	} else {
+		vramSetBankA(VRAM_A_TEXTURE_SLOT0);
+		vramSetBankB(VRAM_B_LCD);
+		REG_DISPCAPCNT = DCAP_BANK(1) | DCAP_ENABLE | DCAP_SRC(1) | DCAP_SIZE(3);
+	}
+
+	//if the drawList is empty, we're rendering to the main screen,
+	//and capturing the final render
+	if (drawList.empty()) {
+		vramSetBankD(VRAM_D_LCD);
+		videoSetMode(MODE_0_3D);
+		REG_DISPCAPCNT = DCAP_BANK(3) | DCAP_ENABLE | DCAP_SRC(1) | DCAP_SIZE(3);
+	} else {
+		vramSetBankD(VRAM_D_MAIN_BG_0x06000000);
+		videoSetMode(MODE_3_3D);
+		bgInit(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
+		bgSetPriority(3, 0);
+		bgSetPriority(0, 3);
+	}
+}
 
 void MultipassEngine::draw() {
 	
@@ -152,5 +179,6 @@ void MultipassEngine::draw() {
 	GFX_FLUSH = 0;
 	swiWaitForVBlank();
 	
-	
+	setVRAMforPass(current_pass);
+	current_pass++;
 }
