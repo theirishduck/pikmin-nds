@@ -148,5 +148,9 @@ void MultipassEngine::draw() {
 		(*entity)->draw();
 		glPopMatrix(1); //restore state
 	}
+	
 	GFX_FLUSH = 0;
+	swiWaitForVBlank();
+	
+	
 }

@@ -98,11 +98,9 @@ int main(void) {
 //---------------------------------------------------------------------------------
 	init();
 	
-	//setup our gameloop to be called at the start of each vblank
-	irqSet(IRQ_VBLANK, gameloop);
- 
+	
 	while(1) {
-		swiWaitForVBlank();	
+		gameloop();
 	}
 
 	return 0;
