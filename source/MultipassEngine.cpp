@@ -45,56 +45,68 @@ void clipFriendly_Perspective(s32 near, s32 far, float angle)
 	MATRIX_MULT4x4 = 0;
 }
 
+void MultipassEngine::gatherDrawList() {
+	//First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	clipFriendly_Perspective(floattof32(0.1), floattof32(20.0), 70.0);
+	glMatrixMode(GL_MODELVIEW);
+	
+	//cheat at cameras (TODO: NOT THIS)
+	glLoadIdentity();
+	gluLookAt(	0.0, 5.0, 6.0,		//camera possition
+				0.0, 0.0, 0.5,		//look at
+				0.0, 1.0, 0.0);		//up
+				
+	for (auto entity = entities.begin(); entity != entities.end(); entity++) {
+		//cache this object, in case we need to reuse it for multiple passes
+		(*entity)->setCache();
+		DrawState state = (*entity)->getCachedState();
+		
+		//Using the camera state, calculate the nearest and farthest points,
+		//which we'll later use to decide where the clipping planes should go.
+		EntityContainer container;
+		container.entity = *entity;
+		s32 object_center = (*entity)->getRealModelCenter();
+		container.far_z  = object_center - state.radius;
+		container.near_z = object_center + state.radius;
+		
+		drawList.push(container);
+	}
+}
+
+//setup 
+
 void MultipassEngine::draw() {
 	
 	if (drawList.empty()) {
 		//This is the first (and maybe last) frame of this pass, so
 		//cache the draw state and set up the queue
-		
-		//First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		clipFriendly_Perspective(floattof32(0.1), floattof32(20.0), 70.0);
-		glMatrixMode(GL_MODELVIEW);
-		
-		//cheat at cameras (TODO: NOT THIS)
-		glLoadIdentity();
-		gluLookAt(	0.0, 5.0, 6.0,		//camera possition
-					0.0, 0.0, 0.5,		//look at
-					0.0, 1.0, 0.0);		//up
-		
-		for (auto entity = entities.begin(); entity != entities.end(); entity++) {
-			(*entity)->setCache();
-			DrawState state = (*entity)->getCachedState();
-			
-			EntityContainer container;
-			container.entity = *entity;
-			s32 object_center = (*entity)->getRealModelCenter();
-			container.far_z  = object_center - state.radius;
-			container.near_z = object_center + state.radius;
-			
-			drawList.push(container);
-		}
-		
-		//Turn off the rear plane
-		//TODO: THIS
+		gatherDrawList();
 		
 		//to be extra sure, clear the overlap list
 		//(it *should* be empty already at this point.)
 		overlapList.clear();
+		current_pass = 0;
+		
+		
 	} else {
 		//Enable the rear plane, using the last frame's render result
 		//TODO: THIS
 	}
 	
 	//PROCESS LIST
-	while (!drawList.empty()) { //TODO: stop if we run out of polygon memory!
+	int polycount = 0;
+	
+	while (!drawList.empty() && polycount < 1800) {
 		EntityContainer container = drawList.top();
 		drawList.pop();
 		
 		glPushMatrix();
 		container.entity->draw();
 		glPopMatrix(1);
+		
+		polycount += container.entity->getCachedState().cull_cost;
 	}
 	
 	

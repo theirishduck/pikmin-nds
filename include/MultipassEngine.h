@@ -19,6 +19,10 @@ class MultipassEngine {
 		
 		std::vector<EntityContainer> overlapList;
 		
+		int current_pass = 0;
+		
+		void gatherDrawList();
+		
 	public:
 		void drawEntity(DrawableEntity entity);
 		
