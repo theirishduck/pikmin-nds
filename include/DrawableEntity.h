@@ -22,12 +22,9 @@ class MultipassEngine;
 class DrawableEntity {
 	private:
 		DrawState current;
-		DrawState cached;
-	
-		MultipassEngine* engine;
+		DrawState cached;		
 	
 	public:
-		DrawableEntity(MultipassEngine* e);
 		DrawState getCachedState();
 		void setCache();
 		
@@ -39,8 +36,9 @@ class DrawableEntity {
 		
 		void setActor(u32* model_data, Vector3<v16,12> model_center, v16 radius, int cull_cost);
 		
-		virtual void draw();
-		virtual void update() {};
+		virtual void draw(MultipassEngine* engine);
+		virtual void update(MultipassEngine* engine) {};
+		virtual void applyTransformation();
 		
 		s32 getRealModelCenter();
 };

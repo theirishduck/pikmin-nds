@@ -16,9 +16,11 @@
 
 volatile int frame = 0;
 
+#define TEST_PIKMIN 20
+
 MultipassEngine engine;
-RedPikmin red_pikmin(&engine);
-YellowPikmin yellow_pikmin(&engine);
+RedPikmin red_pikmin[TEST_PIKMIN];
+YellowPikmin yellow_pikmin[TEST_PIKMIN];
 
 using namespace std;
 
@@ -65,11 +67,13 @@ void init() {
 	glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,					 0);
 	
 	//setup demo pikmin
-	red_pikmin.setPosition({0,0,0});
-	engine.addEntity(&red_pikmin);
-	
-	yellow_pikmin.setPosition({5,0,0});
-	engine.addEntity(&yellow_pikmin);
+	for (int i = 0; i < TEST_PIKMIN; i++) {
+		red_pikmin[i].setPosition({0,0,i * -5});
+		engine.addEntity(&red_pikmin[i]);
+		
+		yellow_pikmin[i].setPosition({5,0,i * -5});
+		engine.addEntity(&yellow_pikmin[i]);
+	}
 	
 	glPushMatrix();
 }

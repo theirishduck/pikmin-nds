@@ -24,7 +24,7 @@ void MultipassEngine::addEntity(DrawableEntity* entity) {
 
 void MultipassEngine::update() {
 	for (auto entity = entities.begin(); entity != entities.end(); entity++) {
-		(*entity)->update();
+		(*entity)->update(this);
 	}
 }
 
@@ -80,6 +80,10 @@ void MultipassEngine::gatherDrawList() {
 		container.near_z = object_center - state.radius;
 		
 		drawList.push(container);
+		
+		//debug!
+		//printf("far: %f\n", ((float)container.far_z) / (0x1 << 12));
+		//printf("near: %f\n", ((float)container.near_z) / (0x1 << 12));
 	}
 }
 
@@ -117,6 +121,59 @@ void MultipassEngine::applyCameraTransform() {
 	gluLookAt(	0.0, 5.0, 6.0,		//camera possition
 				0.0, 0.0, 0.5,		//look at
 				0.0, 1.0, 0.0);		//up
+}
+
+void MultipassEngine::drawClearPlane() {
+	if (current_pass == 0)
+	{
+		//don't use the rear plane on the first pass (show clear color instead)
+		return;
+	}
+	
+	//set us up for orthagonal projection, no translation:
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	clipFriendly_Perspective(floattof32(0.1), floattof32(768.0), 1000.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	//now, send in the 4 points for this quad
+	GFX_BEGIN = 1;
+	
+	//first, setup the texture format:
+	GFX_TEX_FORMAT = 
+		(0) | //texture offset
+		(5 << 20) | //texture width (256)
+		(5 << 23) | //texture height (256)
+		
+		(1 << 16) | //repeat mode?
+		(1 << 17) |
+		
+		(7 << 26) ; //texture format (Direct Texture)
+		
+	//set up the poly format, just draw it "white"
+	glColor3b(255, 255, 255);
+	//glColor3b(220, 220, 175);
+	
+	//disable lighting?
+	glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
+
+	glTranslatef(0.0, 0.0, -768.0);
+	glScalef(1024.0, 768.0, 1.0);
+	GFX_TEX_COORD = (TEXTURE_PACK(inttot16(0), inttot16(0)));
+	glVertex3v16(floattov16(-1.0),	floattov16(1.0), floattov16(0.0) );
+	
+	GFX_TEX_COORD = (TEXTURE_PACK(inttot16(0), inttot16(192)));
+	glVertex3v16(floattov16(-1.0),	floattov16(-1.0), floattov16(0.0) );
+	
+	GFX_TEX_COORD = (TEXTURE_PACK(inttot16(256), inttot16(192)));
+	glVertex3v16(floattov16(1.0),	floattov16(-1.0), floattov16(0.0) );
+	
+	GFX_TEX_COORD = (TEXTURE_PACK(inttot16(256), inttot16(0)));
+	glVertex3v16(floattov16(1.0),	floattov16(1.0), floattov16(0.0) );
+	
+	GFX_TEX_FORMAT = 0; //no textures
+		
 }
 
 void MultipassEngine::draw() {
@@ -160,7 +217,7 @@ void MultipassEngine::draw() {
 	//prevent the engine from hanging if there are too many objects in a row or something.)
 	if (drawList.size() == initial_length) {
 		if (!drawList.empty()) {
-			printf("Impossible pass detected! Bailing.\n");
+			printf("Impossible pass detected!\n");
 			
 			//forcibly empty the draw list
 			while (!drawList.empty()) {
@@ -201,7 +258,7 @@ void MultipassEngine::draw() {
 	//actually draw the pass_list
 	for (auto container = pass_list.begin(); container != pass_list.end(); container++) {
 		glPushMatrix();
-		container->entity->draw();
+		container->entity->draw(this);
 		glPopMatrix(1);
 		
 		//if this object is not fully drawn, add it to the overlap list for the next pass
@@ -209,6 +266,13 @@ void MultipassEngine::draw() {
 			overlap_list.push_back(*container);
 		}
 	}
+	
+	//if necessary, draw the clear plane
+	drawClearPlane();
+	
+	printf("pass: %d\n", current_pass);
+	printf("passlist: %d\n", pass_list.size());
+	printf("overlap: %d\n", overlap_list.size());
 	
 	
 	//make sure our draw calls get processed

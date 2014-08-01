@@ -5,8 +5,8 @@
 
 class YellowPikmin : public DrawableEntity {
 	public:
-		YellowPikmin(MultipassEngine* engine);
-		void update();
+		YellowPikmin();
+		void update(MultipassEngine* engine);
 		
 	private:
 		v16 rotation = 0;

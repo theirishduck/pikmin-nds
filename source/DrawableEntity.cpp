@@ -2,10 +2,6 @@
 #include "MultipassEngine.h"
 #include <stdio.h>
 
-DrawableEntity::DrawableEntity(MultipassEngine* e) {
-	this->engine = engine;
-}
-
 Vec3 DrawableEntity::position() {
 	return current.position;
 }
@@ -37,19 +33,27 @@ void DrawableEntity::setActor(u32* model_data, Vector3<v16,12> model_center, v16
 	current.model_center = model_center;
 }
 
-void DrawableEntity::draw() {
-	//apply transformation
+void DrawableEntity::applyTransformation() {
 	glTranslatef(cached.position.x, cached.position.y, cached.position.z);
 	
 	glRotateY(cached.rotation.y);
 	glRotateX(cached.rotation.x);
 	glRotateZ(cached.rotation.z);
+}
+
+void DrawableEntity::draw(MultipassEngine* engine) {
+	//apply transformation
+	applyTransformation();
 	
 	//draw the object!
 	glCallList(cached.model_data);
 }
 
 s32 DrawableEntity::getRealModelCenter() {
+	//avoid clobbering the render state for this poll
+	glPushMatrix();
+	applyTransformation();
+	
 	//wait for the matrix status to clear, and the geometry engine
 	//to not be busy drawing (according to GBATEK, maybe not needed?)
 	while (GFX_STATUS & BIT(14)) {}
@@ -68,6 +72,8 @@ s32 DrawableEntity::getRealModelCenter() {
 		(current.model_center.z >> 6) * (clip[10] >> 6) + 
 		(floattov16(1.0) >> 6)     * (clip[14] >> 6) ;
 		
-	printf("%f\n", ((float)cz) / (0x1 << 12));
+	//printf("%f\n", ((float)cz) / (0x1 << 12));
+	
+	glPopMatrix(1);
 	return cz;
 }
