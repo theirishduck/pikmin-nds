@@ -41,7 +41,7 @@ void init() {
 	glEnable(GL_TEXTURE_2D);
 	
 	// setup the rear plane
-	glClearColor(0,0,0,31);
+	glClearColor(0,0,31,31);
 	glClearDepth(0x7FFF); //TODO: Play with this maybe? This might be why we were getting clipping at the back plane before.
 	
 	//The entire screen is our plaything

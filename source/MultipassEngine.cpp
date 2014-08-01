@@ -152,11 +152,11 @@ void MultipassEngine::drawClearPlane() {
 		(7 << 26) ; //texture format (Direct Texture)
 		
 	//set up the poly format, just draw it "white"
-	glColor3b(255, 255, 255);
-	//glColor3b(220, 220, 175);
+	
 	
 	//disable lighting?
 	glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
+	glColor3b(255, 255, 255);
 
 	glTranslatef(0.0, 0.0, -768.0);
 	glScalef(1024.0, 768.0, 1.0);
@@ -187,6 +187,8 @@ void MultipassEngine::draw() {
 		//(it *should* be empty already at this point.)
 		overlap_list.clear();
 		current_pass = 0;
+		
+		printf("\x1b[2J");
 	}
 	
 	
@@ -270,9 +272,9 @@ void MultipassEngine::draw() {
 	//if necessary, draw the clear plane
 	drawClearPlane();
 	
-	printf("pass: %d\n", current_pass);
-	printf("passlist: %d\n", pass_list.size());
-	printf("overlap: %d\n", overlap_list.size());
+	printf("%d: ", current_pass);
+	printf("objs: %d, ", pass_list.size());
+	printf("repeats: %d\n", overlap_list.size());
 	
 	
 	//make sure our draw calls get processed
