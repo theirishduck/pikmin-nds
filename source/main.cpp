@@ -1,5 +1,6 @@
 #include <nds.h>
 #include <stdio.h>
+#include <functional>
 
 #include "MultipassEngine.h"
 #include "RedPikmin.h"
@@ -107,25 +108,85 @@ void drawGrid() {
   glPopMatrix(1);
 }
 
+void drawCursor(u8 cursorR, u8 cursorG, u8 cursorB, u8 pointR, u8 pointG, u8 pointB) {
+  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+  glBegin(GL_QUAD);
+  glColor3b(cursorR, cursorG, cursorB);
+  glVertex3v16(-0.5_v16, 0.1_v16, -0.5_v16);
+  glVertex3v16(-0.5_v16, 0.1_v16, 0.5_v16);
+  glVertex3v16(0.5_v16, 0.1_v16, 0.5_v16);
+  glVertex3v16(0.5_v16, 0.1_v16, -0.5_v16);
+  glBegin(GL_TRIANGLE);
+  glColor3b(pointR, pointG, pointB);
+  glVertex3v16(-0.18_v16, 1.5_v16, 0);
+  glVertex3v16(0.18_v16, 1.5_v16, 0);
+  glVertex3v16(0, 1_v16, 0);
+  glEnd();
+}
+
+void withTranslation(float x, float y, float z, function<void()> f) {
+  glPushMatrix();
+  glTranslatef(x, y, z);
+  f();
+  glPopMatrix(1);
+}
+
+template<typename T>
+struct Offset {
+  T x, y, z;
+};
+
+struct Captain {
+  Offset<float> cursor;
+  float moveRate = 0.2f;
+  Offset<float> position;
+};
+
+void updateCaptain(Captain& captain) {
+  if (keysCurrent() & KEY_LEFT) {
+    captain.cursor.x -= captain.moveRate;
+  }
+  if (keysCurrent() & KEY_RIGHT) {
+    captain.cursor.x += captain.moveRate;
+  }
+  if (keysCurrent() & KEY_UP) {
+    captain.cursor.z -= captain.moveRate;
+  }
+  if (keysCurrent() & KEY_DOWN) {
+    captain.cursor.z += captain.moveRate;
+  }
+}
+
+Captain redCaptain;
+
 void gameloop() {
   //Example debug code; remove later?
   frame++;
   
   touchPosition touchXY;
   touchRead(&touchXY);
+  scanKeys();
+
+  updateCaptain(redCaptain);
 
   // print at using ansi escape sequence \x1b[line;columnH 
   //printf("\x1b[10;0HFrame = %d",frame);
   //printf("\x1b[16;0HTouch x = %04X, %04X\n", touchXY.rawx, touchXY.px);
   //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
 
-  drawRedCaptain();
-  // drawGridCell(255);
   drawGrid();
+  withTranslation(redCaptain.position.x, redCaptain.position.y,
+      redCaptain.position.z, []() {
+        drawRedCaptain();
+      });
+  withTranslation(redCaptain.cursor.x, redCaptain.cursor.y, redCaptain.cursor.z,
+      []() {
+        drawCursor(255, 128, 0, 192, 192, 192);
+      });
   glFlush(0);
   swiWaitForVBlank();
 }
-  
+
 int main(void) {
   init();
   
