@@ -21,7 +21,7 @@ void init() {
   glEnable(GL_TEXTURE_2D);
   
   // setup the rear plane
-  glClearColor(0,0,31,31);
+  glClearColor(1,1,0,31);
   glClearDepth(0x7FFF);
   
   glViewport(0,0,255,191);
@@ -34,7 +34,7 @@ void init() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   
-  gluLookAt(0.0, 0.0, 10.0,  //camera possition 
+  gluLookAt(0.0, 5.0, 10.0,  //camera possition 
             0.0, 0.0, 0.0,   //look at
             0.0, 1.0, 0.0);  //up
   
@@ -67,6 +67,18 @@ void drawTriangleEntity(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2, u8 r3, u8 g3, 
   glEnd();
 }
 
+void drawCaptain(u8 r, u8 g, u8 b) {
+  drawTriangleEntity(r, g, b, 171, 109, 51, 245, 245, 175);
+}
+
+void drawRedCaptain() {
+  drawCaptain(255, 0, 0);
+}
+
+void drawBlueCaptain() {
+  drawCaptain(0, 0, 255);
+}
+
 void gameloop() {
   //Example debug code; remove later?
   frame++;
@@ -79,7 +91,7 @@ void gameloop() {
   //printf("\x1b[16;0HTouch x = %04X, %04X\n", touchXY.rawx, touchXY.px);
   //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
 
-  drawTriangleEntity(255, 0, 0, 0, 255, 0, 0, 0, 255);
+  drawRedCaptain();
   glFlush(0);
   swiWaitForVBlank();
 }
