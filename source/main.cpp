@@ -59,11 +59,11 @@ void drawTriangleEntity(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2, u8 r3, u8 g3, 
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_TRIANGLE);
   glColor3b(r1, g1, b1);
-  glVertex3v16(-0.5_v16, 1_v16, 0);
+  glVertex3v16(-0.25_v16, 1_v16, 0);
   glColor3b(r2, g2, b2);
-  glVertex3v16(0.5_v16, 0.5_v16, 0);
+  glVertex3v16(0.25_v16, 0.5_v16, 0);
   glColor3b(r3, g3, b3);
-  glVertex3v16(-0.5_v16, 0, 0);
+  glVertex3v16(-0.25_v16, 0, 0);
   glEnd();
 }
 
@@ -79,6 +79,34 @@ void drawBlueCaptain() {
   drawCaptain(0, 0, 255);
 }
 
+void drawGridCell(u8 brightness) {
+  glPolyFmt(POLY_ALPHA(0) | POLY_CULL_NONE);
+  glBegin(GL_QUAD);
+  glColor3b(brightness, brightness, brightness);
+  glVertex3v16(0, 0, 0);
+  glVertex3v16(0, 0, 1_v16);
+  glVertex3v16(1_v16, 0, 1_v16);
+  glVertex3v16(1_v16, 0, 0);
+  glEnd();
+}
+
+void drawGrid() {
+  glPushMatrix();
+
+  s32 gridSize = 16;
+
+  glTranslatef(-(gridSize >> 1), 0, -(gridSize >> 1));
+  for (int x = 0; x < gridSize; ++x) {
+    for (int z = 0; z < gridSize; ++z) {
+      drawGridCell(32);
+      glTranslatef(1, 0, 0);
+    }
+    glTranslatef(-gridSize, 0, 1);
+  }
+
+  glPopMatrix(1);
+}
+
 void gameloop() {
   //Example debug code; remove later?
   frame++;
@@ -92,6 +120,8 @@ void gameloop() {
   //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
 
   drawRedCaptain();
+  // drawGridCell(255);
+  drawGrid();
   glFlush(0);
   swiWaitForVBlank();
 }
