@@ -13,14 +13,16 @@
 #include "MultipassEngine.h"
 #include "RedPikmin.h"
 #include "YellowPikmin.h"
+#include "Captain.h"
 
 volatile int frame = 0;
 
-#define TEST_PIKMIN 20
+#define TEST_PIKMIN 100
 
 MultipassEngine engine;
 RedPikmin red_pikmin[TEST_PIKMIN];
 YellowPikmin yellow_pikmin[TEST_PIKMIN];
+Captain captain[TEST_PIKMIN];
 
 using namespace std;
 
@@ -61,19 +63,25 @@ void init() {
 				0.0, 1.0, 0.0);		//up
 	
 	//Setup default lights; these may be overridden later
-	glLight(0, RGB15(31,31,31) , floattov10(-0.5), floattov10(0.5), 0);
-	glLight(1, RGB15(6,6,6)    , 0               , floattov10(-1.0), 0);
-	glLight(2, RGB15(0,31,0) ,   floattov10(-1.0), 0,					 0);
-	glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,					 0);
+	glLight(0, RGB15(31,31,31) , floattov10(-0.40), floattov10(0.32), floattov10(0.27));
+	glLight(1, RGB15(31,31,31) , floattov10(0.32), floattov10(0.32), floattov10(0.32));
+	//glLight(2, RGB15(0,31,0) ,   floattov10(-1.0), 0,					 0);
+	//glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,					 0);
 	
 	//setup demo pikmin
 	for (int i = 0; i < TEST_PIKMIN; i++) {
-		red_pikmin[i].setPosition({0,0,i * -5});
+		red_pikmin[i].setPosition({-2.5,0,i * -2.5});
 		engine.addEntity(&red_pikmin[i]);
 		
-		yellow_pikmin[i].setPosition({5,0,i * -5});
-		engine.addEntity(&yellow_pikmin[i]);
+		//yellow_pikmin[i].setPosition({5,0,i * -5});
+		//engine.addEntity(&yellow_pikmin[i]);
+		
+		//captain[i].setPosition({-5,0,i * -5});
+		//engine.addEntity(&captain[i]);
 	}
+	
+	captain[0].setPosition({2.5,0,0});
+	engine.addEntity(&captain[0]);
 	
 	glPushMatrix();
 }

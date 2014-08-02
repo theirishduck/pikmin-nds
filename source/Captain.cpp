@@ -1,8 +1,8 @@
-#include "RedPikmin.h"
-#include "pikmin_generic_dsgx.h"
+#include "Captain.h"
+#include "olimar_dsgx.h"
 
-RedPikmin::RedPikmin() {
-	u32* data = (u32*)pikmin_generic_dsgx;
+Captain::Captain() {
+	u32* data = (u32*)olimar_dsgx;
 	
 	Vector3<v16,12> model_center;
 	model_center.x = (gx::Fixed<v16,12>)floattov16(((float*)data)[0]);
@@ -18,7 +18,7 @@ RedPikmin::RedPikmin() {
 		cull_cost);
 }
 
-void RedPikmin::update(MultipassEngine* engine) {
+void Captain::update(MultipassEngine* engine) {
 	setRotation({0,rotation,0});
 	rotation += 1;
 }

@@ -5,10 +5,10 @@ YellowPikmin::YellowPikmin() {
 	u32* data = (u32*)pikmin_yellow_dsgx;
 	
 	Vector3<v16,12> model_center;
-	model_center.x = (gx::Fixed<v16,12>)floattov16(((float*)data)[0] / 4.0);
-	model_center.y = (gx::Fixed<v16,12>)floattov16(((float*)data)[1] / 4.0);
-	model_center.z = (gx::Fixed<v16,12>)floattov16(((float*)data)[2] / 4.0);
-	v16 radius = floattov16(((float*)data)[3] / 4.0);
+	model_center.x = (gx::Fixed<v16,12>)floattov16(((float*)data)[0]);
+	model_center.y = (gx::Fixed<v16,12>)floattov16(((float*)data)[1]);
+	model_center.z = (gx::Fixed<v16,12>)floattov16(((float*)data)[2]);
+	v16 radius = floattov16(((float*)data)[3]);
 	int cull_cost = (int)data[4];
 	
 	setActor(

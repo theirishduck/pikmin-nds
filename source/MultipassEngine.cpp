@@ -120,8 +120,8 @@ void MultipassEngine::setVRAMforPass(int pass) {
 
 void MultipassEngine::applyCameraTransform() {
 	//TODO: Make this not static
-	gluLookAt(	0.0, 5.0, 6.0,		//camera possition
-				0.0, 0.0, 0.5,		//look at
+	gluLookAt(	0.0, 3.0, 4.0,		//camera possition
+				0.0, 3.0, 0.5,		//look at
 				0.0, 1.0, 0.0);		//up
 }
 
