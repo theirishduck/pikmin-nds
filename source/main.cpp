@@ -47,15 +47,23 @@ void init() {
   glPushMatrix();
 }
 
+constexpr v16 operator"" _v16(long double value) {
+  return static_cast<v16>(value * 4096);
+}
+
+constexpr v16 operator"" _v16(unsigned long long value) {
+  return static_cast<v16>(value * 4096);
+}
+
 void drawTriangleEntity(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2, u8 r3, u8 g3, u8 b3) {
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_TRIANGLE);
   glColor3b(r1, g1, b1);
-  glVertex3v16(inttov16(-1),inttov16(-1),0);
+  glVertex3v16(-0.5_v16, 1_v16, 0);
   glColor3b(r2, g2, b2);
-  glVertex3v16(inttov16(1),inttov16(-1),0);
+  glVertex3v16(0.5_v16, 0.5_v16, 0);
   glColor3b(r3, g3, b3);
-  glVertex3v16(inttov16(0),inttov16(1),0);
+  glVertex3v16(-0.5_v16, 0, 0);
   glEnd();
 }
 
@@ -70,16 +78,6 @@ void gameloop() {
   //printf("\x1b[10;0HFrame = %d",frame);
   //printf("\x1b[16;0HTouch x = %04X, %04X\n", touchXY.rawx, touchXY.px);
   //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
-
-  // glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
-  // glBegin(GL_TRIANGLE);
-  // glColor3b(255,0,0);
-  // glVertex3v16(inttov16(-1),inttov16(-1),0);
-  // glColor3b(0,255,0);
-  // glVertex3v16(inttov16(1),inttov16(-1),0);
-  // glColor3b(0,0,255);
-  // glVertex3v16(inttov16(0),inttov16(1),0);
-  // glEnd();
 
   drawTriangleEntity(255, 0, 0, 0, 255, 0, 0, 0, 255);
   glFlush(0);
