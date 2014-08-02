@@ -258,7 +258,6 @@ void MultipassEngine::draw() {
 	applyCameraTransform();
 	
 	//actually draw the pass_list
-	// for (auto container = pass_list.begin(); container != pass_list.end(); container++) {
 	for (auto& container : pass_list) {
 		glPushMatrix();
 		container.entity->draw(this);
