@@ -16,7 +16,9 @@ using namespace std;
 //we need to be able to fudge on the max per pass to achieve a good balance
 //between performance (average closer to 2048 polygons every pass) and
 //sanity (not accidentally omitting polygons because we guess badly)
+#ifndef MAX_POLYGONS_PER_PASS
 #define MAX_POLYGONS_PER_PASS 1800
+#endif
 
 void MultipassEngine::addEntity(DrawableEntity* entity) {
 	entities.push_back(entity);
