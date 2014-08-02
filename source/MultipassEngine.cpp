@@ -23,8 +23,8 @@ void MultipassEngine::addEntity(DrawableEntity* entity) {
 }
 
 void MultipassEngine::update() {
-	for (auto entity = entities.begin(); entity != entities.end(); entity++) {
-		(*entity)->update(this);
+	for (auto entity : entities) {
+		entity->update(this);
 	}
 }
 
@@ -66,16 +66,16 @@ void MultipassEngine::gatherDrawList() {
 	glLoadIdentity();
 	applyCameraTransform();
 				
-	for (auto entity = entities.begin(); entity != entities.end(); entity++) {
+	for (auto entity : entities) {
 		//cache this object, in case we need to reuse it for multiple passes
-		(*entity)->setCache();
-		DrawState state = (*entity)->getCachedState();
+		entity->setCache();
+		DrawState state = entity->getCachedState();
 		
 		//Using the camera state, calculate the nearest and farthest points,
 		//which we'll later use to decide where the clipping planes should go.
 		EntityContainer container;
-		container.entity = *entity;
-		s32 object_center = (*entity)->getRealModelCenter();
+		container.entity = entity;
+		s32 object_center = entity->getRealModelCenter();
 		container.far_z  = object_center + state.radius;
 		container.near_z = object_center - state.radius;
 		
@@ -201,8 +201,8 @@ void MultipassEngine::draw() {
 	vector<EntityContainer> pass_list;
 	
 	//if there are any overlap objects, we need to start by re-drawing those
-	for(auto i = overlap_list.begin(); i != overlap_list.end(); i++) {
-		pass_list.push_back(*i);
+	for (auto entity : overlap_list) {
+		pass_list.push_back(entity);
 		polycount += pass_list.back().entity->getCachedState().cull_cost;
 	}
 	overlap_list.clear();
@@ -258,14 +258,15 @@ void MultipassEngine::draw() {
 	applyCameraTransform();
 	
 	//actually draw the pass_list
-	for (auto container = pass_list.begin(); container != pass_list.end(); container++) {
+	// for (auto container = pass_list.begin(); container != pass_list.end(); container++) {
+	for (auto& container : pass_list) {
 		glPushMatrix();
-		container->entity->draw(this);
+		container.entity->draw(this);
 		glPopMatrix(1);
 		
 		//if this object is not fully drawn, add it to the overlap list for the next pass
-		if (container->near_z < near_plane && near_plane > floattof32(0.1)) {
-			overlap_list.push_back(*container);
+		if (container.near_z < near_plane && near_plane > floattof32(0.1)) {
+			overlap_list.push_back(container);
 		}
 	}
 	
