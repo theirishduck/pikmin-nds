@@ -131,6 +131,31 @@ void withTranslation(float x, float y, float z, function<void()> f) {
   glPopMatrix(1);
 }
 
+void withScale(float x, float y, float z, function<void()> f) {
+  glPushMatrix();
+  glScalef(x, y, z);
+  f();
+  glPopMatrix(1);
+}
+
+void drawCircle(u32 segments) {
+  float const radiansPerArc = 360.0 / segments;
+
+  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+  glBegin(GL_TRIANGLE);
+  glColor3b(255, 0, 0);
+  for (u32 i = 0; i < segments; ++i) {
+    glPushMatrix();
+    glRotateY(i * radiansPerArc);
+    glVertex3v16(1_v16, 0, 0);
+    glVertex3v16(1_v16, 0, 0);
+    glRotateY(radiansPerArc);
+    glVertex3v16(1_v16, 0, 0);
+    glPopMatrix(1);
+  }
+  glEnd();
+}
+
 template<typename T>
 struct Offset {
   T x, y, z;
@@ -182,6 +207,9 @@ void gameloop() {
   withTranslation(redCaptain.cursor.x, redCaptain.cursor.y, redCaptain.cursor.z,
       []() {
         drawCursor(255, 128, 0, 192, 192, 192);
+        withScale(4, 4, 4, []() {
+          drawCircle(16);
+        });
       });
   glFlush(0);
   swiWaitForVBlank();
