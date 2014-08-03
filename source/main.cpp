@@ -241,26 +241,54 @@ Offset<float> direction(Offset<float> const& begin, Offset<float> const& end) {
   return direction;
 }
 
+bool diagonalKeysHeld() {
+  return (keysCurrent() & (KEY_LEFT | KEY_RIGHT)) and
+      (keysCurrent() & (KEY_UP | KEY_DOWN));
+}
+
 void updateCaptain(Captain& captain) {
+  // Move the cursor.
+  // Diagonal moves should still cover the same amount of ground as when a
+  // single direction is held, but if the move rate is blindly applied to both
+  // directions, then the cursor winds up moving 1.4 times faster when moving
+  // diagonally. Offset that with a multiplier - sin(45 degrees) == sqrt(2) / 2,
+  // which will cause the cursor to move at a constant rate diagonally and in
+  // the cardinal directions.
+  float const directionMultiplier = diagonalKeysHeld() ? 0.70710678118 : 1;
   if (keysCurrent() & KEY_LEFT) {
-    captain.cursor.x -= captain.moveRate;
+    captain.cursor.x -= captain.moveRate * directionMultiplier;
   }
   if (keysCurrent() & KEY_RIGHT) {
-    captain.cursor.x += captain.moveRate;
+    captain.cursor.x += captain.moveRate * directionMultiplier;
   }
   if (keysCurrent() & KEY_UP) {
-    captain.cursor.z -= captain.moveRate;
+    captain.cursor.z -= captain.moveRate * directionMultiplier;
   }
   if (keysCurrent() & KEY_DOWN) {
-    captain.cursor.z += captain.moveRate;
+    captain.cursor.z += captain.moveRate * directionMultiplier;
   }
+  // Move the captain if he's out of range of the cursor.
   Offset<float> towardCursor = direction(captain.position, captain.cursor);
-  int32 distanceFromCursor = magnitude(delta(captain.position, captain.cursor));
+  int32 const distanceFromCursor =
+      magnitude(delta(captain.position, captain.cursor));
   if (int32FromFloat(captain.maxDistanceFromCursor) < distanceFromCursor) {
     captain.position.x += captain.moveRate * towardCursor.x;
     captain.position.y += captain.moveRate * towardCursor.y;
     captain.position.z += captain.moveRate * towardCursor.z;
   }
+  // Snap the cursor back to the range of the captain. This prevents the cursor
+  // from running away in the case the captain can not make progress towards the
+  // cursor.
+  int32 const newDistanceFromCursor =
+      magnitude(delta(captain.position, captain.cursor));
+  if (int32FromFloat(captain.maxDistanceFromCursor) < newDistanceFromCursor) {
+    captain.cursor.x = captain.position.x + towardCursor.x * captain.maxDistanceFromCursor;
+    captain.cursor.y = captain.position.y + towardCursor.y * captain.maxDistanceFromCursor;
+    captain.cursor.z = captain.position.z + towardCursor.z * captain.maxDistanceFromCursor;
+  }
+
+  // Calculate the angle the captain should face - this should always be toward
+  // the cursor.
   // Do a dot product with straight forward (the direction the character faces
   // by defualt) and the direction of the cursor. Because two of the components
   // (x and y) are zero in the first vector, the only component that needs to be
@@ -270,6 +298,7 @@ void updateCaptain(Captain& captain) {
   captain.angle = acosLerp(v16FromFloat(towardCursor.z)) *
       (towardCursor.x < 0 ? -1 : 1);
 
+  // Move the squad toward the captain if they are out of range of the captain.
   Offset<float> towardCaptain = direction(captain.squad.position, captain.position);
   int32 distanceFromSquad = magnitude(delta(captain.squad.position, captain.position));
   float const squadRadiusWithOffset = captain.squad.additionalOffset + floatFromInt32(sqrtf32(divf32(captain.squad.size << 12, 3.14159265358979_f32)));
@@ -304,7 +333,6 @@ void gameloop() {
   withTranslation(0, -0.1, 0, []() {
       drawGrid();
   });
-  // drawGrid();
   withTranslation(redCaptain.position.x, redCaptain.position.y,
       redCaptain.position.z, [&squadOffset]() {
         glPushMatrix();
@@ -315,14 +343,14 @@ void gameloop() {
         drawVector(v16FromFloat(towardCursor.x), v16FromFloat(towardCursor.y), v16FromFloat(towardCursor.z));
         withScale(squadOffset, 1, squadOffset, [](){
               drawCircle(16, 255, 0, 0);
-          });
+            });
       });
   withTranslation(redCaptain.cursor.x, redCaptain.cursor.y, redCaptain.cursor.z,
       []() {
         drawCursor(255, 128, 0, 192, 192, 192);
         withScale(4, 4, 4, []() {
-          drawCircle(16, 255, 128, 0);
-        });
+            drawCircle(16, 255, 128, 0);
+          });
       });
   withTranslation(redCaptain.squad.position.x, redCaptain.squad.position.y,
       redCaptain.squad.position.z, [&squadRadius]() {
