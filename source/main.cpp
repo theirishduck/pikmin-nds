@@ -80,11 +80,11 @@ void drawTriangleEntity(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2, u8 r3, u8 g3, 
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_TRIANGLE);
   glColor3b(r1, g1, b1);
-  glVertex3v16(-0.25_v16, 1_v16, 0);
+  glVertex3v16(0, 1_v16, -0.25_v16);
   glColor3b(r2, g2, b2);
-  glVertex3v16(0.25_v16, 0.5_v16, 0);
+  glVertex3v16(0, 0.5_v16, 0.25_v16);
   glColor3b(r3, g3, b3);
-  glVertex3v16(-0.25_v16, 0, 0);
+  glVertex3v16(0, 0, -0.25_v16);
   glEnd();
 }
 
@@ -194,8 +194,9 @@ struct Offset {
 struct Captain {
   Offset<float> cursor;
   float maxDistanceFromCursor = 4;
-  float moveRate = 0.1f;
+  float moveRate = 0.15f;
   Offset<float> position;
+  s16 angle = 0;
 };
 
 Offset<float> delta(Offset<float> const& begin, Offset<float> const& end) {
@@ -252,6 +253,14 @@ void updateCaptain(Captain& captain) {
     captain.position.y += captain.moveRate * towardCursor.y;
     captain.position.z += captain.moveRate * towardCursor.z;
   }
+  // Do a dot product with straight forward (the direction the character faces
+  // by defualt) and the direction of the cursor. Because two of the components
+  // (x and y) are zero in the first vector, the only component that needs to be
+  // multiplied for the dot product is the z.
+  // Though, thinking about it, since the along-z axis vector is of unit length,
+  // all this math is equivalent to just the z component of the "toward" vector.
+  captain.angle = acosLerp(v16FromFloat(towardCursor.z)) *
+      (towardCursor.x < 0 ? -1 : 1);
 }
 
 Captain redCaptain;
@@ -274,7 +283,10 @@ void gameloop() {
   drawGrid();
   withTranslation(redCaptain.position.x, redCaptain.position.y,
       redCaptain.position.z, []() {
+        glPushMatrix();
+        glRotateYi(redCaptain.angle);
         drawRedCaptain();
+        glPopMatrix(1);
         Offset<float> towardCursor = direction(redCaptain.position, redCaptain.cursor);
         drawVector(v16FromFloat(towardCursor.x), v16FromFloat(towardCursor.y), v16FromFloat(towardCursor.z));
       });
