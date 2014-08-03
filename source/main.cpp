@@ -56,6 +56,26 @@ constexpr v16 operator"" _v16(unsigned long long value) {
   return static_cast<v16>(value * 4096);
 }
 
+constexpr int32 operator"" _f32(long double value) {
+  return static_cast<int32>(value * 4096);
+}
+
+constexpr int32 operator"" _f32(unsigned long long value) {
+  return static_cast<int32>(value * 4096);
+}
+
+constexpr int32 int32FromFloat(float value) {
+  return static_cast<int32>(value * 4096);
+}
+
+constexpr float floatFromInt32(int32 value) {
+  return static_cast<float>(value) / 4096;
+}
+
+constexpr v16 v16FromFloat(float value) {
+  return static_cast<v16>(value * 4096);
+}
+
 void drawTriangleEntity(u8 r1, u8 g1, u8 b1, u8 r2, u8 g2, u8 b2, u8 r3, u8 g3, u8 b3) {
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_TRIANGLE);
@@ -156,6 +176,16 @@ void drawCircle(u32 segments) {
   glEnd();
 }
 
+void drawVector(v16 x, v16 y, v16 z) {
+  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+  glBegin(GL_TRIANGLE);
+  glColor3b(0, 255, 0);
+  glVertex3v16(0, 0, 0);
+  glVertex3v16(0, 0, 0);
+  glVertex3v16(x, y, z);
+  glEnd();
+}
+
 template<typename T>
 struct Offset {
   T x, y, z;
@@ -163,9 +193,44 @@ struct Offset {
 
 struct Captain {
   Offset<float> cursor;
-  float moveRate = 0.2f;
+  float maxDistanceFromCursor = 4;
+  float moveRate = 0.1f;
   Offset<float> position;
 };
+
+Offset<float> delta(Offset<float> const& begin, Offset<float> const& end) {
+  Offset<float> deltaVector;
+  deltaVector.x = end.x - begin.x;
+  deltaVector.y = end.y - begin.y;
+  deltaVector.z = end.z - begin.z;
+  return deltaVector;
+}
+
+int32 magnitude(Offset<float> const& vector) {
+  Offset<int32> fixedPointVector{
+    int32FromFloat(vector.x),
+    int32FromFloat(vector.y),
+    int32FromFloat(vector.z)
+  };
+  return sqrtf32(mulf32(fixedPointVector.x, fixedPointVector.x) +
+      mulf32(fixedPointVector.y, fixedPointVector.y) +
+      mulf32(fixedPointVector.z, fixedPointVector.z));
+}
+
+Offset<float> direction(Offset<float> const& begin, Offset<float> const& end) {
+  Offset<float> deltaVector = delta(begin, end);
+  int32 fixedPointDelta[] = {
+    int32FromFloat(deltaVector.x),
+    int32FromFloat(deltaVector.y),
+    int32FromFloat(deltaVector.z)
+  };
+  normalizef32(fixedPointDelta);
+  Offset<float> direction;
+  direction.x = floatFromInt32(fixedPointDelta[0]);
+  direction.y = floatFromInt32(fixedPointDelta[1]);
+  direction.z = floatFromInt32(fixedPointDelta[2]);
+  return direction;
+}
 
 void updateCaptain(Captain& captain) {
   if (keysCurrent() & KEY_LEFT) {
@@ -179,6 +244,13 @@ void updateCaptain(Captain& captain) {
   }
   if (keysCurrent() & KEY_DOWN) {
     captain.cursor.z += captain.moveRate;
+  }
+  Offset<float> towardCursor = direction(captain.position, captain.cursor);
+  int32 distanceFromCursor = magnitude(delta(captain.position, captain.cursor));
+  if (int32FromFloat(captain.maxDistanceFromCursor) < distanceFromCursor) {
+    captain.position.x += captain.moveRate * towardCursor.x;
+    captain.position.y += captain.moveRate * towardCursor.y;
+    captain.position.z += captain.moveRate * towardCursor.z;
   }
 }
 
@@ -203,6 +275,8 @@ void gameloop() {
   withTranslation(redCaptain.position.x, redCaptain.position.y,
       redCaptain.position.z, []() {
         drawRedCaptain();
+        Offset<float> towardCursor = direction(redCaptain.position, redCaptain.cursor);
+        drawVector(v16FromFloat(towardCursor.x), v16FromFloat(towardCursor.y), v16FromFloat(towardCursor.z));
       });
   withTranslation(redCaptain.cursor.x, redCaptain.cursor.y, redCaptain.cursor.z,
       []() {
