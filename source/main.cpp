@@ -158,12 +158,12 @@ void withScale(float x, float y, float z, function<void()> f) {
   glPopMatrix(1);
 }
 
-void drawCircle(u32 segments) {
+void drawCircle(u32 segments, u8 r, u8 g, u8 b) {
   float const radiansPerArc = 360.0 / segments;
 
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_TRIANGLE);
-  glColor3b(255, 0, 0);
+  glColor3b(r, g, b);
   for (u32 i = 0; i < segments; ++i) {
     glPushMatrix();
     glRotateY(i * radiansPerArc);
@@ -191,12 +191,20 @@ struct Offset {
   T x, y, z;
 };
 
+struct Squad {
+  u32 size = 100;
+  float additionalOffset = 1;
+  Offset<float> position;
+};
+
 struct Captain {
   Offset<float> cursor;
   float maxDistanceFromCursor = 4;
   float moveRate = 0.15f;
   Offset<float> position;
   s16 angle = 0;
+
+  Squad squad;
 };
 
 Offset<float> delta(Offset<float> const& begin, Offset<float> const& end) {
@@ -261,6 +269,15 @@ void updateCaptain(Captain& captain) {
   // all this math is equivalent to just the z component of the "toward" vector.
   captain.angle = acosLerp(v16FromFloat(towardCursor.z)) *
       (towardCursor.x < 0 ? -1 : 1);
+
+  Offset<float> towardCaptain = direction(captain.squad.position, captain.position);
+  int32 distanceFromSquad = magnitude(delta(captain.squad.position, captain.position));
+  float const squadRadiusWithOffset = captain.squad.additionalOffset + floatFromInt32(sqrtf32(divf32(captain.squad.size << 12, 3.14159265358979_f32)));
+  if (int32FromFloat(squadRadiusWithOffset) < distanceFromSquad) {
+    captain.squad.position.x += captain.moveRate * towardCaptain.x;
+    captain.squad.position.y += captain.moveRate * towardCaptain.y;
+    captain.squad.position.z += captain.moveRate * towardCaptain.z;
+  }
 }
 
 Captain redCaptain;
@@ -280,22 +297,36 @@ void gameloop() {
   //printf("\x1b[16;0HTouch x = %04X, %04X\n", touchXY.rawx, touchXY.px);
   //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
 
+  float const squadRadius = floatFromInt32(sqrtf32(divf32(redCaptain.squad.size << 12, 3.14159265358979_f32)));
+  float const squadOffset =
+      redCaptain.squad.additionalOffset + squadRadius;
+
   drawGrid();
   withTranslation(redCaptain.position.x, redCaptain.position.y,
-      redCaptain.position.z, []() {
+      redCaptain.position.z, [&squadOffset]() {
         glPushMatrix();
         glRotateYi(redCaptain.angle);
         drawRedCaptain();
         glPopMatrix(1);
         Offset<float> towardCursor = direction(redCaptain.position, redCaptain.cursor);
         drawVector(v16FromFloat(towardCursor.x), v16FromFloat(towardCursor.y), v16FromFloat(towardCursor.z));
+        withScale(squadOffset, 1, squadOffset, [](){
+              drawCircle(16, 255, 0, 0);
+          });
       });
   withTranslation(redCaptain.cursor.x, redCaptain.cursor.y, redCaptain.cursor.z,
       []() {
         drawCursor(255, 128, 0, 192, 192, 192);
         withScale(4, 4, 4, []() {
-          drawCircle(16);
+          drawCircle(16, 255, 128, 0);
         });
+      });
+  withTranslation(redCaptain.squad.position.x, redCaptain.squad.position.y,
+      redCaptain.squad.position.z, [&squadRadius]() {
+      drawCursor(0, 255, 0, 192, 192, 192);
+      withScale(squadRadius, 1, squadRadius, []() {
+            drawCircle(16, 0, 255, 0);
+          });
       });
   glFlush(0);
   swiWaitForVBlank();
