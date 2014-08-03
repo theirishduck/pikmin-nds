@@ -132,10 +132,10 @@ void drawCursor(u8 cursorR, u8 cursorG, u8 cursorB, u8 pointR, u8 pointG, u8 poi
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_QUAD);
   glColor3b(cursorR, cursorG, cursorB);
-  glVertex3v16(-0.5_v16, 0.1_v16, -0.5_v16);
-  glVertex3v16(-0.5_v16, 0.1_v16, 0.5_v16);
-  glVertex3v16(0.5_v16, 0.1_v16, 0.5_v16);
-  glVertex3v16(0.5_v16, 0.1_v16, -0.5_v16);
+  glVertex3v16(-0.5_v16, 0, -0.5_v16);
+  glVertex3v16(-0.5_v16, 0, 0.5_v16);
+  glVertex3v16(0.5_v16, 0, 0.5_v16);
+  glVertex3v16(0.5_v16, 0, -0.5_v16);
   glBegin(GL_TRIANGLE);
   glColor3b(pointR, pointG, pointB);
   glVertex3v16(-0.18_v16, 1.5_v16, 0);
@@ -301,7 +301,10 @@ void gameloop() {
   float const squadOffset =
       redCaptain.squad.additionalOffset + squadRadius;
 
-  drawGrid();
+  withTranslation(0, -0.1, 0, []() {
+      drawGrid();
+  });
+  // drawGrid();
   withTranslation(redCaptain.position.x, redCaptain.position.y,
       redCaptain.position.z, [&squadOffset]() {
         glPushMatrix();
