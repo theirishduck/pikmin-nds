@@ -256,26 +256,25 @@ void updateCaptain(Captain& captain) {
   // the cardinal directions.
   float const directionMultiplier = diagonalKeysHeld() ? 0.70710678118 : 1;
   if (keysCurrent() & KEY_LEFT) {
-    captain.cursor.x -= captain.moveRate * directionMultiplier;
+    captain.cursor.x -= captain.moveRate * directionMultiplier * 2;
+    captain.position.x -= captain.moveRate * directionMultiplier;
   }
   if (keysCurrent() & KEY_RIGHT) {
-    captain.cursor.x += captain.moveRate * directionMultiplier;
+    captain.cursor.x += captain.moveRate * directionMultiplier * 2;
+    captain.position.x += captain.moveRate * directionMultiplier;
   }
   if (keysCurrent() & KEY_UP) {
-    captain.cursor.z -= captain.moveRate * directionMultiplier;
+    captain.cursor.z -= captain.moveRate * directionMultiplier * 2;
+    captain.position.z -= captain.moveRate * directionMultiplier;
   }
   if (keysCurrent() & KEY_DOWN) {
-    captain.cursor.z += captain.moveRate * directionMultiplier;
+    captain.cursor.z += captain.moveRate * directionMultiplier * 2;
+    captain.position.z += captain.moveRate * directionMultiplier;
   }
-  // Move the captain if he's out of range of the cursor.
+  
+  // Calculate the direction the captain should face to look at the cursor
   Offset<float> towardCursor = direction(captain.position, captain.cursor);
-  int32 const distanceFromCursor =
-      magnitude(delta(captain.position, captain.cursor));
-  if (int32FromFloat(captain.maxDistanceFromCursor) < distanceFromCursor) {
-    captain.position.x += captain.moveRate * towardCursor.x;
-    captain.position.y += captain.moveRate * towardCursor.y;
-    captain.position.z += captain.moveRate * towardCursor.z;
-  }
+
   // Snap the cursor back to the range of the captain. This prevents the cursor
   // from running away in the case the captain can not make progress towards the
   // cursor.
