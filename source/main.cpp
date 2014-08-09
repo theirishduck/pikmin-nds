@@ -17,7 +17,7 @@
 
 volatile int frame = 0;
 
-#define TEST_PIKMIN 10
+#define TEST_PIKMIN 100
 
 MultipassEngine engine;
 RedPikmin red_pikmin[TEST_PIKMIN];
