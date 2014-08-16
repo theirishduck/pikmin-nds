@@ -94,6 +94,9 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+#	todo: make this work? I can't figure out the escaping.
+#	@echo running...
+#	no\$$gba $(TARGET).nds
  
 #---------------------------------------------------------------------------------
 clean:
