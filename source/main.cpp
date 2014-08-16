@@ -1,5 +1,7 @@
 #include <nds.h>
 #include <stdio.h>
+
+#include <array>
 #include <functional>
 
 #include "MultipassEngine.h"
@@ -12,10 +14,54 @@ volatile int frame = 0;
 
 using namespace std;
 
+template<typename T>
+struct Offset {
+  T x, y, z;
+};
+
+struct Pikmin {
+  enum class Type : u8 {
+    Red,
+    Yellow,
+    Blue
+  };
+  enum class State : u8 {
+    Idle,
+    Active
+  };
+
+  Type type;
+  State state;
+  Offset<float> position;
+};
+
+template<typename T>
+struct Pool {
+  std::array<T>
+}
+
+struct Squad {
+  u32 size = 100;
+  float additionalOffset = 1;
+  Offset<float> position;
+};
+
+struct Captain {
+  Offset<float> cursor;
+  float maxDistanceFromCursor = 4;
+  float moveRate = 0.15f;
+  Offset<float> position;
+  s16 angle = 0;
+
+  Squad squad;
+};
+
+Captain redCaptain;
+
 void init() {
   consoleDemoInit();
 
-  printf("Multipass Engine Demo\n");
+  printf("Spawn Red Yellow Blue\n");
   
   videoSetMode(MODE_0_3D);
   glInit();
@@ -186,27 +232,6 @@ void drawVector(v16 x, v16 y, v16 z) {
   glEnd();
 }
 
-template<typename T>
-struct Offset {
-  T x, y, z;
-};
-
-struct Squad {
-  u32 size = 100;
-  float additionalOffset = 1;
-  Offset<float> position;
-};
-
-struct Captain {
-  Offset<float> cursor;
-  float maxDistanceFromCursor = 4;
-  float moveRate = 0.15f;
-  Offset<float> position;
-  s16 angle = 0;
-
-  Squad squad;
-};
-
 Offset<float> delta(Offset<float> const& begin, Offset<float> const& end) {
   Offset<float> deltaVector;
   deltaVector.x = end.x - begin.x;
@@ -307,8 +332,6 @@ void updateCaptain(Captain& captain) {
     captain.squad.position.z += captain.moveRate * towardCaptain.z;
   }
 }
-
-Captain redCaptain;
 
 void gameloop() {
   //Example debug code; remove later?
