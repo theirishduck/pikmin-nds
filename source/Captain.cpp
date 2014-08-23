@@ -1,8 +1,11 @@
 #include "Captain.h"
 #include "olimar_dsgx.h"
 
+#include "test_dsgx.h"
+
 Captain::Captain() {
     u32* data = (u32*)olimar_dsgx;
+    //u32* data = (u32*)test_dsgx;
     
     Vector3<v16,12> model_center;
     model_center.x = (gx::Fixed<v16,12>)floattov16(((float*)data)[0]);
@@ -19,6 +22,6 @@ Captain::Captain() {
 }
 
 void Captain::update(MultipassEngine* engine) {
-    setRotation({0,rotation,0});
+    setRotation({270,rotation,0});
     rotation += 1;
 }

@@ -73,14 +73,14 @@ void init() {
         //red_pikmin[i].setPosition({-2.5,0,i * -2.5});
         //engine.addEntity(&red_pikmin[i]);
         
-        yellow_pikmin[i].setPosition({-2.5,0,i * -2.5});
-        engine.addEntity(&yellow_pikmin[i]);
+        //yellow_pikmin[i].setPosition({-2.5,0,i * -2.5});
+        //engine.addEntity(&yellow_pikmin[i]);
         
         //captain[i].setPosition({-5,0,i * -5});
         //engine.addEntity(&captain[i]);
     }
     
-    captain[0].setPosition({2.5,0,0});
+    captain[0].setPosition({0,0,0});
     engine.addEntity(&captain[0]);
     
     glPushMatrix();
