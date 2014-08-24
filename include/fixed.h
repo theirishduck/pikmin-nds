@@ -26,6 +26,7 @@ class Fixed {
         //assignment from other types
         Fixed(const int& other) {*this = other;}
         Fixed<T, F>& operator=(const int& other) {data = other << F; return *this;}
+        Fixed<T, F>& operator=(const float& other) {data = (int)(other * (1 << F)); return *this;}
         
         //comparison
         bool operator==(const Fixed<T, F>& other) const {return data == other.data;}
@@ -44,12 +45,12 @@ class Fixed {
         bool operator!=(const int& other) const {return !(data == other << F);}
         
         //comparison with floats
-        bool operator==(const float& other) const {return data == (Fixed<T, F>)other;}
-        bool operator< (const float& other) const {return data <  (Fixed<T, F>)other;}
-        bool operator> (const float& other) const {return data >  (Fixed<T, F>)other;}
-        bool operator<=(const float& other) const {return data <= (Fixed<T, F>)other;}
-        bool operator>=(const float& other) const {return data >= (Fixed<T, F>)other;}
-        bool operator!=(const float& other) const {return !(data == (Fixed<T, F>)other);}
+        bool operator==(const float& other) const {return data == ((Fixed<T, F>)other).data;}
+        bool operator< (const float& other) const {return data <  ((Fixed<T, F>)other).data;}
+        bool operator> (const float& other) const {return data >  ((Fixed<T, F>)other).data;}
+        bool operator<=(const float& other) const {return data <= ((Fixed<T, F>)other).data;}
+        bool operator>=(const float& other) const {return data >= ((Fixed<T, F>)other).data;}
+        bool operator!=(const float& other) const {return !(data == ((Fixed<T, F>)other).data);}
         
         
         //Add / Subtract
@@ -65,8 +66,8 @@ class Fixed {
         Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data = (data << F) / (other.data); return *this;}
         
         //type conversion
-        operator int() const {return data >> F;}
-        operator float() const {return ((float)data) / (float)(1 << F);}
+        explicit operator int() const {return data >> F;}
+        explicit operator float() const {return ((float)data) / (float)(1 << F);}
         
         //voodoo magic
         template <typename T2, int F2>

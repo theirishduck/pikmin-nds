@@ -35,13 +35,28 @@ void DSGX::dsgx_chunk(u32* data) {
 }
 
 void DSGX::bounding_sphere_chunk(u32* data) {
-    center.x = (gx::Fixed<s32,12>)data[0];
-    center.y = (gx::Fixed<s32,12>)data[1];
-    center.z = (gx::Fixed<s32,12>)data[2];
-    radius = (gx::Fixed<s32,12>)data[3];
+    bounding_center.x = (gx::Fixed<s32,12>)data[0];
+    bounding_center.y = (gx::Fixed<s32,12>)data[1];
+    bounding_center.z = (gx::Fixed<s32,12>)data[2];
+    bounding_radius = (gx::Fixed<s32,12>)data[3];
 }
 
 void DSGX::cost_chunk(u32* data) {
     draw_cost = data[0];
 }
 
+u32* DSGX::drawList() {
+    return model_data;
+}
+
+Vec3 DSGX::center() {
+    return bounding_center;
+}
+
+gx::Fixed<s32,12> DSGX::radius() {
+    return bounding_radius;
+}
+
+u32 DSGX::drawCost() {
+    return draw_cost;
+}

@@ -6,8 +6,8 @@
 
 struct EntityContainer {
     DrawableEntity* entity;
-    s32 near_z;
-    s32 far_z;
+    gx::Fixed<s32,12> near_z;
+    gx::Fixed<s32,12> far_z;
     bool operator< (const EntityContainer& other) const {return far_z <  other.far_z;}
         
 };

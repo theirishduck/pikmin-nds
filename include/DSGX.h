@@ -14,8 +14,8 @@ class DSGX {
         //put stuff here
         u32* model_data;
 
-        Vec3 center;
-        gx::Fixed<s32,12> radius;
+        Vec3 bounding_center;
+        gx::Fixed<s32,12> bounding_radius;
 
         u32 draw_cost;
 
@@ -25,6 +25,12 @@ class DSGX {
         void cost_chunk(u32* data);
     public:
         DSGX(u32* data, const u32 length);
+
+        u32* drawList();
+        Vec3 center();
+        gx::Fixed<s32,12> radius();
+
+        u32 drawCost();
 
 };
 

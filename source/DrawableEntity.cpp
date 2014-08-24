@@ -26,19 +26,16 @@ void DrawableEntity::setCache() {
     cached = current;
 }
 
-void DrawableEntity::setActor(u32* model_data, Vector3<v16,12> model_center, v16 radius, int cull_cost) {
-    current.model_data = model_data;
-    current.radius = radius;
-    current.cull_cost = cull_cost;
-    current.model_center = model_center;
+void DrawableEntity::setActor(DSGX* actor) {
+    current.actor = actor;
 }
 
 void DrawableEntity::applyTransformation() {
-    glTranslatef(cached.position.x, cached.position.y, cached.position.z);
+    glTranslatef32(cached.position.x.data, cached.position.y.data, cached.position.z.data);
     
-    glRotateY(cached.rotation.y);
-    glRotateX(cached.rotation.x);
-    glRotateZ(cached.rotation.z);
+    glRotateY((float)cached.rotation.y);
+    glRotateX((float)cached.rotation.x);
+    glRotateZ((float)cached.rotation.z);
 }
 
 void DrawableEntity::draw(MultipassEngine* engine) {
@@ -46,10 +43,10 @@ void DrawableEntity::draw(MultipassEngine* engine) {
     applyTransformation();
     
     //draw the object!
-    glCallList(cached.model_data);
+    glCallList(cached.actor->drawList());
 }
 
-s32 DrawableEntity::getRealModelCenter() {
+gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
     //avoid clobbering the render state for this poll
     glPushMatrix();
     applyTransformation();
@@ -67,13 +64,16 @@ s32 DrawableEntity::getRealModelCenter() {
     //multiply our current point by the clip matrix (warning: fixed point math
     //being done by hand here)
     s32 cz = 
-        (current.model_center.x >> 6) * (clip[2] >> 6) + 
-        (current.model_center.z >> 6) * (clip[6] >> 6) + //why is this Z used twice? Shouldn't this be Y here?
-        (current.model_center.z >> 6) * (clip[10] >> 6) + 
-        (floattov16(1.0) >> 6)     * (clip[14] >> 6) ;
+        (current.actor->center().x.data >> 6) * (clip[2] >> 6) + 
+        (current.actor->center().z.data >> 6) * (clip[6] >> 6) + //why is this Z used twice? Should this be Y here?
+        (current.actor->center().z.data >> 6) * (clip[10] >> 6) + 
+        (floattov16(1.0) >> 6)     * (clip[14] >> 6);
         
     //printf("%f\n", ((float)cz) / (0x1 << 12));
     
     glPopMatrix(1);
-    return cz;
+
+    gx::Fixed<s32,12> thing;
+    thing.data = cz;
+    return thing;
 }

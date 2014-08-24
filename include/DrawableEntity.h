@@ -3,6 +3,8 @@
 #include <nds.h>
 #include "vector.h"
 
+#include "DSGX.h"
+
 //Root for anything that the various Graphics Engines may use;
 //intended to be inherited from to create game objects with
 //custom logic.
@@ -11,10 +13,7 @@ struct DrawState {
     Vec3 rotation;
 
     //TODO: make this reference an animation state instead?
-    u32* model_data;
-    v16 radius;
-    int cull_cost; //in polygons
-    Vector3<v16,12> model_center;
+    DSGX* actor;
 };
 
 class MultipassEngine;
@@ -34,13 +33,13 @@ class DrawableEntity {
         Vec3 rotation();
         void setRotation(Vec3);
         
-        void setActor(u32* model_data, Vector3<v16,12> model_center, v16 radius, int cull_cost);
+        void setActor(DSGX* actor);
         
         virtual void draw(MultipassEngine* engine);
         virtual void update(MultipassEngine* engine) {};
         virtual void applyTransformation();
         
-        s32 getRealModelCenter();
+        gx::Fixed<s32,12> getRealModelCenter();
 };
 
 #endif

@@ -15,6 +15,11 @@
 #include "YellowPikmin.h"
 #include "Captain.h"
 
+//model data
+#include "olimar_dsgx.h"
+#include "test_dsgx.h"
+
+
 volatile int frame = 0;
 
 #define TEST_PIKMIN 10
@@ -68,6 +73,10 @@ void init() {
     //glLight(2, RGB15(0,31,0) ,   floattov10(-1.0), 0,                  0);
     //glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,                  0);
     
+    //Load content
+    DSGX olimar_actor = DSGX((u32*)olimar_dsgx, olimar_dsgx_size);
+
+
     //setup demo pikmin
     for (int i = 0; i < TEST_PIKMIN; i++) {
         //red_pikmin[i].setPosition({-2.5,0,i * -2.5});
@@ -76,12 +85,14 @@ void init() {
         //yellow_pikmin[i].setPosition({-2.5,0,i * -2.5});
         //engine.addEntity(&yellow_pikmin[i]);
         
-        //captain[i].setPosition({-5,0,i * -5});
-        //engine.addEntity(&captain[i]);
+        captain[i].setActor(&olimar_actor);    
+        captain[i].setPosition({-5,0,i * -5});
+        engine.addEntity(&captain[i]);
     }
     
-    captain[0].setPosition({0,1,0});
-    engine.addEntity(&captain[0]);
+    //captain[0].setActor(&olimar_actor);
+    //captain[0].setPosition({0,1,0});
+    //engine.addEntity(&captain[0]);
     
     glPushMatrix();
 }

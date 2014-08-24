@@ -62,9 +62,9 @@ void MultipassEngine::gatherDrawList() {
         //which we'll later use to decide where the clipping planes should go.
         EntityContainer container;
         container.entity = entity;
-        s32 object_center = entity->getRealModelCenter();
-        container.far_z  = object_center + state.radius;
-        container.near_z = object_center - state.radius;
+        gx::Fixed<s32,12> object_center = entity->getRealModelCenter();
+        container.far_z  = object_center + state.actor->radius();
+        container.near_z = object_center - state.actor->radius();
         
         drawList.push(container);
         
@@ -190,14 +190,14 @@ void MultipassEngine::draw() {
     //if there are any overlap objects, we need to start by re-drawing those
     for (auto entity : overlap_list) {
         pass_list.push_back(entity);
-        polycount += pass_list.back().entity->getCachedState().cull_cost;
+        polycount += pass_list.back().entity->getCachedState().actor->drawCost();
     }
     overlap_list.clear();
     
     //now proceed to add objects from the remaining objects in the real draw list
     while (!drawList.empty() && polycount < MAX_POLYGONS_PER_PASS) {
         pass_list.push_back(drawList.top());
-        polycount += pass_list.back().entity->getCachedState().cull_cost;
+        polycount += pass_list.back().entity->getCachedState().actor->drawCost();
         drawList.pop();
     }
     
@@ -220,26 +220,31 @@ void MultipassEngine::draw() {
     }
     
     //using the pass list, we can set our near/far clip planes
-    s32 far_plane = pass_list.front().far_z;
-    if (far_plane > floattof32(256.0)) {
-        far_plane = floattof32(256.0); //real back clip plane; actually cull objects here regardless of what the engine thinks
+    gx::Fixed<s32,12> far_plane = pass_list.front().far_z;
+    if (far_plane > 256.0f) {
+        far_plane = 256.0f; //real back clip plane; actually cull objects here regardless of what the engine thinks
     }
-    s32 near_plane = floattof32(0.1);
+    gx::Fixed<s32,12> near_plane = 0.1f;
     if (!drawList.empty()) {
         //set this pass's near plane *behind* the very next object in the list; this is where we
         //need to clip all of the objects we have just drawn.
         near_plane = drawList.top().far_z;
         //yet! if for some weird reason that would put our near clip plane in negative space, well...
         //let's not do that!
-        if (near_plane < floattof32(0.1)) {
-            near_plane = floattof32(0.1);
+        if (near_plane < 0.1f) {
+            near_plane = 0.1f;
         }
     }
     
     //set the new projection and camera matrix
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    clipFriendly_Perspective(near_plane, far_plane, 70.0);
+    near_plane = 0.1f;
+    far_plane = 256.0f;
+    clipFriendly_Perspective(near_plane.data, far_plane.data, 70.0);
+    //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
+    printf("near: %f\n", (float)near_plane);
+    printf("far: %f\n", (float)far_plane);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     applyCameraTransform();

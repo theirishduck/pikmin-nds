@@ -5,7 +5,6 @@
 
 class RedPikmin : public DrawableEntity {
     public:
-        RedPikmin();
         void update(MultipassEngine* engine);
         
     private:

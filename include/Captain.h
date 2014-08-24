@@ -5,7 +5,6 @@
 
 class Captain : public DrawableEntity {
     public:
-        Captain();
         void update(MultipassEngine* engine);
         
     private:
