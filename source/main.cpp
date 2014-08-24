@@ -80,7 +80,7 @@ void init() {
         //engine.addEntity(&captain[i]);
     }
     
-    captain[0].setPosition({0,0,0});
+    captain[0].setPosition({0,1,0});
     engine.addEntity(&captain[0]);
     
     glPushMatrix();

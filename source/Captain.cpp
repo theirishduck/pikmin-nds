@@ -22,6 +22,6 @@ Captain::Captain() {
 }
 
 void Captain::update(MultipassEngine* engine) {
-    setRotation({270,rotation,0});
+    setRotation({180,90,0});
     rotation += 1;
 }
