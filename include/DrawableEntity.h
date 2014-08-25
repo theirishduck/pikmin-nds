@@ -1,6 +1,7 @@
 #ifndef DRAWABLEENTITY_H
 #define DRAWABLEENTITY_H
 #include <nds.h>
+#include <string>
 #include "vector.h"
 
 #include "DSGX.h"
@@ -14,6 +15,8 @@ struct DrawState {
 
     //TODO: make this reference an animation state instead?
     DSGX* actor;
+    Animation* animation = 0;
+    u32 animation_frame = 0;
 };
 
 class MultipassEngine;
@@ -21,7 +24,7 @@ class MultipassEngine;
 class DrawableEntity {
     private:
         DrawState current;
-        DrawState cached;       
+        DrawState cached;
     
     public:
         DrawState getCachedState();
@@ -36,10 +39,12 @@ class DrawableEntity {
         void setActor(DSGX* actor);
         
         virtual void draw(MultipassEngine* engine);
-        virtual void update(MultipassEngine* engine) {};
+        virtual void update(MultipassEngine* engine);
         virtual void applyTransformation();
         
         gx::Fixed<s32,12> getRealModelCenter();
+
+        void setAnimation(std::string name);
 };
 
 #endif

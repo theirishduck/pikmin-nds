@@ -3,4 +3,7 @@
 void Captain::update(MultipassEngine* engine) {
     setRotation({180,rotation,0});
     rotation += 1;
+
+    //call the draw function's update
+    DrawableEntity::update(engine);
 }

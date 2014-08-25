@@ -41,9 +41,24 @@ void DrawableEntity::applyTransformation() {
 void DrawableEntity::draw(MultipassEngine* engine) {
     //apply transformation
     applyTransformation();
+
+    //if necessary, apply animation!
+    if (cached.animation) {
+        cached.actor->applyAnimation(cached.animation, cached.animation_frame);
+    }
     
     //draw the object!
     glCallList(cached.actor->drawList());
+}
+
+void DrawableEntity::update(MultipassEngine* engine) {
+    //if necessary, update animations
+    if (current.animation) {
+        current.animation_frame++;
+        if (current.animation_frame >= current.animation->length) {
+            current.animation_frame = 0; //wrap around!
+        }
+    }
 }
 
 gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
@@ -76,4 +91,9 @@ gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
     gx::Fixed<s32,12> thing;
     thing.data = cz;
     return thing;
+}
+
+void DrawableEntity::setAnimation(std::string name) {
+    current.animation = current.actor->getAnimation(name);
+    current.animation_frame = 0;
 }

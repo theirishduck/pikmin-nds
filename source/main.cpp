@@ -74,8 +74,8 @@ void init() {
     //glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,                  0);
     
     //Load content
-    DSGX olimar_actor = DSGX((u32*)olimar_dsgx, olimar_dsgx_size);
-
+    DSGX* olimar_actor = new DSGX((u32*)olimar_dsgx, olimar_dsgx_size);
+    //olimar_actor->applyAnimation("Armature|Idle1", 15);
 
     //setup demo pikmin
     for (int i = 0; i < TEST_PIKMIN; i++) {
@@ -85,14 +85,15 @@ void init() {
         //yellow_pikmin[i].setPosition({-2.5,0,i * -2.5});
         //engine.addEntity(&yellow_pikmin[i]);
         
-        captain[i].setActor(&olimar_actor);    
-        captain[i].setPosition({-5,0,i * -5});
-        engine.addEntity(&captain[i]);
+        //captain[i].setActor(&olimar_actor);    
+        //captain[i].setPosition({-5,0,i * -5});
+        //engine.addEntity(&captain[i]);
     }
     
-    //captain[0].setActor(&olimar_actor);
-    //captain[0].setPosition({0,1,0});
-    //engine.addEntity(&captain[0]);
+    captain[0].setActor(olimar_actor);
+    captain[0].setPosition({0,1,0});
+    captain[0].setAnimation("Armature|Idle1");
+    engine.addEntity(&captain[0]);
     
     glPushMatrix();
 }
@@ -120,7 +121,7 @@ void gameloop() {
 int main(void) {
 //---------------------------------------------------------------------------------
     init();
-    
+
     
     while(1) {
         gameloop();
