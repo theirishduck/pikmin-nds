@@ -1,7 +1,7 @@
 #include "Captain.h"
 
 void Captain::update(MultipassEngine* engine) {
-    setRotation({180,rotation,0});
+    setRotation({0,rotation / 2,0});
     rotation += 1;
 
     //call the draw function's update

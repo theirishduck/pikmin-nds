@@ -44,6 +44,9 @@ void DrawableEntity::draw(MultipassEngine* engine) {
 
     //if necessary, apply animation!
     if (cached.animation) {
+        //make sure the GFX engine is done drawing the previous object
+        while (GFX_STATUS & BIT(14)) {}
+        while (GFX_STATUS & BIT(27)) {}
         cached.actor->applyAnimation(cached.animation, cached.animation_frame);
     }
     
