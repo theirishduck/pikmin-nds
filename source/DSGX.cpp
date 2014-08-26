@@ -117,7 +117,7 @@ Animation* DSGX::getAnimation(string name) {
 }
 
 void DSGX::applyAnimation(Animation* animation, u32 frame) {
-    m4x4* current_matrix = animation->transforms + bones.size() * frame;
+    m4x4 const* current_matrix = animation->transforms + bones.size() * frame;
     for (auto bone = bones.begin(); bone != bones.end(); bone++) {
         for (u32 i = 0; i < bone->num_offsets; i++) {
             *((m4x4*)(model_data + bone->offsets[i] + 1)) = *current_matrix;

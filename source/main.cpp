@@ -84,17 +84,17 @@ void init() {
     for (int i = 0; i < TEST_PIKMIN; i++) {
         captain[i].setActor(olimar_actor);    
         captain[i].setPosition({-5,0,i * -5});
-        captain[i].setAnimation("Armature|Idle1");
+        captain[i].setAnimation("Armature|Run");
         engine.addEntity(&captain[i]);
 
         captain2[i].setActor(olimar_actor);    
         captain2[i].setPosition({0,0,i * -5});
-        captain2[i].setAnimation("Armature|Idle1");
+        captain2[i].setAnimation("Armature|Run");
         engine.addEntity(&captain2[i]);
 
         captain3[i].setActor(olimar_actor);    
         captain3[i].setPosition({5,0,i * -5});
-        captain3[i].setAnimation("Armature|Idle1");
+        captain3[i].setAnimation("Armature|Run");
         engine.addEntity(&captain3[i]);
     }
     
