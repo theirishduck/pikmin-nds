@@ -25,7 +25,10 @@ class MultipassEngine {
         void setVRAMforPass(int pass);
         void applyCameraTransform();
         void drawClearPlane();
-        
+
+        int old_keys;
+        int keys;
+        int last_angle = 0;
     public:
         void drawEntity(DrawableEntity entity);
         
@@ -36,6 +39,8 @@ class MultipassEngine {
         void addEntity(DrawableEntity* entity);
         
         static MultipassEngine* engine;
+
+        int dPadDirection();
 };
 
 #endif

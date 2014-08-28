@@ -10,10 +10,48 @@ void MultipassEngine::addEntity(DrawableEntity* entity) {
 }
 
 void MultipassEngine::update() {
+    scanKeys();
+
     for (auto entity : entities) {
         entity->update(this);
     }
 }
+
+int MultipassEngine::dPadDirection()  {
+    //todo: make this not suck?
+
+    if (keysHeld() & KEY_RIGHT) {
+        if (keysHeld() & KEY_UP) {
+            return last_angle = 45;
+        }
+        if (keysHeld() & KEY_DOWN) {
+            return last_angle = 315;
+        }
+        return last_angle = 0;
+    }
+
+    if (keysHeld() & KEY_LEFT) {
+        if (keysHeld() & KEY_UP) {
+            return last_angle = 135;
+        }
+        if (keysHeld() & KEY_DOWN) {
+            return last_angle = 225;
+        }
+        return last_angle = 180;
+    }
+
+    if (keysHeld() & KEY_UP) {
+        return last_angle = 90;
+    }
+
+    if (keysHeld() & KEY_DOWN) {
+        return last_angle = 270;
+    }
+
+    return last_angle;
+}
+
+
 
 void clipFriendly_Perspective(s32 near, s32 far, float angle)
 {

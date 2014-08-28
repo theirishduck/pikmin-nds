@@ -9,6 +9,8 @@ class Captain : public DrawableEntity {
         
     private:
         v16 rotation = 0;
+
+        int running = true;
 };
 
 #endif
