@@ -6,11 +6,14 @@
 class Captain : public DrawableEntity {
     public:
         void update(MultipassEngine* engine);
+        Captain();
+
         
     private:
         v16 rotation = 0;
 
         int running = true;
+        int current_angle;
 };
 
 #endif
