@@ -11,7 +11,12 @@
 //custom logic.
 struct DrawState {
     Vec3 position;
-    Vec3 rotation;
+    
+    struct {
+        int x;
+        int y;
+        int z;
+    } rotation;
 
     //TODO: make this reference an animation state instead?
     DSGX* actor;
@@ -34,7 +39,7 @@ class DrawableEntity {
         void setPosition(Vec3);
         
         Vec3 rotation();
-        void setRotation(Vec3);
+        void setRotation(int x, int y, int z);
         
         void setActor(DSGX* actor);
         

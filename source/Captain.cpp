@@ -42,7 +42,7 @@ void Captain::update(MultipassEngine* engine) {
     if (current_angle <    0) {current_angle += 360;}
 
 
-    setRotation({0,current_angle + 90,0});
+    setRotation(0,degreesToAngle(current_angle + 90),0);
 
     //call the draw function's update
     DrawableEntity::update(engine);

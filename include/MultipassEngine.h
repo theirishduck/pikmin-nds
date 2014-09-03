@@ -20,6 +20,8 @@ class MultipassEngine {
         std::vector<EntityContainer> overlap_list;
         
         int current_pass = 0;
+
+        bool debug_first_pass = false;
         
         void gatherDrawList();
         void setVRAMforPass(int pass);

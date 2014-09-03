@@ -15,6 +15,12 @@ void MultipassEngine::update() {
     for (auto entity : entities) {
         entity->update(this);
     }
+
+    //handle debugging features
+    //TODO: make this more touchscreen-y and less basic?
+    if (keysDown() & KEY_SELECT) {
+        debug_first_pass = !debug_first_pass;
+    }
 }
 
 int MultipassEngine::dPadDirection()  {
@@ -202,8 +208,10 @@ void MultipassEngine::drawClearPlane() {
 }
 
 void MultipassEngine::draw() {
-    
+
     if (drawList.empty()) {
+        BG_PALETTE_SUB[0] = RGB5(0,15,0);
+
         //This is the first (and maybe last) frame of this pass, so
         //cache the draw state and set up the queue
         gatherDrawList();
@@ -213,10 +221,9 @@ void MultipassEngine::draw() {
         overlap_list.clear();
         current_pass = 0;
         
-        printf("\x1b[2J");
+        //printf("\x1b[2J");
+        BG_PALETTE_SUB[0] = RGB5(0,0,0);
     }
-    
-    
     
     //PROCESS LIST
     int polycount = 0;
@@ -225,6 +232,8 @@ void MultipassEngine::draw() {
     //Come up with a pass_list; how many objects can we draw in a single frame?
     vector<EntityContainer> pass_list;
     
+    BG_PALETTE_SUB[0] = RGB5(31,31,0);
+
     //if there are any overlap objects, we need to start by re-drawing those
     for (auto entity : overlap_list) {
         pass_list.push_back(entity);
@@ -238,6 +247,8 @@ void MultipassEngine::draw() {
         polycount += pass_list.back().entity->getCachedState().actor->drawCost();
         drawList.pop();
     }
+
+    BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //if our drawlist made no progress, we either drew no objects, or managed to somehow make no
     //meaningful progress this frame; either way, we bail early. (In the latter case, this will
@@ -281,13 +292,14 @@ void MultipassEngine::draw() {
     far_plane = 256.0f;
     clipFriendly_Perspective(near_plane.data, far_plane.data, 70.0);
     //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
-    printf("near: %f\n", (float)near_plane);
-    printf("far: %f\n", (float)far_plane);
+    //printf("near: %f\n", (float)near_plane);
+    //printf("far: %f\n", (float)far_plane);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     applyCameraTransform();
     
     //actually draw the pass_list
+    BG_PALETTE_SUB[0] = RGB5(0,0,31);
     for (auto& container : pass_list) {
         glPushMatrix();
         container.entity->draw(this);
@@ -298,21 +310,35 @@ void MultipassEngine::draw() {
             overlap_list.push_back(container);
         }
     }
+    BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //if necessary, draw the clear plane
     drawClearPlane();
     
-    printf("%d: ", current_pass);
-    printf("objs: %d, ", pass_list.size());
-    printf("repeats: %d\n", overlap_list.size());
+    //printf("%d: ", current_pass);
+    //printf("objs: %d, ", pass_list.size());
+    //printf("repeats: %d\n", overlap_list.size());
     
     
     //make sure our draw calls get processed
     GFX_FLUSH = 0;
+    BG_PALETTE_SUB[0] = RGB5(6,6,6);
     swiWaitForVBlank();
+    BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
+    //DEBUG!!
+    //Empty the draw list; this effectively limits us to one pass, and we drop all the rest
+    if (debug_first_pass) {
+        while (!(drawList.empty())) {
+            drawList.pop();
+        }
+    }
+
     setVRAMforPass(current_pass);
     current_pass++;
     
+    //DEBUG TIMINGS: spin until scanline 0
+    while (REG_VCOUNT != 0) {}
+
     return;
 }
