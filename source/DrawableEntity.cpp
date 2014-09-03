@@ -32,6 +32,10 @@ void DrawableEntity::setActor(DSGX* actor) {
     current.actor = actor;
 }
 
+DSGX* DrawableEntity::getActor() {
+    return current.actor;
+}
+
 void DrawableEntity::applyTransformation() {
     glTranslatef32(cached.position.x.data, cached.position.y.data, cached.position.z.data);
     

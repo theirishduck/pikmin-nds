@@ -6,6 +6,8 @@
 class RedPikmin : public DrawableEntity {
     public:
         void update(MultipassEngine* engine);
+        RedPikmin();
+        ~RedPikmin();
         
     private:
         v16 rotation = 0;

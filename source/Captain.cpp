@@ -14,6 +14,11 @@ Captain::Captain() {
     setAnimation("Armature|Idle1");
 }
 
+Captain::~Captain() {
+    //todo: not this. Use a manager instead.
+    delete getActor();
+}
+
 void Captain::update(MultipassEngine* engine) {
     if (running) {
         if (!(keysHeld() & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT))) {

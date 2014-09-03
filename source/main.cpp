@@ -22,6 +22,8 @@ volatile int frame = 0;
 
 MultipassEngine engine;
 RedPikmin red_pikmin[TEST_PIKMIN];
+RedPikmin red_pikmin2[TEST_PIKMIN];
+RedPikmin red_pikmin3[TEST_PIKMIN];
 YellowPikmin yellow_pikmin[TEST_PIKMIN];
 Captain captain[TEST_PIKMIN];
 Captain captain2[TEST_PIKMIN];
@@ -71,20 +73,17 @@ void init() {
     //glLight(2, RGB15(0,31,0) ,   floattov10(-1.0), 0,                  0);
     //glLight(3, RGB15(0,0,31) ,   floattov10(1.0) - 1,  0,                  0);
     
-    //Load content
-    
-    //olimar_actor->applyAnimation("Armature|Idle1", 15);
 
     //setup demo pikmin
     for (int i = 0; i < TEST_PIKMIN; i++) {
-        captain[i].setPosition({-5,0,i * -5});
-        engine.addEntity(&captain[i]);
+        red_pikmin[i].setPosition({-5,0,i * -5});
+        engine.addEntity(&red_pikmin[i]);
 
-        captain2[i].setPosition({0,0,i * -5});
-        engine.addEntity(&captain2[i]);
+        red_pikmin2[i].setPosition({0,0,i * -5});
+        engine.addEntity(&red_pikmin2[i]);
 
-        captain3[i].setPosition({5,0,i * -5});
-        engine.addEntity(&captain3[i]);
+        red_pikmin3[i].setPosition({5,0,i * -5});
+        engine.addEntity(&red_pikmin3[i]);
     }
     
     //captain[0].setActor(olimar_actor);

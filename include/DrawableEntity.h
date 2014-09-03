@@ -42,6 +42,7 @@ class DrawableEntity {
         void setRotation(int x, int y, int z);
         
         void setActor(DSGX* actor);
+        DSGX* getActor();
         
         virtual void draw(MultipassEngine* engine);
         virtual void update(MultipassEngine* engine);

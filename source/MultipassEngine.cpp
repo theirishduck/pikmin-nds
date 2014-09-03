@@ -339,6 +339,8 @@ void MultipassEngine::draw() {
     
     //DEBUG TIMINGS: spin until scanline 0
     while (REG_VCOUNT != 0) {}
+    irqEnable(IRQ_HBLANK);
+    swiIntrWait(1,IRQ_HBLANK);
 
     return;
 }

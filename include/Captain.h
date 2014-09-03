@@ -7,6 +7,7 @@ class Captain : public DrawableEntity {
     public:
         void update(MultipassEngine* engine);
         Captain();
+        ~Captain();
 
         
     private:
