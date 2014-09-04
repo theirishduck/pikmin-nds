@@ -99,6 +99,10 @@ Vec3 DSGX::center() {
     return bounding_center;
 }
 
+void DSGX::setCenter(Vec3 center) {
+    bounding_center = center;
+}
+
 gx::Fixed<s32,12> DSGX::radius() {
     return bounding_radius;
 }

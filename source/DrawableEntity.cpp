@@ -83,7 +83,7 @@ void DrawableEntity::update(MultipassEngine* engine) {
     }
 }
 
-gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
+Vec3 DrawableEntity::getRealModelCenter() {
     //how long do we take transforming?
     BG_PALETTE_SUB[0] = RGB5(31,31,0);
     //avoid clobbering the render state for this poll
@@ -93,16 +93,18 @@ gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
     
     //wait for the matrix status to clear, and the geometry engine
     //to not be busy drawing (according to GBATEK, maybe not needed?)
-    //while (GFX_STATUS & BIT(14)) {}
-    //while (GFX_STATUS & BIT(27)) {}
+    while (GFX_STATUS & BIT(14)) {}
+    while (GFX_STATUS & BIT(27)) {}
     
     //Run a POS_TEST
     PosTest(current.actor->center().x.data, current.actor->center().y.data, current.actor->center().z.data);
     //return THAT instead of the nonsense below
-    gx::Fixed<s32,12> result_z;
-    result_z.data = PosTestWresult();
+    Vec3 result;
+    result.x.data = PosTestXresult();
+    result.y.data = PosTestYresult();
+    result.z.data = PosTestZresult();
     glPopMatrix(1);
-    return result_z;
+    return result;
 
     /*
     //read the clip coordinate matrix

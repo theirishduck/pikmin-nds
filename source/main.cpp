@@ -77,13 +77,13 @@ void init() {
     //setup demo pikmin
     for (int i = 0; i < TEST_PIKMIN; i++) {
         red_pikmin[i].setPosition({-5,0,-2 + i * -5});
-        engine.addEntity(&red_pikmin[i]);
+        //engine.addEntity(&red_pikmin[i]);
 
         red_pikmin2[i].setPosition({0,0,-2 + i * -5});
         engine.addEntity(&red_pikmin2[i]);
 
         red_pikmin3[i].setPosition({5,0,-2 + i * -5});
-        engine.addEntity(&red_pikmin3[i]);
+        //engine.addEntity(&red_pikmin3[i]);
     }
     
     //captain[0].setActor(olimar_actor);

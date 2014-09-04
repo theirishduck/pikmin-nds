@@ -48,7 +48,7 @@ class DrawableEntity {
         virtual void update(MultipassEngine* engine);
         virtual void applyTransformation();
         
-        gx::Fixed<s32,12> getRealModelCenter();
+        Vec3 getRealModelCenter();
 
         void setAnimation(std::string name);
 };

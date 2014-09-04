@@ -46,6 +46,7 @@ class DSGX {
 
         u32* drawList();
         Vec3 center();
+        void setCenter(Vec3 center);
         gx::Fixed<s32,12> radius();
 
         u32 drawCost();

@@ -122,11 +122,25 @@ void MultipassEngine::gatherDrawList() {
         //which we'll later use to decide where the clipping planes should go.
         EntityContainer container;
         container.entity = entity;
-        gx::Fixed<s32,12> object_center = entity->getRealModelCenter();
-        container.far_z  = object_center;// + state.actor->radius();
-        container.near_z = object_center;// - state.actor->radius();
 
-        
+        Vec3 object_center = entity->getRealModelCenter();
+        container.far_z  = object_center.z;// + state.actor->radius();
+        container.near_z = object_center.z;// - state.actor->radius();
+
+        object_center.z *= -1;
+        glPushMatrix();
+        glLoadIdentity();
+        debug::drawCrosshair(object_center);
+        glPopMatrix(1);
+
+        //let's draw the object's origin, for good measure
+
+        debug::drawCrosshair(entity->position());
+
+        //wtf is going on?
+        printf("position: %.3f,%.3f,%.3f\n", (float)entity->position().x, (float)entity->position().y, (float)entity->position().z);
+        printf("original center: %.3f,%.3f,%.3f\n", (float)entity->getActor()->center().x, (float)entity->getActor()->center().y, (float)entity->getActor()->center().z);
+        printf("center  : %.3f,%.3f,%.3f\n", (float)object_center.x, (float)object_center.y, (float)object_center.z);
         
         drawList.push(container);
         
