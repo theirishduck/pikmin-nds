@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdio.h>
 
+#include "debugdraw.h"
+
 using namespace std;
 
 void MultipassEngine::addEntity(DrawableEntity* entity) {
@@ -123,6 +125,8 @@ void MultipassEngine::gatherDrawList() {
         gx::Fixed<s32,12> object_center = entity->getRealModelCenter();
         container.far_z  = object_center;// + state.actor->radius();
         container.near_z = object_center;// - state.actor->radius();
+
+        
         
         drawList.push(container);
         
