@@ -3,6 +3,7 @@
 
 #include <queue>
 #include "DrawableEntity.h"
+#include "ProjectSettings.h"
 
 struct EntityContainer {
     DrawableEntity* entity;
@@ -15,13 +16,15 @@ struct EntityContainer {
 class MultipassEngine {
     private:
         std::priority_queue<EntityContainer> drawList;
-        std::vector<DrawableEntity*> entities;
         
+        std::vector<DrawableEntity*> entities;
         std::vector<EntityContainer> overlap_list;
+        std::vector<EntityContainer> pass_list;
         
         int current_pass = 0;
 
         bool debug_first_pass = false;
+        bool debug_timings = false;
         
         void gatherDrawList();
         void setVRAMforPass(int pass);

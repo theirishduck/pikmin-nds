@@ -1,6 +1,7 @@
 #include "DrawableEntity.h"
 #include "MultipassEngine.h"
 #include <stdio.h>
+#include <nds/arm9/postest.h>
 
 Vec3 DrawableEntity::position() {
     return current.position;
@@ -92,9 +93,18 @@ gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
     
     //wait for the matrix status to clear, and the geometry engine
     //to not be busy drawing (according to GBATEK, maybe not needed?)
-    while (GFX_STATUS & BIT(14)) {}
-    while (GFX_STATUS & BIT(27)) {}
+    //while (GFX_STATUS & BIT(14)) {}
+    //while (GFX_STATUS & BIT(27)) {}
     
+    //Run a POS_TEST
+    PosTest(current.actor->center().x.data, current.actor->center().y.data, current.actor->center().z.data);
+    //return THAT instead of the nonsense below
+    gx::Fixed<s32,12> result_z;
+    result_z.data = PosTestWresult();
+    glPopMatrix(1);
+    return result_z;
+
+    /*
     //read the clip coordinate matrix
     s32 clip[16];
     for (int i = 0; i < 16; i++)
@@ -113,10 +123,10 @@ gx::Fixed<s32,12> DrawableEntity::getRealModelCenter() {
     glPopMatrix(1);
 
     gx::Fixed<s32,12> thing;
-    thing.data = cz;
+    thing.data = (cz >> 1);
     BG_PALETTE_SUB[0] = RGB5(0,15,0);BG_PALETTE_SUB[0] = RGB5(0,15,0);
     return thing;
-    
+    */
 }
 
 void DrawableEntity::setAnimation(std::string name) {

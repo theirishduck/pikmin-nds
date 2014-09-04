@@ -34,7 +34,7 @@ class DSGX {
 
         u32 process_chunk(u32* location);
         void dsgx_chunk(u32* data);
-        void bounding_sphere_chunk(u32* data);
+        void bounding_sphere_chunk(void* data);
         void cost_chunk(u32* data);
         void bone_chunk(u32* data);
         void bani_chunk(u32* data);

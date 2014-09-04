@@ -18,8 +18,22 @@ void MultipassEngine::update() {
 
     //handle debugging features
     //TODO: make this more touchscreen-y and less basic?
-    if (keysDown() & KEY_SELECT) {
+    if ((keysHeld() & KEY_SELECT) && (keysDown() & KEY_A)) {
         debug_first_pass = !debug_first_pass;
+        if (debug_first_pass) {
+            printf("[DEBUG] Rendering only first pass.\n");
+        } else {
+            printf("[DEBUG] Rendering every pass.\n");
+        }
+    }
+
+    if ((keysHeld() & KEY_SELECT) && (keysDown() & KEY_B)) {
+        debug_timings = !debug_timings;
+        if (debug_timings) {
+            printf("[DEBUG] Render starting at scanline 0. (skipping vblank period.)\n");
+        } else {
+            printf("[DEBUG] Rendering starts immediately.\n");
+        }
     }
 }
 
@@ -107,8 +121,8 @@ void MultipassEngine::gatherDrawList() {
         EntityContainer container;
         container.entity = entity;
         gx::Fixed<s32,12> object_center = entity->getRealModelCenter();
-        container.far_z  = object_center + state.actor->radius();
-        container.near_z = object_center - state.actor->radius();
+        container.far_z  = object_center;// + state.actor->radius();
+        container.near_z = object_center;// - state.actor->radius();
         
         drawList.push(container);
         
@@ -230,7 +244,7 @@ void MultipassEngine::draw() {
     unsigned int initial_length = drawList.size();
     
     //Come up with a pass_list; how many objects can we draw in a single frame?
-    vector<EntityContainer> pass_list;
+    pass_list.clear();
     
     BG_PALETTE_SUB[0] = RGB5(31,31,0);
 
@@ -288,12 +302,12 @@ void MultipassEngine::draw() {
     //set the new projection and camera matrix
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    near_plane = 0.1f;
-    far_plane = 256.0f;
+    //near_plane = 0.1f;
+    //far_plane = 256.0f;
     clipFriendly_Perspective(near_plane.data, far_plane.data, 70.0);
     //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
-    //printf("near: %f\n", (float)near_plane);
-    //printf("far: %f\n", (float)far_plane);
+    printf("near: %f\n", (float)near_plane);
+    printf("far: %f\n", (float)far_plane);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     applyCameraTransform();
@@ -338,9 +352,11 @@ void MultipassEngine::draw() {
     current_pass++;
     
     //DEBUG TIMINGS: spin until scanline 0
-    while (REG_VCOUNT != 0) {}
-    irqEnable(IRQ_HBLANK);
-    swiIntrWait(1,IRQ_HBLANK);
+    if (debug_timings) {
+        while (REG_VCOUNT != 0) {}
+        irqEnable(IRQ_HBLANK);
+        swiIntrWait(1,IRQ_HBLANK);
+    }
 
     return;
 }

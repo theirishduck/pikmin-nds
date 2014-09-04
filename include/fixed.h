@@ -25,6 +25,7 @@ class Fixed {
         
         //assignment from other types
         Fixed(const int& other) {*this = other;}
+        Fixed(const float& other) {*this = other;}
         Fixed<T, F>& operator=(const int& other) {data = other << F; return *this;}
         Fixed<T, F>& operator=(const float& other) {data = (int)(other * (1 << F)); return *this;}
         

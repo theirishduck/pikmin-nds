@@ -17,6 +17,13 @@
 #define MAX_POLYGONS_PER_PASS 1800
 #endif
 
+//Maximum number of entities, total. Used to initialize various structs
+//in the multipass engine, acts as a limiter for both scene objects and
+//static bits of a level.
+#ifndef MAX_ENTITIES
+#define MAX_ENTITIES 256
+#endif
+
 
 
 #endif

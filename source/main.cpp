@@ -18,7 +18,7 @@
 
 volatile int frame = 0;
 
-#define TEST_PIKMIN 33
+#define TEST_PIKMIN 1
 
 MultipassEngine engine;
 RedPikmin red_pikmin[TEST_PIKMIN];
@@ -76,13 +76,13 @@ void init() {
 
     //setup demo pikmin
     for (int i = 0; i < TEST_PIKMIN; i++) {
-        red_pikmin[i].setPosition({-5,0,i * -5});
+        red_pikmin[i].setPosition({-5,0,-2 + i * -5});
         engine.addEntity(&red_pikmin[i]);
 
-        red_pikmin2[i].setPosition({0,0,i * -5});
+        red_pikmin2[i].setPosition({0,0,-2 + i * -5});
         engine.addEntity(&red_pikmin2[i]);
 
-        red_pikmin3[i].setPosition({5,0,i * -5});
+        red_pikmin3[i].setPosition({5,0,-2 + i * -5});
         engine.addEntity(&red_pikmin3[i]);
     }
     
