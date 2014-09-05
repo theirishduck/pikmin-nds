@@ -25,6 +25,7 @@ class MultipassEngine {
 
         bool debug_first_pass = false;
         bool debug_timings = false;
+        bool debug_colors = false;
         
         void gatherDrawList();
         void setVRAMforPass(int pass);

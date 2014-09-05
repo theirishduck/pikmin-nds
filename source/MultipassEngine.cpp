@@ -88,6 +88,15 @@ void MultipassEngine::update() {
             printf("[DEBUG] Rendering starts immediately.\n");
         }
     }
+
+    if ((keysHeld() & KEY_SELECT) && (keysDown() & KEY_X)) {
+        debug_colors = !debug_colors;
+        if (debug_colors) {
+            printf("[DEBUG] Rendering Colors\n");
+        } else {
+            printf("[DEBUG] No more seizures!\n");
+        }
+    }
 }
 
 int MultipassEngine::dPadDirection()  {
@@ -289,7 +298,8 @@ void MultipassEngine::drawClearPlane() {
 void MultipassEngine::draw() {
 
     if (drawList.empty()) {
-        BG_PALETTE_SUB[0] = RGB5(0,15,0);
+        if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,15,0);
 
         //This is the first (and maybe last) frame of this pass, so
         //cache the draw state and set up the queue
@@ -301,7 +311,8 @@ void MultipassEngine::draw() {
         current_pass = 0;
         
         //printf("\x1b[2J");
-        BG_PALETTE_SUB[0] = RGB5(0,0,0);
+        if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     }
     
     //PROCESS LIST
@@ -311,7 +322,8 @@ void MultipassEngine::draw() {
     //Come up with a pass_list; how many objects can we draw in a single frame?
     pass_list.clear();
     
-    BG_PALETTE_SUB[0] = RGB5(31,31,0);
+    if (debug_colors)
+        BG_PALETTE_SUB[0] = RGB5(31,31,0);
 
     //if there are any overlap objects, we need to start by re-drawing those
     int overlaps_count = overlap_list.size();
@@ -328,7 +340,8 @@ void MultipassEngine::draw() {
         drawList.pop();
     }
 
-    BG_PALETTE_SUB[0] = RGB5(0,0,0);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //if our drawlist made no progress, we either drew no objects, or managed to somehow make no
     //meaningful progress this frame; either way, we bail early. (In the latter case, this will
@@ -384,9 +397,11 @@ void MultipassEngine::draw() {
             drawClearPlane();
 
             GFX_FLUSH = 0;
-            BG_PALETTE_SUB[0] = RGB5(6,6,6);
+            if (debug_colors)
+                BG_PALETTE_SUB[0] = RGB5(6,6,6);
             swiWaitForVBlank();
-            BG_PALETTE_SUB[0] = RGB5(0,0,0);
+            if (debug_colors)
+                BG_PALETTE_SUB[0] = RGB5(0,0,0);
 
             setVRAMforPass(current_pass);
             current_pass++;
@@ -421,7 +436,8 @@ void MultipassEngine::draw() {
     applyCameraTransform();
     
     //actually draw the pass_list
-    BG_PALETTE_SUB[0] = RGB5(0,0,31);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,31);
     int o = 0;
     for (auto& container : pass_list) {
         glLight(0, RGB15(31,31,31) , floattov10(-0.40), floattov10(0.32), floattov10(0.27));
@@ -441,7 +457,8 @@ void MultipassEngine::draw() {
             overlap_list.push_back(container);
         }
     }
-    BG_PALETTE_SUB[0] = RGB5(0,0,0);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //Draw the ground plane for debugging
     debug::drawGroundPlane(200,10, RGB5(24 - current_pass * 6, 24 - current_pass * 6, 24 - current_pass * 6));//Draw the ground plane for debugging
@@ -455,9 +472,11 @@ void MultipassEngine::draw() {
     
     //make sure our draw calls get processed
     GFX_FLUSH = 0;
-    BG_PALETTE_SUB[0] = RGB5(6,6,6);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(6,6,6);
     swiWaitForVBlank();
-    BG_PALETTE_SUB[0] = RGB5(0,0,0);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //DEBUG!!
     //Empty the draw list; this effectively limits us to one pass, and we drop all the rest
