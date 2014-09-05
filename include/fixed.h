@@ -115,15 +115,6 @@ class Fixed {
         };
 };
 
-template <typename T, int F>
-Fixed<T, F> sqrt(Fixed<T, F> value)
-{
-    //note: this is DS specific currently. Not sure if it needs to be ported
-    //to other platforms. NOT
-    
-    
-}
-
 }
 
 #endif

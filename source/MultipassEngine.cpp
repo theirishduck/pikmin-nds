@@ -7,6 +7,55 @@
 
 using namespace std;
 
+MultipassEngine::MultipassEngine() {
+    camera_position_destination = Vec3{0.0f, 6.0f, 4.0f};
+    camera_target_destination   = Vec3{0.0f, 3.0f, 0.5f};
+
+    camera_position_current = camera_position_current;
+    camera_target_current = camera_target_current;
+}
+
+void MultipassEngine::targetEntity(DrawableEntity* entity) {
+    entity_to_follow = entity;
+}
+
+void MultipassEngine::updateCamera() {
+    if (keysDown() & KEY_R) {
+        highCamera = !highCamera;
+    }
+
+    if (entity_to_follow) {
+        //TODO: This
+        float height = 5.0;
+        if (highCamera) {
+            height = 15.0f;
+        }
+        
+        float follow_distance = 12.0f;
+
+        camera_target_destination = entity_to_follow->position();
+        Vec3 entity_to_camera = entity_to_follow->position() - camera_position_destination;
+        entity_to_camera.y = 0; //clear out height, so we work on the XZ plane.
+        entity_to_camera = entity_to_camera.normalize();
+        entity_to_camera = entity_to_camera * follow_distance;
+        camera_position_destination = entity_to_follow->position() - entity_to_camera;
+        camera_position_destination.y = height;
+
+        printf("\x1b[8;0HC. Position: %.1f, %.1f, %.1f\n", (float)camera_position_destination.x, (float)camera_position_destination.y, (float)camera_position_destination.z);
+        printf(       "C. Target  : %.1f, %.1f, %.1f\n", (float)camera_target_destination.x, (float)camera_target_destination.y, (float)camera_target_destination.z);
+    } else {
+        printf("No entity?\n");
+    }
+
+    camera_position_current = camera_position_destination * 0.25f + camera_position_current * 0.75f;
+    camera_target_current = camera_target_destination * 0.25f + camera_target_current * 0.75f;
+}
+
+void MultipassEngine::setCamera(Vec3 position, Vec3 target) {
+    camera_position_destination = position;
+    camera_target_destination = target;
+}
+
 void MultipassEngine::addEntity(DrawableEntity* entity) {
     entities.push_back(entity);
 }
@@ -17,6 +66,8 @@ void MultipassEngine::update() {
     for (auto entity : entities) {
         entity->update(this);
     }
+
+    updateCamera();
 
     //handle debugging features
     //TODO: make this more touchscreen-y and less basic?
@@ -171,9 +222,15 @@ void MultipassEngine::setVRAMforPass(int pass) {
 
 void MultipassEngine::applyCameraTransform() {
     //TODO: Make this not static
-    gluLookAt(  0.5, 6.0, 4.0,      //camera possition
+    /*gluLookAt(  0.0, 6.0, 4.0,      //camera possition
                 0.0, 3.0, 0.5,      //look at
                 0.0, 1.0, 0.0);     //up
+    */
+    gluLookAt(
+        (float)camera_position_current.x, (float)camera_position_current.y, (float)camera_position_current.z, 
+        (float)camera_target_current.x,   (float)camera_target_current.y,   (float)camera_target_current.z,
+        0.0f, 1.0f, 0.0f);
+
 }
 
 void MultipassEngine::drawClearPlane() {

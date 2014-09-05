@@ -37,7 +37,19 @@ class MultipassEngine {
 
         gx::Fixed<s32,12> near_plane;
         gx::Fixed<s32,12> far_plane;
+
+        Vec3 camera_position_current;
+        Vec3 camera_target_current;
+
+        Vec3 camera_position_destination;
+        Vec3 camera_target_destination;
+
+        DrawableEntity* entity_to_follow;
+
+        bool highCamera = false;
+
     public:
+        MultipassEngine();
         void drawEntity(DrawableEntity entity);
         
         //called during gameloop to run the engine
@@ -49,6 +61,10 @@ class MultipassEngine {
         static MultipassEngine* engine;
 
         int dPadDirection();
+
+        void updateCamera();
+        void setCamera(Vec3 position, Vec3 target);
+        void targetEntity(DrawableEntity*);
 };
 
 #endif
