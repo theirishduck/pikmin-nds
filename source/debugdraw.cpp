@@ -18,3 +18,23 @@ void debug::drawCrosshair(Vec3 p, rgb color) {
     glPopMatrix(1);
     glEnd();
 }
+
+void debug::drawGroundPlane(int width, int segments, rgb color) {
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+    glBegin(GL_QUAD);
+    glColor(color);
+    glPushMatrix();
+    glScalef(width / segments, 0, width / segments);
+    for (int z = 0; z < segments; z++) {
+        for (int x = 0; x < segments; x++) {
+            //glColor(rand());
+            glVertex3f(-1.0f + (2.0f / segments) *  x     , 0,  -1.0f + (2.0f / segments) *  z);
+            glVertex3f(-1.0f + (2.0f / segments) * (x + 1), 0,  -1.0f + (2.0f / segments) *  z);
+            glVertex3f(-1.0f + (2.0f / segments) * (x + 1), 0,  -1.0f + (2.0f / segments) * (z + 1));
+            glVertex3f(-1.0f + (2.0f / segments) *  x     , 0,  -1.0f + (2.0f / segments) * (z + 1));
+        }
+    }
+    
+    glPopMatrix(1);
+    glEnd();
+}

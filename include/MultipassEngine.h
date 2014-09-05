@@ -34,6 +34,9 @@ class MultipassEngine {
         int old_keys;
         int keys;
         int last_angle = 0;
+
+        gx::Fixed<s32,12> near_plane;
+        gx::Fixed<s32,12> far_plane;
     public:
         void drawEntity(DrawableEntity entity);
         
