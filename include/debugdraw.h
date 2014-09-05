@@ -5,7 +5,7 @@
 
 namespace debug{
 
-void drawCrosshair(Vec3 p);
+void drawCrosshair(Vec3 p, rgb color = RGB5(31,31,31));
 
 }
 #endif

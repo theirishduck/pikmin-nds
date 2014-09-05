@@ -18,7 +18,7 @@
 
 volatile int frame = 0;
 
-#define TEST_PIKMIN 1
+#define TEST_PIKMIN 33
 
 MultipassEngine engine;
 RedPikmin red_pikmin[TEST_PIKMIN];
@@ -48,7 +48,7 @@ void init() {
     glEnable(GL_TEXTURE_2D);
     
     // setup the rear plane
-    glClearColor(0,10,0,31);
+    glClearColor(4,4,4,31);
     glClearDepth(0x7FFF); //TODO: Play with this maybe? This might be why we were getting clipping at the back plane before.
     
     //The entire screen is our plaything
@@ -76,14 +76,14 @@ void init() {
 
     //setup demo pikmin
     for (int i = 0; i < TEST_PIKMIN; i++) {
-        red_pikmin[i].setPosition({-5,0,-2 + i * -5});
-        //engine.addEntity(&red_pikmin[i]);
+        red_pikmin[i].setPosition({-5,-2,-2 + i * -5});
+        engine.addEntity(&red_pikmin[i]);
 
-        red_pikmin2[i].setPosition({0,0,-2 + i * -5});
+        red_pikmin2[i].setPosition({0,-2,-2 + i * -5});
         engine.addEntity(&red_pikmin2[i]);
 
-        red_pikmin3[i].setPosition({5,0,-2 + i * -5});
-        //engine.addEntity(&red_pikmin3[i]);
+        red_pikmin3[i].setPosition({5,-2,-2 + i * -5});
+        engine.addEntity(&red_pikmin3[i]);
     }
     
     //captain[0].setActor(olimar_actor);

@@ -10,7 +10,9 @@ class RedPikmin : public DrawableEntity {
         ~RedPikmin();
         
     private:
-        v16 rotation = 0;
+        s16 rotation = 0;
+        bool running = false;
+        int nextAnim = 0;
 };
 
 #endif

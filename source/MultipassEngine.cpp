@@ -124,29 +124,19 @@ void MultipassEngine::gatherDrawList() {
         container.entity = entity;
 
         Vec3 object_center = entity->getRealModelCenter();
-        container.far_z  = object_center.z;// + state.actor->radius();
-        container.near_z = object_center.z;// - state.actor->radius();
+        container.far_z  = object_center.z + state.actor->radius();
+        container.near_z = object_center.z - state.actor->radius();
 
+        //debug: draw object centers (roughly)
+        /*
         object_center.z *= -1;
         glPushMatrix();
         glLoadIdentity();
-        debug::drawCrosshair(object_center);
+        debug::drawCrosshair(object_center, RGB5(0,0,0));
         glPopMatrix(1);
-
-        //let's draw the object's origin, for good measure
-
-        debug::drawCrosshair(entity->position());
-
-        //wtf is going on?
-        printf("position: %.3f,%.3f,%.3f\n", (float)entity->position().x, (float)entity->position().y, (float)entity->position().z);
-        printf("original center: %.3f,%.3f,%.3f\n", (float)entity->getActor()->center().x, (float)entity->getActor()->center().y, (float)entity->getActor()->center().z);
-        printf("center  : %.3f,%.3f,%.3f\n", (float)object_center.x, (float)object_center.y, (float)object_center.z);
+        */
         
         drawList.push(container);
-        
-        //debug!
-        //printf("far: %f\n", ((float)container.far_z) / (0x1 << 12));
-        //printf("near: %f\n", ((float)container.near_z) / (0x1 << 12));
     }
 }
 
@@ -181,7 +171,7 @@ void MultipassEngine::setVRAMforPass(int pass) {
 
 void MultipassEngine::applyCameraTransform() {
     //TODO: Make this not static
-    gluLookAt(  0.0, 3.0, 4.0,      //camera possition
+    gluLookAt(  0.0, 6.0, 4.0,      //camera possition
                 0.0, 3.0, 0.5,      //look at
                 0.0, 1.0, 0.0);     //up
 }
