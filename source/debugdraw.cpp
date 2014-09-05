@@ -20,7 +20,7 @@ void debug::drawCrosshair(Vec3 p, rgb color) {
 }
 
 void debug::drawGroundPlane(int width, int segments, rgb color) {
-    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | (1<<12));
     glBegin(GL_TRIANGLE);
     glColor(color);
     glPushMatrix();

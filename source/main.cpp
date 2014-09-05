@@ -110,6 +110,8 @@ void gameloop() {
     //printf("\x1b[10;0HFrame = %d",frame);
     //printf("\x1b[16;0HTouch x = %04X, %04X\n", touchXY.rawx, touchXY.px);
     //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
+
+    
     
     //Run the game.
     engine.update();

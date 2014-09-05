@@ -67,6 +67,11 @@ void MultipassEngine::update() {
         entity->update(this);
     }
 
+    //its a SEEECRET
+    if (keysDown() & KEY_A) {
+        targetEntity(entities[rand() & entities.size()]);
+    }
+
     updateCamera();
 
     //handle debugging features
