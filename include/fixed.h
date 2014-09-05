@@ -61,8 +61,8 @@ class Fixed {
         Fixed<T, F>& operator-=(const Fixed<T, F>& other) {data -= other.data; return *this;}
         
         //Multiply / Divide
-        Fixed<T, F>  operator* (const Fixed<T, F>& other) {Fixed<T,F> r; r.data = (data * other.data) >> F; return r;}
-        Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data = (data * other.data) >> F; return *this;}
+        Fixed<T, F>  operator* (const Fixed<T, F>& other) {Fixed<T,F> r; r.data = ((s64)data * (s64)other.data) >> F; return r;}
+        Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data = ((s64)data * (s64)other.data) >> F; return *this;}
         Fixed<T, F>  operator/ (const Fixed<T, F>& other) {Fixed<T,F> r; r.data = (data << F) / (other.data); return r;}
         Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data = (data << F) / (other.data); return *this;}
         
