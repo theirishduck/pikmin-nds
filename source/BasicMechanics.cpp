@@ -292,5 +292,5 @@ void basicMechanicsDraw() {
             drawCircle(16, 0, 255, 0);
           });
       });
-  glFlush(0);
+  // glFlush(0);
 }

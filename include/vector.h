@@ -8,15 +8,23 @@
 
 template <typename T = s32, int F = 12>
 struct Vector3 {
-	gx::Fixed<T,F> x;
-	gx::Fixed<T,F> y;
-	gx::Fixed<T,F> z;
+    gx::Fixed<T,F> x;
+    gx::Fixed<T,F> y;
+    gx::Fixed<T,F> z;
+
+    Vector3 operator+(const Vector3& other) {
+        Vector3 sum;
+        sum.x = x + other.x;
+        sum.y = y + other.y;
+        sum.z = z + other.z;
+        return sum;
+    }
 };
 
 template <typename T = s32, int F = 12>
 struct Vector2 {
-	gx::Fixed<T,F> x;
-	gx::Fixed<T,F> y;
+    gx::Fixed<T,F> x;
+    gx::Fixed<T,F> y;
 };
 
 #endif

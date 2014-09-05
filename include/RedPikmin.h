@@ -4,12 +4,15 @@
 #include "MultipassEngine.h"
 
 class RedPikmin : public DrawableEntity {
-	public:
-		RedPikmin();
-		void update(MultipassEngine* engine);
-		
-	private:
-		v16 rotation = 0;
+    public:
+        void update(MultipassEngine* engine);
+        RedPikmin();
+        ~RedPikmin();
+        
+    private:
+        s16 rotation = 0;
+        bool running = false;
+        int nextAnim = 0;
 };
 
 #endif
