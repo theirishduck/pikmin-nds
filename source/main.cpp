@@ -15,6 +15,8 @@
 #include "YellowPikmin.h"
 #include "Captain.h"
 
+//debug texture loading stuff
+#include "piki_eyes_bin.h"
 
 volatile int frame = 0;
 
@@ -94,6 +96,14 @@ void init() {
     //captain[0].setAnimation("Armature|Idle1");
     //engine.addEntity(&captain[0]);
     
+    //copy the pikmin eye texture into VRAM, at the beginning of bank C
+    //first, map that bank as CPU-accessible
+    vramSetBankC(VRAM_C_LCD);
+    //second, DMA the texture memory into place
+    dmaCopy(piki_eyes_bin, VRAM_C, piki_eyes_bin_size);
+    //finally, re-map bank C as texture memory
+    vramSetBankC(VRAM_C_TEXTURE);
+
     glPushMatrix();
 }
 
@@ -111,7 +121,7 @@ void gameloop() {
     //printf("\x1b[16;0HTouch x = %04X, %04X\n", touchXY.rawx, touchXY.px);
     //printf("Touch y = %04X, %04X\n", touchXY.rawy, touchXY.py);
 
-    
+
     
     //Run the game.
     engine.update();
