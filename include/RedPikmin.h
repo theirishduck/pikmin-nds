@@ -12,7 +12,8 @@ class RedPikmin : public DrawableEntity {
     private:
         s16 rotation = 0;
         bool running = false;
-        int nextAnim = 0;
+        int nextTarget = 0;
+        Vec3 target;
 };
 
 #endif

@@ -2,6 +2,8 @@
 #include "DSGX.h"
 #include "pikmin_dsgx.h"
 
+#include <stdio.h>
+
 
 RedPikmin::RedPikmin() {
     DSGX* pikmin_actor = new DSGX((u32*)pikmin_dsgx, pikmin_dsgx_size);
@@ -16,28 +18,43 @@ RedPikmin::~RedPikmin() {
 void RedPikmin::update(MultipassEngine* engine) {
     setRotation(0,rotation + degreesToAngle(90),0);
 
+    nextTarget--;
     //let's do something fun
-    if (nextAnim <= 0) {
-        if (running) {
-                setAnimation("Armature|Idle");    
-                running = false;
-                nextAnim = 30 + (rand() & 0x1F);
-        } else {
-            setAnimation("Armature|Run");
-            rotation = rand() & 0xFFFF;
-            running = true;
-            nextAnim = 60 + (rand() & 0x1F);
-        }
+    if (nextTarget <= 0) {
+        target.x = (rand() % 64) - 32;
+        target.y = 0;
+        target.z = (rand() % 64) - 32;
+
+        nextTarget = (rand() % 128) + 128;
     }
 
-    nextAnim--;
+    printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target.x, (float)target.y, (float)target.z);
+
+    //figure out if we need to run toward our target
+    gx::Fixed<s32,12> distance = (target - position()).length();
+    Vec3 direction = (target - position()).normalize();
+    if (distance > 5.0f) {
+        if (!running) {
+            setAnimation("Armature|Run");
+        }
+        running = true;
+        //figure out the run rotation from our direction vector
+        if (direction.z <= 0) {
+            rotation = acosLerp(direction.x.data);
+        } else {
+            rotation = -acosLerp(direction.x.data);
+        }
+    } else {
+        running = false;
+    }
 
     if (running) {
         //move the pikmin! scary
-        gx::Fixed<s32,12> vx; vx.data = cosLerp(rotation);
-        gx::Fixed<s32,12> vz; vz.data = sinLerp(rotation);
-
-        setPosition(position() + Vec3{vx / 16, 0, vz / -16});
+        setPosition(position() + Vec3{direction.x / 4, 0, direction.z / 4});
+        setRotation(0, rotation + degreesToAngle(90), 0);
+        
+    } else {
+        setAnimation("Armature|Idle");
     }
 
     /*

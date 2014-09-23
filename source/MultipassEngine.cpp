@@ -301,7 +301,6 @@ void MultipassEngine::drawClearPlane() {
 }
 
 void MultipassEngine::draw() {
-
     if (drawList.empty()) {
         if (debug_colors)
             BG_PALETTE_SUB[0] = RGB5(0,15,0);
@@ -433,7 +432,7 @@ void MultipassEngine::draw() {
     //far_plane = 256.0f;
     clipFriendly_Perspective(near_plane.data, far_plane.data, 70.0);
     //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
-    printf("\x1b[%d;0H(%d)n: %.3f f: %.3f", current_pass + 1, current_pass, (float)near_plane, (float)far_plane);
+    printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass + 1, current_pass, (float)near_plane, (float)far_plane);
     //printf("near: %f\n", (float)near_plane);
     //printf("far: %f\n", (float)far_plane);
     glMatrixMode(GL_MODELVIEW);
