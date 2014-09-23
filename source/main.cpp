@@ -16,7 +16,7 @@
 #include "Captain.h"
 
 //debug texture loading stuff
-#include "piki_eyes_bin.h"
+#include "piki_eyes_img_bin.h"
 
 volatile int frame = 0;
 
@@ -100,7 +100,7 @@ void init() {
     //first, map that bank as CPU-accessible
     vramSetBankC(VRAM_C_LCD);
     //second, DMA the texture memory into place
-    dmaCopy(piki_eyes_bin, VRAM_C, piki_eyes_bin_size);
+    dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
     //finally, re-map bank C as texture memory
     vramSetBankC(VRAM_C_TEXTURE);
 
