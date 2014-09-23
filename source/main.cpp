@@ -20,7 +20,7 @@
 
 volatile int frame = 0;
 
-#define TEST_PIKMIN 33
+#define TEST_PIKMIN 1
 
 MultipassEngine engine;
 RedPikmin red_pikmin[TEST_PIKMIN];
@@ -36,7 +36,20 @@ using namespace std;
 //---------------------------------------------------------------------------------
 void init() {
 //---------------------------------------------------------------------------------
-    consoleDemoInit();
+    //consoleDemoInit();
+    //Do this manually, so we can use BANK_H instead of BANK_C
+    vramSetBankH(VRAM_H_SUB_BG);
+    videoSetModeSub(MODE_0_2D);
+    consoleInit(NULL,
+    0,
+    BgType_Text4bpp,
+    BgSize_T_256x256,
+    15,
+    0,
+    false,
+    true);
+
+    
 
     printf("Multipass Engine Demo\n");
     
