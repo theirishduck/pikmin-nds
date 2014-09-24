@@ -49,6 +49,13 @@ void Captain::update(MultipassEngine* engine) {
         if (current_angle <    0) {current_angle += 360;}
 
         setRotation(0,degreesToAngle(current_angle + 90),0);
+
+        //finally, movement! Based on our angle, apply a velocity in that direction
+        //(Note: This is kind of backwards? Maybe we should be working with a direction vector)
+        Vec3 movement;
+        movement.x.data = cosLerp(degreesToAngle(current_angle));
+        movement.z.data = -sinLerp(degreesToAngle(current_angle));
+        setPosition(position() + movement * 0.2);
     }
 
     //call the draw function's update
