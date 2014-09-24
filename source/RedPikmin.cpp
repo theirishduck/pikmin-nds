@@ -28,7 +28,7 @@ void RedPikmin::update(MultipassEngine* engine) {
         nextTarget = (rand() % 128) + 128;
     }
 
-    printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target.x, (float)target.y, (float)target.z);
+    //printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target.x, (float)target.y, (float)target.z);
 
     //figure out if we need to run toward our target
     gx::Fixed<s32,12> distance = (target - position()).length();
@@ -54,7 +54,7 @@ void RedPikmin::update(MultipassEngine* engine) {
         setRotation(0, rotation + degreesToAngle(90), 0);
         
     } else {
-        setAnimation("Armature|Idle");
+        //setAnimation("Armature|Idle");
     }
 
     /*
