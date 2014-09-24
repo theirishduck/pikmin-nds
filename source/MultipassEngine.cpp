@@ -21,17 +21,31 @@ void MultipassEngine::targetEntity(DrawableEntity* entity) {
 
 void MultipassEngine::updateCamera() {
     if (keysDown() & KEY_R) {
-        highCamera = !highCamera;
+        if (keysHeld() & KEY_L) {
+            cameraDistance += 1;
+            if (cameraDistance > 3) {
+                cameraDistance = 1;
+            }
+        } else {
+            highCamera = !highCamera;
+        }
     }
 
     if (entity_to_follow) {
-        //TODO: This
-        float height = 5.0;
+        float height = 2.5f + 2.5f * cameraDistance;
         if (highCamera) {
-            height = 15.0f;
+            height = 7.5f * cameraDistance;
+        }
+
+        if (keysDown() & KEY_L) {
+            //move the camera directly behind the target entity,
+            //based on their current rotation
+            camera_position_destination = entity_to_follow->position();
+            camera_position_destination.x.data -= cosLerp(entity_to_follow->rotation().y - degreesToAngle(90));
+            camera_position_destination.z.data -= -sinLerp(entity_to_follow->rotation().y - degreesToAngle(90));
         }
         
-        float follow_distance = 12.0f;
+        float follow_distance = 4.0f + 6.0f * cameraDistance;
 
         camera_target_destination = entity_to_follow->position();
         Vec3 entity_to_camera = entity_to_follow->position() - camera_position_destination;
@@ -69,7 +83,7 @@ void MultipassEngine::update() {
 
     //its a SEEECRET
     if (keysDown() & KEY_A) {
-        targetEntity(entities[rand() & entities.size()]);
+        targetEntity(entities[rand() % entities.size()]);
     }
 
     updateCamera();

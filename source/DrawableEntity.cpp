@@ -11,8 +11,8 @@ void DrawableEntity::setPosition(Vec3 pos) {
     current.position = pos;
 }
 
-Vec3 DrawableEntity::rotation() {
-    return current.position;
+Rotation DrawableEntity::rotation() {
+    return current.rotation;
 }
 
 void DrawableEntity::setRotation(int x, int y, int z) {

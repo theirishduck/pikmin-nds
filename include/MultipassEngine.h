@@ -48,6 +48,7 @@ class MultipassEngine {
         DrawableEntity* entity_to_follow;
 
         bool highCamera = false;
+        int cameraDistance = 2;
 
     public:
         MultipassEngine();
