@@ -11,8 +11,8 @@ MultipassEngine::MultipassEngine() {
     camera_position_destination = Vec3{0.0f, 6.0f, 4.0f};
     camera_target_destination   = Vec3{0.0f, 3.0f, 0.5f};
 
-    camera_position_current = camera_position_current;
-    camera_target_current = camera_target_current;
+    camera_position_current = camera_position_destination;
+    camera_target_current = camera_target_destination;
 }
 
 void MultipassEngine::targetEntity(DrawableEntity* entity) {
@@ -136,6 +136,25 @@ int MultipassEngine::dPadDirection()  {
     }
 
     return last_angle;
+}
+
+int MultipassEngine::cameraAngle() {
+    Vec3 facing;
+    facing = entity_to_follow->position() - camera_position_current;
+    facing.y = 0; //work on the XZ plane
+    if (facing.length() <= 0) {
+        printf("waaaat?\n");
+        return 0;
+    }
+    facing = facing.normalize();
+
+    printf("COS: %x", facing.x.data);
+    //return 0;
+    if (facing.z <= 0) {
+        return acosLerp(facing.x.data);
+    } else {
+        return -acosLerp(facing.x.data);
+    }
 }
 
 

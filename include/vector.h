@@ -46,12 +46,16 @@ struct Vector3 {
         return result;
     }
 
-    Vector3 normalize() {
+    Vector3<T,F> normalize() {
         //normalize this vector and return the result
-        Vector3 result;
-        result.x = x / length();
-        result.y = y / length();
-        result.z = z / length();
+        Vector3<T,F> result;
+        gx::Fixed<T,F> current_length = length();
+        if (current_length == 0) {
+            return Vec3{0,0,0};
+        }
+        result.x = x / current_length;
+        result.y = y / current_length;
+        result.z = z / current_length;
         return result;
     }
 };

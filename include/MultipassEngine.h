@@ -62,6 +62,7 @@ class MultipassEngine {
         static MultipassEngine* engine;
 
         int dPadDirection();
+        int cameraAngle();
 
         void updateCamera();
         void setCamera(Vec3 position, Vec3 target);

@@ -49,7 +49,7 @@ void init() {
     false,
     true);
 
-    
+
 
     printf("Multipass Engine Demo\n");
     
@@ -97,17 +97,17 @@ void init() {
         red_pikmin2[i].setPosition({0,0,-2 + i * -2});
         engine.addEntity(&red_pikmin2[i]);
         if (i == 0) {
-            engine.targetEntity(&red_pikmin2[i]);
+            //engine.targetEntity(&red_pikmin2[i]);
         }
 
         red_pikmin3[i].setPosition({5,0,-2 + i * -2});
         engine.addEntity(&red_pikmin3[i]);
     }
     
-    //captain[0].setActor(olimar_actor);
-    //captain[0].setPosition({0,1,0});
-    //captain[0].setAnimation("Armature|Idle1");
-    //engine.addEntity(&captain[0]);
+    captain[0].setPosition({0,1,0});
+    captain[0].setAnimation("Armature|Idle1");
+    engine.addEntity(&captain[0]);
+    engine.targetEntity(&captain[0]);
     
     //copy the pikmin eye texture into VRAM, at the beginning of bank C
     //first, map that bank as CPU-accessible

@@ -32,22 +32,23 @@ void Captain::update(MultipassEngine* engine) {
         }
     }
 
-    int dpad_angle = engine->dPadDirection();
-    int delta = dpad_angle - current_angle;
-    //translate delta to a good relative range
-    if (delta >= 180)  {delta -= 360;}
-    if (delta < -180)  {delta += 360;}
-    //clamp it to limit the maximum turning angle per frame
-    if (delta >  11) {delta =  11;}
-    if (delta < -11) {delta = -11;}
+    if (running) {
+        int dpad_angle = engine->dPadDirection() - (engine->cameraAngle() - degreesToAngle(90));
+        int delta = dpad_angle - current_angle;
+        //translate delta to a good relative range
+        while (delta >= 180)  {delta -= 360;}
+        while (delta < -180)  {delta += 360;}
+        //clamp it to limit the maximum turning angle per frame
+        if (delta >  11) {delta =  11;}
+        if (delta < -11) {delta = -11;}
 
-    current_angle += delta;
-    //now, make sure current_angle stays in a sane range and doesn't overflow
-    if (current_angle >= 360) {current_angle -= 360;}
-    if (current_angle <    0) {current_angle += 360;}
+        current_angle += delta;
+        //now, make sure current_angle stays in a sane range and doesn't overflow
+        if (current_angle >= 360) {current_angle -= 360;}
+        if (current_angle <    0) {current_angle += 360;}
 
-
-    setRotation(0,degreesToAngle(current_angle + 90),0);
+        setRotation(0,degreesToAngle(current_angle + 90),0);
+    }
 
     //call the draw function's update
     DrawableEntity::update(engine);
