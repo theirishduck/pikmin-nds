@@ -34,7 +34,7 @@ void MultipassEngine::updateCamera() {
     if (entity_to_follow) {
         float height = 2.5f + 2.5f * cameraDistance;
         if (highCamera) {
-            height = 7.5f * cameraDistance;
+            height = 7.5f + 7.5f * cameraDistance;
         }
 
         if (keysDown() & KEY_L) {
@@ -202,7 +202,7 @@ void MultipassEngine::gatherDrawList() {
     //First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
+    clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), FIELD_OF_VIEW); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
     glMatrixMode(GL_MODELVIEW);
     
     //cheat at cameras (TODO: NOT THIS)
@@ -461,7 +461,7 @@ void MultipassEngine::draw() {
     glLoadIdentity();
     //near_plane = 0.1f;
     //far_plane = 256.0f;
-    clipFriendly_Perspective(near_plane.data, far_plane.data, 70.0);
+    clipFriendly_Perspective(near_plane.data, far_plane.data, FIELD_OF_VIEW);
     //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
     printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass + 1, current_pass, (float)near_plane, (float)far_plane);
     //printf("near: %f\n", (float)near_plane);
