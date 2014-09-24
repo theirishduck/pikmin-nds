@@ -33,8 +33,9 @@ void Captain::update(MultipassEngine* engine) {
     }
 
     if (running) {
-        int dpad_angle = engine->dPadDirection() - (engine->cameraAngle() - degreesToAngle(90));
+        int dpad_angle = angleToDegrees(engine->cameraAngle()) + (engine->dPadDirection() - 90);
         int delta = dpad_angle - current_angle;
+
         //translate delta to a good relative range
         while (delta >= 180)  {delta -= 360;}
         while (delta < -180)  {delta += 360;}

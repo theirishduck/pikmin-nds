@@ -143,12 +143,10 @@ int MultipassEngine::cameraAngle() {
     facing = entity_to_follow->position() - camera_position_current;
     facing.y = 0; //work on the XZ plane
     if (facing.length() <= 0) {
-        printf("waaaat?\n");
         return 0;
     }
     facing = facing.normalize();
 
-    printf("COS: %x", facing.x.data);
     //return 0;
     if (facing.z <= 0) {
         return acosLerp(facing.x.data);
