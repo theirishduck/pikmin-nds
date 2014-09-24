@@ -14,6 +14,7 @@ class RedPikmin : public DrawableEntity {
         bool running = false;
         int nextTarget = 0;
         Vec3 target;
+        Vec3 direction;
 };
 
 #endif

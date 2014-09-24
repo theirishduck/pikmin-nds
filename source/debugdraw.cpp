@@ -20,6 +20,10 @@ void debug::drawCrosshair(Vec3 p, rgb color) {
 }
 
 void debug::drawGroundPlane(int width, int segments, rgb color) {
+    //Derive a dark color by dividing each channel by 2. This is accomplished using
+    //a bitmask: 0 rrrr0 gggg0 bbbb0, which removes the bottom bit in each color
+    //channel. Shifting the result of this mask to the right results in
+    //0 0rrrr 0gggg 0bbbb, which is the desired result.
     rgb dark_color = (color & 0x7BDE) >> 1;
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | (1<<12));
     glBegin(GL_TRIANGLE);
@@ -30,8 +34,6 @@ void debug::drawGroundPlane(int width, int segments, rgb color) {
             if ((z + x) % 2 == 0) {
                 glColor(color);
             } else {
-                //glColor(color & 0xBDEF); //halve the color value
-                //glColor(color & 0xDEF7); //approximately quarter the color value
                 glColor(dark_color);
             }
             glVertex3f(-1.0f + (2.0f / segments) *  x     , 0,  -1.0f + (2.0f / segments) *  z);

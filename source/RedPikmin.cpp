@@ -26,24 +26,25 @@ void RedPikmin::update(MultipassEngine* engine) {
         target.z = (rand() % 64) - 32;
 
         nextTarget = (rand() % 128) + 128;
-    }
 
-    //printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target.x, (float)target.y, (float)target.z);
-
-    //figure out if we need to run toward our target
-    gx::Fixed<s32,12> distance = (target - position()).length();
-    Vec3 direction = (target - position()).normalize();
-    if (distance > 5.0f) {
-        if (!running) {
-            setAnimation("Armature|Run");
-        }
-        running = true;
+        direction = (target - position()).normalize();
         //figure out the run rotation from our direction vector
         if (direction.z <= 0) {
             rotation = acosLerp(direction.x.data);
         } else {
             rotation = -acosLerp(direction.x.data);
         }
+    }
+
+    //printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target.x, (float)target.y, (float)target.z);
+
+    //figure out if we need to run toward our target
+    gx::Fixed<s32,12> distance = (target - position()).length();
+    if (distance > 5.0f) {
+        if (!running) {
+            setAnimation("Armature|Run");
+        }
+        running = true;
     } else {
         running = false;
     }
