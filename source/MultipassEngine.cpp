@@ -496,7 +496,7 @@ void MultipassEngine::draw() {
             BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //Draw the ground plane for debugging
-    debug::drawGroundPlane(200,10, RGB5(0, 24 - current_pass * 6, 0));//Draw the ground plane for debugging
+    debug::drawGroundPlane(64,10, RGB5(0, 24 - current_pass * 6, 0));//Draw the ground plane for debugging
 
     //if necessary, draw the clear plane
     drawClearPlane();
