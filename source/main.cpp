@@ -41,6 +41,7 @@ void init() {
         0,
         false,
         true);
+    consoleDebugInit(DebugDevice_NOCASH);
 
     printf("Multipass Engine Demo\n");
     
