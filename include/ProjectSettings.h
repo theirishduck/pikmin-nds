@@ -24,6 +24,12 @@
 #define MAX_ENTITIES 256
 #endif
 
+//Field of view, used by all 3D perspective transformations. (Ignored by ortho
+//projections)
+#ifndef FIELD_OF_VIEW
+#define FIELD_OF_VIEW 45.0
+#endif
+
 
 
 #endif

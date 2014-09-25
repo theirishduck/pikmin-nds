@@ -7,6 +7,69 @@
 
 using namespace std;
 
+MultipassEngine::MultipassEngine() {
+    camera_position_destination = Vec3{0.0f, 6.0f, 4.0f};
+    camera_target_destination   = Vec3{0.0f, 3.0f, 0.5f};
+
+    camera_position_current = camera_position_destination;
+    camera_target_current = camera_target_destination;
+}
+
+void MultipassEngine::targetEntity(DrawableEntity* entity) {
+    entity_to_follow = entity;
+}
+
+void MultipassEngine::updateCamera() {
+    if (keysDown() & KEY_R) {
+        if (keysHeld() & KEY_L) {
+            cameraDistance += 1;
+            if (cameraDistance > 3) {
+                cameraDistance = 1;
+            }
+        } else {
+            highCamera = !highCamera;
+        }
+    }
+
+    if (entity_to_follow) {
+        float height = 2.5f + 2.5f * cameraDistance;
+        if (highCamera) {
+            height = 7.5f + 7.5f * cameraDistance;
+        }
+
+        if (keysDown() & KEY_L) {
+            //move the camera directly behind the target entity,
+            //based on their current rotation
+            camera_position_destination = entity_to_follow->position();
+            camera_position_destination.x.data -= cosLerp(entity_to_follow->rotation().y - degreesToAngle(90));
+            camera_position_destination.z.data -= -sinLerp(entity_to_follow->rotation().y - degreesToAngle(90));
+        }
+        
+        float follow_distance = 4.0f + 6.0f * cameraDistance;
+
+        camera_target_destination = entity_to_follow->position();
+        Vec3 entity_to_camera = entity_to_follow->position() - camera_position_destination;
+        entity_to_camera.y = 0; //clear out height, so we work on the XZ plane.
+        entity_to_camera = entity_to_camera.normalize();
+        entity_to_camera = entity_to_camera * follow_distance;
+        camera_position_destination = entity_to_follow->position() - entity_to_camera;
+        camera_position_destination.y = height;
+
+        printf("\x1b[8;0HC. Position: %.1f, %.1f, %.1f\n", (float)camera_position_destination.x, (float)camera_position_destination.y, (float)camera_position_destination.z);
+        printf(       "C. Target  : %.1f, %.1f, %.1f\n", (float)camera_target_destination.x, (float)camera_target_destination.y, (float)camera_target_destination.z);
+    } else {
+        printf("No entity?\n");
+    }
+
+    camera_position_current = camera_position_destination * 0.25f + camera_position_current * 0.75f;
+    camera_target_current = camera_target_destination * 0.25f + camera_target_current * 0.75f;
+}
+
+void MultipassEngine::setCamera(Vec3 position, Vec3 target) {
+    camera_position_destination = position;
+    camera_target_destination = target;
+}
+
 void MultipassEngine::addEntity(DrawableEntity* entity) {
     entities.push_back(entity);
 }
@@ -17,6 +80,13 @@ void MultipassEngine::update() {
     for (auto entity : entities) {
         entity->update(this);
     }
+
+    //its a SEEECRET
+    if (keysDown() & KEY_A) {
+        targetEntity(entities[rand() % entities.size()]);
+    }
+
+    updateCamera();
 
     //handle debugging features
     //TODO: make this more touchscreen-y and less basic?
@@ -35,6 +105,15 @@ void MultipassEngine::update() {
             printf("[DEBUG] Render starting at scanline 0. (skipping vblank period.)\n");
         } else {
             printf("[DEBUG] Rendering starts immediately.\n");
+        }
+    }
+
+    if ((keysHeld() & KEY_SELECT) && (keysDown() & KEY_X)) {
+        debug_colors = !debug_colors;
+        if (debug_colors) {
+            printf("[DEBUG] Rendering Colors\n");
+        } else {
+            printf("[DEBUG] No more seizures!\n");
         }
     }
 }
@@ -73,6 +152,23 @@ int MultipassEngine::dPadDirection()  {
     return last_angle;
 }
 
+int MultipassEngine::cameraAngle() {
+    Vec3 facing;
+    facing = entity_to_follow->position() - camera_position_current;
+    facing.y = 0; //work on the XZ plane
+    if (facing.length() <= 0) {
+        return 0;
+    }
+    facing = facing.normalize();
+
+    //return 0;
+    if (facing.z <= 0) {
+        return acosLerp(facing.x.data);
+    } else {
+        return -acosLerp(facing.x.data);
+    }
+}
+
 
 
 void clipFriendly_Perspective(s32 near, s32 far, float angle)
@@ -106,7 +202,7 @@ void MultipassEngine::gatherDrawList() {
     //First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
+    clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), FIELD_OF_VIEW); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
     glMatrixMode(GL_MODELVIEW);
     
     //cheat at cameras (TODO: NOT THIS)
@@ -171,9 +267,15 @@ void MultipassEngine::setVRAMforPass(int pass) {
 
 void MultipassEngine::applyCameraTransform() {
     //TODO: Make this not static
-    gluLookAt(  0.5, 6.0, 4.0,      //camera possition
+    /*gluLookAt(  0.0, 6.0, 4.0,      //camera possition
                 0.0, 3.0, 0.5,      //look at
                 0.0, 1.0, 0.0);     //up
+    */
+    gluLookAt(
+        (float)camera_position_current.x, (float)camera_position_current.y, (float)camera_position_current.z, 
+        (float)camera_target_current.x,   (float)camera_target_current.y,   (float)camera_target_current.z,
+        0.0f, 1.0f, 0.0f);
+
 }
 
 void MultipassEngine::drawClearPlane() {
@@ -230,9 +332,9 @@ void MultipassEngine::drawClearPlane() {
 }
 
 void MultipassEngine::draw() {
-
     if (drawList.empty()) {
-        BG_PALETTE_SUB[0] = RGB5(0,15,0);
+        if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,15,0);
 
         //This is the first (and maybe last) frame of this pass, so
         //cache the draw state and set up the queue
@@ -244,7 +346,8 @@ void MultipassEngine::draw() {
         current_pass = 0;
         
         //printf("\x1b[2J");
-        BG_PALETTE_SUB[0] = RGB5(0,0,0);
+        if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     }
     
     //PROCESS LIST
@@ -254,7 +357,8 @@ void MultipassEngine::draw() {
     //Come up with a pass_list; how many objects can we draw in a single frame?
     pass_list.clear();
     
-    BG_PALETTE_SUB[0] = RGB5(31,31,0);
+    if (debug_colors)
+        BG_PALETTE_SUB[0] = RGB5(31,31,0);
 
     //if there are any overlap objects, we need to start by re-drawing those
     int overlaps_count = overlap_list.size();
@@ -271,7 +375,8 @@ void MultipassEngine::draw() {
         drawList.pop();
     }
 
-    BG_PALETTE_SUB[0] = RGB5(0,0,0);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //if our drawlist made no progress, we either drew no objects, or managed to somehow make no
     //meaningful progress this frame; either way, we bail early. (In the latter case, this will
@@ -327,9 +432,11 @@ void MultipassEngine::draw() {
             drawClearPlane();
 
             GFX_FLUSH = 0;
-            BG_PALETTE_SUB[0] = RGB5(6,6,6);
+            if (debug_colors)
+                BG_PALETTE_SUB[0] = RGB5(6,6,6);
             swiWaitForVBlank();
-            BG_PALETTE_SUB[0] = RGB5(0,0,0);
+            if (debug_colors)
+                BG_PALETTE_SUB[0] = RGB5(0,0,0);
 
             setVRAMforPass(current_pass);
             current_pass++;
@@ -354,9 +461,9 @@ void MultipassEngine::draw() {
     glLoadIdentity();
     //near_plane = 0.1f;
     //far_plane = 256.0f;
-    clipFriendly_Perspective(near_plane.data, far_plane.data, 70.0);
+    clipFriendly_Perspective(near_plane.data, far_plane.data, FIELD_OF_VIEW);
     //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
-    printf("\x1b[%d;0H(%d)n: %.3f f: %.3f", current_pass + 1, current_pass, (float)near_plane, (float)far_plane);
+    printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass + 1, current_pass, (float)near_plane, (float)far_plane);
     //printf("near: %f\n", (float)near_plane);
     //printf("far: %f\n", (float)far_plane);
     glMatrixMode(GL_MODELVIEW);
@@ -364,7 +471,8 @@ void MultipassEngine::draw() {
     applyCameraTransform();
     
     //actually draw the pass_list
-    BG_PALETTE_SUB[0] = RGB5(0,0,31);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,31);
     int o = 0;
     for (auto& container : pass_list) {
         glLight(0, RGB15(31,31,31) , floattov10(-0.40), floattov10(0.32), floattov10(0.27));
@@ -384,13 +492,13 @@ void MultipassEngine::draw() {
             overlap_list.push_back(container);
         }
     }
-    BG_PALETTE_SUB[0] = RGB5(0,0,0);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //Draw the ground plane for debugging
-    // debug::drawGroundPlane(200,10, RGB5(24 - current_pass * 6, 24 - current_pass * 6, 24 - current_pass * 6));//Draw the ground plane for debugging
+    debug::drawGroundPlane(64,10, RGB5(0, 24 - current_pass * 6, 0));
     void basicMechanicsDraw();
     basicMechanicsDraw();
-
 
     //if necessary, draw the clear plane
     drawClearPlane();
@@ -401,9 +509,11 @@ void MultipassEngine::draw() {
     
     //make sure our draw calls get processed
     GFX_FLUSH = 0;
-    BG_PALETTE_SUB[0] = RGB5(6,6,6);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(6,6,6);
     swiWaitForVBlank();
-    BG_PALETTE_SUB[0] = RGB5(0,0,0);
+    if (debug_colors)
+            BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //DEBUG!!
     //Empty the draw list; this effectively limits us to one pass, and we drop all the rest

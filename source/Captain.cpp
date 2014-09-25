@@ -32,22 +32,31 @@ void Captain::update(MultipassEngine* engine) {
         }
     }
 
-    int dpad_angle = engine->dPadDirection();
-    int delta = dpad_angle - current_angle;
-    //translate delta to a good relative range
-    if (delta >= 180)  {delta -= 360;}
-    if (delta < -180)  {delta += 360;}
-    //clamp it to limit the maximum turning angle per frame
-    if (delta >  11) {delta =  11;}
-    if (delta < -11) {delta = -11;}
+    if (running) {
+        int dpad_angle = angleToDegrees(engine->cameraAngle()) + (engine->dPadDirection() - 90);
+        int delta = dpad_angle - current_angle;
 
-    current_angle += delta;
-    //now, make sure current_angle stays in a sane range and doesn't overflow
-    if (current_angle >= 360) {current_angle -= 360;}
-    if (current_angle <    0) {current_angle += 360;}
+        //translate delta to a good relative range
+        while (delta >= 180)  {delta -= 360;}
+        while (delta < -180)  {delta += 360;}
+        //clamp it to limit the maximum turning angle per frame
+        if (delta >  11) {delta =  11;}
+        if (delta < -11) {delta = -11;}
 
+        current_angle += delta;
+        //now, make sure current_angle stays in a sane range and doesn't overflow
+        if (current_angle >= 360) {current_angle -= 360;}
+        if (current_angle <    0) {current_angle += 360;}
 
-    setRotation(0,degreesToAngle(current_angle + 90),0);
+        setRotation(0,degreesToAngle(current_angle + 90),0);
+
+        //finally, movement! Based on our angle, apply a velocity in that direction
+        //(Note: This is kind of backwards? Maybe we should be working with a direction vector)
+        Vec3 movement;
+        movement.x.data = cosLerp(degreesToAngle(current_angle));
+        movement.z.data = -sinLerp(degreesToAngle(current_angle));
+        setPosition(position() + movement * 0.2);
+    }
 
     //call the draw function's update
     DrawableEntity::update(engine);

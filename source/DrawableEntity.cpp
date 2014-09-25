@@ -11,8 +11,8 @@ void DrawableEntity::setPosition(Vec3 pos) {
     current.position = pos;
 }
 
-Vec3 DrawableEntity::rotation() {
-    return current.position;
+Rotation DrawableEntity::rotation() {
+    return current.rotation;
 }
 
 void DrawableEntity::setRotation(int x, int y, int z) {
@@ -54,7 +54,7 @@ void DrawableEntity::applyTransformation() {
 
 void DrawableEntity::draw(MultipassEngine* engine) {
     //apply transformation
-    BG_PALETTE_SUB[0] = RGB5(31,31,0);
+    //BG_PALETTE_SUB[0] = RGB5(31,31,0);
     applyTransformation();
 
     //if necessary, apply animation!
@@ -62,15 +62,15 @@ void DrawableEntity::draw(MultipassEngine* engine) {
         //make sure the GFX engine is done drawing the previous object
         //while (GFX_STATUS & BIT(14)) {}
         //while (GFX_STATUS & BIT(27)) {}
-        BG_PALETTE_SUB[0] = RGB5(0,31,31);
+        //BG_PALETTE_SUB[0] = RGB5(0,31,31);
         cached.actor->applyAnimation(cached.animation, cached.animation_frame);
-        BG_PALETTE_SUB[0] = RGB5(0,0,31);
+        //BG_PALETTE_SUB[0] = RGB5(0,0,31);
     }
     
     //draw the object!
-    BG_PALETTE_SUB[0] = RGB5(31,0,31);
+    //BG_PALETTE_SUB[0] = RGB5(31,0,31);
     glCallList(cached.actor->drawList());
-    BG_PALETTE_SUB[0] = RGB5(0,0,31);
+    //BG_PALETTE_SUB[0] = RGB5(0,0,31);
 }
 
 void DrawableEntity::update(MultipassEngine* engine) {
@@ -85,11 +85,11 @@ void DrawableEntity::update(MultipassEngine* engine) {
 
 Vec3 DrawableEntity::getRealModelCenter() {
     //how long do we take transforming?
-    BG_PALETTE_SUB[0] = RGB5(31,31,0);
+    //BG_PALETTE_SUB[0] = RGB5(31,31,0);
     //avoid clobbering the render state for this poll
     glPushMatrix();
     applyTransformation();
-    BG_PALETTE_SUB[0] = RGB5(0,31,0);
+    //BG_PALETTE_SUB[0] = RGB5(0,31,0);
     
     //wait for the matrix status to clear, and the geometry engine
     //to not be busy drawing (according to GBATEK, maybe not needed?)

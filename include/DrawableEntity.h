@@ -9,14 +9,16 @@
 //Root for anything that the various Graphics Engines may use;
 //intended to be inherited from to create game objects with
 //custom logic.
-struct DrawState {
-    Vec3 position;
-    
-    struct {
+struct Rotation {
         int x;
         int y;
         int z;
-    } rotation;
+};
+
+struct DrawState {
+    Vec3 position;
+    Rotation rotation;
+    
 
     //TODO: make this reference an animation state instead?
     DSGX* actor;
@@ -38,7 +40,7 @@ class DrawableEntity {
         Vec3 position();
         void setPosition(Vec3);
         
-        Vec3 rotation();
+        Rotation rotation();
         void setRotation(int x, int y, int z);
         
         void setActor(DSGX* actor);
