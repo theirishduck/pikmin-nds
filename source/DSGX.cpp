@@ -9,7 +9,7 @@ using namespace std;
 
 DSGX::DSGX(u32* data, const u32 length) {
     u32 seek = 0;
-    printf("length of dsgx: %ld\n", length);
+    printf("length of dsgx: %u\n", length);
     while (seek < (length >> 2)) {
         int chunk_size = process_chunk(&data[seek]);
         seek += chunk_size;
@@ -56,7 +56,7 @@ void DSGX::cost_chunk(u32* data) {
 
 void DSGX::bone_chunk(u32* data) {
     u32 num_bones = *data;
-    printf("Num bones: %ld\n", num_bones);
+    printf("Num bones: %u\n", num_bones);
     //while(true){}
     data++;
     for (u32 i = 0; i < num_bones; i++) {
@@ -68,7 +68,7 @@ void DSGX::bone_chunk(u32* data) {
         bone.num_offsets = *data;
         data++;
 
-        printf("bone offsets: %ld\n", bone.num_offsets);
+        printf("bone offsets: %u\n", bone.num_offsets);
 
         bone.offsets = data;
         data += bone.num_offsets;

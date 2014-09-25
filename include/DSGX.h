@@ -1,10 +1,13 @@
 #ifndef DSGX_H
 #define DSGX_H
 
-#include <nds.h>
-#include "vector.h"
-#include <vector>
 #include <map>
+#include <string>
+#include <vector>
+
+#include <nds.h>
+
+#include "vector.h"
 
 // class to represent a .dsgx file. Contains all logic necessary to read in and
 // decode .dsgx contents, and provides methods for accessing that content in a
