@@ -205,7 +205,7 @@ void MultipassEngine::gatherDrawList() {
     clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), FIELD_OF_VIEW); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
     glMatrixMode(GL_MODELVIEW);
     
-    //cheat at cameras (TODO: NOT THIS)
+    //reset to a normal matrix, in prep for calculations
     glLoadIdentity();
     applyCameraTransform();
                 
@@ -272,8 +272,8 @@ void MultipassEngine::applyCameraTransform() {
                 0.0, 1.0, 0.0);     //up
     */
     gluLookAt(
-        (float)camera_position_current.x, (float)camera_position_current.y, (float)camera_position_current.z, 
-        (float)camera_target_current.x,   (float)camera_target_current.y,   (float)camera_target_current.z,
+        (float)camera_position_cached.x, (float)camera_position_cached.y, (float)camera_position_cached.z, 
+        (float)camera_target_cached.x,   (float)camera_target_cached.y,   (float)camera_target_cached.z,
         0.0f, 1.0f, 0.0f);
 
 }
@@ -338,6 +338,8 @@ void MultipassEngine::draw() {
 
         //This is the first (and maybe last) frame of this pass, so
         //cache the draw state and set up the queue
+        camera_position_cached = camera_position_current;
+        camera_target_cached = camera_target_current;
         gatherDrawList();
         
         //to be extra sure, clear the overlap list

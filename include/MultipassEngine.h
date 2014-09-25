@@ -45,6 +45,9 @@ class MultipassEngine {
         Vec3 camera_position_destination;
         Vec3 camera_target_destination;
 
+        Vec3 camera_position_cached;
+        Vec3 camera_target_cached;
+
         DrawableEntity* entity_to_follow;
 
         bool highCamera = false;
