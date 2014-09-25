@@ -106,8 +106,7 @@ void gameloop() {
     
     touchPosition touchXY;
     touchRead(&touchXY);
-    scanKeys();
-
+    
     basicMechanicsUpdate();
 
     engine.update();
