@@ -53,9 +53,9 @@ struct Vector3 {
         if (current_length == 0) {
             return Vec3{0,0,0};
         }
-        result.x = x / current_length;
-        result.y = y / current_length;
-        result.z = z / current_length;
+        result.x.data = divf32(x.data, current_length.data);
+        result.y.data = divf32(y.data, current_length.data);
+        result.z.data = divf32(z.data, current_length.data);
         return result;
     }
 };
