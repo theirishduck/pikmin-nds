@@ -363,7 +363,7 @@ void MultipassEngine::draw() {
         BG_PALETTE_SUB[0] = RGB5(31,31,0);
 
     //if there are any overlap objects, we need to start by re-drawing those
-    int overlaps_count = overlap_list.size();
+    //int overlaps_count = overlap_list.size();
     for (auto entity : overlap_list) {
         pass_list.push_back(entity);
         polycount += pass_list.back().entity->getCachedState().actor->drawCost();
@@ -475,15 +475,16 @@ void MultipassEngine::draw() {
     //actually draw the pass_list
     if (debug_colors)
             BG_PALETTE_SUB[0] = RGB5(0,0,31);
-    int o = 0;
+    //int o = 0;
     for (auto& container : pass_list) {
         glLight(0, RGB15(31,31,31) , floattov10(-0.40), floattov10(0.32), floattov10(0.27));
         glLight(1, RGB15(31,31,31) , floattov10(0.32), floattov10(0.32), floattov10(0.32));
+        /*
         if (o++ < overlaps_count) {
             //do something flashy!
             glLight(0, RGB15(15,15,15) , floattov10(-0.40), floattov10(0.32), floattov10(0.27));
             glLight(1, RGB15(15,15,15) , floattov10(0.32), floattov10(0.32), floattov10(0.32));
-        }
+        }*/
 
         glPushMatrix();
         container.entity->draw(this);
@@ -498,7 +499,8 @@ void MultipassEngine::draw() {
             BG_PALETTE_SUB[0] = RGB5(0,0,0);
     
     //Draw the ground plane for debugging
-    debug::drawGroundPlane(64,10, RGB5(0, 24 - current_pass * 6, 0));
+    //debug::drawGroundPlane(64,10, RGB5(0, 24 - current_pass * 6, 0));
+    debug::drawGroundPlane(64,10, RGB5(0, 24, 0));
     void basicMechanicsDraw();
     basicMechanicsDraw();
 
