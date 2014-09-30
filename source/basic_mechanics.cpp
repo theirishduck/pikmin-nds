@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include <nds/arm9/input.h>
+
 using std::function;
 
 template<typename T>

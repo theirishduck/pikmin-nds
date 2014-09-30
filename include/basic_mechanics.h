@@ -1,7 +1,7 @@
-#ifndef BASICMECHANICS_H
-#define BASICMECHANICS_H
+#ifndef BASIC_MECHANICS_H
+#define BASIC_MECHANICS_H
 
-#include <nds.h>
+#include <nds/arm9/videoGL.h>
 
 constexpr v16 operator"" _v16(long double value) {
   return static_cast<v16>(value * 4096);
@@ -34,4 +34,4 @@ constexpr v16 v16FromFloat(float value) {
 void basicMechanicsUpdate();
 void basicMechanicsDraw();
 
-#endif  // BASICMECHANICS_H
+#endif  // BASIC_MECHANICS_H

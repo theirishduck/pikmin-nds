@@ -1,7 +1,14 @@
 #include "project_settings.h"
 #include "multipass_engine.h"
-#include <vector>
+
 #include <stdio.h>
+
+#include <vector>
+
+#include <nds/interrupts.h>
+#include <nds/system.h>
+#include <nds/arm9/background.h>
+#include <nds/arm9/input.h>
 
 #include "debug_draw.h"
 

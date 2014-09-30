@@ -1,14 +1,16 @@
-#ifndef YELLOWPIKMIN_H
-#define YELLOWPIKMIN_H
+#ifndef YELLOW_PIKMIN_H
+#define YELLOW_PIKMIN_H
 
-#include "multipass_engine.h"
+#include "drawable_entity.h"
+
+class MultipassEngine;
 
 class YellowPikmin : public DrawableEntity {
-    public:
-        void update(MultipassEngine* engine);
-        
-    private:
-        v16 rotation = 0;
+ public:
+  void update(MultipassEngine* engine) override;
+
+ private:
+  v16 rotation = 0;
 };
 
-#endif
+#endif  // YELLOW_PIKMIN_H

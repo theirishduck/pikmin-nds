@@ -1,5 +1,9 @@
 #include "Captain.h"
 
+#include <nds/arm9/input.h>
+
+#include "multipass_engine.h"
+
 //model data
 #include "dsgx.h"
 #include "olimar_dsgx.h"

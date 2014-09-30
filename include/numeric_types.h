@@ -1,7 +1,7 @@
-#ifndef NUMERICTYPES_H
-#define NUMERICTYPES_H
+#ifndef NUMERIC_TYPES_H
+#define NUMERIC_TYPES_H
 
-#include <nds.h>
+#include <nds/ndstypes.h>
 
 #include "fixed.h"
 
@@ -12,7 +12,7 @@ using Fixed = gx::Fixed<T, F>;
 
 class Degrees
 {
-public:
+ public:
   using value_type = s32;
 
   constexpr Degrees() : data{0} {}
@@ -52,7 +52,7 @@ constexpr Degrees operator"" _deg(unsigned long long value) {
 
 class Brads
 {
-public:
+ public:
   using value_type = s16;
 
   constexpr Brads() : data{0} {}
@@ -83,7 +83,7 @@ public:
 
   value_type data;
 
-private:
+ private:
   explicit constexpr Brads(value_type const value) : data{value} {}
 };
 
@@ -99,4 +99,4 @@ constexpr Brads operator"" _brad(unsigned long long value) {
 
 }  // namespace numeric_types
 
-#endif  // NUMERICTYPES_H
+#endif  // NUMERIC_TYPES_H
