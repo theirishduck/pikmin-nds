@@ -41,13 +41,6 @@ class DSGX {
   void applyAnimation(Animation* animation, u32 frame);
 
 private:
-  u32* model_data;
-
-  Vec3 bounding_center;
-  Fixed<s32, 12> bounding_radius;
-
-  u32 draw_cost;
-
   u32 process_chunk(u32* location);
   void dsgx_chunk(u32* data);
   void bounding_sphere_chunk(void* data);
@@ -55,8 +48,15 @@ private:
   void bone_chunk(u32* data);
   void bani_chunk(u32* data);
 
-  std::vector<Bone> bones;
-  std::map<std::string, Animation> animations;
+  u32* model_data_;
+
+  Vec3 bounding_center_;
+  Fixed<s32, 12> bounding_radius_;
+
+  u32 draw_cost_;
+
+  std::vector<Bone> bones_;
+  std::map<std::string, Animation> animations_;
 };
 
 #endif

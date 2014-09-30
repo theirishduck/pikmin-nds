@@ -4,52 +4,52 @@
 #include <nds/arm9/postest.h>
 
 Vec3 DrawableEntity::position() {
-    return current.position;
+    return current_.position;
 }
 
 void DrawableEntity::setPosition(Vec3 pos) {
-    current.position = pos;
+    current_.position = pos;
 }
 
 Rotation DrawableEntity::rotation() {
-    return current.rotation;
+    return current_.rotation;
 }
 
 void DrawableEntity::setRotation(int x, int y, int z) {
-    current.rotation.x = x;
-    current.rotation.y = y;
-    current.rotation.z = z;
+    current_.rotation.x = x;
+    current_.rotation.y = y;
+    current_.rotation.z = z;
 }
 
 DrawState DrawableEntity::getCachedState() {
-    return cached;
+    return cached_;
 }
 
 void DrawableEntity::setCache() {
-    cached = current;
+    cached_ = current_;
 }
 
 void DrawableEntity::setActor(DSGX* actor) {
-    current.actor = actor;
+    current_.actor = actor;
 }
 
 DSGX* DrawableEntity::getActor() {
-    return current.actor;
+    return current_.actor;
 }
 
 void DrawableEntity::applyTransformation() {
-    glTranslatef32(cached.position.x.data, cached.position.y.data, cached.position.z.data);
+    glTranslatef32(cached_.position.x.data, cached_.position.y.data, cached_.position.z.data);
     
     //If the rotation value is zero, we skip the gl call; this doesn't affect
     //the end result, but DOES skip an expensive matrix transformation when possible.
     //This is very effective, since most of our rotations will only be about the Y axis;
     //Initial testing shows this reducing applyTransformation() CPU load by ~1/2 for typical scenes.
-    if (cached.rotation.y)
-        glRotateYi(cached.rotation.y);
-    if (cached.rotation.x)
-        glRotateXi(cached.rotation.x);
-    if (cached.rotation.z)
-        glRotateZi(cached.rotation.z);
+    if (cached_.rotation.y)
+        glRotateYi(cached_.rotation.y);
+    if (cached_.rotation.x)
+        glRotateXi(cached_.rotation.x);
+    if (cached_.rotation.z)
+        glRotateZi(cached_.rotation.z);
 }
 
 void DrawableEntity::draw(MultipassEngine* engine) {
@@ -58,27 +58,27 @@ void DrawableEntity::draw(MultipassEngine* engine) {
     applyTransformation();
 
     //if necessary, apply animation!
-    if (cached.animation) {
+    if (cached_.animation) {
         //make sure the GFX engine is done drawing the previous object
         //while (GFX_STATUS & BIT(14)) {}
         //while (GFX_STATUS & BIT(27)) {}
         //BG_PALETTE_SUB[0] = RGB5(0,31,31);
-        cached.actor->applyAnimation(cached.animation, cached.animation_frame);
+        cached_.actor->applyAnimation(cached_.animation, cached_.animation_frame);
         //BG_PALETTE_SUB[0] = RGB5(0,0,31);
     }
     
     //draw the object!
     //BG_PALETTE_SUB[0] = RGB5(31,0,31);
-    glCallList(cached.actor->drawList());
+    glCallList(cached_.actor->drawList());
     //BG_PALETTE_SUB[0] = RGB5(0,0,31);
 }
 
 void DrawableEntity::update(MultipassEngine* engine) {
     //if necessary, update animations
-    if (current.animation) {
-        current.animation_frame++;
-        if (current.animation_frame >= current.animation->length) {
-            current.animation_frame = 0; //wrap around!
+    if (current_.animation) {
+        current_.animation_frame++;
+        if (current_.animation_frame >= current_.animation->length) {
+            current_.animation_frame = 0; //wrap around!
         }
     }
 }
@@ -97,7 +97,7 @@ Vec3 DrawableEntity::getRealModelCenter() {
     while (GFX_STATUS & BIT(27)) {}
     
     //Run a POS_TEST
-    PosTest(current.actor->center().x.data, current.actor->center().y.data, current.actor->center().z.data);
+    PosTest(current_.actor->center().x.data, current_.actor->center().y.data, current_.actor->center().z.data);
     //return THAT instead of the nonsense below
     Vec3 result;
     result.x.data = PosTestXresult();
@@ -115,9 +115,9 @@ Vec3 DrawableEntity::getRealModelCenter() {
     //multiply our current point by the clip matrix (warning: fixed point math
     //being done by hand here)
     s32 cz = 
-        (current.actor->center().x.data >> 6) * (clip[2] >> 6) + 
-        (current.actor->center().z.data >> 6) * (clip[6] >> 6) + //why is this Z used twice? Should this be Y here?
-        (current.actor->center().z.data >> 6) * (clip[10] >> 6) + 
+        (current_.actor->center().x.data >> 6) * (clip[2] >> 6) + 
+        (current_.actor->center().z.data >> 6) * (clip[6] >> 6) + //why is this Z used twice? Should this be Y here?
+        (current_.actor->center().z.data >> 6) * (clip[10] >> 6) + 
         (floattov16(1.0) >> 6)     * (clip[14] >> 6);
         
     //printf("%f\n", ((float)cz) / (0x1 << 12));
@@ -132,6 +132,6 @@ Vec3 DrawableEntity::getRealModelCenter() {
 }
 
 void DrawableEntity::setAnimation(std::string name) {
-    current.animation = current.actor->getAnimation(name);
-    current.animation_frame = 0;
+    current_.animation = current_.actor->getAnimation(name);
+    current_.animation_frame = 0;
 }

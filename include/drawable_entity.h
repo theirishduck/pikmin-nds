@@ -50,8 +50,8 @@ class DrawableEntity {
   void setAnimation(std::string name);
 
  private:
-  DrawState current;
-  DrawState cached;
+  DrawState current_;
+  DrawState cached_;
 };
 
 #endif  // DRAWABLE_ENTITY_H

@@ -15,9 +15,9 @@ class Captain : public DrawableEntity {
   void update(MultipassEngine* engine) override;
 
  private:
-  v16 rotation{0};
-  int running{true};
-  int current_angle{};
+  v16 rotation_{0};
+  int running_{true};
+  int current_angle_{};
 };
 
 #endif  // CAPTAIN_H
