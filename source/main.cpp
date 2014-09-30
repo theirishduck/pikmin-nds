@@ -1,59 +1,62 @@
-#include <nds.h>
 #include <stdio.h>
 
 #include <array>
 #include <functional>
 
+#include <nds.h>
+
+#include "BasicMechanics.h"
+#include "Captain.h"
 #include "MultipassEngine.h"
 #include "RedPikmin.h"
 #include "YellowPikmin.h"
-#include "Captain.h"
 
-//debug texture loading stuff
+// Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
 
-#include "BasicMechanics.h"
+u32 const kTestPikmin{33};
 
-volatile int frame = 0;
+MultipassEngine g_engine;
+RedPikmin g_red_pikmin[kTestPikmin];
+RedPikmin g_red_pikmin2[kTestPikmin];
+RedPikmin g_red_pikmin3[kTestPikmin];
+YellowPikmin g_yellow_pikmin[kTestPikmin];
+Captain g_captain[kTestPikmin];
+Captain g_captain2[kTestPikmin];
+Captain g_captain3[kTestPikmin];
 
-#define TEST_PIKMIN 33
-
-MultipassEngine engine;
-RedPikmin red_pikmin[TEST_PIKMIN];
-RedPikmin red_pikmin2[TEST_PIKMIN];
-RedPikmin red_pikmin3[TEST_PIKMIN];
-YellowPikmin yellow_pikmin[TEST_PIKMIN];
-Captain captain[TEST_PIKMIN];
-Captain captain2[TEST_PIKMIN];
-Captain captain3[TEST_PIKMIN];
-
-using namespace std;
-
-void init() {
-    //Do this manually, so we can use BANK_H instead of BANK_C
+// Initialize the console using the full version of the console init function so
+// that VRAM bank H can be used instead of the default bank, bank C.
+void InitSubScreen() {
     vramSetBankH(VRAM_H_SUB_BG);
     videoSetModeSub(MODE_0_2D);
-    consoleInit(NULL,
-        0,
-        BgType_Text4bpp,
-        BgSize_T_256x256,
-        15,
-        0,
-        false,
-        true);
-    consoleDebugInit(DebugDevice_NOCASH);
 
-    printf("Multipass Engine Demo\n");
-    
+    PrintConsole* const kDefaultConsole{nullptr};
+    s32 const kConsoleLayer{0};
+    s32 const kConsoleMapBase{15};
+    s32 const kConsoleTileBase{0};
+    bool const kConsoleOnMainDisplay{true};
+    bool const kLoadConsoleGraphics{true};
+    consoleInit(kDefaultConsole, kConsoleLayer, BgType_Text4bpp,
+        BgSize_T_256x256, kConsoleMapBase, kConsoleTileBase,
+        not kConsoleOnMainDisplay, kLoadConsoleGraphics);
+}
+
+void InitDebugConsole() {
+    consoleDebugInit(DebugDevice_NOCASH);
+}
+
+void InitMainScreen() {
     videoSetMode(MODE_0_3D);
     glInit();
     glEnable(GL_TEXTURE_2D);
     
-    // setup the rear plane
-    glClearColor(4,4,4,31);
-    glClearDepth(0x7FFF); //TODO: Play with this maybe? This might be why we were getting clipping at the back plane before.
+    glClearColor(4, 4, 4, 31);
+    // TODO(Nick?) Play with this - it may be why there used to be clipping at
+    // the back plane.
+    glClearDepth(0x7FFF);
     
-    glViewport(0,0,255,191);
+    glViewport(0, 0, 255, 191);
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -63,63 +66,78 @@ void init() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
-    gluLookAt(0.0, 0.0, 10.0,  //camera position 
-              0.0, 0.0, 0.0,   //look at
-              0.0, 1.0, 0.0);  //up
+    // Accepts three 3D unpacked vectors: { camera position, target, up }.
+    gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     
-    //Setup default lights; these may be overridden later
-    glLight(0, RGB15(31,31,31) , floattov10(-0.40), floattov10(0.32), floattov10(0.27));
-    glLight(1, RGB15(31,31,31) , floattov10(0.32), floattov10(0.32), floattov10(0.32));
+    // Setup default lights; these will be overridden in the main engine.
+    glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32),
+        floattov10(0.27));
+    glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(0.32),
+        floattov10(0.32));
+}
 
-    //setup demo pikmin
-    for (int i = 0; i < TEST_PIKMIN; i++) {
-        red_pikmin[i].setPosition({-5,0,-2 + i * -2});
-        engine.addEntity(&red_pikmin[i]);
+void SetupDemoPikmin() {
+    for (u32 i = 0; i < kTestPikmin; i++) {
+        g_red_pikmin[i].setPosition({-5, 0, -2 + static_cast<s32>(i) * -2});
+        g_engine.addEntity(&g_red_pikmin[i]);
 
-        red_pikmin2[i].setPosition({0,0,-2 + i * -2});
-        engine.addEntity(&red_pikmin2[i]);
+        g_red_pikmin2[i].setPosition({0, 0, -2 + static_cast<s32>(i) * -2});
+        g_engine.addEntity(&g_red_pikmin2[i]);
         if (i == 0) {
-            //engine.targetEntity(&red_pikmin2[i]);
+            // g_engine.targetEntity(&g_red_pikmin2[i]);
         }
 
-        red_pikmin3[i].setPosition({5,0,-2 + i * -2});
-        engine.addEntity(&red_pikmin3[i]);
+        g_red_pikmin3[i].setPosition({5, 0, -2 + static_cast<s32>(i) * -2});
+        g_engine.addEntity(&g_red_pikmin3[i]);
     }
-    
-    captain[0].setPosition({0,1,0});
-    captain[0].setAnimation("Armature|Idle1");
-    engine.addEntity(&captain[0]);
-    engine.targetEntity(&captain[0]);
-    
-    //copy the pikmin eye texture into VRAM, at the beginning of bank C
-    //first, map that bank as CPU-accessible
-    vramSetBankC(VRAM_C_LCD);
-    //second, DMA the texture memory into place
-    dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
-    //finally, re-map bank C as texture memory
-    vramSetBankC(VRAM_C_TEXTURE);
+}
 
+void InitCaptain() {
+    g_captain[0].setPosition({0, 1, 0});
+    g_captain[0].setAnimation("Armature|Idle1");
+    g_engine.addEntity(&g_captain[0]);
+    g_engine.targetEntity(&g_captain[0]);
+}
+
+// Copy the pikmin eye texture into the beginning of VRAM bank C.
+void InitPikminEyeTexture() {
+    // VRAM is not memory mapped to the CPU when in texture mode, so all
+    // modifications to textures must be done by changing the bank to a mode
+    // where it is mapped to the CPU, performing the modifications, and
+    // switching it back to texture mode.
+    vramSetBankC(VRAM_C_LCD);
+    dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
+    vramSetBankC(VRAM_C_TEXTURE);
+}
+
+void Init() {
+    InitSubScreen();
+    InitDebugConsole();
+    printf("Multipass Engine Demo\n");
+
+    InitMainScreen();
+
+    SetupDemoPikmin();
+    InitCaptain();
+    InitPikminEyeTexture();
+    
     glPushMatrix();
 }
 
-void gameloop() {
-    frame++;
-    
-    touchPosition touchXY;
-    touchRead(&touchXY);
-    
-    basicMechanicsUpdate();
+void GameLoop() {
+    for (;;) {
+        touchPosition touchXY;
+        touchRead(&touchXY);
+        
+        basicMechanicsUpdate();
 
-    engine.update();
-    engine.draw();
+        g_engine.update();
+        g_engine.draw();
+    }
 }
 
-int main(void) {
-  init();
-  
-  while(1) {
-    gameloop();
-  }
-
+int main() {
+  Init();
+  GameLoop();
   return 0;
 }
