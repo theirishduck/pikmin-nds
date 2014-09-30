@@ -25,12 +25,15 @@ struct Animation {
 // Dsgx parses .dsgx contents and provides accessors for its content.
 class DSGX {
  public:
+  template <typename FixedT, int FixedF>
+  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+
   DSGX(u32* data, const u32 length);
 
   u32* drawList();
   Vec3 center();
   void setCenter(Vec3 center);
-  gx::Fixed<s32, 12> radius();
+  Fixed<s32, 12> radius();
 
   u32 drawCost();
 
@@ -41,7 +44,7 @@ private:
   u32* model_data;
 
   Vec3 bounding_center;
-  gx::Fixed<s32, 12> bounding_radius;
+  Fixed<s32, 12> bounding_radius;
 
   u32 draw_cost;
 

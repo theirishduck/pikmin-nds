@@ -7,8 +7,8 @@
 
 namespace numeric_types {
 
-template <typename T, int F>
-using Fixed = gx::Fixed<T, F>;
+// template <typename T, int F>
+// using Fixed = gx::Fixed<T, F>;
 
 class Degrees
 {

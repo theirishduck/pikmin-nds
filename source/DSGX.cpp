@@ -1,11 +1,14 @@
 #include "dsgx.h"
+
 #include <stdio.h>
+
 #include <string>
 
 //size of the chunk header, in BYTES
 #define CHUNK_HEADER_SIZE 2
 
 using namespace std;
+namespace nt = numeric_types;
 
 DSGX::DSGX(u32* data, const u32 length) {
     u32 seek = 0;
@@ -103,7 +106,7 @@ void DSGX::setCenter(Vec3 center) {
     bounding_center = center;
 }
 
-gx::Fixed<s32,12> DSGX::radius() {
+nt::Fixed<s32, 12> DSGX::radius() {
     return bounding_radius;
 }
 

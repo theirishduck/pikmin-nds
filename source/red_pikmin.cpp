@@ -5,6 +5,8 @@
 #include "dsgx.h"
 #include "pikmin_dsgx.h"
 
+namespace nt = numeric_types;
+
 RedPikmin::RedPikmin() {
     DSGX* pikmin_actor = new DSGX((u32*)pikmin_dsgx, pikmin_dsgx_size);
     setActor(pikmin_actor);
@@ -48,7 +50,7 @@ void RedPikmin::ChooseNewTarget() {
 }
 
 void RedPikmin::Move() {
-    gx::Fixed<s32, 12> distance{(target_ - position()).length()};
+    nt::Fixed<s32, 12> distance{(target_ - position()).length()};
     bool const target_is_far_enough_away{distance > 5.0f};
     if (target_is_far_enough_away and not running_) {
         setAnimation("Armature|Run");

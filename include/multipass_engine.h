@@ -6,9 +6,12 @@
 #include "drawable_entity.h"
 
 struct EntityContainer {
+  template <typename FixedT, int FixedF>
+  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+
   DrawableEntity* entity;
-  gx::Fixed<s32, 12> near_z;
-  gx::Fixed<s32, 12> far_z;
+  Fixed<s32, 12> near_z;
+  Fixed<s32, 12> far_z;
   bool operator<(const EntityContainer& other) const {
     return far_z < other.far_z;
   }
@@ -34,6 +37,9 @@ class MultipassEngine {
   void targetEntity(DrawableEntity*);
 
  private:
+  template <typename FixedT, int FixedF>
+  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+
   void gatherDrawList();
   void setVRAMforPass(int pass);
   void applyCameraTransform();
@@ -55,8 +61,8 @@ class MultipassEngine {
   int keys;
   int last_angle = 0;
 
-  gx::Fixed<s32, 12> near_plane;
-  gx::Fixed<s32, 12> far_plane;
+  Fixed<s32, 12> near_plane;
+  Fixed<s32, 12> far_plane;
 
   Vec3 camera_position_current;
   Vec3 camera_target_current;

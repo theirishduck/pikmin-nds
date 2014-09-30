@@ -1,7 +1,7 @@
 #ifndef FIXED_H
 #define FIXED_H
 
-namespace gx {
+namespace numeric_types {
 
 // Represents a fixed point integral type.
 // T should be an integral type; it is exposed because fixeds may be any number

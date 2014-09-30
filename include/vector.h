@@ -7,9 +7,12 @@
 
 template <typename T = s32, int F = 12>
 struct Vector3 {
-  gx::Fixed<T, F> x;
-  gx::Fixed<T, F> y;
-  gx::Fixed<T, F> z;
+  template <typename FixedT, int FixedF>
+  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+
+  Fixed<T, F> x;
+  Fixed<T, F> y;
+  Fixed<T, F> z;
 
   Vector3 operator+(const Vector3& other) {
     Vector3 sum;
@@ -37,9 +40,9 @@ struct Vector3 {
   }
 
   // Warning: Only correct for 1.19.12 fixed specialization.
-  gx::Fixed<T, F> length() {
+  Fixed<T, F> length() {
     s32 root = sqrtf32((x * x + y * y + z * z).data);
-    gx::Fixed<T, F> result;
+    Fixed<T, F> result;
     result.data = root;
     return result;
   }
@@ -47,7 +50,7 @@ struct Vector3 {
   // Return a unit vector with the same orientation as this instance.
   Vector3<T, F> normalize() {
     Vector3<T, F> result;
-    gx::Fixed<T, F> current_length = length();
+    Fixed<T, F> current_length = length();
     if (current_length == 0) {
         return Vector3{0, 0, 0};
     }
@@ -60,8 +63,11 @@ struct Vector3 {
 
 template <typename T = s32, int F = 12>
 struct Vector2 {
-  gx::Fixed<T, F> x;
-  gx::Fixed<T, F> y;
+  template <typename FixedT, int FixedF>
+  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+
+  Fixed<T, F> x;
+  Fixed<T, F> y;
 };
 
 using Vec3 = Vector3<>;
