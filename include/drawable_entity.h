@@ -4,7 +4,7 @@
 #include <string>
 #include "vector.h"
 
-#include "DSGX.h"
+#include "dsgx.h"
 
 //Root for anything that the various Graphics Engines may use;
 //intended to be inherited from to create game objects with

@@ -1,9 +1,9 @@
-#include "ProjectSettings.h"
-#include "MultipassEngine.h"
+#include "project_settings.h"
+#include "multipass_engine.h"
 #include <vector>
 #include <stdio.h>
 
-#include "debugdraw.h"
+#include "debug_draw.h"
 
 using namespace std;
 

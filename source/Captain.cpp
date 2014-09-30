@@ -1,7 +1,7 @@
 #include "Captain.h"
 
 //model data
-#include "DSGX.h"
+#include "dsgx.h"
 #include "olimar_dsgx.h"
 #include "olimar_low_poly_dsgx.h"
 #include "test_dsgx.h"

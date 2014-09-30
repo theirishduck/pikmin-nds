@@ -1,4 +1,4 @@
-#include "DSGX.h"
+#include "dsgx.h"
 #include <stdio.h>
 #include <string>
 

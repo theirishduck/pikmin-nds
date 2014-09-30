@@ -1,5 +1,5 @@
-#include "DrawableEntity.h"
-#include "MultipassEngine.h"
+#include "drawable_entity.h"
+#include "multipass_engine.h"
 #include <stdio.h>
 #include <nds/arm9/postest.h>
 

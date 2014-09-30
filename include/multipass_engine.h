@@ -2,8 +2,8 @@
 #define MULTIPASSENGINE_H
 
 #include <queue>
-#include "DrawableEntity.h"
-#include "ProjectSettings.h"
+#include "drawable_entity.h"
+#include "project_settings.h"
 
 struct EntityContainer {
     DrawableEntity* entity;

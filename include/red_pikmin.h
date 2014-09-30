@@ -1,7 +1,7 @@
 #ifndef REDPIKMIN_H
 #define REDPIKMIN_H
 
-#include "MultipassEngine.h"
+#include "multipass_engine.h"
 
 class RedPikmin : public DrawableEntity {
 public:

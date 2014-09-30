@@ -1,8 +1,8 @@
-#include "RedPikmin.h"
+#include "red_pikmin.h"
 
 #include <stdio.h>
 
-#include "DSGX.h"
+#include "dsgx.h"
 #include "pikmin_dsgx.h"
 
 RedPikmin::RedPikmin() {

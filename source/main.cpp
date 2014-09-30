@@ -5,11 +5,11 @@
 
 #include <nds.h>
 
-#include "BasicMechanics.h"
-#include "Captain.h"
-#include "MultipassEngine.h"
-#include "RedPikmin.h"
-#include "YellowPikmin.h"
+#include "basic_mechanics.h"
+#include "captain.h"
+#include "multipass_engine.h"
+#include "red_pikmin.h"
+#include "yellow_pikmin.h"
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"

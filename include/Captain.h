@@ -1,7 +1,7 @@
 #ifndef CAPTAIN_H
 #define CAPTAIN_H
 
-#include "MultipassEngine.h"
+#include "multipass_engine.h"
 
 class Captain : public DrawableEntity {
     public:

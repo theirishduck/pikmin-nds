@@ -1,7 +1,7 @@
 #ifndef YELLOWPIKMIN_H
 #define YELLOWPIKMIN_H
 
-#include "MultipassEngine.h"
+#include "multipass_engine.h"
 
 class YellowPikmin : public DrawableEntity {
     public:
