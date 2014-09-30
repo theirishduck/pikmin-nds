@@ -3,7 +3,7 @@
 
 #include <nds/ndstypes.h>
 
-#include "fixed.h"
+#include "numeric_types.h"
 
 template <typename T = s32, int F = 12>
 struct Vector3 {
