@@ -4,17 +4,22 @@
 #include "MultipassEngine.h"
 
 class RedPikmin : public DrawableEntity {
-    public:
-        void update(MultipassEngine* engine);
-        RedPikmin();
-        ~RedPikmin();
-        
-    private:
-        s16 rotation = 0;
-        bool running = false;
-        int nextTarget = 0;
-        Vec3 target;
-        Vec3 direction;
+public:
+    RedPikmin();
+    ~RedPikmin();
+
+    void update(MultipassEngine* engine) override;
+
+private:
+    bool NeedsNewTarget() const;
+    void ChooseNewTarget();
+    void Move();
+
+    s16 rotation_ = 0;
+    bool running_ = false;
+    s32 updates_until_new_target_ = 0;
+    Vec3 target_;
+    Vec3 direction_;
 };
 
 #endif

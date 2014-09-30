@@ -1,9 +1,9 @@
 #include "RedPikmin.h"
-#include "DSGX.h"
-#include "pikmin_dsgx.h"
 
 #include <stdio.h>
 
+#include "DSGX.h"
+#include "pikmin_dsgx.h"
 
 RedPikmin::RedPikmin() {
     DSGX* pikmin_actor = new DSGX((u32*)pikmin_dsgx, pikmin_dsgx_size);
@@ -16,55 +16,58 @@ RedPikmin::~RedPikmin() {
 }
 
 void RedPikmin::update(MultipassEngine* engine) {
-    setRotation(0,rotation + degreesToAngle(90),0);
+    setRotation(0, rotation_ + degreesToAngle(90), 0);
 
-    nextTarget--;
-    //let's do something fun
-    if (nextTarget <= 0) {
-        target.x = (rand() % 64) - 32;
-        target.y = 0;
-        target.z = (rand() % 64) - 32;
+    updates_until_new_target_--;
 
-        nextTarget = (rand() % 128) + 128;
-
-        direction = (target - position()).normalize();
-        //figure out the run rotation from our direction vector
-        if (direction.z <= 0) {
-            rotation = acosLerp(direction.x.data);
-        } else {
-            rotation = -acosLerp(direction.x.data);
-        }
+    if (NeedsNewTarget()) {
+        ChooseNewTarget();
     }
 
-    //printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target.x, (float)target.y, (float)target.z);
+    Move();
 
-    //figure out if we need to run toward our target
-    gx::Fixed<s32,12> distance = (target - position()).length();
-    if (distance > 5.0f) {
-        if (!running) {
-            setAnimation("Armature|Run");
-        }
-        running = true;
-    } else {
-        running = false;
+    DrawableEntity::update(engine);
+}
+
+bool RedPikmin::NeedsNewTarget() const {
+    return updates_until_new_target_ <= 0;
+}
+
+void RedPikmin::ChooseNewTarget() {
+    target_.x = rand() % 64 - 32;
+    target_.y = 0;
+    target_.z = rand() % 64 - 32;
+
+    updates_until_new_target_ = rand() % 128 + 128;
+
+    direction_ = (target_ - position()).normalize();
+    rotation_ = (direction_.z <= 0 ? 1 : -1) * acosLerp(direction_.x.data);
+
+    // printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target_.x,
+    //     (float)target_.y, (float)target_.z);
+}
+
+void RedPikmin::Move() {
+    gx::Fixed<s32, 12> distance{(target_ - position()).length()};
+    bool const target_is_far_enough_away{distance > 5.0f};
+    if (target_is_far_enough_away and not running_) {
+        setAnimation("Armature|Run");
     }
+    running_ = target_is_far_enough_away;
 
-    if (running) {
-        //move the pikmin! scary
-        setPosition(position() + Vec3{direction.x / 4, 0, direction.z / 4});
-        setRotation(0, rotation + degreesToAngle(90), 0);
-        
+    if (running_) {
+        setPosition(position() + Vec3{direction_.x / 4, 0, direction_.z / 4});
+        setRotation(0, rotation_ + degreesToAngle(90), 0);
     } else {
-        //setAnimation("Armature|Idle");
+        // setAnimation("Armature|Idle");
     }
 
     /*
-    if (keysHeld() & KEY_RIGHT)
-        rotation += 1;  
-    if (keysHeld() & KEY_LEFT)
-        rotation -= 1;  
-    */
-
-    //call the draw function's update
-    DrawableEntity::update(engine);
+    if (keysHeld() & KEY_RIGHT) {
+        rotation_ += 1;
+    }
+    if (keysHeld() & KEY_LEFT) {
+        rotation_ -= 1;
+    }
+    //*/
 }
