@@ -51,15 +51,15 @@ class MultipassEngine {
   std::vector<EntityContainer> overlap_list;
   std::vector<EntityContainer> pass_list;
 
-  int current_pass = 0;
+  int current_pass{0};
 
-  bool debug_first_pass = false;
-  bool debug_timings = false;
-  bool debug_colors = false;
+  bool debug_first_pass{false};
+  bool debug_timings{false};
+  bool debug_colors{false};
 
   int old_keys;
   int keys;
-  int last_angle = 0;
+  int last_angle{0};
 
   Fixed<s32, 12> near_plane;
   Fixed<s32, 12> far_plane;
@@ -75,8 +75,8 @@ class MultipassEngine {
 
   DrawableEntity* entity_to_follow;
 
-  bool highCamera = false;
-  int cameraDistance = 2;
+  bool highCamera{false};
+  int cameraDistance{2};
 };
 
 #endif  // MULTIPASS_ENGINE_H

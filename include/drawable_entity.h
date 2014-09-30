@@ -18,8 +18,8 @@ struct DrawState {
 
   // TODO(Nick) try making this reference an animation state instead.
   DSGX* actor;
-  Animation* animation = 0;
-  u32 animation_frame = 0;
+  Animation* animation{0};
+  u32 animation_frame{0};
 };
 
 class MultipassEngine;
