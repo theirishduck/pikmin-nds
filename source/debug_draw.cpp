@@ -1,4 +1,4 @@
-#include "debugdraw.h"
+#include "debug_draw.h"
 #include <nds.h>
 
 void debug::drawCrosshair(Vec3 p, rgb color) {
@@ -6,7 +6,7 @@ void debug::drawCrosshair(Vec3 p, rgb color) {
     glBegin(GL_TRIANGLE);
     glColor(color);
     glPushMatrix();
-    glTranslatef32(p.x.data, p.y.data, p.z.data);
+    glTranslatef32(p.x.data_, p.y.data_, p.z.data_);
     glVertex3v16(0, -1 << 10, 0);
     glVertex3v16(0, 1 << 10, 0);
     glVertex3v16(0, 1 << 10, 0);

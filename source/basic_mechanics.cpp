@@ -1,6 +1,8 @@
-#include "BasicMechanics.h"
+#include "basic_mechanics.h"
 
 #include <functional>
+
+#include <nds/arm9/input.h>
 
 using std::function;
 

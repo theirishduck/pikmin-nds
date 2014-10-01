@@ -1,20 +1,23 @@
 #ifndef CAPTAIN_H
 #define CAPTAIN_H
 
-#include "MultipassEngine.h"
+#include <nds/arm9/videoGL.h>
+
+#include "drawable_entity.h"
+
+class MultipassEngine;
 
 class Captain : public DrawableEntity {
-    public:
-        void update(MultipassEngine* engine);
-        Captain();
-        ~Captain();
+ public:
+  Captain();
+  ~Captain();
 
-        
-    private:
-        v16 rotation = 0;
+  void update(MultipassEngine* engine) override;
 
-        int running = true;
-        int current_angle;
+ private:
+  v16 rotation_{0};
+  int running_{true};
+  int current_angle_{};
 };
 
-#endif
+#endif  // CAPTAIN_H
