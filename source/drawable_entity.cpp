@@ -38,7 +38,7 @@ DSGX* DrawableEntity::getActor() {
 }
 
 void DrawableEntity::applyTransformation() {
-    glTranslatef32(cached_.position.x.data, cached_.position.y.data, cached_.position.z.data);
+    glTranslatef32(cached_.position.x.data_, cached_.position.y.data_, cached_.position.z.data_);
     
     //If the rotation value is zero, we skip the gl call; this doesn't affect
     //the end result, but DOES skip an expensive matrix transformation when possible.
@@ -97,12 +97,12 @@ Vec3 DrawableEntity::getRealModelCenter() {
     while (GFX_STATUS & BIT(27)) {}
     
     //Run a POS_TEST
-    PosTest(current_.actor->center().x.data, current_.actor->center().y.data, current_.actor->center().z.data);
+    PosTest(current_.actor->center().x.data_, current_.actor->center().y.data_, current_.actor->center().z.data_);
     //return THAT instead of the nonsense below
     Vec3 result;
-    result.x.data = PosTestXresult();
-    result.y.data = PosTestYresult();
-    result.z.data = PosTestZresult();
+    result.x.data_ = PosTestXresult();
+    result.y.data_ = PosTestYresult();
+    result.z.data_ = PosTestZresult();
     glPopMatrix(1);
     return result;
 
@@ -115,9 +115,9 @@ Vec3 DrawableEntity::getRealModelCenter() {
     //multiply our current point by the clip matrix (warning: fixed point math
     //being done by hand here)
     s32 cz = 
-        (current_.actor->center().x.data >> 6) * (clip[2] >> 6) + 
-        (current_.actor->center().z.data >> 6) * (clip[6] >> 6) + //why is this Z used twice? Should this be Y here?
-        (current_.actor->center().z.data >> 6) * (clip[10] >> 6) + 
+        (current_.actor->center().x.data_ >> 6) * (clip[2] >> 6) + 
+        (current_.actor->center().z.data_ >> 6) * (clip[6] >> 6) + //why is this Z used twice? Should this be Y here?
+        (current_.actor->center().z.data_ >> 6) * (clip[10] >> 6) + 
         (floattov16(1.0) >> 6)     * (clip[14] >> 6);
         
     //printf("%f\n", ((float)cz) / (0x1 << 12));
@@ -125,7 +125,7 @@ Vec3 DrawableEntity::getRealModelCenter() {
     glPopMatrix(1);
 
     gx::Fixed<s32,12> thing;
-    thing.data = (cz >> 1);
+    thing.data_ = (cz >> 1);
     BG_PALETTE_SUB[0] = RGB5(0,15,0);BG_PALETTE_SUB[0] = RGB5(0,15,0);
     return thing;
     */

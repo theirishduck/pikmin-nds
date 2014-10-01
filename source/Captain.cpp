@@ -57,8 +57,8 @@ void Captain::update(MultipassEngine* engine) {
         //finally, movement! Based on our angle, apply a velocity in that direction
         //(Note: This is kind of backwards? Maybe we should be working with a direction vector)
         Vec3 movement;
-        movement.x.data = cosLerp(degreesToAngle(current_angle_));
-        movement.z.data = -sinLerp(degreesToAngle(current_angle_));
+        movement.x.data_ = cosLerp(degreesToAngle(current_angle_));
+        movement.z.data_ = -sinLerp(degreesToAngle(current_angle_));
         setPosition(position() + movement * 0.2);
     }
 

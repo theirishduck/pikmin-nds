@@ -43,7 +43,7 @@ void RedPikmin::ChooseNewTarget() {
     updates_until_new_target_ = rand() % 128 + 128;
 
     direction_ = (target_ - position()).normalize();
-    rotation_ = (direction_.z <= 0 ? 1 : -1) * acosLerp(direction_.x.data);
+    rotation_ = (direction_.z <= 0 ? 1 : -1) * acosLerp(direction_.x.data_);
 
     // printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target_.x,
     //     (float)target_.y, (float)target_.z);

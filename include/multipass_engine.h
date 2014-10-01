@@ -27,7 +27,8 @@ class MultipassEngine {
 
   void addEntity(DrawableEntity* entity);
 
-  static MultipassEngine* engine;
+  // TODO(Nick) This isn't being used anywhere. Should this be removed?
+  static MultipassEngine* engine_;
 
   int dPadDirection();
   int cameraAngle();
@@ -45,38 +46,38 @@ class MultipassEngine {
   void applyCameraTransform();
   void drawClearPlane();
 
-  std::priority_queue<EntityContainer> drawList;
+  std::priority_queue<EntityContainer> draw_list_;
 
-  std::vector<DrawableEntity*> entities;
-  std::vector<EntityContainer> overlap_list;
-  std::vector<EntityContainer> pass_list;
+  std::vector<DrawableEntity*> entities_;
+  std::vector<EntityContainer> overlap_list_;
+  std::vector<EntityContainer> pass_list_;
 
-  int current_pass{0};
+  int current_pass_{0};
 
-  bool debug_first_pass{false};
-  bool debug_timings{false};
-  bool debug_colors{false};
+  bool debug_first_pass_{false};
+  bool debug_timings_{false};
+  bool debug_colors_{false};
 
-  int old_keys;
-  int keys;
-  int last_angle{0};
+  int old_keys_;
+  int keys_;
+  int last_angle_{0};
 
-  Fixed<s32, 12> near_plane;
-  Fixed<s32, 12> far_plane;
+  Fixed<s32, 12> near_plane_;
+  Fixed<s32, 12> far_plane_;
 
-  Vec3 camera_position_current;
-  Vec3 camera_target_current;
+  Vec3 camera_position_current_;
+  Vec3 camera_target_current_;
 
-  Vec3 camera_position_destination;
-  Vec3 camera_target_destination;
+  Vec3 camera_position_destination_;
+  Vec3 camera_target_destination_;
 
-  Vec3 camera_position_cached;
-  Vec3 camera_target_cached;
+  Vec3 camera_position_cached_;
+  Vec3 camera_target_cached_;
 
-  DrawableEntity* entity_to_follow;
+  DrawableEntity* entity_to_follow_;
 
-  bool highCamera{false};
-  int cameraDistance{2};
+  bool high_camera_{false};
+  int camera_distance_{2};
 };
 
 #endif  // MULTIPASS_ENGINE_H

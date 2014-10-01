@@ -10,7 +10,7 @@ class YellowPikmin : public DrawableEntity {
   void update(MultipassEngine* engine) override;
 
  private:
-  v16 rotation = 0;
+  v16 rotation_ = 0;
 };
 
 #endif  // YELLOW_PIKMIN_H

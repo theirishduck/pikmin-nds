@@ -47,10 +47,10 @@ void DSGX::dsgx_chunk(u32* data) {
 }
 
 void DSGX::bounding_sphere_chunk(void* data) {
-    bounding_center_.x.data = reinterpret_cast<s32*>(data)[0];
-    bounding_center_.y.data = reinterpret_cast<s32*>(data)[1];
-    bounding_center_.z.data = reinterpret_cast<s32*>(data)[2];
-    bounding_radius_.data   = reinterpret_cast<s32*>(data)[3];
+    bounding_center_.x.data_ = reinterpret_cast<s32*>(data)[0];
+    bounding_center_.y.data_ = reinterpret_cast<s32*>(data)[1];
+    bounding_center_.z.data_ = reinterpret_cast<s32*>(data)[2];
+    bounding_radius_.data_   = reinterpret_cast<s32*>(data)[3];
 }
 
 void DSGX::cost_chunk(u32* data) {

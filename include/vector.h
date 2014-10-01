@@ -41,9 +41,9 @@ struct Vector3 {
 
   // Warning: Only correct for 1.19.12 fixed specialization.
   Fixed<T, F> length() {
-    s32 root = sqrtf32((x * x + y * y + z * z).data);
+    s32 root = sqrtf32((x * x + y * y + z * z).data_);
     Fixed<T, F> result;
-    result.data = root;
+    result.data_ = root;
     return result;
   }
 
@@ -54,9 +54,9 @@ struct Vector3 {
     if (current_length == 0) {
         return Vector3{0, 0, 0};
     }
-    result.x.data = divf32(x.data, current_length.data);
-    result.y.data = divf32(y.data, current_length.data);
-    result.z.data = divf32(z.data, current_length.data);
+    result.x.data_ = divf32(x.data_, current_length.data_);
+    result.y.data_ = divf32(y.data_, current_length.data_);
+    result.z.data_ = divf32(z.data_, current_length.data_);
     return result;
   }
 };

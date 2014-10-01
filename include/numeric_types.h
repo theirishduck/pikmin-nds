@@ -17,7 +17,7 @@ class Fixed {
 
  public:
   Fixed() {
-    data = 0;
+    data_ = 0;
   }
   ~Fixed() {}
 
@@ -27,57 +27,57 @@ class Fixed {
   template <typename T2, int F2>
   Fixed(const Fixed<T2, F2>& other) {*this = other;}
 
-  Fixed<T, F>& operator=(const int& other) {data = other << F; return *this;}
-  Fixed<T, F>& operator=(const float& other) {data = (int)(other * (1 << F)); return *this;}
+  Fixed<T, F>& operator=(const int& other) {data_ = other << F; return *this;}
+  Fixed<T, F>& operator=(const float& other) {data_ = (int)(other * (1 << F)); return *this;}
   template <typename T2, int F2>
   Fixed<T, F>& operator=(const Fixed<T2, F2>& other) {
-    data = F > F2 ?
-        other.data << AbsoluteDifference<F, F2>::value :
-        other.data >> AbsoluteDifference<F, F2>::value;
+    data_ = F > F2 ?
+        other.data_ << AbsoluteDifference<F, F2>::value :
+        other.data_ >> AbsoluteDifference<F, F2>::value;
     return *this;
   }
 
   // Comparison
-  bool operator==(const Fixed<T, F>& other) const {return data == other.data;}
-  bool operator<(const Fixed<T, F>& other) const {return data < other.data;}
-  bool operator>(const Fixed<T, F>& other) const {return data > other.data;}
-  bool operator<=(const Fixed<T, F>& other) const {return data <= other.data;}
-  bool operator>=(const Fixed<T, F>& other) const {return data >= other.data;}
-  bool operator!=(const Fixed<T, F>& other) const {return !(data == other.data);}
+  bool operator==(const Fixed<T, F>& other) const {return data_ == other.data_;}
+  bool operator<(const Fixed<T, F>& other) const {return data_ < other.data_;}
+  bool operator>(const Fixed<T, F>& other) const {return data_ > other.data_;}
+  bool operator<=(const Fixed<T, F>& other) const {return data_ <= other.data_;}
+  bool operator>=(const Fixed<T, F>& other) const {return data_ >= other.data_;}
+  bool operator!=(const Fixed<T, F>& other) const {return !(data_ == other.data_);}
 
   // Comparison with ints
-  bool operator==(const int& other) const {return data == other << F;}
-  bool operator<(const int& other) const {return data < other << F;}
-  bool operator>(const int& other) const {return data > other << F;}
-  bool operator<=(const int& other) const {return data <= other << F;}
-  bool operator>=(const int& other) const {return data >= other << F;}
-  bool operator!=(const int& other) const {return !(data == other << F);}
+  bool operator==(const int& other) const {return data_ == other << F;}
+  bool operator<(const int& other) const {return data_ < other << F;}
+  bool operator>(const int& other) const {return data_ > other << F;}
+  bool operator<=(const int& other) const {return data_ <= other << F;}
+  bool operator>=(const int& other) const {return data_ >= other << F;}
+  bool operator!=(const int& other) const {return !(data_ == other << F);}
 
   // Comparison with floats
-  bool operator==(const float& other) const {return data == ((Fixed<T, F>)other).data;}
-  bool operator<(const float& other) const {return data < ((Fixed<T, F>)other).data;}
-  bool operator>(const float& other) const {return data > ((Fixed<T, F>)other).data;}
-  bool operator<=(const float& other) const {return data <= ((Fixed<T, F>)other).data;}
-  bool operator>=(const float& other) const {return data >= ((Fixed<T, F>)other).data;}
-  bool operator!=(const float& other) const {return !(data == ((Fixed<T, F>)other).data);}
+  bool operator==(const float& other) const {return data_ == ((Fixed<T, F>)other).data_;}
+  bool operator<(const float& other) const {return data_ < ((Fixed<T, F>)other).data_;}
+  bool operator>(const float& other) const {return data_ > ((Fixed<T, F>)other).data_;}
+  bool operator<=(const float& other) const {return data_ <= ((Fixed<T, F>)other).data_;}
+  bool operator>=(const float& other) const {return data_ >= ((Fixed<T, F>)other).data_;}
+  bool operator!=(const float& other) const {return !(data_ == ((Fixed<T, F>)other).data_);}
 
   // Addition and subtraction
-  Fixed<T, F> operator+(const Fixed<T, F>& other) {Fixed<T,F> r; r.data = data + other.data; return r;}
-  Fixed<T, F>& operator+=(const Fixed<T, F>& other) {data += other.data; return *this;}
-  Fixed<T, F> operator-(const Fixed<T, F>& other) {Fixed<T,F> r; r.data = data - other.data; return r;}
-  Fixed<T, F>& operator-=(const Fixed<T, F>& other) {data -= other.data; return *this;}
+  Fixed<T, F> operator+(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = data_ + other.data_; return r;}
+  Fixed<T, F>& operator+=(const Fixed<T, F>& other) {data_ += other.data_; return *this;}
+  Fixed<T, F> operator-(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = data_ - other.data_; return r;}
+  Fixed<T, F>& operator-=(const Fixed<T, F>& other) {data_ -= other.data_; return *this;}
 
   // Multiplication and division
-  Fixed<T, F> operator*(const Fixed<T, F>& other) {Fixed<T,F> r; r.data = ((s64)data * (s64)other.data) >> F; return r;}
-  Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data = ((s64)data * (s64)other.data) >> F; return *this;}
-  Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data = (data << F) / (other.data); return r;}
-  Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data = (data << F) / (other.data); return *this;}
+  Fixed<T, F> operator*(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = ((s64)data_ * (s64)other.data_) >> F; return r;}
+  Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data_ = ((s64)data_ * (s64)other.data_) >> F; return *this;}
+  Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = (data_ << F) / (other.data_); return r;}
+  Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data_ = (data_ << F) / (other.data_); return *this;}
 
   // Type conversion
-  explicit operator int() const {return data >> F;}
-  explicit operator float() const {return ((float)data) / (float)(1 << F);}
+  explicit operator int() const {return data_ >> F;}
+  explicit operator float() const {return ((float)data_) / (float)(1 << F);}
 
-  T data;
+  T data_;
 
  private:
   // Calculates absolute difference of two compile time constants.
@@ -105,33 +105,33 @@ class Degrees
  public:
   using value_type = s32;
 
-  constexpr Degrees() : data{0} {}
-  constexpr Degrees(Degrees const& other) : data{other.data} {}
-  explicit constexpr Degrees(value_type const value) : data{value} {}
-  Degrees& operator=(Degrees const other) {data = other.data; return *this;}
+  constexpr Degrees() : data_{0} {}
+  constexpr Degrees(Degrees const& other) : data_{other.data_} {}
+  explicit constexpr Degrees(value_type const value) : data_{value} {}
+  Degrees& operator=(Degrees const other) {data_ = other.data_; return *this;}
 
-  constexpr bool operator==(Degrees const other) const {return data == other.data;}
-  constexpr bool operator<(Degrees const other) const {return data < other.data;}
-  constexpr bool operator>(Degrees const other) const {return data > other.data;}
-  constexpr bool operator<=(Degrees const other) const {return data <= other.data;}
-  constexpr bool operator>=(Degrees const other) const {return data >= other.data;}
-  constexpr bool operator!=(Degrees const other) const {return data != other.data;}
+  constexpr bool operator==(Degrees const other) const {return data_ == other.data_;}
+  constexpr bool operator<(Degrees const other) const {return data_ < other.data_;}
+  constexpr bool operator>(Degrees const other) const {return data_ > other.data_;}
+  constexpr bool operator<=(Degrees const other) const {return data_ <= other.data_;}
+  constexpr bool operator>=(Degrees const other) const {return data_ >= other.data_;}
+  constexpr bool operator!=(Degrees const other) const {return data_ != other.data_;}
 
-  constexpr Degrees operator+(Degrees const other) const {return Degrees{data + other.data};}
-  Degrees& operator+=(Degrees const other) {data += other.data; return *this;}
-  constexpr Degrees operator-(Degrees const other) const {return Degrees{data - other.data};}
-  Degrees& operator-=(Degrees const other) {data -= other.data; return *this;}
-  constexpr Degrees operator*(Degrees const other) const {return Degrees{data * other.data};}
-  Degrees& operator*=(Degrees const other) {data *= other.data; return *this;}
-  Degrees const operator/(Degrees const other) const {return Degrees{div32(data, other.data)};}
-  Degrees& operator/=(Degrees const other) {data = div32(data, other.data); return *this;}
-  Degrees const operator%(Degrees const other) const {return Degrees{mod32(data, other.data)};}
-  Degrees& operator%=(Degrees const other) {data = mod32(data, other.data); return *this;}
+  constexpr Degrees operator+(Degrees const other) const {return Degrees{data_ + other.data_};}
+  Degrees& operator+=(Degrees const other) {data_ += other.data_; return *this;}
+  constexpr Degrees operator-(Degrees const other) const {return Degrees{data_ - other.data_};}
+  Degrees& operator-=(Degrees const other) {data_ -= other.data_; return *this;}
+  constexpr Degrees operator*(Degrees const other) const {return Degrees{data_ * other.data_};}
+  Degrees& operator*=(Degrees const other) {data_ *= other.data_; return *this;}
+  Degrees const operator/(Degrees const other) const {return Degrees{div32(data_, other.data_)};}
+  Degrees& operator/=(Degrees const other) {data_ = div32(data_, other.data_); return *this;}
+  Degrees const operator%(Degrees const other) const {return Degrees{mod32(data_, other.data_)};}
+  Degrees& operator%=(Degrees const other) {data_ = mod32(data_, other.data_); return *this;}
 
-  constexpr Degrees Div(Degrees const other) const {return Degrees{data / other.data};}
-  constexpr Degrees Mod(Degrees const other) const {return Degrees{data % other.data};}
+  constexpr Degrees Div(Degrees const other) const {return Degrees{data_ / other.data_};}
+  constexpr Degrees Mod(Degrees const other) const {return Degrees{data_ % other.data_};}
 
-  value_type data;
+  value_type data_;
 };
 
 namespace literals {
@@ -145,36 +145,36 @@ class Brads
  public:
   using value_type = s16;
 
-  constexpr Brads() : data{0} {}
-  constexpr Brads(Brads const& other) : data{other.data} {}
+  constexpr Brads() : data_{0} {}
+  constexpr Brads(Brads const& other) : data_{other.data_} {}
   static constexpr Brads Raw(value_type const value) {return Brads{value};}
-  Brads& operator=(Brads const other) {data = other.data; return *this;}
+  Brads& operator=(Brads const other) {data_ = other.data_; return *this;}
 
-  constexpr bool operator==(Brads const other) const {return data == other.data;}
-  constexpr bool operator<(Brads const other) const {return data < other.data;}
-  constexpr bool operator>(Brads const other) const {return data > other.data;}
-  constexpr bool operator<=(Brads const other) const {return data <= other.data;}
-  constexpr bool operator>=(Brads const other) const {return data >= other.data;}
-  constexpr bool operator!=(Brads const other) const {return data != other.data;}
+  constexpr bool operator==(Brads const other) const {return data_ == other.data_;}
+  constexpr bool operator<(Brads const other) const {return data_ < other.data_;}
+  constexpr bool operator>(Brads const other) const {return data_ > other.data_;}
+  constexpr bool operator<=(Brads const other) const {return data_ <= other.data_;}
+  constexpr bool operator>=(Brads const other) const {return data_ >= other.data_;}
+  constexpr bool operator!=(Brads const other) const {return data_ != other.data_;}
 
-  constexpr Brads operator+(Brads const other) const {return Brads{static_cast<value_type>(data + other.data)};}
-  Brads& operator+=(Brads const other) {data += other.data; return *this;}
-  constexpr Brads operator-(Brads const other) const {return Brads{static_cast<value_type>(data - other.data)};}
-  Brads& operator-=(Brads const other) {data -= other.data; return *this;}
-  constexpr Brads operator*(Brads const other) const {return Brads{static_cast<value_type>(data * other.data)};}
-  Brads& operator*=(Brads const other) {data *= other.data; return *this;}
-  Brads const operator/(Brads const other) const {return Brads{static_cast<value_type>(div32(data, other.data))};}
-  Brads& operator/=(Brads const other) {data = static_cast<value_type>(div32(data, other.data)); return *this;}
-  Brads const operator%(Brads const other) const {return Brads{static_cast<value_type>(mod32(data, other.data))};}
-  Brads& operator%=(Brads const other) {data = static_cast<value_type>(mod32(data, other.data)); return *this;}
+  constexpr Brads operator+(Brads const other) const {return Brads{static_cast<value_type>(data_ + other.data_)};}
+  Brads& operator+=(Brads const other) {data_ += other.data_; return *this;}
+  constexpr Brads operator-(Brads const other) const {return Brads{static_cast<value_type>(data_ - other.data_)};}
+  Brads& operator-=(Brads const other) {data_ -= other.data_; return *this;}
+  constexpr Brads operator*(Brads const other) const {return Brads{static_cast<value_type>(data_ * other.data_)};}
+  Brads& operator*=(Brads const other) {data_ *= other.data_; return *this;}
+  Brads const operator/(Brads const other) const {return Brads{static_cast<value_type>(div32(data_, other.data_))};}
+  Brads& operator/=(Brads const other) {data_ = static_cast<value_type>(div32(data_, other.data_)); return *this;}
+  Brads const operator%(Brads const other) const {return Brads{static_cast<value_type>(mod32(data_, other.data_))};}
+  Brads& operator%=(Brads const other) {data_ = static_cast<value_type>(mod32(data_, other.data_)); return *this;}
 
-  constexpr Brads Div(Brads const other) const {return Brads{static_cast<value_type>(data / other.data)};}
-  constexpr Brads Mod(Brads const other) const {return Brads{static_cast<value_type>(data % other.data)};}
+  constexpr Brads Div(Brads const other) const {return Brads{static_cast<value_type>(data_ / other.data_)};}
+  constexpr Brads Mod(Brads const other) const {return Brads{static_cast<value_type>(data_ % other.data_)};}
 
-  value_type data;
+  value_type data_;
 
  private:
-  explicit constexpr Brads(value_type const value) : data{value} {}
+  explicit constexpr Brads(value_type const value) : data_{value} {}
 };
 
 namespace literals {
