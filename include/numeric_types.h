@@ -49,20 +49,20 @@ class Fixed {
   bool operator!=(const Fixed<T, F>& other) const {return !(data_ == other.data_);}
 
   // Comparison with ints
-  bool operator==(const int& other) const {return data_ == other << F;}
-  bool operator<(const int& other) const {return data_ < other << F;}
-  bool operator>(const int& other) const {return data_ > other << F;}
-  bool operator<=(const int& other) const {return data_ <= other << F;}
-  bool operator>=(const int& other) const {return data_ >= other << F;}
-  bool operator!=(const int& other) const {return !(data_ == other << F);}
+  //bool operator==(const int& other) const {return data_ == other << F;}
+  //bool operator<(const int& other) const {return data_ < other << F;}
+  //bool operator>(const int& other) const {return data_ > other << F;}
+  //bool operator<=(const int& other) const {return data_ <= other << F;}
+  //bool operator>=(const int& other) const {return data_ >= other << F;}
+  //bool operator!=(const int& other) const {return !(data_ == other << F);}
 
   // Comparison with floats
-  bool operator==(const float& other) const {return data_ == ((Fixed<T, F>)other).data_;}
-  bool operator<(const float& other) const {return data_ < ((Fixed<T, F>)other).data_;}
-  bool operator>(const float& other) const {return data_ > ((Fixed<T, F>)other).data_;}
-  bool operator<=(const float& other) const {return data_ <= ((Fixed<T, F>)other).data_;}
-  bool operator>=(const float& other) const {return data_ >= ((Fixed<T, F>)other).data_;}
-  bool operator!=(const float& other) const {return !(data_ == ((Fixed<T, F>)other).data_);}
+  //bool operator==(const float& other) const {return data_ == ((Fixed<T, F>)other).data_;}
+  //bool operator<(const float& other) const {return data_ < ((Fixed<T, F>)other).data_;}
+  //bool operator>(const float& other) const {return data_ > ((Fixed<T, F>)other).data_;}
+  //bool operator<=(const float& other) const {return data_ <= ((Fixed<T, F>)other).data_;}
+  //bool operator>=(const float& other) const {return data_ >= ((Fixed<T, F>)other).data_;}
+  //bool operator!=(const float& other) const {return !(data_ == ((Fixed<T, F>)other).data_);}
 
   // Addition and subtraction
   Fixed<T, F> operator+(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = data_ + other.data_; return r;}

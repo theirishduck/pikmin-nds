@@ -51,7 +51,7 @@ struct Vector3 {
   Vector3<T, F> normalize() {
     Vector3<T, F> result;
     Fixed<T, F> current_length = length();
-    if (current_length == 0) {
+    if (current_length == Fixed<s32,12>::FromInt(0)) {
         return Vector3{Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0)};
     }
     result.x.data_ = divf32(x.data_, current_length.data_);

@@ -165,13 +165,13 @@ int MultipassEngine::cameraAngle() {
     Vec3 facing;
     facing = entity_to_follow_->position() - camera_position_current_;
     facing.y = 0_f; //work on the XZ plane
-    if (facing.length() <= 0) {
+    if (facing.length() <= 0_f) {
         return 0;
     }
     facing = facing.normalize();
 
     //return 0;
-    if (facing.z <= 0) {
+    if (facing.z <= 0_f) {
         return acosLerp(facing.x.data_);
     } else {
         return -acosLerp(facing.x.data_);

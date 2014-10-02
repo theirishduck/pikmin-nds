@@ -45,7 +45,7 @@ void RedPikmin::ChooseNewTarget() {
     updates_until_new_target_ = rand() % 128 + 128;
 
     direction_ = (target_ - position()).normalize();
-    rotation_ = (direction_.z <= 0 ? 1 : -1) * acosLerp(direction_.x.data_);
+    rotation_ = (direction_.z <= 0_f ? 1 : -1) * acosLerp(direction_.x.data_);
 
     // printf("\nTarget: %.1f, %.1f, %.1f\n", (float)target_.x,
     //     (float)target_.y, (float)target_.z);
@@ -53,7 +53,7 @@ void RedPikmin::ChooseNewTarget() {
 
 void RedPikmin::Move() {
     nt::Fixed<s32, 12> distance{(target_ - position()).length()};
-    bool const target_is_far_enough_away{distance > 5.0f};
+    bool const target_is_far_enough_away{distance > 5.0_f};
     if (target_is_far_enough_away and not running_) {
         setAnimation("Armature|Run");
     }
