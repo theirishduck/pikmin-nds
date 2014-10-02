@@ -58,19 +58,7 @@ void InitMainScreen() {
     // TODO(Nick?) Play with this - it may be why there used to be clipping at
     // the back plane.
     glClearDepth(0x7FFF);
-    
     glViewport(0, 0, 255, 191);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    
-    gluPerspective(70, 256.0 / 192.0, 0.1, 4096);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    
-    // Accepts three 3D unpacked vectors: { camera position, target, up }.
-    gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     
     // Setup default lights; these will be overridden in the main engine.
     glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32),
