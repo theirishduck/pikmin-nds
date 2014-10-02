@@ -6,6 +6,8 @@
 #include "pikmin_dsgx.h"
 
 namespace nt = numeric_types;
+using numeric_types::literals::operator"" _f;
+using fixed = numeric_types::Fixed<s32,12>;
 
 RedPikmin::RedPikmin() {
     DSGX* pikmin_actor = new DSGX((u32*)pikmin_dsgx, pikmin_dsgx_size);
@@ -36,9 +38,9 @@ bool RedPikmin::NeedsNewTarget() const {
 }
 
 void RedPikmin::ChooseNewTarget() {
-    target_.x = rand() % 64 - 32;
-    target_.y = 0;
-    target_.z = rand() % 64 - 32;
+    target_.x = fixed::FromInt(rand() % 64 - 32);
+    target_.y = 0_f;
+    target_.z = fixed::FromInt(rand() % 64 - 32);
 
     updates_until_new_target_ = rand() % 128 + 128;
 
@@ -58,7 +60,7 @@ void RedPikmin::Move() {
     running_ = target_is_far_enough_away;
 
     if (running_) {
-        setPosition(position() + Vec3{direction_.x / 4, 0, direction_.z / 4});
+        setPosition(position() + Vec3{direction_.x / 4_f, 0_f, direction_.z / 4_f});
         setRotation(0, rotation_ + degreesToAngle(90), 0);
     } else {
         // setAnimation("Armature|Idle");

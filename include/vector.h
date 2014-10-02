@@ -31,7 +31,7 @@ struct Vector3 {
   }
 
   // Multiply the vector elements by a scalar and return the new vector.
-  Vector3 operator*(const float& other) {
+  Vector3 operator*(const Fixed<s32,12>& other) {
     Vector3 result;
     result.x = x * other;
     result.y = y * other;
@@ -52,7 +52,7 @@ struct Vector3 {
     Vector3<T, F> result;
     Fixed<T, F> current_length = length();
     if (current_length == 0) {
-        return Vector3{0, 0, 0};
+        return Vector3{Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0)};
     }
     result.x.data_ = divf32(x.data_, current_length.data_);
     result.y.data_ = divf32(y.data_, current_length.data_);

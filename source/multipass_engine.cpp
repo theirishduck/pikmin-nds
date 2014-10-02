@@ -13,10 +13,12 @@
 #include "debug_draw.h"
 
 using namespace std;
+using numeric_types::literals::operator"" _f;
+using fixed = numeric_types::Fixed<s32,12>;
 
 MultipassEngine::MultipassEngine() {
-    camera_position_destination_ = Vec3{0.0f, 6.0f, 4.0f};
-    camera_target_destination_   = Vec3{0.0f, 3.0f, 0.5f};
+    camera_position_destination_ = Vec3{0_f, 6_f, 4_f};
+    camera_target_destination_   = Vec3{0_f, 3_f, 0_f};
 
     camera_position_current_ = camera_position_destination_;
     camera_target_current_ = camera_target_destination_;
@@ -39,9 +41,9 @@ void MultipassEngine::updateCamera() {
     }
 
     if (entity_to_follow_) {
-        float height = 2.5f + 2.5f * camera_distance_;
+        fixed height = 2.5_f + 2.5_f * fixed::FromInt(camera_distance_);
         if (high_camera_) {
-            height = 7.5f + 7.5f * camera_distance_;
+            height = 7.5_f + 7.5_f * fixed::FromInt(camera_distance_);
         }
 
         if (keysDown() & KEY_L) {
@@ -52,11 +54,11 @@ void MultipassEngine::updateCamera() {
             camera_position_destination_.z.data_ -= -sinLerp(entity_to_follow_->rotation().y - degreesToAngle(90));
         }
         
-        float follow_distance = 4.0f + 6.0f * camera_distance_;
+        fixed follow_distance = 4.0_f + 6.0_f * fixed::FromInt(camera_distance_);
 
         camera_target_destination_ = entity_to_follow_->position();
         Vec3 entity_to_camera = entity_to_follow_->position() - camera_position_destination_;
-        entity_to_camera.y = 0; //clear out height, so we work on the XZ plane.
+        entity_to_camera.y = 0_f; //clear out height, so we work on the XZ plane.
         entity_to_camera = entity_to_camera.normalize();
         entity_to_camera = entity_to_camera * follow_distance;
         camera_position_destination_ = entity_to_follow_->position() - entity_to_camera;
@@ -68,8 +70,8 @@ void MultipassEngine::updateCamera() {
         printf("No entity?\n");
     }
 
-    camera_position_current_ = camera_position_destination_ * 0.25f + camera_position_current_ * 0.75f;
-    camera_target_current_ = camera_target_destination_ * 0.25f + camera_target_current_ * 0.75f;
+    camera_position_current_ = camera_position_destination_ * 0.25_f + camera_position_current_ * 0.75_f;
+    camera_target_current_ = camera_target_destination_ * 0.25_f + camera_target_current_ * 0.75_f;
 }
 
 void MultipassEngine::setCamera(Vec3 position, Vec3 target) {
@@ -162,7 +164,7 @@ int MultipassEngine::dPadDirection()  {
 int MultipassEngine::cameraAngle() {
     Vec3 facing;
     facing = entity_to_follow_->position() - camera_position_current_;
-    facing.y = 0; //work on the XZ plane
+    facing.y = 0_f; //work on the XZ plane
     if (facing.length() <= 0) {
         return 0;
     }
@@ -407,20 +409,20 @@ void MultipassEngine::draw() {
 
     //using the pass list, we can set our near/far clip planes
     if (current_pass_ == 0) {
-        far_plane_ = 256.0f;
+        far_plane_ = 256_f;
     } else {
         far_plane_ = near_plane_; //from the last pass
     }
     
-    near_plane_ = 0.1f;
+    near_plane_ = 0.1_f;
     if (!draw_list_.empty()) {
         //set this pass's near plane *behind* the very next object in the list; this is where we
         //need to clip all of the objects we have just drawn.
         near_plane_ = draw_list_.top().far_z;
         //yet! if for some weird reason that would put our near clip plane in negative space, well...
         //let's not do that!
-        if (near_plane_ < 0.1f) {
-            near_plane_ = 0.1f;
+        if (near_plane_ < 0.1_f) {
+            near_plane_ = 0.1_f;
         }
     }
 
@@ -430,7 +432,7 @@ void MultipassEngine::draw() {
         //advance the near plane in front of the previous pass's far plane. In any case, trying to draw the scene in 
         //this situation will result in very, VERY broken depth values, and will cause extreme overlapping artifacts. 
         //This is to be avoided at all costs. (We drop a frame here.)
-        if (far_plane_ == 0.1f) {
+        if (far_plane_ == 0.1_f) {
             printf("\x1b[10;0H Hit front of screen!\n");
             //front of the screen hit. Frame is safe to draw (contains sensible render) so do so now.
             //forcibly empty the draw list

@@ -14,6 +14,9 @@
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
 
+using numeric_types::literals::operator"" _f;
+using fixed = numeric_types::Fixed<s32,12>;
+
 u32 const kTestPikmin{33};
 
 MultipassEngine g_engine;
@@ -78,22 +81,22 @@ void InitMainScreen() {
 
 void SetupDemoPikmin() {
     for (u32 i = 0; i < kTestPikmin; i++) {
-        g_red_pikmin[i].setPosition({-5, 0, -2 + static_cast<s32>(i) * -2});
+        g_red_pikmin[i].setPosition({-5_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
         g_engine.addEntity(&g_red_pikmin[i]);
 
-        g_red_pikmin2[i].setPosition({0, 0, -2 + static_cast<s32>(i) * -2});
+        g_red_pikmin2[i].setPosition({0_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
         g_engine.addEntity(&g_red_pikmin2[i]);
         if (i == 0) {
             // g_engine.targetEntity(&g_red_pikmin2[i]);
         }
 
-        g_red_pikmin3[i].setPosition({5, 0, -2 + static_cast<s32>(i) * -2});
+        g_red_pikmin3[i].setPosition({5_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
         g_engine.addEntity(&g_red_pikmin3[i]);
     }
 }
 
 void InitCaptain() {
-    g_captain[0].setPosition({0, 1, 0});
+    g_captain[0].setPosition({0_f, 1_f, 0_f});
     g_captain[0].setAnimation("Armature|Idle1");
     g_engine.addEntity(&g_captain[0]);
     g_engine.targetEntity(&g_captain[0]);

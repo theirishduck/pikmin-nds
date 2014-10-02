@@ -14,21 +14,24 @@ template <typename T, int F>
 class Fixed {
   template<typename T2, int F2>
   friend class Fixed;
+ private:
+  constexpr Fixed(const int& other) : data_(other) {}
 
  public:
   Fixed() {
     data_ = 0;
   }
-  ~Fixed() {}
+  //~Fixed() {}
+
+  static constexpr Fixed<T, F> FromInt(const int& value) {return Fixed<T,F>(value << F);}
+  static constexpr Fixed<T, F> FromFloat(const float& value) {return Fixed<T,F>(value * (1 << F));}
 
   // Initialization from other types
-  Fixed(const int& other) {*this = other;}
-  Fixed(const float& other) {*this = other;}
   template <typename T2, int F2>
   Fixed(const Fixed<T2, F2>& other) {*this = other;}
 
-  Fixed<T, F>& operator=(const int& other) {data_ = other << F; return *this;}
-  Fixed<T, F>& operator=(const float& other) {data_ = (int)(other * (1 << F)); return *this;}
+  //Fixed<T, F>& operator=(const int& other) {data_ = other << F; return *this;}
+  //Fixed<T, F>& operator=(const float& other) {data_ = (int)(other * (1 << F)); return *this;}
   template <typename T2, int F2>
   Fixed<T, F>& operator=(const Fixed<T2, F2>& other) {
     data_ = F > F2 ?
@@ -72,6 +75,9 @@ class Fixed {
   Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data_ = ((s64)data_ * (s64)other.data_) >> F; return *this;}
   Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = (data_ << F) / (other.data_); return r;}
   Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data_ = (data_ << F) / (other.data_); return *this;}
+
+  //unary negation
+  constexpr Fixed operator-() { return Fixed{-data_}; }
 
   // Type conversion
   explicit operator int() const {return data_ >> F;}
@@ -185,6 +191,15 @@ constexpr Brads operator"" _brad(long double value) {
 constexpr Brads operator"" _brad(unsigned long long value) {
   return Brads::Raw(static_cast<Brads::value_type>(degreesToAngle(value)));
 }
+
+constexpr Fixed<s32, 12> operator"" _f(unsigned long long value) {
+  return Fixed<s32, 12>::FromInt(static_cast<s32>(value));
+}
+
+constexpr Fixed<s32, 12> operator"" _f(long double value) {
+  return Fixed<s32, 12>::FromFloat(static_cast<float>(value));
+}
+
 }  // namespace literals
 
 }  // namespace numeric_types

@@ -10,6 +10,8 @@
 #include "olimar_low_poly_dsgx.h"
 #include "test_dsgx.h"
 
+using numeric_types::literals::operator"" _f;
+
 Captain::Captain() {
     //todo: not this. This creates a new DSGX per instance of the object which, while not
     //huge, is still a processing load that should be avoided.
@@ -59,7 +61,8 @@ void Captain::update(MultipassEngine* engine) {
         Vec3 movement;
         movement.x.data_ = cosLerp(degreesToAngle(current_angle_));
         movement.z.data_ = -sinLerp(degreesToAngle(current_angle_));
-        setPosition(position() + movement * 0.2);
+        setPosition(position() + 
+            movement * 0.2_f);
     }
 
     //call the draw function's update
