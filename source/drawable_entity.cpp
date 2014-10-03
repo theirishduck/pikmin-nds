@@ -15,7 +15,7 @@ Rotation DrawableEntity::rotation() {
     return current_.rotation;
 }
 
-void DrawableEntity::setRotation(int x, int y, int z) {
+void DrawableEntity::setRotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z) {
     current_.rotation.x = x;
     current_.rotation.y = y;
     current_.rotation.z = z;
@@ -44,12 +44,12 @@ void DrawableEntity::applyTransformation() {
     //the end result, but DOES skip an expensive matrix transformation when possible.
     //This is very effective, since most of our rotations will only be about the Y axis;
     //Initial testing shows this reducing applyTransformation() CPU load by ~1/2 for typical scenes.
-    if (cached_.rotation.y)
-        glRotateYi(cached_.rotation.y);
-    if (cached_.rotation.x)
-        glRotateXi(cached_.rotation.x);
-    if (cached_.rotation.z)
-        glRotateZi(cached_.rotation.z);
+    if (cached_.rotation.y.data_)
+        glRotateYi(cached_.rotation.y.data_);
+    if (cached_.rotation.x.data_)
+        glRotateXi(cached_.rotation.x.data_);
+    if (cached_.rotation.z.data_)
+        glRotateZi(cached_.rotation.z.data_);
 }
 
 void DrawableEntity::draw(MultipassEngine* engine) {

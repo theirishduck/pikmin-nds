@@ -42,8 +42,8 @@ void Camera::update() {
                 //move the camera directly behind the target entity,
                 //based on their current rotation
                 position_destination_ = entity_to_follow_->position();
-                position_destination_.x.data_ -= cosLerp(entity_to_follow_->rotation().y - degreesToAngle(90));
-                position_destination_.z.data_ -= -sinLerp(entity_to_follow_->rotation().y - degreesToAngle(90));
+                position_destination_.x.data_ -= cosLerp((entity_to_follow_->rotation().y - 90_brad).data_);
+                position_destination_.z.data_ -= -sinLerp((entity_to_follow_->rotation().y - 90_brad).data_);
             }
             
             fixed follow_distance = 4.0_f + 6.0_f * fixed::FromInt(distance_);

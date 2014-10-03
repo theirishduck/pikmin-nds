@@ -15,7 +15,7 @@ class RedPikmin : public DrawableEntity {
   void ChooseNewTarget();
   void Move();
 
-  s16 rotation_{0};
+  numeric_types::Brads rotation_;
   bool running_{false};
   s32 updates_until_new_target_{0};
   Vec3 target_;

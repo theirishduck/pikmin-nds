@@ -7,9 +7,9 @@
 #include "vector.h"
 
 struct Rotation {
-  int x;
-  int y;
-  int z;
+  numeric_types::Brads x;
+  numeric_types::Brads y;
+  numeric_types::Brads z;
 };
 
 struct DrawState {
@@ -36,7 +36,7 @@ class DrawableEntity {
   void setPosition(Vec3);
 
   Rotation rotation();
-  void setRotation(int x, int y, int z);
+  void setRotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z);
 
   void setActor(Dsgx* actor);
   Dsgx* getActor();

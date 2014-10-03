@@ -57,7 +57,7 @@ void Captain::update(MultipassEngine* engine) {
         if (current_angle_ >= 360_brad) {current_angle_ -= 360_brad;}
         if (current_angle_ <    0_brad) {current_angle_ += 360_brad;}
 
-        setRotation(0,(current_angle_ + 90_brad).data_,0);
+        setRotation(0_brad,current_angle_ + 90_brad,0_brad);
 
         //finally, movement! Based on our angle, apply a velocity in that direction
         //(Note: This is kind of backwards? Maybe we should be working with a direction vector)
