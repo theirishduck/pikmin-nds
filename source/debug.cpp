@@ -1,4 +1,4 @@
-#include "debug_draw.h"
+#include "debug.h"
 #include <nds.h>
 
 void debug::drawCrosshair(Vec3 p, rgb color) {

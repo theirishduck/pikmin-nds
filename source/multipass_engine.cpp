@@ -10,7 +10,7 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/input.h>
 
-#include "debug_draw.h"
+#include "debug.h"
 
 using namespace std;
 using numeric_types::literals::operator"" _f;
