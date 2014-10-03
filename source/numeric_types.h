@@ -173,6 +173,9 @@ class Brads
   Brads const operator%(Brads const other) const {return Brads{static_cast<value_type>(mod32(data_, other.data_))};}
   Brads& operator%=(Brads const other) {data_ = static_cast<value_type>(mod32(data_, other.data_)); return *this;}
 
+  //unary negation
+  constexpr Brads operator-() { return Brads{static_cast<value_type>(-data_)}; }
+
   constexpr Brads Div(Brads const other) const {return Brads{static_cast<value_type>(data_ / other.data_)};}
   constexpr Brads Mod(Brads const other) const {return Brads{static_cast<value_type>(data_ % other.data_)};}
 

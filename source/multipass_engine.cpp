@@ -16,6 +16,9 @@ using namespace std;
 using numeric_types::literals::operator"" _f;
 using fixed = numeric_types::Fixed<s32,12>;
 
+using numeric_types::literals::operator"" _brad;
+using numeric_types::Brads;
+
 MultipassEngine::MultipassEngine() {
 }
 
@@ -71,41 +74,41 @@ void MultipassEngine::update() {
     }
 }
 
-int MultipassEngine::dPadDirection()  {
+Brads MultipassEngine::dPadDirection()  {
     //todo: make this not suck?
 
     if (keysHeld() & KEY_RIGHT) {
         if (keysHeld() & KEY_UP) {
-            return last_angle_ = 45;
+            return last_angle_ = 45_brad;
         }
         if (keysHeld() & KEY_DOWN) {
-            return last_angle_ = 315;
+            return last_angle_ = 315_brad;
         }
-        return last_angle_ = 0;
+        return last_angle_ = 0_brad;
     }
 
     if (keysHeld() & KEY_LEFT) {
         if (keysHeld() & KEY_UP) {
-            return last_angle_ = 135;
+            return last_angle_ = 135_brad;
         }
         if (keysHeld() & KEY_DOWN) {
-            return last_angle_ = 225;
+            return last_angle_ = 225_brad;
         }
-        return last_angle_ = 180;
+        return last_angle_ = 180_brad;
     }
 
     if (keysHeld() & KEY_UP) {
-        return last_angle_ = 90;
+        return last_angle_ = 90_brad;
     }
 
     if (keysHeld() & KEY_DOWN) {
-        return last_angle_ = 270;
+        return last_angle_ = 270_brad;
     }
 
     return last_angle_;
 }
 
-int MultipassEngine::cameraAngle() {
+Brads MultipassEngine::cameraAngle() {
     return camera.getAngle();   
 }
 

@@ -17,7 +17,7 @@ class Captain : public DrawableEntity {
  private:
   v16 rotation_{0};
   int running_{true};
-  int current_angle_{};
+  numeric_types::Brads current_angle_ = numeric_types::Brads::Raw(0);
 };
 
 #endif  // CAPTAIN_H

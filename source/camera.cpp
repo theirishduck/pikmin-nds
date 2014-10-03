@@ -7,6 +7,9 @@ using namespace std;
 using numeric_types::literals::operator"" _f;
 using fixed = numeric_types::Fixed<s32,12>;
 
+using numeric_types::literals::operator"" _brad;
+using numeric_types::Brads;
+
 Camera::Camera() {
     position_destination_ = Vec3{0_f, 6_f, 4_f};
     target_destination_   = Vec3{0_f, 3_f, 0_f};
@@ -72,20 +75,20 @@ void Camera::setCamera(Vec3 position, Vec3 target, bool instant) {
     }
 }
 
-int Camera::getAngle() {
+Brads Camera::getAngle() {
     Vec3 facing;
     facing = entity_to_follow_->position() - position_current_;
     facing.y = 0_f; //work on the XZ plane
     if (facing.length() <= 0_f) {
-        return 0;
+        return 0_brad;
     }
     facing = facing.normalize();
 
     //return 0;
     if (facing.z <= 0_f) {
-        return acosLerp(facing.x.data_);
+        return Brads::Raw(acosLerp(facing.x.data_));
     } else {
-        return -acosLerp(facing.x.data_);
+        return Brads::Raw(-acosLerp(facing.x.data_));
     }
 }
 

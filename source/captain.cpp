@@ -12,6 +12,9 @@
 
 using numeric_types::literals::operator"" _f;
 
+using numeric_types::literals::operator"" _brad;
+using numeric_types::Brads;
+
 Captain::Captain() {
     //todo: not this. This creates a new DSGX per instance of the object which, while not
     //huge, is still a processing load that should be avoided.
@@ -39,28 +42,28 @@ void Captain::update(MultipassEngine* engine) {
     }
 
     if (running_) {
-        int dpad_angle = angleToDegrees(engine->cameraAngle()) + (engine->dPadDirection() - 90);
-        int delta = dpad_angle - current_angle_;
+        Brads dpad_angle = engine->cameraAngle() + engine->dPadDirection() - 90_brad;
+        Brads delta = dpad_angle - current_angle_;
 
         //translate delta to a good relative range
-        while (delta >= 180)  {delta -= 360;}
-        while (delta < -180)  {delta += 360;}
+        while (delta >= 180_brad)  {delta -= 360_brad;}
+        while (delta < -180_brad)  {delta += 360_brad;}
         //clamp it to limit the maximum turning angle per frame
-        if (delta >  11) {delta =  11;}
-        if (delta < -11) {delta = -11;}
+        if (delta >  11_brad) {delta =  11_brad;}
+        if (delta < -11_brad) {delta = -11_brad;}
 
         current_angle_ += delta;
         //now, make sure current_angle stays in a sane range and doesn't overflow
-        if (current_angle_ >= 360) {current_angle_ -= 360;}
-        if (current_angle_ <    0) {current_angle_ += 360;}
+        if (current_angle_ >= 360_brad) {current_angle_ -= 360_brad;}
+        if (current_angle_ <    0_brad) {current_angle_ += 360_brad;}
 
-        setRotation(0,degreesToAngle(current_angle_ + 90),0);
+        setRotation(0,(current_angle_ + 90_brad).data_,0);
 
         //finally, movement! Based on our angle, apply a velocity in that direction
         //(Note: This is kind of backwards? Maybe we should be working with a direction vector)
         Vec3 movement;
-        movement.x.data_ = cosLerp(degreesToAngle(current_angle_));
-        movement.z.data_ = -sinLerp(degreesToAngle(current_angle_));
+        movement.x.data_ = cosLerp(current_angle_.data_);
+        movement.z.data_ = -sinLerp(current_angle_.data_);
         setPosition(position() + 
             movement * 0.2_f);
     }

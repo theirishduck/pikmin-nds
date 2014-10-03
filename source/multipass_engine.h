@@ -31,8 +31,8 @@ class MultipassEngine {
   // TODO(Nick) This isn't being used anywhere. Should this be removed?
   static MultipassEngine* engine_;
 
-  int dPadDirection();
-  int cameraAngle();
+  numeric_types::Brads dPadDirection();
+  numeric_types::Brads cameraAngle();
 
   void targetEntity(DrawableEntity*);
 
@@ -59,7 +59,7 @@ class MultipassEngine {
 
   int old_keys_;
   int keys_;
-  int last_angle_{0};
+  numeric_types::Brads last_angle_ = numeric_types::Brads::Raw(0);
 
   Fixed<s32, 12> near_plane_;
   Fixed<s32, 12> far_plane_;
