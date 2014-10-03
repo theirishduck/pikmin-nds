@@ -17,66 +17,10 @@ using numeric_types::literals::operator"" _f;
 using fixed = numeric_types::Fixed<s32,12>;
 
 MultipassEngine::MultipassEngine() {
-    camera_position_destination_ = Vec3{0_f, 6_f, 4_f};
-    camera_target_destination_   = Vec3{0_f, 3_f, 0_f};
-
-    camera_position_current_ = camera_position_destination_;
-    camera_target_current_ = camera_target_destination_;
 }
 
 void MultipassEngine::targetEntity(DrawableEntity* entity) {
-    entity_to_follow_ = entity;
-}
-
-void MultipassEngine::updateCamera() {
-    if (keysDown() & KEY_R) {
-        if (keysHeld() & KEY_L) {
-            camera_distance_ += 1;
-            if (camera_distance_ > 3) {
-                camera_distance_ = 1;
-            }
-        } else {
-            high_camera_ = !high_camera_;
-        }
-    }
-
-    if (entity_to_follow_) {
-        fixed height = 2.5_f + 2.5_f * fixed::FromInt(camera_distance_);
-        if (high_camera_) {
-            height = 7.5_f + 7.5_f * fixed::FromInt(camera_distance_);
-        }
-
-        if (keysDown() & KEY_L) {
-            //move the camera directly behind the target entity,
-            //based on their current rotation
-            camera_position_destination_ = entity_to_follow_->position();
-            camera_position_destination_.x.data_ -= cosLerp(entity_to_follow_->rotation().y - degreesToAngle(90));
-            camera_position_destination_.z.data_ -= -sinLerp(entity_to_follow_->rotation().y - degreesToAngle(90));
-        }
-        
-        fixed follow_distance = 4.0_f + 6.0_f * fixed::FromInt(camera_distance_);
-
-        camera_target_destination_ = entity_to_follow_->position();
-        Vec3 entity_to_camera = entity_to_follow_->position() - camera_position_destination_;
-        entity_to_camera.y = 0_f; //clear out height, so we work on the XZ plane.
-        entity_to_camera = entity_to_camera.normalize();
-        entity_to_camera = entity_to_camera * follow_distance;
-        camera_position_destination_ = entity_to_follow_->position() - entity_to_camera;
-        camera_position_destination_.y = height;
-
-        printf("\x1b[8;0HC. Position: %.1f, %.1f, %.1f\n", (float)camera_position_destination_.x, (float)camera_position_destination_.y, (float)camera_position_destination_.z);
-        printf(       "C. Target  : %.1f, %.1f, %.1f\n", (float)camera_target_destination_.x, (float)camera_target_destination_.y, (float)camera_target_destination_.z);
-    } else {
-        printf("No entity?\n");
-    }
-
-    camera_position_current_ = camera_position_destination_ * 0.25_f + camera_position_current_ * 0.75_f;
-    camera_target_current_ = camera_target_destination_ * 0.25_f + camera_target_current_ * 0.75_f;
-}
-
-void MultipassEngine::setCamera(Vec3 position, Vec3 target) {
-    camera_position_destination_ = position;
-    camera_target_destination_ = target;
+    camera.targetEntity(entity);
 }
 
 void MultipassEngine::addEntity(DrawableEntity* entity) {
@@ -95,7 +39,7 @@ void MultipassEngine::update() {
         targetEntity(entities_[rand() % entities_.size()]);
     }
 
-    updateCamera();
+    camera.update();
 
     //handle debugging features
     //TODO: make this more touchscreen-y and less basic?
@@ -162,23 +106,8 @@ int MultipassEngine::dPadDirection()  {
 }
 
 int MultipassEngine::cameraAngle() {
-    Vec3 facing;
-    facing = entity_to_follow_->position() - camera_position_current_;
-    facing.y = 0_f; //work on the XZ plane
-    if (facing.length() <= 0_f) {
-        return 0;
-    }
-    facing = facing.normalize();
-
-    //return 0;
-    if (facing.z <= 0_f) {
-        return acosLerp(facing.x.data_);
-    } else {
-        return -acosLerp(facing.x.data_);
-    }
+    return camera.getAngle();   
 }
-
-
 
 void clipFriendly_Perspective(s32 near, s32 far, float angle)
 {
@@ -216,7 +145,7 @@ void MultipassEngine::gatherDrawList() {
     
     //reset to a normal matrix, in prep for calculations
     glLoadIdentity();
-    applyCameraTransform();
+    camera.applyTransform();
                 
     for (auto entity : entities_) {
         //cache this object, in case we need to reuse it for multiple passes
@@ -272,19 +201,6 @@ void MultipassEngine::setVRAMforPass(int pass) {
         bgSetPriority(3, 0);
         bgSetPriority(0, 3);
     }
-}
-
-void MultipassEngine::applyCameraTransform() {
-    //TODO: Make this not static
-    /*gluLookAt(  0.0, 6.0, 4.0,      //camera possition
-                0.0, 3.0, 0.5,      //look at
-                0.0, 1.0, 0.0);     //up
-    */
-    gluLookAt(
-        (float)camera_position_cached_.x, (float)camera_position_cached_.y, (float)camera_position_cached_.z, 
-        (float)camera_target_cached_.x,   (float)camera_target_cached_.y,   (float)camera_target_cached_.z,
-        0.0f, 1.0f, 0.0f);
-
 }
 
 void MultipassEngine::drawClearPlane() {
@@ -347,8 +263,7 @@ void MultipassEngine::draw() {
 
         //This is the first (and maybe last) frame of this pass, so
         //cache the draw state and set up the queue
-        camera_position_cached_ = camera_position_current_;
-        camera_target_cached_ = camera_target_current_;
+        camera.setCache();
         gatherDrawList();
         
         //to be extra sure, clear the overlap list
@@ -479,7 +394,7 @@ void MultipassEngine::draw() {
     //printf("far: %f\n", (float)far_plane_);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    applyCameraTransform();
+    camera.applyTransform();
     
     //actually draw the pass_list_
     if (debug_colors_)

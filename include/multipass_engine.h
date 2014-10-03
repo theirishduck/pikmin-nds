@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "drawable_entity.h"
+#include "camera.h"
 
 struct EntityContainer {
   template <typename FixedT, int FixedF>
@@ -33,8 +34,6 @@ class MultipassEngine {
   int dPadDirection();
   int cameraAngle();
 
-  void updateCamera();
-  void setCamera(Vec3 position, Vec3 target);
   void targetEntity(DrawableEntity*);
 
  private:
@@ -65,19 +64,7 @@ class MultipassEngine {
   Fixed<s32, 12> near_plane_;
   Fixed<s32, 12> far_plane_;
 
-  Vec3 camera_position_current_;
-  Vec3 camera_target_current_;
-
-  Vec3 camera_position_destination_;
-  Vec3 camera_target_destination_;
-
-  Vec3 camera_position_cached_;
-  Vec3 camera_target_cached_;
-
-  DrawableEntity* entity_to_follow_;
-
-  bool high_camera_{false};
-  int camera_distance_{2};
+  Camera camera;
 };
 
 #endif  // MULTIPASS_ENGINE_H
