@@ -21,7 +21,6 @@ class Fixed {
   Fixed() {
     data_ = 0;
   }
-  //~Fixed() {}
 
   static constexpr Fixed<T, F> FromInt(const int& value) {return Fixed<T,F>(value << F);}
   static constexpr Fixed<T, F> FromFloat(const float& value) {return Fixed<T,F>(value * (1 << F));}
