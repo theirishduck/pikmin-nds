@@ -10,7 +10,7 @@ using numeric_types::literals::operator"" _f;
 using fixed = numeric_types::Fixed<s32,12>;
 
 RedPikmin::RedPikmin() {
-    DSGX* pikmin_actor = new DSGX((u32*)pikmin_dsgx, pikmin_dsgx_size);
+    Dsgx* pikmin_actor = new Dsgx((u32*)pikmin_dsgx, pikmin_dsgx_size);
     setActor(pikmin_actor);
     setAnimation("Armature|Run");
 }

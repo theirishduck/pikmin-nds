@@ -29,11 +29,11 @@ void DrawableEntity::setCache() {
     cached_ = current_;
 }
 
-void DrawableEntity::setActor(DSGX* actor) {
+void DrawableEntity::setActor(Dsgx* actor) {
     current_.actor = actor;
 }
 
-DSGX* DrawableEntity::getActor() {
+Dsgx* DrawableEntity::getActor() {
     return current_.actor;
 }
 

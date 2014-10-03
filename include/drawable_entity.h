@@ -17,7 +17,7 @@ struct DrawState {
   Rotation rotation;
 
   // TODO(Nick) try making this reference an animation state instead.
-  DSGX* actor;
+  Dsgx* actor;
   Animation* animation{0};
   u32 animation_frame{0};
 };
@@ -38,8 +38,8 @@ class DrawableEntity {
   Rotation rotation();
   void setRotation(int x, int y, int z);
 
-  void setActor(DSGX* actor);
-  DSGX* getActor();
+  void setActor(Dsgx* actor);
+  Dsgx* getActor();
 
   virtual void draw(MultipassEngine* engine);
   virtual void update(MultipassEngine* engine);

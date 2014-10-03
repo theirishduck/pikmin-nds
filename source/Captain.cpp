@@ -15,7 +15,7 @@ using numeric_types::literals::operator"" _f;
 Captain::Captain() {
     //todo: not this. This creates a new DSGX per instance of the object which, while not
     //huge, is still a processing load that should be avoided.
-    DSGX* olimar_actor = new DSGX((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
+    Dsgx* olimar_actor = new Dsgx((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
     setActor(olimar_actor);
     setAnimation("Armature|Idle1");
 }

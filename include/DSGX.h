@@ -23,12 +23,12 @@ struct Animation {
 
 // Represents the contents of a .dsgx file.
 // Dsgx parses .dsgx contents and provides accessors for its content.
-class DSGX {
+class Dsgx {
  public:
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
-  DSGX(u32* data, const u32 length);
+  Dsgx(u32* data, const u32 length);
 
   u32* drawList();
   Vec3 center();
