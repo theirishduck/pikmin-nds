@@ -112,7 +112,7 @@ Brads MultipassEngine::CameraAngle() {
     return camera.GetAngle();   
 }
 
-void clipFriendly_Perspective(s32 near, s32 far, float angle)
+void ClipFriendlyPerspective(s32 near, s32 far, float angle)
 {
     int ang = degreesToAngle(angle);
     int sine = sinLerp(ang);
@@ -143,7 +143,7 @@ void MultipassEngine::GatherDrawList() {
     //First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), FIELD_OF_VIEW); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
+    ClipFriendlyPerspective(floattof32(0.1), floattof32(256.0), FIELD_OF_VIEW); //256 will be our backplane, and it's a good largeish number for reducing rouding errors
     glMatrixMode(GL_MODELVIEW);
     
     //reset to a normal matrix, in prep for calculations
@@ -216,7 +216,7 @@ void MultipassEngine::DrawClearPlane() {
     //set us up for orthagonal projection, no translation:
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    clipFriendly_Perspective(floattof32(0.1), floattof32(768.0), 1000.0);
+    ClipFriendlyPerspective(floattof32(0.1), floattof32(768.0), 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
@@ -390,8 +390,8 @@ void MultipassEngine::Draw() {
     glLoadIdentity();
     //near_plane_ = 0.1f;
     //far_plane_ = 256.0f;
-    clipFriendly_Perspective(near_plane_.data_, far_plane_.data_, FIELD_OF_VIEW);
-    //clipFriendly_Perspective(floattof32(0.1), floattof32(256.0), 70.0);
+    ClipFriendlyPerspective(near_plane_.data_, far_plane_.data_, FIELD_OF_VIEW);
+    //ClipFriendlyPerspective(floattof32(0.1), floattof32(256.0), 70.0);
     printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass_ + 1, current_pass_, (float)near_plane_, (float)far_plane_);
     //printf("near: %f\n", (float)near_plane_);
     //printf("far: %f\n", (float)far_plane_);
