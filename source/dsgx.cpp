@@ -127,8 +127,9 @@ void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
   for (auto bone = bones_.begin(); bone != bones_.end(); bone++) {
     for (u32 i = 0; i < bone->num_offsets; i++) {
       *((m4x4*)(model_data_ + bone->offsets[i] + 1)) = *current_matrix;
-      //try DMA copy!
-      //dmaCopyWordsAsynch(0, current_matrix, (model_data_ + bone->offsets[i] + 1), sizeof(m4x4));
+      // Try DMA copy; see if it's faster.
+      // dmaCopyWordsAsynch(0, current_matrix,
+      //    (model_data_ + bone->offsets[i] + 1), sizeof(m4x4));
     }
     current_matrix++;
   }

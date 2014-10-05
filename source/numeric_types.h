@@ -107,6 +107,19 @@ class Fixed {
   };
 };
 
+// Because this form of fixed is so common
+using fixed = numeric_types::Fixed<s32, 12>;
+
+namespace literals {
+constexpr fixed operator"" _f(unsigned long long value) {
+  return fixed::FromInt(static_cast<s32>(value));
+}
+
+constexpr fixed operator"" _f(long double value) {
+  return fixed::FromFloat(static_cast<float>(value));
+}
+}  // namespace literals
+
 class Degrees
 {
  public:
@@ -195,17 +208,7 @@ constexpr Brads operator"" _brad(long double value) {
 constexpr Brads operator"" _brad(unsigned long long value) {
   return Brads::Raw(static_cast<Brads::value_type>(degreesToAngle(value)));
 }
-
-constexpr Fixed<s32, 12> operator"" _f(unsigned long long value) {
-  return Fixed<s32, 12>::FromInt(static_cast<s32>(value));
-}
-
-constexpr Fixed<s32, 12> operator"" _f(long double value) {
-  return Fixed<s32, 12>::FromFloat(static_cast<float>(value));
-}
-
 }  // namespace literals
-
 }  // namespace numeric_types
 
 #endif  // NUMERIC_TYPES_H

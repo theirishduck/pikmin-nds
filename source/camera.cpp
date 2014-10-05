@@ -8,14 +8,14 @@
 
 using namespace std;
 using numeric_types::literals::operator"" _f;
-using fixed = numeric_types::Fixed<s32, 12>;
+using numeric_types::fixed;
 
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
 Camera::Camera() {
   position_destination_ = Vec3{0_f, 6_f, 4_f};
-  target_destination_   = Vec3{0_f, 3_f, 0_f};
+  target_destination_  = Vec3{0_f, 3_f, 0_f};
 
   position_current_ = position_destination_;
   target_current_ = target_destination_;
@@ -31,7 +31,7 @@ void Camera::Update() {
         distance_ = 1;
       }
     } else {
-      high_camera_ = !high_camera_;
+      high_camera_ = not high_camera_;
     }
   }
 

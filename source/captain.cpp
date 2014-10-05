@@ -29,7 +29,7 @@ Captain::~Captain() {
 
 void Captain::Update(MultipassEngine* engine) {
   if (running_) {
-    if (!(keysHeld() & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT))) {
+    if (not (keysHeld() & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT))) {
       running_ = false;
       SetAnimation("Armature|Idle1");
     }
@@ -76,8 +76,7 @@ void Captain::Update(MultipassEngine* engine) {
     Vec3 movement;
     movement.x.data_ = cosLerp(current_angle_.data_);
     movement.z.data_ = -sinLerp(current_angle_.data_);
-    set_position(position() + 
-        movement * 0.2_f);
+    set_position(position() + movement * 0.2_f);
   }
 
   DrawableEntity::Update(engine);
