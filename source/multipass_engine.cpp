@@ -29,43 +29,6 @@ void MultipassEngine::AddEntity(DrawableEntity* entity) {
   entities_.push_back(entity);
 }
 
-void MultipassEngine::DebugUpdate() {
-  // This randomly targets one of the registered entities. This is for
-  // testing camera following and smoothing.
-  if (keysDown() & KEY_A) {
-    TargetEntity(entities_[rand() % entities_.size()]);
-  }
-
-  // Check for debug-related input and update the flags accordingly.
-  // Todo(Nick) Make this touchscreen based instead of key combo based.
-  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_A)) {
-    debug_first_pass_ = not debug_first_pass_;
-    if (debug_first_pass_) {
-      printf("[DEBUG] Rendering only first pass.\n");
-    } else {
-      printf("[DEBUG] Rendering every pass.\n");
-    }
-  }
-
-  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_B)) {
-    debug_timings_ = not debug_timings_;
-    if (debug_timings_) {
-      printf("[DEBUG] Render starting at scanline 0. (skipping vblank period.)\n");
-    } else {
-      printf("[DEBUG] Rendering starts immediately.\n");
-    }
-  }
-
-  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_X)) {
-    debug::g_timing_colors = not debug::g_timing_colors;
-    if (debug::g_timing_colors) {
-      printf("[DEBUG] Rendering Colors\n");
-    } else {
-      printf("[DEBUG] No more seizures!\n");
-    }
-  }
-}
-
 void MultipassEngine::Update() {
   scanKeys();
 
@@ -74,7 +37,7 @@ void MultipassEngine::Update() {
   }
 
   camera.Update();
-  DebugUpdate();
+  debug::UpdateFlags();
 }
 
 Brads MultipassEngine::DPadDirection()  {
@@ -115,8 +78,13 @@ Brads MultipassEngine::CameraAngle() {
   return camera.GetAngle();
 }
 
-void ClipFriendlyPerspective(s32 near, s32 far, float angle)
-{
+void ClipFriendlyPerspective(s32 near, s32 far, float angle) {
+  // Setup a projection matrix that, critically, does not scale Z-values. This
+  // ensures that no matter how the near and far plane are set, the resulting
+  // z-coordinate is not stretched or squashed, and is more or less accurate.
+  // (within rounding errors.) This is necessary for the clip planes to work
+  // consistently between passes, at the cost of being slightly less accurate
+  // when calculating depth values. (This is hardly noticable.)
   int ang = degreesToAngle(angle);
   int sine = sinLerp(ang);
   int cosine = sinLerp(ang);
@@ -489,7 +457,7 @@ void MultipassEngine::Draw() {
   swiWaitForVBlank();
   debug::TimingColor(RGB5(0, 0, 0));
 
-  if (debug_first_pass_) {
+  if (debug::g_render_first_pass_only) {
     // Empty the draw list; limiting the frame to one pass.
     while (not draw_list_.empty()) {
       draw_list_.pop();
@@ -499,7 +467,7 @@ void MultipassEngine::Draw() {
   SetVRAMforPass(current_pass_);
   current_pass_++;
 
-  if (debug_timings_) {
+  if (debug::g_skip_vblank) {
     // Spin wait until scanline 0 so that the timing colors are visible.
     while (REG_VCOUNT != 0) {
       continue;

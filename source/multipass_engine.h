@@ -41,7 +41,6 @@ class MultipassEngine {
   void SetVRAMforPass(int pass);
   void ApplyCameraTransform();
   void DrawClearPlane();
-  void DebugUpdate();
 
   void InitFrame();
   void GatherPassList();
@@ -57,9 +56,6 @@ class MultipassEngine {
   std::vector<EntityContainer> pass_list_;
 
   int current_pass_{0};
-
-  bool debug_first_pass_{false};
-  bool debug_timings_{false};
 
   int old_keys_;
   int keys_;

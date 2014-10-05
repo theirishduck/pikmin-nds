@@ -1,8 +1,11 @@
 #include "debug.h"
-
+#include <cstdio>
 #include <nds.h>
 
+
 bool debug::g_timing_colors{false};
+bool debug::g_render_first_pass_only{false};
+bool debug::g_skip_vblank{false};
 
 void debug::DrawCrosshair(Vec3 p, rgb color) {
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
@@ -52,5 +55,47 @@ void debug::DrawGroundPlane(int width, int segments, rgb color) {
 void debug::TimingColor(rgb color) {
   if (g_timing_colors) {
     BG_PALETTE_SUB[0] = color;
+  }
+}
+
+namespace {
+void Status(char const* status) {
+  printf("\x1b[23;0H[D] %28.28s", status);
+}
+}  // namespace
+
+void debug::UpdateFlags() {
+  // Hold debug modifier [SELECT], then press:
+  // A = Render only First Pass
+  // B = Skip VBlank, useful for:
+  // X = Draw Debug Timings to Bottom Screen (with flashing colors!)
+
+  // Check for debug-related input and update the flags accordingly.
+  // Todo(Nick) Make this touchscreen based instead of key combo based.
+  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_A)) {
+    debug::g_render_first_pass_only = not debug::g_render_first_pass_only;
+    if (debug::g_render_first_pass_only) {
+      Status("Rendering only first pass.");
+    } else {
+      Status("Rendering every pass.");
+    }
+  }
+
+  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_B)) {
+    debug::g_skip_vblank = not debug::g_skip_vblank;
+    if (debug::g_skip_vblank) {
+      Status("Skipping vBlank");
+    } else {
+      Status("Not skipping vBlank");
+    }
+  }
+
+  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_X)) {
+    debug::g_timing_colors = not debug::g_timing_colors;
+    if (debug::g_timing_colors) {
+      Status("Rendering Colors");
+    } else {
+      Status("No more flashing!");
+    }
   }
 }
