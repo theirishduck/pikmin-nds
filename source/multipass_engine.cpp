@@ -142,6 +142,15 @@ void MultipassEngine::GatherDrawList() {
   }
 }
 
+void MultipassEngine::ClearDrawList() {
+  // Clear the draw list so that the next frame gets triggered.
+  // It is emptied by looping because std::priority_queue does not provide
+  // a clear function.
+  while (not draw_list_.empty()) {
+    draw_list_.pop();
+  }
+}
+
 void MultipassEngine::SetVRAMforPass(int pass) {
   // VRAM banks A and B take turns being the display capture destination and the
   // texture used as the background for the next pass. The rear texture for the
@@ -229,7 +238,6 @@ void MultipassEngine::DrawClearPlane() {
   GFX_TEX_FORMAT = 0;
 }
 
-
 void MultipassEngine::InitFrame() {
   debug::TimingColor(RGB5(0, 15, 0));
   // Handle everything that happens at the start of a frame. This includes
@@ -294,12 +302,7 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
       // TODO(Nick) Move the action for this check outside of this function;
       // it doesn't make sense for a simple check to have side effects.
 
-      // Clear the draw list so that the next frame gets triggered.
-      // It is emptied by looping because std::priority_queue does not provide
-      // a clear function.
-      while (not draw_list_.empty()) {
-        draw_list_.pop();
-      }
+      ClearDrawList();
     }
 
     GFX_FLUSH = 0;
@@ -358,12 +361,7 @@ bool MultipassEngine::ValidateDividingPlane() {
     //      spread a little further out.
     if (far_plane_ == 0.1_f) {
       printf("\x1b[10;0H Hit front of screen!\n");
-      // Clear the draw list so that the next frame gets triggered.
-      // It is emptied by looping because std::priority_queue does not provide
-      // a clear function.
-      while (not draw_list_.empty()) {
-        draw_list_.pop();
-      }
+      ClearDrawList();
       DrawClearPlane();
 
       GFX_FLUSH = 0;
@@ -376,13 +374,7 @@ bool MultipassEngine::ValidateDividingPlane() {
     } else {
       printf("\x1b[10;0H Near/Far plane equal! BAD!\n");
 
-      // Clear the draw list so that the next frame gets triggered.
-      // It is emptied by looping because std::priority_queue does not provide
-      // a clear function.
-      while (not draw_list_.empty()) {
-        draw_list_.pop();
-      }
-
+      ClearDrawList();
       GFX_FLUSH = 0;
       swiWaitForVBlank();
     }
@@ -431,7 +423,7 @@ void MultipassEngine::Draw() {
   if (not ProgressMadeThisPass(initial_length)) {
     return;
   }
-  
+
   SetupDividingPlane();
 
   if (not ValidateDividingPlane()) {
@@ -459,9 +451,7 @@ void MultipassEngine::Draw() {
 
   if (debug::g_render_first_pass_only) {
     // Empty the draw list; limiting the frame to one pass.
-    while (not draw_list_.empty()) {
-      draw_list_.pop();
-    }
+    ClearDrawList();
   }
 
   SetVRAMforPass(current_pass_);

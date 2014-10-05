@@ -38,6 +38,7 @@ class MultipassEngine {
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
   void GatherDrawList();
+  void ClearDrawList();
   void SetVRAMforPass(int pass);
   void ApplyCameraTransform();
   void DrawClearPlane();
