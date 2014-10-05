@@ -29,20 +29,12 @@ void MultipassEngine::AddEntity(DrawableEntity* entity) {
   entities_.push_back(entity);
 }
 
-void MultipassEngine::Update() {
-  scanKeys();
-
-  for (auto entity : entities_) {
-    entity->Update(this);
-  }
-
+void MultipassEngine::DebugUpdate() {
   // This randomly targets one of the registered entities. This is for
   // testing camera following and smoothing.
   if (keysDown() & KEY_A) {
     TargetEntity(entities_[rand() % entities_.size()]);
   }
-
-  camera.Update();
 
   // Check for debug-related input and update the flags accordingly.
   // Todo(Nick) Make this touchscreen based instead of key combo based.
@@ -72,6 +64,17 @@ void MultipassEngine::Update() {
       printf("[DEBUG] No more seizures!\n");
     }
   }
+}
+
+void MultipassEngine::Update() {
+  scanKeys();
+
+  for (auto entity : entities_) {
+    entity->Update(this);
+  }
+
+  camera.Update();
+  DebugUpdate();
 }
 
 Brads MultipassEngine::DPadDirection()  {
@@ -167,15 +170,6 @@ void MultipassEngine::GatherDrawList() {
     container.far_z  = object_center.z + state.actor->Radius();
     container.near_z = object_center.z - state.actor->Radius();
 
-    /*
-    // Debug: draw object centers as crosshairs.
-    object_center.z *= -1;
-    glPushMatrix();
-    glLoadIdentity();
-    debug::drawCrosshair(object_center, RGB5(0,0,0));
-    glPopMatrix(1);
-    */
-
     draw_list_.push(container);
   }
 }
@@ -251,49 +245,52 @@ void MultipassEngine::DrawClearPlane() {
 
   glTranslatef(0.0, 0.0, -768.0);
   glScalef(1024.0, 768.0, 1.0);
-  GFX_TEX_COORD = (TEXTURE_PACK(inttot16(0), inttot16(0)));
-  glVertex3v16(floattov16(-1.0), floattov16(1.0), floattov16(0.0) );
+  GFX_TEX_COORD = TEXTURE_PACK(inttot16(0), inttot16(0));
+  glVertex3v16(floattov16(-1.0), floattov16(1.0), floattov16(0.0));
 
-  GFX_TEX_COORD = (TEXTURE_PACK(inttot16(0), inttot16(192)));
-  glVertex3v16(floattov16(-1.0), floattov16(-1.0), floattov16(0.0) );
+  GFX_TEX_COORD = TEXTURE_PACK(inttot16(0), inttot16(192));
+  glVertex3v16(floattov16(-1.0), floattov16(-1.0), floattov16(0.0));
 
-  GFX_TEX_COORD = (TEXTURE_PACK(inttot16(256), inttot16(192)));
-  glVertex3v16(floattov16(1.0), floattov16(-1.0), floattov16(0.0) );
+  GFX_TEX_COORD = TEXTURE_PACK(inttot16(256), inttot16(192));
+  glVertex3v16(floattov16(1.0), floattov16(-1.0), floattov16(0.0));
 
-  GFX_TEX_COORD = (TEXTURE_PACK(inttot16(256), inttot16(0)));
-  glVertex3v16(floattov16(1.0), floattov16(1.0), floattov16(0.0) );
+  GFX_TEX_COORD = TEXTURE_PACK(inttot16(256), inttot16(0));
+  glVertex3v16(floattov16(1.0), floattov16(1.0), floattov16(0.0));
 
   // Turn off textures for further polygons.
   GFX_TEX_FORMAT = 0;
 }
 
-void MultipassEngine::Draw() {
-  if (draw_list_.empty()) {
-    if (debug_colors_) {
-      BG_PALETTE_SUB[0] = RGB5(0, 15, 0);
-    }
 
-    // Cache everything needed to draw this frame, as it may span multiple
-    // passes and the state of these changing in the middle of a frame can cause
-    // tearing.
-    camera.SetCache();
-    GatherDrawList();
-
-    // Ensure the overlap list is empty.
-    overlap_list_.clear();
-    current_pass_ = 0;
-
-    // printf("\x1b[2J");
-    if (debug_colors_) {
-      BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
-    }
+void MultipassEngine::InitFrame() {
+  // Handle everything that happens at the start of a frame. This includes
+  // gathering the initial draw list, and setting up caches for subsequent
+  // passes.
+  
+  if (debug_colors_) {
+    BG_PALETTE_SUB[0] = RGB5(0, 15, 0);
   }
 
+  // Cache everything needed to draw this frame, as it may span multiple
+  // passes and the state of these changing in the middle of a frame can cause
+  // tearing.
+  camera.SetCache();
+  GatherDrawList();
+
+  // Ensure the overlap list is empty.
+  overlap_list_.clear();
+  current_pass_ = 0;
+
+  // consoleClear();
+  if (debug_colors_) {
+    BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
+  }
+}
+
+void MultipassEngine::GatherPassList() {
   // Build up the list of objects to render this pass.
   int polycount = 0;
-  unsigned int initial_length = draw_list_.size();
   pass_list_.clear();
-
   if (debug_colors_) {
     BG_PALETTE_SUB[0] = RGB5(31, 31, 0);
   }
@@ -307,7 +304,6 @@ void MultipassEngine::Draw() {
   }
   overlap_list_.clear();
 
-  //now proceed to add objects from the remaining objects in the real draw list
   // Pull entities from the list of all entities to draw this frame until all
   // objects are marked for drawing (marking a complete frame) or the polygon
   // quota is hit, whichever comes first.
@@ -320,7 +316,9 @@ void MultipassEngine::Draw() {
   if (debug_colors_) {
     BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
   }
+}
 
+bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
   // If nothing was moved from the draw list for the frame this pass, than means
   //   1. There were no objects to draw at all this frame, or
   //   2. There is an object that exceeds the maximum polygon count per pass on
@@ -332,7 +330,9 @@ void MultipassEngine::Draw() {
   // detail of some of the models to try to alleviate this problem.
   if (draw_list_.size() == initial_length) {
     if (not draw_list_.empty()) {
-      printf("Impossible pass detected!\n");
+      printf("No progress made!\n");
+      // TODO(Nick) Move the action for this check outside of this function;
+      // it doesn't make sense for a simple check to have side effects.
 
       // Clear the draw list so that the next frame gets triggered.
       // It is emptied by looping because std::priority_queue does not provide
@@ -344,9 +344,12 @@ void MultipassEngine::Draw() {
 
     GFX_FLUSH = 0;
     swiWaitForVBlank();
-    return;
+    return false;
   }
+  return true;
+}
 
+void MultipassEngine::SetupDividingPlane() {
   // Now that the list of entities to render for this pass has been determined,
   // The near and far planes can be decided. For the first pass, the far plane
   // should be set as far back as possible, and for subsequent passes, the far
@@ -368,6 +371,19 @@ void MultipassEngine::Draw() {
     }
   }
 
+  // Set up the matrices for the render based on the near and far plane
+  // calculations.
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  ClipFriendlyPerspective(near_plane_.data_, far_plane_.data_, FIELD_OF_VIEW);
+  printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass_ + 1, current_pass_,
+      (float)near_plane_, (float)far_plane_);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  camera.ApplyTransform();
+}
+
+bool MultipassEngine::ValidateDividingPlane() {
   if (near_plane_ == far_plane_) {
     // One of two things has happened:
     //   1. Most likely, the front of the screen has been reached; i.e. both the
@@ -414,20 +430,12 @@ void MultipassEngine::Draw() {
       GFX_FLUSH = 0;
       swiWaitForVBlank();
     }
-    return;
+    return false;
   }
+  return true;
+}
 
-  // Set up the matrices for the render based on the near and far plane
-  // calculations.
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  ClipFriendlyPerspective(near_plane_.data_, far_plane_.data_, FIELD_OF_VIEW);
-  printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass_ + 1, current_pass_,
-      (float)near_plane_, (float)far_plane_);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  camera.ApplyTransform();
-
+void MultipassEngine::DrawPassList() {
   // Draw the entities for the pass.
   if (debug_colors_) {
     BG_PALETTE_SUB[0] = RGB5(0, 0, 31);
@@ -437,11 +445,12 @@ void MultipassEngine::Draw() {
     glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
     glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(0.32), floattov10(0.32));
     /*
+    // TODO(Nick): Set this up to be turned on and off using a debug flag
     if (o++ < overlaps_count) {
       // Highlight the entities that are straddling passes by dimming them.
       glLight(0, RGB15(15, 15, 15), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
       glLight(1, RGB15(15, 15, 15), floattov10(0.32), floattov10(0.32), floattov10(0.32));
-    }*/
+    }//*/
 
     glPushMatrix();
     container.entity->Draw(this);
@@ -456,7 +465,30 @@ void MultipassEngine::Draw() {
   if (debug_colors_) {
     BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
   }
+}
 
+
+void MultipassEngine::Draw() {
+  if (draw_list_.empty()) {
+    InitFrame();
+  }
+
+  unsigned int initial_length = draw_list_.size();
+  GatherPassList();
+
+  if (not ProgressMadeThisPass(initial_length)) {
+    return;
+  }
+  
+  SetupDividingPlane();
+
+  if (not ValidateDividingPlane()) {
+    return;
+  }
+
+  DrawPassList();
+
+  // TODO(Nick): Turn the ground plane into an object
   // Draw the ground plane for debugging.
   // debug::DrawGroundPlane(64, 10, RGB5(0, 24 - current_pass_ * 6, 0));
   debug::DrawGroundPlane(64, 10, RGB5(0, 24, 0));

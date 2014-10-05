@@ -41,6 +41,14 @@ class MultipassEngine {
   void SetVRAMforPass(int pass);
   void ApplyCameraTransform();
   void DrawClearPlane();
+  void DebugUpdate();
+
+  void InitFrame();
+  void GatherPassList();
+  bool ProgressMadeThisPass(unsigned int initial_length);
+  void SetupDividingPlane();
+  bool ValidateDividingPlane();
+  void DrawPassList();
 
   std::priority_queue<EntityContainer> draw_list_;
 
