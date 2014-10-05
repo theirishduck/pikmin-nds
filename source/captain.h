@@ -12,7 +12,7 @@ class Captain : public DrawableEntity {
   Captain();
   ~Captain();
 
-  void update(MultipassEngine* engine) override;
+  void Update(MultipassEngine* engine) override;
 
  private:
   v16 rotation_{0};

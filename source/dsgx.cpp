@@ -13,50 +13,50 @@ Dsgx::Dsgx(u32* data, const u32 length) {
     u32 seek = 0;
     //printf("length of Dsgx: %u\n", length);
     while (seek < (length >> 2)) {
-        int chunk_size = process_chunk(&data[seek]);
+        int chunk_size = ProcessChunk(&data[seek]);
         seek += chunk_size;
     }
 }
 
-u32 Dsgx::process_chunk(u32* location) {
+u32 Dsgx::ProcessChunk(u32* location) {
     char* header = (char*)location;
     u32 chunk_length = location[1];
     u32* data = &location[2];
 
     if (strncmp(header, "DSGX", 4) == 0) {
-        dsgx_chunk(data);
+        DsgxChunk(data);
     }
     if (strncmp(header, "BSPH", 4) == 0) {
-        bounding_sphere_chunk(data);
+        BoundingSphereChunk(data);
     }
     if (strncmp(header, "COST", 4) == 0) {
-        cost_chunk(data);
+        CostChunk(data);
     }
     if (strncmp(header, "BONE", 4) == 0) {
-        bone_chunk(data);
+        BoneChunk(data);
     }
     if (strncmp(header, "BANI", 4) == 0) {
-        bani_chunk(data);
+        BaniChunk(data);
     }
     return chunk_length + CHUNK_HEADER_SIZE; //return the size of this chunk, for the reader to skip
 }
 
-void Dsgx::dsgx_chunk(u32* data) {
+void Dsgx::DsgxChunk(u32* data) {
     model_data_ = data;
 }
 
-void Dsgx::bounding_sphere_chunk(void* data) {
+void Dsgx::BoundingSphereChunk(void* data) {
     bounding_center_.x.data_ = reinterpret_cast<s32*>(data)[0];
     bounding_center_.y.data_ = reinterpret_cast<s32*>(data)[1];
     bounding_center_.z.data_ = reinterpret_cast<s32*>(data)[2];
     bounding_radius_.data_   = reinterpret_cast<s32*>(data)[3];
 }
 
-void Dsgx::cost_chunk(u32* data) {
+void Dsgx::CostChunk(u32* data) {
     draw_cost_ = data[0];
 }
 
-void Dsgx::bone_chunk(u32* data) {
+void Dsgx::BoneChunk(u32* data) {
     u32 num_bones = *data;
     //printf("Num bones: %u\n", num_bones);
     //while(true){}
@@ -81,7 +81,7 @@ void Dsgx::bone_chunk(u32* data) {
 }
 
 //Baked Animation
-void Dsgx::bani_chunk(u32* data) {
+void Dsgx::BaniChunk(u32* data) {
     Animation new_anim;
     char* name = (char*)data;
     data += 8;
@@ -93,27 +93,27 @@ void Dsgx::bani_chunk(u32* data) {
     animations_[name] = new_anim;
 }
 
-u32* Dsgx::drawList() {
+u32* Dsgx::DrawList() {
     return model_data_;
 }
 
-Vec3 Dsgx::center() {
+Vec3 Dsgx::Center() {
     return bounding_center_;
 }
 
-void Dsgx::setCenter(Vec3 center) {
+void Dsgx::SetCenter(Vec3 center) {
     bounding_center_ = center;
 }
 
-nt::Fixed<s32, 12> Dsgx::radius() {
+nt::Fixed<s32, 12> Dsgx::Radius() {
     return bounding_radius_;
 }
 
-u32 Dsgx::drawCost() {
+u32 Dsgx::DrawCost() {
     return draw_cost_;
 }
 
-Animation* Dsgx::getAnimation(string name) {
+Animation* Dsgx::GetAnimation(string name) {
     if (animations_.count(name) == 0) {
         printf("Couldn't find animation: %s", name.c_str());
         return 0; //bail, animation doesn't exist
@@ -122,7 +122,7 @@ Animation* Dsgx::getAnimation(string name) {
     return &animations_[name];
 }
 
-void Dsgx::applyAnimation(Animation* animation, u32 frame) {
+void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
     m4x4 const* current_matrix = animation->transforms + bones_.size() * frame;
     for (auto bone = bones_.begin(); bone != bones_.end(); bone++) {
         for (u32 i = 0; i < bone->num_offsets; i++) {

@@ -1,6 +1,8 @@
 #ifndef NUMERIC_TYPES_H
 #define NUMERIC_TYPES_H
 
+#include <nds/arm9/math.h>
+#include <nds/arm9/trig_lut.h>
 #include <nds/ndstypes.h>
 
 namespace numeric_types {

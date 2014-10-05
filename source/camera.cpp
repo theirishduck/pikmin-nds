@@ -1,7 +1,10 @@
-#include <nds.h>
-#include <stdio.h>
-
 #include "camera.h"
+
+#include <cstdio>
+
+#include <nds.h>
+
+#include "drawable_entity.h"
 
 using namespace std;
 using numeric_types::literals::operator"" _f;
@@ -17,10 +20,10 @@ Camera::Camera() {
     position_current_ = position_destination_;
     target_current_ = target_destination_;
 
-    setCache();
+    SetCache();
 }
 
-void Camera::update() {
+void Camera::Update() {
     if (keysDown() & KEY_R) {
             if (keysHeld() & KEY_L) {
                 distance_ += 1;
@@ -51,7 +54,7 @@ void Camera::update() {
             target_destination_ = entity_to_follow_->position();
             Vec3 entity_to_camera = entity_to_follow_->position() - position_destination_;
             entity_to_camera.y = 0_f; //clear out height, so we work on the XZ plane.
-            entity_to_camera = entity_to_camera.normalize();
+            entity_to_camera = entity_to_camera.Normalize();
             entity_to_camera = entity_to_camera * follow_distance;
             position_destination_ = entity_to_follow_->position() - entity_to_camera;
             position_destination_.y = height;
@@ -66,7 +69,7 @@ void Camera::update() {
         target_current_ = target_destination_ * 0.25_f + target_current_ * 0.75_f;
 }
 
-void Camera::setCamera(Vec3 position, Vec3 target, bool instant) {
+void Camera::LookAt(Vec3 position, Vec3 target, bool instant) {
     position_destination_ = position;
     target_destination_ = target;
     if (instant) {
@@ -75,14 +78,14 @@ void Camera::setCamera(Vec3 position, Vec3 target, bool instant) {
     }
 }
 
-Brads Camera::getAngle() {
+Brads Camera::GetAngle() {
     Vec3 facing;
     facing = entity_to_follow_->position() - position_current_;
     facing.y = 0_f; //work on the XZ plane
-    if (facing.length() <= 0_f) {
+    if (facing.Length() <= 0_f) {
         return 0_brad;
     }
-    facing = facing.normalize();
+    facing = facing.Normalize();
 
     //return 0;
     if (facing.z <= 0_f) {
@@ -92,19 +95,19 @@ Brads Camera::getAngle() {
     }
 }
 
-void Camera::targetEntity(DrawableEntity* entity) {
+void Camera::FollowEntity(DrawableEntity* entity) {
     entity_to_follow_ = entity;
 }
 
 //TODO: Convert this to non-float implementation please
-void Camera::applyTransform() {
+void Camera::ApplyTransform() {
     gluLookAt(
         (float)position_cached_.x, (float)position_cached_.y, (float)position_cached_.z, 
         (float)target_cached_.x,   (float)target_cached_.y,   (float)target_cached_.z,
         0.0f, 1.0f, 0.0f);
 }
 
-void Camera::setCache() {
+void Camera::SetCache() {
     position_cached_ = position_current_;
     target_cached_ = target_current_;
 }

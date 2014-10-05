@@ -21,29 +21,29 @@ struct EntityContainer {
 class MultipassEngine {
  public:
   MultipassEngine();
-  void drawEntity(DrawableEntity entity);
+  void DrawEntity(DrawableEntity entity);
 
-  void update();
-  void draw();
+  void Update();
+  void Draw();
 
-  void addEntity(DrawableEntity* entity);
+  void AddEntity(DrawableEntity* entity);
 
   // TODO(Nick) This isn't being used anywhere. Should this be removed?
   static MultipassEngine* engine_;
 
-  numeric_types::Brads dPadDirection();
-  numeric_types::Brads cameraAngle();
+  numeric_types::Brads DPadDirection();
+  numeric_types::Brads CameraAngle();
 
-  void targetEntity(DrawableEntity*);
+  void TargetEntity(DrawableEntity*);
 
  private:
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
-  void gatherDrawList();
-  void setVRAMforPass(int pass);
-  void applyCameraTransform();
-  void drawClearPlane();
+  void GatherDrawList();
+  void SetVRAMforPass(int pass);
+  void ApplyCameraTransform();
+  void DrawClearPlane();
 
   std::priority_queue<EntityContainer> draw_list_;
 

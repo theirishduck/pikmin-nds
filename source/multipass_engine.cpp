@@ -22,27 +22,27 @@ using numeric_types::Brads;
 MultipassEngine::MultipassEngine() {
 }
 
-void MultipassEngine::targetEntity(DrawableEntity* entity) {
-    camera.targetEntity(entity);
+void MultipassEngine::TargetEntity(DrawableEntity* entity) {
+    camera.FollowEntity(entity);
 }
 
-void MultipassEngine::addEntity(DrawableEntity* entity) {
+void MultipassEngine::AddEntity(DrawableEntity* entity) {
     entities_.push_back(entity);
 }
 
-void MultipassEngine::update() {
+void MultipassEngine::Update() {
     scanKeys();
 
     for (auto entity : entities_) {
-        entity->update(this);
+        entity->Update(this);
     }
 
     //its a SEEECRET
     if (keysDown() & KEY_A) {
-        targetEntity(entities_[rand() % entities_.size()]);
+        TargetEntity(entities_[rand() % entities_.size()]);
     }
 
-    camera.update();
+    camera.Update();
 
     //handle debugging features
     //TODO: make this more touchscreen-y and less basic?
@@ -74,7 +74,7 @@ void MultipassEngine::update() {
     }
 }
 
-Brads MultipassEngine::dPadDirection()  {
+Brads MultipassEngine::DPadDirection()  {
     //todo: make this not suck?
 
     if (keysHeld() & KEY_RIGHT) {
@@ -108,8 +108,8 @@ Brads MultipassEngine::dPadDirection()  {
     return last_angle_;
 }
 
-Brads MultipassEngine::cameraAngle() {
-    return camera.getAngle();   
+Brads MultipassEngine::CameraAngle() {
+    return camera.GetAngle();   
 }
 
 void clipFriendly_Perspective(s32 near, s32 far, float angle)
@@ -139,7 +139,7 @@ void clipFriendly_Perspective(s32 near, s32 far, float angle)
     MATRIX_MULT4x4 = 0;
 }
 
-void MultipassEngine::gatherDrawList() {
+void MultipassEngine::GatherDrawList() {
     //First up, set our projection matrix to something normal, so we can sort the list properly (without clip plane distortion)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -148,21 +148,21 @@ void MultipassEngine::gatherDrawList() {
     
     //reset to a normal matrix, in prep for calculations
     glLoadIdentity();
-    camera.applyTransform();
+    camera.ApplyTransform();
                 
     for (auto entity : entities_) {
         //cache this object, in case we need to reuse it for multiple passes
-        entity->setCache();
-        DrawState state = entity->getCachedState();
+        entity->SetCache();
+        DrawState state = entity->GetCachedState();
         
         //Using the camera state, calculate the nearest and farthest points,
         //which we'll later use to decide where the clipping planes should go.
         EntityContainer container;
         container.entity = entity;
 
-        Vec3 object_center = entity->getRealModelCenter();
-        container.far_z  = object_center.z + state.actor->radius();
-        container.near_z = object_center.z - state.actor->radius();
+        Vec3 object_center = entity->GetRealModelCenter();
+        container.far_z  = object_center.z + state.actor->Radius();
+        container.near_z = object_center.z - state.actor->Radius();
 
         //debug: draw object centers (roughly)
         /*
@@ -177,7 +177,7 @@ void MultipassEngine::gatherDrawList() {
     }
 }
 
-void MultipassEngine::setVRAMforPass(int pass) {
+void MultipassEngine::SetVRAMforPass(int pass) {
     //Setup VRAM for the rear-plane captures. Basically, we'll swap between banks A and B
     //based on the parity of the frame, so that each rear plane is the result of the previous
     //frame's capture. (The rear plane for frame 0 is simply not drawn.)
@@ -206,7 +206,7 @@ void MultipassEngine::setVRAMforPass(int pass) {
     }
 }
 
-void MultipassEngine::drawClearPlane() {
+void MultipassEngine::DrawClearPlane() {
     if (current_pass_ == 0)
     {
         //don't use the rear plane on the first pass (show clear color instead)
@@ -259,15 +259,15 @@ void MultipassEngine::drawClearPlane() {
         
 }
 
-void MultipassEngine::draw() {
+void MultipassEngine::Draw() {
     if (draw_list_.empty()) {
         if (debug_colors_)
             BG_PALETTE_SUB[0] = RGB5(0,15,0);
 
         //This is the first (and maybe last) frame of this pass, so
         //cache the draw state and set up the queue
-        camera.setCache();
-        gatherDrawList();
+        camera.SetCache();
+        GatherDrawList();
         
         //to be extra sure, clear the overlap list
         //(it *should* be empty already at this point.)
@@ -293,14 +293,14 @@ void MultipassEngine::draw() {
     //int overlaps_count = overlap_list_.size();
     for (auto entity : overlap_list_) {
         pass_list_.push_back(entity);
-        polycount += pass_list_.back().entity->getCachedState().actor->drawCost();
+        polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
     }
     overlap_list_.clear();
     
     //now proceed to add objects from the remaining objects in the real draw list
     while (!draw_list_.empty() && polycount < MAX_POLYGONS_PER_PASS) {
         pass_list_.push_back(draw_list_.top());
-        polycount += pass_list_.back().entity->getCachedState().actor->drawCost();
+        polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
         draw_list_.pop();
     }
 
@@ -358,7 +358,7 @@ void MultipassEngine::draw() {
                 draw_list_.pop();
             }
             //if necessary, draw the clear plane
-            drawClearPlane();
+            DrawClearPlane();
 
             GFX_FLUSH = 0;
             if (debug_colors_)
@@ -367,7 +367,7 @@ void MultipassEngine::draw() {
             if (debug_colors_)
                 BG_PALETTE_SUB[0] = RGB5(0,0,0);
 
-            setVRAMforPass(current_pass_);
+            SetVRAMforPass(current_pass_);
             current_pass_++;
             return;
         } else {
@@ -397,7 +397,7 @@ void MultipassEngine::draw() {
     //printf("far: %f\n", (float)far_plane_);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    camera.applyTransform();
+    camera.ApplyTransform();
     
     //actually draw the pass_list_
     if (debug_colors_)
@@ -414,7 +414,7 @@ void MultipassEngine::draw() {
         }*/
 
         glPushMatrix();
-        container.entity->draw(this);
+        container.entity->Draw(this);
         glPopMatrix(1);
         
         //if this object is not fully drawn, add it to the overlap list for the next pass
@@ -427,12 +427,12 @@ void MultipassEngine::draw() {
     
     //Draw the ground plane for debugging
     //debug::drawGroundPlane(64,10, RGB5(0, 24 - current_pass_ * 6, 0));
-    debug::drawGroundPlane(64,10, RGB5(0, 24, 0));
+    debug::DrawGroundPlane(64,10, RGB5(0, 24, 0));
     void basicMechanicsDraw();
     basicMechanicsDraw();
 
     //if necessary, draw the clear plane
-    drawClearPlane();
+    DrawClearPlane();
     
     //printf("%d: ", current_pass_);
     //printf("objs: %d, ", pass_list_.size());
@@ -454,7 +454,7 @@ void MultipassEngine::draw() {
         }
     }
 
-    setVRAMforPass(current_pass_);
+    SetVRAMforPass(current_pass_);
     current_pass_++;
     
     //DEBUG TIMINGS: spin until scanline 0

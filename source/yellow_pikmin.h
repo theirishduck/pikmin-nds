@@ -7,7 +7,7 @@ class MultipassEngine;
 
 class YellowPikmin : public DrawableEntity {
  public:
-  void update(MultipassEngine* engine) override;
+  void Update(MultipassEngine* engine) override;
 
  private:
   numeric_types::Brads rotation_;

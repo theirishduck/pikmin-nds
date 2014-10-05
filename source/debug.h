@@ -8,8 +8,8 @@
 
 namespace debug {
 
-void drawCrosshair(Vec3 p, rgb color = RGB5(31, 31, 31));
-void drawGroundPlane(int width, int segments, rgb color = RGB5(0, 0, 0));
+void DrawCrosshair(Vec3 p, rgb color = RGB5(31, 31, 31));
+void DrawGroundPlane(int width, int segments, rgb color = RGB5(0, 0, 0));
 
 }  // namespace debug
 

@@ -30,23 +30,23 @@ class Dsgx {
 
   Dsgx(u32* data, const u32 length);
 
-  u32* drawList();
-  Vec3 center();
-  void setCenter(Vec3 center);
-  Fixed<s32, 12> radius();
+  u32* DrawList();
+  Vec3 Center();
+  void SetCenter(Vec3 center);
+  Fixed<s32, 12> Radius();
 
-  u32 drawCost();
+  u32 DrawCost();
 
-  Animation* getAnimation(std::string name);
-  void applyAnimation(Animation* animation, u32 frame);
+  Animation* GetAnimation(std::string name);
+  void ApplyAnimation(Animation* animation, u32 frame);
 
 private:
-  u32 process_chunk(u32* location);
-  void dsgx_chunk(u32* data);
-  void bounding_sphere_chunk(void* data);
-  void cost_chunk(u32* data);
-  void bone_chunk(u32* data);
-  void bani_chunk(u32* data);
+  u32 ProcessChunk(u32* location);
+  void DsgxChunk(u32* data);
+  void BoundingSphereChunk(void* data);
+  void CostChunk(u32* data);
+  void BoneChunk(u32* data);
+  void BaniChunk(u32* data);
 
   u32* model_data_;
 

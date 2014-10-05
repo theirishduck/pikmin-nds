@@ -1,7 +1,7 @@
 #include "debug.h"
 #include <nds.h>
 
-void debug::drawCrosshair(Vec3 p, rgb color) {
+void debug::DrawCrosshair(Vec3 p, rgb color) {
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
     glBegin(GL_TRIANGLE);
     glColor(color);
@@ -19,7 +19,7 @@ void debug::drawCrosshair(Vec3 p, rgb color) {
     glEnd();
 }
 
-void debug::drawGroundPlane(int width, int segments, rgb color) {
+void debug::DrawGroundPlane(int width, int segments, rgb color) {
     //Derive a dark color by dividing each channel by 2. This is accomplished using
     //a bitmask: 0 rrrr0 gggg0 bbbb0, which removes the bottom bit in each color
     //channel. Shifting the result of this mask to the right results in

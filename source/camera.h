@@ -1,37 +1,39 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "drawable_entity.h"
 #include "numeric_types.h"
+#include "vector.h"
+
+class DrawableEntity;
 
 class Camera {
-  private:
-    DrawableEntity* target_;
+ public:
+  Camera();
+  void LookAt(Vec3 position, Vec3 target, bool instant = false);
+  void FollowEntity(DrawableEntity* target);
 
-    Vec3 position_current_;
-    Vec3 target_current_;
+  numeric_types::Brads GetAngle();
 
-    Vec3 position_destination_;
-    Vec3 target_destination_;
+  void Update();
+  void ApplyTransform();
+  void SetCache();
 
-    Vec3 position_cached_;
-    Vec3 target_cached_;
+ private:
+  DrawableEntity* target_;
 
-    DrawableEntity* entity_to_follow_;
+  Vec3 position_current_;
+  Vec3 target_current_;
 
-    bool high_camera_{false};
-    int distance_{2};
+  Vec3 position_destination_;
+  Vec3 target_destination_;
 
-  public:
-    Camera();
-    void setCamera(Vec3 position, Vec3 target, bool instant = false);
-    void targetEntity(DrawableEntity* target);
+  Vec3 position_cached_;
+  Vec3 target_cached_;
 
-    numeric_types::Brads getAngle();
+  DrawableEntity* entity_to_follow_;
 
-    void update();
-    void applyTransform();
-    void setCache();
+  bool high_camera_{false};
+  int distance_{2};
 };
 
-#endif
+#endif  // CAMERA_H

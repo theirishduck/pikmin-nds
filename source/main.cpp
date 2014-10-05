@@ -69,25 +69,25 @@ void InitMainScreen() {
 
 void SetupDemoPikmin() {
     for (u32 i = 0; i < kTestPikmin; i++) {
-        g_red_pikmin[i].setPosition({-5_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
-        g_engine.addEntity(&g_red_pikmin[i]);
+        g_red_pikmin[i].set_position({-5_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
+        g_engine.AddEntity(&g_red_pikmin[i]);
 
-        g_red_pikmin2[i].setPosition({0_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
-        g_engine.addEntity(&g_red_pikmin2[i]);
+        g_red_pikmin2[i].set_position({0_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
+        g_engine.AddEntity(&g_red_pikmin2[i]);
         if (i == 0) {
             // g_engine.targetEntity(&g_red_pikmin2[i]);
         }
 
-        g_red_pikmin3[i].setPosition({5_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
-        g_engine.addEntity(&g_red_pikmin3[i]);
+        g_red_pikmin3[i].set_position({5_f, 0_f, fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
+        g_engine.AddEntity(&g_red_pikmin3[i]);
     }
 }
 
 void InitCaptain() {
-    g_captain[0].setPosition({0_f, 1_f, 0_f});
-    g_captain[0].setAnimation("Armature|Idle1");
-    g_engine.addEntity(&g_captain[0]);
-    g_engine.targetEntity(&g_captain[0]);
+    g_captain[0].set_position({0_f, 1_f, 0_f});
+    g_captain[0].SetAnimation("Armature|Idle1");
+    g_engine.AddEntity(&g_captain[0]);
+    g_engine.TargetEntity(&g_captain[0]);
 }
 
 // Copy the pikmin eye texture into the beginning of VRAM bank C.
@@ -122,8 +122,8 @@ void GameLoop() {
         
         basicMechanicsUpdate();
 
-        g_engine.update();
-        g_engine.draw();
+        g_engine.Update();
+        g_engine.Draw();
     }
 }
 

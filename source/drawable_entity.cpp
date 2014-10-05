@@ -7,7 +7,7 @@ Vec3 DrawableEntity::position() {
     return current_.position;
 }
 
-void DrawableEntity::setPosition(Vec3 pos) {
+void DrawableEntity::set_position(Vec3 pos) {
     current_.position = pos;
 }
 
@@ -15,29 +15,29 @@ Rotation DrawableEntity::rotation() {
     return current_.rotation;
 }
 
-void DrawableEntity::setRotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z) {
+void DrawableEntity::set_rotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z) {
     current_.rotation.x = x;
     current_.rotation.y = y;
     current_.rotation.z = z;
 }
 
-DrawState DrawableEntity::getCachedState() {
+DrawState DrawableEntity::GetCachedState() {
     return cached_;
 }
 
-void DrawableEntity::setCache() {
+void DrawableEntity::SetCache() {
     cached_ = current_;
 }
 
-void DrawableEntity::setActor(Dsgx* actor) {
+void DrawableEntity::set_actor(Dsgx* actor) {
     current_.actor = actor;
 }
 
-Dsgx* DrawableEntity::getActor() {
+Dsgx* DrawableEntity::actor() {
     return current_.actor;
 }
 
-void DrawableEntity::applyTransformation() {
+void DrawableEntity::ApplyTransformation() {
     glTranslatef32(cached_.position.x.data_, cached_.position.y.data_, cached_.position.z.data_);
     
     //If the rotation value is zero, we skip the gl call; this doesn't affect
@@ -52,10 +52,10 @@ void DrawableEntity::applyTransformation() {
         glRotateZi(cached_.rotation.z.data_);
 }
 
-void DrawableEntity::draw(MultipassEngine* engine) {
+void DrawableEntity::Draw(MultipassEngine* engine) {
     //apply transformation
     //BG_PALETTE_SUB[0] = RGB5(31,31,0);
-    applyTransformation();
+    ApplyTransformation();
 
     //if necessary, apply animation!
     if (cached_.animation) {
@@ -63,17 +63,17 @@ void DrawableEntity::draw(MultipassEngine* engine) {
         //while (GFX_STATUS & BIT(14)) {}
         //while (GFX_STATUS & BIT(27)) {}
         //BG_PALETTE_SUB[0] = RGB5(0,31,31);
-        cached_.actor->applyAnimation(cached_.animation, cached_.animation_frame);
+        cached_.actor->ApplyAnimation(cached_.animation, cached_.animation_frame);
         //BG_PALETTE_SUB[0] = RGB5(0,0,31);
     }
     
     //draw the object!
     //BG_PALETTE_SUB[0] = RGB5(31,0,31);
-    glCallList(cached_.actor->drawList());
+    glCallList(cached_.actor->DrawList());
     //BG_PALETTE_SUB[0] = RGB5(0,0,31);
 }
 
-void DrawableEntity::update(MultipassEngine* engine) {
+void DrawableEntity::Update(MultipassEngine* engine) {
     //if necessary, update animations
     if (current_.animation) {
         current_.animation_frame++;
@@ -83,12 +83,12 @@ void DrawableEntity::update(MultipassEngine* engine) {
     }
 }
 
-Vec3 DrawableEntity::getRealModelCenter() {
+Vec3 DrawableEntity::GetRealModelCenter() {
     //how long do we take transforming?
     //BG_PALETTE_SUB[0] = RGB5(31,31,0);
     //avoid clobbering the render state for this poll
     glPushMatrix();
-    applyTransformation();
+    ApplyTransformation();
     //BG_PALETTE_SUB[0] = RGB5(0,31,0);
     
     //wait for the matrix status to clear, and the geometry engine
@@ -97,7 +97,7 @@ Vec3 DrawableEntity::getRealModelCenter() {
     while (GFX_STATUS & BIT(27)) {}
     
     //Run a POS_TEST
-    PosTest(current_.actor->center().x.data_, current_.actor->center().y.data_, current_.actor->center().z.data_);
+    PosTest(current_.actor->Center().x.data_, current_.actor->Center().y.data_, current_.actor->Center().z.data_);
     //return THAT instead of the nonsense below
     Vec3 result;
     result.x.data_ = PosTestXresult();
@@ -131,7 +131,7 @@ Vec3 DrawableEntity::getRealModelCenter() {
     */
 }
 
-void DrawableEntity::setAnimation(std::string name) {
-    current_.animation = current_.actor->getAnimation(name);
+void DrawableEntity::SetAnimation(std::string name) {
+    current_.animation = current_.actor->GetAnimation(name);
     current_.animation_frame = 0;
 }

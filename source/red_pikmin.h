@@ -8,7 +8,7 @@ class RedPikmin : public DrawableEntity {
   RedPikmin();
   ~RedPikmin();
 
-  void update(MultipassEngine* engine) override;
+  void Update(MultipassEngine* engine) override;
 
  private:
   bool NeedsNewTarget() const;

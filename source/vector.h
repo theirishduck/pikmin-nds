@@ -40,7 +40,7 @@ struct Vector3 {
   }
 
   // Warning: Only correct for 1.19.12 fixed specialization.
-  Fixed<T, F> length() {
+  Fixed<T, F> Length() {
     s32 root = sqrtf32((x * x + y * y + z * z).data_);
     Fixed<T, F> result;
     result.data_ = root;
@@ -48,9 +48,9 @@ struct Vector3 {
   }
 
   // Return a unit vector with the same orientation as this instance.
-  Vector3<T, F> normalize() {
+  Vector3<T, F> Normalize() {
     Vector3<T, F> result;
-    Fixed<T, F> current_length = length();
+    Fixed<T, F> current_length = Length();
     if (current_length == Fixed<s32,12>::FromInt(0)) {
         return Vector3{Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0)};
     }
