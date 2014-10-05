@@ -28,9 +28,6 @@ class MultipassEngine {
 
   void AddEntity(DrawableEntity* entity);
 
-  // TODO(Nick) This isn't being used anywhere. Should this be removed?
-  static MultipassEngine* engine_;
-
   numeric_types::Brads DPadDirection();
   numeric_types::Brads CameraAngle();
 
