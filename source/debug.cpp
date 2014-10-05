@@ -2,6 +2,8 @@
 
 #include <nds.h>
 
+bool debug::g_timing_colors{false};
+
 void debug::DrawCrosshair(Vec3 p, rgb color) {
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glBegin(GL_TRIANGLE);
@@ -45,4 +47,10 @@ void debug::DrawGroundPlane(int width, int segments, rgb color) {
 
   glPopMatrix(1);
   glEnd();
+}
+
+void debug::TimingColor(rgb color) {
+  if (g_timing_colors) {
+    BG_PALETTE_SUB[0] = color;
+  }
 }

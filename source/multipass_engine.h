@@ -60,7 +60,6 @@ class MultipassEngine {
 
   bool debug_first_pass_{false};
   bool debug_timings_{false};
-  bool debug_colors_{false};
 
   int old_keys_;
   int keys_;

@@ -57,8 +57,8 @@ void MultipassEngine::DebugUpdate() {
   }
 
   if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_X)) {
-    debug_colors_ = not debug_colors_;
-    if (debug_colors_) {
+    debug::g_timing_colors = not debug::g_timing_colors;
+    if (debug::g_timing_colors) {
       printf("[DEBUG] Rendering Colors\n");
     } else {
       printf("[DEBUG] No more seizures!\n");
@@ -263,13 +263,10 @@ void MultipassEngine::DrawClearPlane() {
 
 
 void MultipassEngine::InitFrame() {
+  debug::TimingColor(RGB5(0, 15, 0));
   // Handle everything that happens at the start of a frame. This includes
   // gathering the initial draw list, and setting up caches for subsequent
   // passes.
-  
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(0, 15, 0);
-  }
 
   // Cache everything needed to draw this frame, as it may span multiple
   // passes and the state of these changing in the middle of a frame can cause
@@ -282,18 +279,15 @@ void MultipassEngine::InitFrame() {
   current_pass_ = 0;
 
   // consoleClear();
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
-  }
+  debug::TimingColor(RGB5(0, 0, 0));
 }
 
 void MultipassEngine::GatherPassList() {
+  debug::TimingColor(RGB5(31, 31, 0));
+
   // Build up the list of objects to render this pass.
   int polycount = 0;
   pass_list_.clear();
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(31, 31, 0);
-  }
 
   // If there were any objects that straddle the current and previous passes,
   // ensure that they are drawn again this pass.
@@ -313,9 +307,7 @@ void MultipassEngine::GatherPassList() {
     draw_list_.pop();
   }
 
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
-  }
+  debug::TimingColor(RGB5(0, 0, 0));
 }
 
 bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
@@ -407,13 +399,9 @@ bool MultipassEngine::ValidateDividingPlane() {
       DrawClearPlane();
 
       GFX_FLUSH = 0;
-      if (debug_colors_) {
-        BG_PALETTE_SUB[0] = RGB5(6, 6, 6);
-      }
+      debug::TimingColor(RGB5(6, 6, 6));
       swiWaitForVBlank();
-      if (debug_colors_) {
-        BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
-      }
+      debug::TimingColor(RGB5(0, 0, 0));
 
       SetVRAMforPass(current_pass_);
       current_pass_++;
@@ -437,9 +425,7 @@ bool MultipassEngine::ValidateDividingPlane() {
 
 void MultipassEngine::DrawPassList() {
   // Draw the entities for the pass.
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(0, 0, 31);
-  }
+  debug::TimingColor(RGB5(0, 0, 31));
   //int o = 0;
   for (auto& container : pass_list_) {
     glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
@@ -462,9 +448,7 @@ void MultipassEngine::DrawPassList() {
       overlap_list_.push_back(container);
     }
   }
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
-  }
+  debug::TimingColor(RGB5(0, 0, 0));
 }
 
 
@@ -501,13 +485,9 @@ void MultipassEngine::Draw() {
   DrawClearPlane();
 
   GFX_FLUSH = 0;
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(6, 6, 6);
-  }
+  debug::TimingColor(RGB5(6, 6, 6));
   swiWaitForVBlank();
-  if (debug_colors_) {
-    BG_PALETTE_SUB[0] = RGB5(0, 0, 0);
-  }
+  debug::TimingColor(RGB5(0, 0, 0));
 
   if (debug_first_pass_) {
     // Empty the draw list; limiting the frame to one pass.
