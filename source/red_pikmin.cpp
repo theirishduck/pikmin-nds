@@ -41,11 +41,11 @@ bool RedPikmin::NeedsNewTarget() const {
 }
 
 void RedPikmin::ChooseNewTarget() {
-  target_.x = fixed::FromInt(rand() % 64 - 32);
+  target_.x = fixed::FromInt((rand() & 63) - 32);
   target_.y = 0_f;
-  target_.z = fixed::FromInt(rand() % 64 - 32);
+  target_.z = fixed::FromInt((rand() & 63) - 32);
 
-  updates_until_new_target_ = rand() % 128 + 128;
+  updates_until_new_target_ = (rand() & 127) + 128;
 
   direction_ = (target_ - position()).Normalize();
   rotation_ = Brads::Raw((direction_.z <= 0_f ? 1 : -1) *
@@ -56,26 +56,18 @@ void RedPikmin::ChooseNewTarget() {
 }
 
 void RedPikmin::Move() {
-  nt::Fixed<s32, 12> distance{(target_ - position()).Length()};
-  bool const target_is_far_enough_away{distance > 5.0_f};
+  nt::Fixed<s32, 12> distance{(target_ - position()).Length2()};
+  bool const target_is_far_enough_away{distance > 5.0_f * 5.0_f};
   if (target_is_far_enough_away and not running_) {
     SetAnimation("Armature|Run");
+  }
+  if (not target_is_far_enough_away and running_) {
+    //SetAnimation("Armature|Idle");
   }
   running_ = target_is_far_enough_away;
 
   if (running_) {
     set_position(position() + Vec3{direction_.x / 4_f, 0_f, direction_.z / 4_f});
     set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
-  } else {
-    // SetAnimation("Armature|Idle");
   }
-
-  /*
-  if (keysHeld() & KEY_RIGHT) {
-    rotation_ += 1;
-  }
-  if (keysHeld() & KEY_LEFT) {
-    rotation_ -= 1;
-  }
-  //*/
 }

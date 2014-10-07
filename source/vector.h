@@ -47,6 +47,12 @@ struct Vector3 {
     return result;
   }
 
+  //Returns the length of the vector without the sqrt. This is useful for
+  //comparing against squared length for faster checks.
+  Fixed<T, F> Length2() {
+    return x*x + y*y + z*z;
+  }
+
   // Return a unit vector with the same orientation as this instance.
   Vector3<T, F> Normalize() {
     Vector3<T, F> result;
