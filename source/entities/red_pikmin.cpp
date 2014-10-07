@@ -5,6 +5,8 @@
 #include "dsgx.h"
 #include "pikmin_dsgx.h"
 
+using entities::RedPikmin;
+
 namespace nt = numeric_types;
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
@@ -71,3 +73,4 @@ void RedPikmin::Move() {
     set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
   }
 }
+

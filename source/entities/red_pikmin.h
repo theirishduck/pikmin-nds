@@ -3,6 +3,8 @@
 
 #include "multipass_engine.h"
 
+namespace entities {
+
 class RedPikmin : public DrawableEntity {
  public:
   RedPikmin();
@@ -21,5 +23,7 @@ class RedPikmin : public DrawableEntity {
   Vec3 target_;
   Vec3 direction_;
 };
+
+}  // namespace entities 
 
 #endif  // RED_PIKMIN_H

@@ -1,5 +1,7 @@
 #include "yellow_pikmin.h"
 
+using entities::YellowPikmin;
+
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 

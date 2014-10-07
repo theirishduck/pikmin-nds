@@ -6,13 +6,18 @@
 #include <nds.h>
 
 #include "basic_mechanics.h"
-#include "captain.h"
 #include "multipass_engine.h"
-#include "red_pikmin.h"
-#include "yellow_pikmin.h"
+
+#include "entities/captain.h"
+#include "entities/red_pikmin.h"
+#include "entities/yellow_pikmin.h"
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
+
+using entities::RedPikmin;
+using entities::YellowPikmin;
+using entities::Captain;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;

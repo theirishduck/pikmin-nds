@@ -10,6 +10,8 @@
 #include "olimar_low_poly_dsgx.h"
 #include "test_dsgx.h"
 
+using entities::Captain;
+
 using numeric_types::literals::operator"" _f;
 
 using numeric_types::literals::operator"" _brad;

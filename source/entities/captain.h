@@ -7,6 +7,8 @@
 
 class MultipassEngine;
 
+namespace entities {
+
 class Captain : public DrawableEntity {
  public:
   Captain();
@@ -19,5 +21,7 @@ class Captain : public DrawableEntity {
   int running_{true};
   numeric_types::Brads current_angle_ = numeric_types::Brads::Raw(0);
 };
+
+}  // namespace entities
 
 #endif  // CAPTAIN_H

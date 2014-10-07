@@ -5,6 +5,8 @@
 
 class MultipassEngine;
 
+namespace entities {
+
 class YellowPikmin : public DrawableEntity {
  public:
   void Update(MultipassEngine* engine) override;
@@ -12,5 +14,7 @@ class YellowPikmin : public DrawableEntity {
  private:
   numeric_types::Brads rotation_;
 };
+
+}  // namespace entities
 
 #endif  // YELLOW_PIKMIN_H
