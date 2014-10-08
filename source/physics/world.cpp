@@ -50,26 +50,28 @@ bool World::BodiesOverlap(Body& a, Body& b) {
 }
 
 void World::ResolveCollision(Body& a, Body& b) {
-  //If either body is a sensor, bail
-  if (not (a.is_sensor or b.is_sensor)) {
-    // One of the bodies must be able to respond to collisions
-    if (a.is_movable or b.is_movable) {
-      if (a.is_movable) {
-        auto a_direction = (a.position - b.position);
-        //this is intended to be a slow push, so roughly 10% the distance
-        //seems appropriate.
-        a_direction = a_direction * 0.1_f;
-        a_direction.y = 0_f;
-        a.position = a.position + a_direction;
-      }
-      if (b.is_movable) {
-        auto b_direction = (b.position - a.position);
-        //this is intended to be a slow push, so roughly 10% the distance
-        //seems appropriate.
-        b_direction = b_direction * 0.1_f;
-        b_direction.y = 0_f;
-        b.position = b.position + b_direction;
-      }
+  // If either body is a sensor, then no collision response is
+  // performed (objects pass right through) so we bail early
+  if (a.is_sensor or b.is_sensor) {
+    return;
+  }
+  // One of the bodies must be able to respond to collisions
+  if (a.is_movable or b.is_movable) {
+    if (a.is_movable) {
+      auto a_direction = (a.position - b.position);
+      // this is intended to be a slow push, so roughly 10% the distance
+      // seems appropriate.
+      a_direction = a_direction * 0.1_f;
+      a_direction.y = 0_f;
+      a.position = a.position + a_direction;
+    }
+    if (b.is_movable) {
+      auto b_direction = (b.position - a.position);
+      // this is intended to be a slow push, so roughly 10% the distance
+      // seems appropriate.
+      b_direction = b_direction * 0.1_f;
+      b_direction.y = 0_f;
+      b.position = b.position + b_direction;
     }
   }
 }
