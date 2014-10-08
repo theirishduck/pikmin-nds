@@ -22,6 +22,13 @@ struct Vector3 {
     return sum;
   }
 
+  Vector3& operator+=(const Vector3& other) {
+    x += other.x;
+    y += other.y;
+    z += other.z;
+    return *this;
+  }
+
   Vector3 operator-(const Vector3& other) {
     Vector3 difference;
     difference.x = x - other.x;
@@ -81,6 +88,12 @@ struct Vector2 {
     sum.x = x + other.x;
     sum.y = y + other.y;
     return sum;
+  }
+
+  Vector2& operator+=(const Vector2& other) {
+    x += other.x;
+    y += other.y;
+    return *this;
   }
 
   Vector2 operator-(const Vector2& other) {

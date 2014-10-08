@@ -1,12 +1,17 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-namespace physics {
+#include "body.h"
+#include "project_settings.h"
 
-class Body;
+namespace physics {
 
 class World {
   public:
+    Body* AllocateBody(DrawableEntity* owner);
+    void FreeBody(Body* body);
+
+    physics::Body bodies[MAX_PHYSICS_BODIES];
 
   private:
     bool BodiesOverlap(physics::Body& A, physics::Body& b);

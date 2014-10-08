@@ -30,4 +30,9 @@
 #define FIELD_OF_VIEW 45.0
 #endif
 
+// Maximum number of Physics Bodies that can be declared.
+#ifndef MAX_PHYSICS_BODIES
+#define MAX_PHYSICS_BODIES 256
+#endif
+
 #endif  // PROJECT_SETTINGS_H_

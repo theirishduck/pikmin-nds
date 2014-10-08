@@ -5,8 +5,28 @@
 #include "body.h"
 
 using physics::World;
+using physics::Body;
 using numeric_types::Fixed;
 using numeric_types::literals::operator"" _f;
+
+Body* World::AllocateBody(DrawableEntity* owner) {
+  // This is a fairly naive implementation.
+  // TODO(Nick): See if there's a better way to do this? Alternately, just
+  // remember not to spawn 73 things in a single frame.
+
+  // Note: A return value of 0 (Null) indicates failure.
+  for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
+    if (bodies[i].owner == 0) {
+      bodies[i].owner = owner;
+      return &bodies[i];
+    }
+  }
+  return 0;
+}
+
+void World::FreeBody(Body* body) {
+  body->owner = 0;
+}
 
 bool World::BodiesOverlap(Body& a, Body& b) {
   //Check to see if the circles overlap on the XZ plane
@@ -16,8 +36,8 @@ bool World::BodiesOverlap(Body& a, Body& b) {
   auto radius2 = (a.radius * a.radius + b.radius * b.radius);
   if (distance2 < radius2) {
     //Check to see if their Y values are overlapping also
-    if (a.position.y + a.height >= a.position.y) {
-      if (b.position.y + b.height >= b.position.y) {
+    if (a.position.y + a.height >= b.position.y) {
+      if (b.position.y + b.height >= a.position.y) {
         return true;
       }
     }
@@ -49,10 +69,33 @@ void World::ResolveCollision(Body& a, Body& b) {
 }
 
 void World::MoveBodies() {
-  
+  for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
+    // First, make sure this is an active body
+    if (bodies[i].owner and bodies[i].active) {
+      bodies[i].position += bodies[i].velocity;
+      bodies[i].velocity += bodies[i].acceleration;
+
+      //clear results from the previous run
+      bodies[i].sensor_result = 0;
+    }
+  }
 }
 
 void World::ProcessCollision() {
+  for (int a = 0; a < MAX_PHYSICS_BODIES; a++) {
+    for (int b = a + 1; b < MAX_PHYSICS_BODIES; b++) {
+      if (a != b and bodies[a].active and bodies[b].active) {
+        if ((bodies[a].is_sensor and bodies[b].collides_with_sensors) or
+            (bodies[b].is_sensor and bodies[a].collides_with_sensors) or
+            (not bodies[a].is_sensor and bodies[b].collides_with_bodies) or
+            (not bodies[b].is_sensor and bodies[a].collides_with_bodies)) {
+          if (BodiesOverlap(bodies[a], bodies[b])) {
+            ResolveCollision(bodies[a], bodies[b]);
 
+          }
+        }
+      }
+      
+    }
+  }
 }
-
