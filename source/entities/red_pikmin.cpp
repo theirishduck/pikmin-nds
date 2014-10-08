@@ -25,9 +25,10 @@ RedPikmin::~RedPikmin() {
 }
 
 void RedPikmin::Init() {
-  body_ = engine()->World().AllocateBody(this, 10_f, 10_f);
+  body_ = engine()->World().AllocateBody(this, 10_f, 1_f);
   body_->position = position();
-  //body_->collides_with_bodies = 1;
+  body_->collides_with_bodies = 1;
+  body_->is_movable = 1;
 }
 
 void RedPikmin::Update() {

@@ -58,6 +58,7 @@ void World::ResolveCollision(Body& a, Body& b) {
         //this is intended to be a slow push, so roughly 10% the distance
         //seems appropriate.
         a_direction = a_direction * 0.1_f;
+        a_direction.y = 0_f;
         a.position = a.position + a_direction;
       }
       if (b.is_movable) {
@@ -65,6 +66,7 @@ void World::ResolveCollision(Body& a, Body& b) {
         //this is intended to be a slow push, so roughly 10% the distance
         //seems appropriate.
         b_direction = b_direction * 0.1_f;
+        b_direction.y = 0_f;
         b.position = b.position + b_direction;
       }
     }
