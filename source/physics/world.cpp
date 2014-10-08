@@ -24,11 +24,12 @@ Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
       return &bodies[i];
     }
   }
-  return 0;
+  return nullptr;
 }
 
 void World::FreeBody(Body* body) {
-  body->owner = 0;
+  body->owner = nullptr;
+  body->active = 0;
 }
 
 bool World::BodiesOverlap(Body& a, Body& b) {
@@ -97,6 +98,12 @@ void World::ProcessCollision() {
           if (BodiesOverlap(bodies[a], bodies[b])) {
             ResolveCollision(bodies[a], bodies[b]);
 
+            if (bodies[a].is_sensor and bodies[b].collides_with_sensors) {
+              bodies[b].sensor_result = &bodies[a];
+            }
+            if (bodies[b].is_sensor and bodies[a].collides_with_sensors) {
+              bodies[a].sensor_result = &bodies[b];
+            }
           }
         }
       }      

@@ -34,7 +34,7 @@ Captain::~Captain() {
 }
 
 void Captain::Init() {
-  body_ = engine()->World().AllocateBody(this, 10_f, 5_f);
+  body_ = engine()->World().AllocateBody(this, 10_f, 7.5_f);
   body_->position = position();
   body_->collides_with_bodies = 1;
 }

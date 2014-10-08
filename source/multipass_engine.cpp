@@ -447,8 +447,8 @@ void MultipassEngine::Draw() {
 
   // Todo(Cristian) Merge the logic of basic mechanics into the existing
   // framework and remove them from the repo.
-  void basicMechanicsDraw();
-  basicMechanicsDraw();
+  // void basicMechanicsDraw();
+  // basicMechanicsDraw();
 
   DrawClearPlane();
 

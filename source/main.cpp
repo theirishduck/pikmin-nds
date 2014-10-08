@@ -22,7 +22,7 @@ using entities::Captain;
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
-u32 const kTestPikmin{10};
+u32 const kTestPikmin{20};
 
 MultipassEngine g_engine;
 RedPikmin g_red_pikmin[kTestPikmin];
