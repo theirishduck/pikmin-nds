@@ -72,6 +72,24 @@ struct Vector2 {
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
+  Fixed<T, F> Length2() {
+    return x*x + y*y;
+  }
+
+  Vector2 operator+(const Vector2& other) {
+    Vector2 sum;
+    sum.x = x + other.x;
+    sum.y = y + other.y;
+    return sum;
+  }
+
+  Vector2 operator-(const Vector2& other) {
+    Vector2 difference;
+    difference.x = x - other.x;
+    difference.y = y - other.y;
+    return difference;
+  }
+
   Fixed<T, F> x;
   Fixed<T, F> y;
 };
