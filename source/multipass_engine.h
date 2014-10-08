@@ -5,6 +5,7 @@
 
 #include "drawable_entity.h"
 #include "camera.h"
+#include "physics/world.h"
 
 struct EntityContainer {
   template <typename FixedT, int FixedF>
@@ -25,6 +26,8 @@ class MultipassEngine {
 
   void Update();
   void Draw();
+
+  physics::World& World();
 
   void AddEntity(DrawableEntity* entity);
 
@@ -65,7 +68,9 @@ class MultipassEngine {
   Fixed<s32, 12> near_plane_;
   Fixed<s32, 12> far_plane_;
 
-  Camera camera;
+  Camera camera_;
+
+  physics::World world_;
 };
 
 #endif  // MULTIPASS_ENGINE_H

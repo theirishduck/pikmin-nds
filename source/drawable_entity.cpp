@@ -42,6 +42,14 @@ Dsgx* DrawableEntity::actor() {
   return current_.actor;
 }
 
+void DrawableEntity::set_engine(MultipassEngine* engine) {
+  engine_ = engine;
+}
+
+MultipassEngine* DrawableEntity::engine() {
+  return engine_;
+}
+
 void DrawableEntity::ApplyTransformation() {
   glTranslatef32(cached_.position.x.data_, cached_.position.y.data_,
       cached_.position.z.data_);
@@ -62,7 +70,7 @@ void DrawableEntity::ApplyTransformation() {
   }
 }
 
-void DrawableEntity::Draw(MultipassEngine* engine) {
+void DrawableEntity::Draw() {
   //BG_PALETTE_SUB[0] = RGB5(31, 31, 0);
   ApplyTransformation();
 
@@ -86,7 +94,7 @@ void DrawableEntity::Draw(MultipassEngine* engine) {
   // BG_PALETTE_SUB[0] = RGB5(0, 0, 31);
 }
 
-void DrawableEntity::Update(MultipassEngine* engine) {
+void DrawableEntity::Update() {
   // Update the animation if one is playing.
   if (current_.animation) {
     current_.animation_frame++;
@@ -131,4 +139,8 @@ Vec3 DrawableEntity::GetRealModelCenter() {
 void DrawableEntity::SetAnimation(std::string name) {
   current_.animation = current_.actor->GetAnimation(name);
   current_.animation_frame = 0;
+}
+
+void DrawableEntity::Init() {
+  
 }

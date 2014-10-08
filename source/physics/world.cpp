@@ -6,18 +6,21 @@
 
 using physics::World;
 using physics::Body;
-using numeric_types::Fixed;
+using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
-Body* World::AllocateBody(DrawableEntity* owner) {
+Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
   // This is a fairly naive implementation.
   // TODO(Nick): See if there's a better way to do this? Alternately, just
   // remember not to spawn 73 things in a single frame.
 
   // Note: A return value of 0 (Null) indicates failure.
   for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
-    if (bodies[i].owner == 0) {
+    if (bodies[i].owner == nullptr) {
       bodies[i].owner = owner;
+      bodies[i].active = 1;
+      bodies[i].height = height;
+      bodies[i].radius = radius;
       return &bodies[i];
     }
   }
@@ -94,8 +97,12 @@ void World::ProcessCollision() {
 
           }
         }
-      }
-      
+      }      
     }
   }
+}
+
+void World::Update() {
+  MoveBodies();
+  ProcessCollision();
 }

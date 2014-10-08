@@ -8,10 +8,13 @@ namespace physics {
 
 class World {
   public:
-    Body* AllocateBody(DrawableEntity* owner);
+    Body* AllocateBody(DrawableEntity* owner, numeric_types::fixed height, 
+        numeric_types::fixed radius);
     void FreeBody(Body* body);
 
     physics::Body bodies[MAX_PHYSICS_BODIES];
+
+    void Update();
 
   private:
     bool BodiesOverlap(physics::Body& A, physics::Body& b);

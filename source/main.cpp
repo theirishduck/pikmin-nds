@@ -28,10 +28,7 @@ MultipassEngine g_engine;
 RedPikmin g_red_pikmin[kTestPikmin];
 RedPikmin g_red_pikmin2[kTestPikmin];
 RedPikmin g_red_pikmin3[kTestPikmin];
-YellowPikmin g_yellow_pikmin[kTestPikmin];
-Captain g_captain[kTestPikmin];
-Captain g_captain2[kTestPikmin];
-Captain g_captain3[kTestPikmin];
+Captain g_captain;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -89,10 +86,10 @@ void SetupDemoPikmin() {
 }
 
 void InitCaptain() {
-  g_captain[0].set_position({0_f, 1_f, 0_f});
-  g_captain[0].SetAnimation("Armature|Idle1");
-  g_engine.AddEntity(&g_captain[0]);
-  g_engine.TargetEntity(&g_captain[0]);
+  g_captain.set_position({0_f, 1_f, 0_f});
+  g_captain.SetAnimation("Armature|Idle1");
+  g_engine.AddEntity(&g_captain);
+  g_engine.TargetEntity(&g_captain);
 }
 
 // Copy the pikmin eye texture into the beginning of VRAM bank C.

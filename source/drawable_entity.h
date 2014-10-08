@@ -41,8 +41,11 @@ class DrawableEntity {
   void set_actor(Dsgx* actor);
   Dsgx* actor();
 
-  virtual void Draw(MultipassEngine* engine);
-  virtual void Update(MultipassEngine* engine);
+  void set_engine(MultipassEngine* engine);
+
+  virtual void Draw();
+  virtual void Update();
+  virtual void Init();
   virtual void ApplyTransformation();
 
   Vec3 GetRealModelCenter();
@@ -52,6 +55,12 @@ class DrawableEntity {
  private:
   DrawState current_;
   DrawState cached_;
+
+  MultipassEngine* engine_{nullptr};
+
+ protected:
+  MultipassEngine* engine();
+
 };
 
 #endif  // DRAWABLE_ENTITY_H

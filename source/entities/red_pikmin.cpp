@@ -24,7 +24,13 @@ RedPikmin::~RedPikmin() {
   delete actor();
 }
 
-void RedPikmin::Update(MultipassEngine* engine) {
+void RedPikmin::Init() {
+  body_ = engine()->World().AllocateBody(this, 10_f, 10_f);
+  body_->position = position();
+  //body_->collides_with_bodies = 1;
+}
+
+void RedPikmin::Update() {
   set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
 
   updates_until_new_target_--;
@@ -35,7 +41,7 @@ void RedPikmin::Update(MultipassEngine* engine) {
 
   Move();
 
-  DrawableEntity::Update(engine);
+  DrawableEntity::Update();
 }
 
 bool RedPikmin::NeedsNewTarget() const {
@@ -69,8 +75,14 @@ void RedPikmin::Move() {
   running_ = target_is_far_enough_away;
 
   if (running_) {
-    set_position(position() + Vec3{direction_.x / 4_f, 0_f, direction_.z / 4_f});
+    body_->velocity.x = direction_.x * 0.25_f;
+    body_->velocity.y = 0_f;
+    body_->velocity.z = direction_.z * 0.25_f;
+
     set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
+  } else {
+    body_->velocity = Vec3{0_f, 0_f, 0_f};
   }
+  set_position(body_->position);
 }
 

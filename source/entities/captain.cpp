@@ -4,6 +4,8 @@
 
 #include "dsgx.h"
 #include "multipass_engine.h"
+#include "physics/world.h"
+#include "physics/body.h"
 
 // Model data
 #include "olimar_dsgx.h"
@@ -17,6 +19,8 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
+using physics::Body;
+
 Captain::Captain() {
   // Todo(Nick) Share Dsgx instances across Captain instances.
   Dsgx* olimar_actor = new Dsgx((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
@@ -29,7 +33,13 @@ Captain::~Captain() {
   delete actor();
 }
 
-void Captain::Update(MultipassEngine* engine) {
+void Captain::Init() {
+  body_ = engine()->World().AllocateBody(this, 10_f, 10_f);
+  body_->position = position();
+  body_->collides_with_bodies = 1;
+}
+
+void Captain::Update() {
   if (running_) {
     if (not (keysHeld() & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT))) {
       running_ = false;
@@ -43,7 +53,7 @@ void Captain::Update(MultipassEngine* engine) {
   }
 
   if (running_) {
-    Brads dpad_angle = engine->CameraAngle() + engine->DPadDirection() -
+    Brads dpad_angle = engine()->CameraAngle() + engine()->DPadDirection() -
         90_brad;
     Brads delta = dpad_angle - current_angle_;
 
@@ -65,21 +75,24 @@ void Captain::Update(MultipassEngine* engine) {
 
     current_angle_ += delta;
     // Ensure current_angle_ is within +/-180 degrees.
-    if (current_angle_ >= 360_brad) {
+    /*if (current_angle_ >= 360_brad) {
       current_angle_ -= 360_brad;
     }
     if (current_angle_ < 0_brad) {
       current_angle_ += 360_brad;
-    }
+    }*/
 
     set_rotation(0_brad, current_angle_ + 90_brad, 0_brad);
 
     // Apply velocity in the direction of the current angle.
-    Vec3 movement;
-    movement.x.data_ = cosLerp(current_angle_.data_);
-    movement.z.data_ = -sinLerp(current_angle_.data_);
-    set_position(position() + movement * 0.2_f);
+    body_->velocity.x.data_ = cosLerp(current_angle_.data_);
+    body_->velocity.y = 0_f;
+    body_->velocity.z.data_ = -sinLerp(current_angle_.data_);
+    
+    body_->velocity *= 0.2_f;
+
+    set_position(body_->position);
   }
 
-  DrawableEntity::Update(engine);
+  DrawableEntity::Update();
 }

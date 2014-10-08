@@ -46,6 +46,13 @@ struct Vector3 {
     return result;
   }
 
+  Vector3& operator*=(const Fixed<s32,12>& other) {
+    x *= other;
+    y *= other;
+    z *= other;
+    return *this;
+  }
+
   // Warning: Only correct for 1.19.12 fixed specialization.
   Fixed<T, F> Length() {
     s32 root = sqrtf32((x * x + y * y + z * z).data_);

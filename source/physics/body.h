@@ -18,8 +18,8 @@ struct Body {
   numeric_types::Fixed<s32,12> radius;
 
   //collision results
-  DrawableEntity* owner;
-  Body* sensor_result{0};
+  DrawableEntity* owner{nullptr};
+  Body* sensor_result{nullptr};
 
   //collision parameters
   unsigned short is_sensor : 1;  // Does this body respond to collisions?

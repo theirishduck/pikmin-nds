@@ -10,7 +10,8 @@ class RedPikmin : public DrawableEntity {
   RedPikmin();
   ~RedPikmin();
 
-  void Update(MultipassEngine* engine) override;
+  void Update() override;
+  void Init() override;
 
  private:
   bool NeedsNewTarget() const;
@@ -22,6 +23,8 @@ class RedPikmin : public DrawableEntity {
   s32 updates_until_new_target_{0};
   Vec3 target_;
   Vec3 direction_;
+
+  physics::Body* body_{nullptr};
 };
 
 }  // namespace entities 

@@ -21,22 +21,30 @@ using numeric_types::Brads;
 MultipassEngine::MultipassEngine() {
 }
 
+physics::World& MultipassEngine::World() {
+  return world_;
+}
+
 void MultipassEngine::TargetEntity(DrawableEntity* entity) {
-  camera.FollowEntity(entity);
+  camera_.FollowEntity(entity);
 }
 
 void MultipassEngine::AddEntity(DrawableEntity* entity) {
   entities_.push_back(entity);
+  entity->set_engine(this);
+  entity->Init();
 }
 
 void MultipassEngine::Update() {
   scanKeys();
 
   for (auto entity : entities_) {
-    entity->Update(this);
+    entity->Update();
   }
 
-  camera.Update();
+  world_.Update();
+
+  camera_.Update();
   debug::UpdateFlags();
 }
 
@@ -75,7 +83,7 @@ Brads MultipassEngine::DPadDirection()  {
 }
 
 Brads MultipassEngine::CameraAngle() {
-  return camera.GetAngle();
+  return camera_.GetAngle();
 }
 
 void ClipFriendlyPerspective(s32 near, s32 far, float angle) {
@@ -122,7 +130,7 @@ void MultipassEngine::GatherDrawList() {
 
   // Reset to the identity matrix in prep for calculations.
   glLoadIdentity();
-  camera.ApplyTransform();
+  camera_.ApplyTransform();
 
   for (auto entity : entities_) {
     // Cache the object so its render information stays the same across
@@ -247,7 +255,7 @@ void MultipassEngine::InitFrame() {
   // Cache everything needed to draw this frame, as it may span multiple
   // passes and the state of these changing in the middle of a frame can cause
   // tearing.
-  camera.SetCache();
+  camera_.SetCache();
   GatherDrawList();
 
   // Ensure the overlap list is empty.
@@ -343,7 +351,7 @@ void MultipassEngine::SetupDividingPlane() {
       (float)near_plane_, (float)far_plane_);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  camera.ApplyTransform();
+  camera_.ApplyTransform();
 }
 
 bool MultipassEngine::ValidateDividingPlane() {
@@ -399,7 +407,7 @@ void MultipassEngine::DrawPassList() {
     }//*/
 
     glPushMatrix();
-    container.entity->Draw(this);
+    container.entity->Draw();
     glPopMatrix(1);
 
     // If this object is not fully drawn, add it to the overlap list to be

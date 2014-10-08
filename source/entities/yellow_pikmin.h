@@ -9,7 +9,7 @@ namespace entities {
 
 class YellowPikmin : public DrawableEntity {
  public:
-  void Update(MultipassEngine* engine) override;
+  void Update() override;
 
  private:
   numeric_types::Brads rotation_;
