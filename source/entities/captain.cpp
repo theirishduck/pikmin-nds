@@ -34,7 +34,7 @@ Captain::~Captain() {
 }
 
 void Captain::Init() {
-  body_ = engine()->World().AllocateBody(this, 10_f, 10_f);
+  body_ = engine()->World().AllocateBody(this, 10_f, 5_f);
   body_->position = position();
   body_->collides_with_bodies = 1;
 }
@@ -87,12 +87,13 @@ void Captain::Update() {
     // Apply velocity in the direction of the current angle.
     body_->velocity.x.data_ = cosLerp(current_angle_.data_);
     body_->velocity.y = 0_f;
-    body_->velocity.z.data_ = -sinLerp(current_angle_.data_);
-    
+    body_->velocity.z.data_ = -sinLerp(current_angle_.data_);    
     body_->velocity *= 0.2_f;
-
-    set_position(body_->position);
+  } else {
+    body_->velocity = Vec3{0_f, 0_f, 0_f};
   }
+
+  set_position(body_->position);
 
   DrawableEntity::Update();
 }

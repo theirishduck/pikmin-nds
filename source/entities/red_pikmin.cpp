@@ -25,7 +25,7 @@ RedPikmin::~RedPikmin() {
 }
 
 void RedPikmin::Init() {
-  body_ = engine()->World().AllocateBody(this, 10_f, 1_f);
+  body_ = engine()->World().AllocateBody(this, 10_f, 2_f);
   body_->position = position();
   body_->collides_with_bodies = 1;
   body_->is_movable = 1;
@@ -54,7 +54,7 @@ void RedPikmin::ChooseNewTarget() {
   target_.y = 0_f;
   target_.z = fixed::FromInt((rand() & 63) - 32);
 
-  updates_until_new_target_ = (rand() & 127) + 128;
+  updates_until_new_target_ = (rand() & 127) + 256;
 
   direction_ = (target_ - position()).Normalize();
   rotation_ = Brads::Raw((direction_.z <= 0_f ? 1 : -1) *
