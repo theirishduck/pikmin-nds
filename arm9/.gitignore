@@ -23,3 +23,5 @@
 build
 *.elf
 *.nds
+
+# Blender backups
