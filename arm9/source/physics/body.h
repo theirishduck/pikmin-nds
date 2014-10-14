@@ -13,10 +13,13 @@ struct Body {
   Vec3 velocity;
   Vec3 acceleration;
 
+  Vec2 xz_position;
+
   //all bodies are cylinders, so they have a radius and a height. Their base
   //starts at position.y, so their highest point is at position.y + height.
   numeric_types::Fixed<s32,12> height;
   numeric_types::Fixed<s32,12> radius;
+  numeric_types::Fixed<s32,12> radius2;
 
   //collision results
   DrawableEntity* owner{nullptr};

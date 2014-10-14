@@ -21,6 +21,7 @@ Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
       bodies_[i].active = 1;
       bodies_[i].height = height;
       bodies_[i].radius = radius;
+      bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
       return &bodies_[i];
     }
@@ -59,7 +60,7 @@ bool World::BodiesOverlap(Body& a, Body& b) {
   Vec2 axz = Vec2{a.position.x, a.position.z};
   Vec2 bxz = Vec2{b.position.x, b.position.z};
   auto distance2 = (axz - bxz).Length2();
-  auto radius2 = (a.radius * a.radius + b.radius * b.radius);
+  auto radius2 = (a.radius2 + b.radius2);
   if (distance2 < radius2) {
     //Check to see if their Y values are overlapping also
     if (a.position.y + a.height >= b.position.y) {
@@ -109,9 +110,10 @@ void World::MoveBodies() {
 }
 
 void World::ProcessCollision() {
-  for (int* a = active_; a < active_ + active_bodies_; a++) {
+  int* active_end = active_ + active_bodies_;
+  for (int* a = active_; a < active_end; a++) {
     Body& A = bodies_[*a];
-    for (int* b = a + 1; b < active_ + active_bodies_; b++) {
+    for (int* b = a + 1; b < active_end; b++) {
       if (a != b) {
         Body& B = bodies_[*b];
         if ((A.is_sensor and B.collides_with_sensors) or
