@@ -15,8 +15,10 @@ include $(DEVKITARM)/ds_rules
 # all directories are relative to this makefile
 #---------------------------------------------------------------------------------
 BUILD		:=	build
-SOURCES		:=	source  
-INCLUDES	:=	include build
+SOURCES		:=	source
+# The .. here causes the project root to be a valid include path, for explicit
+# including of files from the ARM9 side when required.
+INCLUDES	:=	include build ..
 DATA		:=
  
 #---------------------------------------------------------------------------------
@@ -30,7 +32,7 @@ CFLAGS	:=	-g -Wall -O2\
 		$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM7
-CXXFLAGS	:=	$(CFLAGS) -fno-rtti -fno-exceptions -fno-rtti
+CXXFLAGS	:=	$(CFLAGS) -fno-rtti -fno-exceptions -fno-rtti -std=c++11 
 
 
 ASFLAGS	:=	-g $(ARCH)

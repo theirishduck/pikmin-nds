@@ -18,7 +18,9 @@ BUILD		:=	build
 NAMESPACES := entities physics
 NAMESPACE_SOURCES := $(addprefix source/,$(NAMESPACES))
 SOURCES		:=	gfx source $(NAMESPACE_SOURCES)  
-INCLUDES	:=	include source build
+# The .. here causes the project root to be a valid include path, for explicit
+# including of files from the ARM9 side when required.
+INCLUDES	:=	include source build ..
 DATA		:= data
 
 
