@@ -7,6 +7,7 @@
 namespace physics {
 
 struct Body {
+  friend class World;
   //movement information
   Vec3 position;
   Vec3 velocity;
@@ -26,7 +27,8 @@ struct Body {
   unsigned short collides_with_bodies : 1;
   unsigned short collides_with_sensors : 1;
   unsigned short is_movable : 1;  // Can this body be moved during collision?
-  unsigned short active : 1;
+  private:
+    unsigned short active : 1;
 };
 
 }  // namespace physics

@@ -16,12 +16,13 @@ Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
 
   // Note: A return value of 0 (Null) indicates failure.
   for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
-    if (bodies[i].owner == nullptr) {
-      bodies[i].owner = owner;
-      bodies[i].active = 1;
-      bodies[i].height = height;
-      bodies[i].radius = radius;
-      return &bodies[i];
+    if (bodies_[i].owner == nullptr) {
+      bodies_[i].owner = owner;
+      bodies_[i].active = 1;
+      bodies_[i].height = height;
+      bodies_[i].radius = radius;
+      rebuild_index_ = true;
+      return &bodies_[i];
     }
   }
   return nullptr;
@@ -30,6 +31,27 @@ Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
 void World::FreeBody(Body* body) {
   body->owner = nullptr;
   body->active = 0;
+  rebuild_index_ = true;
+}
+
+void World::Wake(Body* body) {
+  body->active = 1;
+  rebuild_index_ = true;
+}
+
+void World::Sleep(Body* body) {
+  body->active = 0;
+  rebuild_index_ = true;
+}
+
+void World::RebuildIndex() {
+  active_bodies_ = 0;
+  for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
+    if (bodies_[i].active) {
+      active_[active_bodies_++] = i;
+    }
+  }
+  rebuild_index_ = false;
 }
 
 bool World::BodiesOverlap(Body& a, Body& b) {
@@ -75,34 +97,35 @@ void World::ResolveCollision(Body& a, Body& b) {
 }
 
 void World::MoveBodies() {
-  for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
+  for (int i = 0; i < active_bodies_; i++) {
     // First, make sure this is an active body
-    if (bodies[i].owner and bodies[i].active) {
-      bodies[i].position += bodies[i].velocity;
-      bodies[i].velocity += bodies[i].acceleration;
+    Body& body = bodies_[active_[i]];
+    body.position += body.velocity;
+    body.velocity += body.acceleration;
 
-      //clear results from the previous run
-      bodies[i].sensor_result = 0;
-    }
+    //clear results from the previous run
+    body.sensor_result = 0;
   }
 }
 
 void World::ProcessCollision() {
-  for (int a = 0; a < MAX_PHYSICS_BODIES; a++) {
-    for (int b = a + 1; b < MAX_PHYSICS_BODIES; b++) {
-      if (a != b and bodies[a].active and bodies[b].active) {
-        if ((bodies[a].is_sensor and bodies[b].collides_with_sensors) or
-            (bodies[b].is_sensor and bodies[a].collides_with_sensors) or
-            (not bodies[a].is_sensor and bodies[b].collides_with_bodies) or
-            (not bodies[b].is_sensor and bodies[a].collides_with_bodies)) {
-          if (BodiesOverlap(bodies[a], bodies[b])) {
-            ResolveCollision(bodies[a], bodies[b]);
+  for (int* a = active_; a < active_ + active_bodies_; a++) {
+    Body& A = bodies_[*a];
+    for (int* b = a + 1; b < active_ + active_bodies_; b++) {
+      if (a != b) {
+        Body& B = bodies_[*b];
+        if ((A.is_sensor and B.collides_with_sensors) or
+            (B.is_sensor and A.collides_with_sensors) or
+            (not A.is_sensor and B.collides_with_bodies) or
+            (not B.is_sensor and A.collides_with_bodies)) {
+          if (BodiesOverlap(A, B)) {
+            ResolveCollision(A, B);
 
-            if (bodies[a].is_sensor and bodies[b].collides_with_sensors) {
-              bodies[b].sensor_result = &bodies[a];
+            if (A.is_sensor and B.collides_with_sensors) {
+              B.sensor_result = &A;
             }
-            if (bodies[b].is_sensor and bodies[a].collides_with_sensors) {
-              bodies[a].sensor_result = &bodies[b];
+            if (B.is_sensor and A.collides_with_sensors) {
+              A.sensor_result = &B;
             }
           }
         }
@@ -112,6 +135,9 @@ void World::ProcessCollision() {
 }
 
 void World::Update() {
+  if (rebuild_index_) {
+    RebuildIndex();
+  }
   MoveBodies();
   ProcessCollision();
 }
