@@ -7,6 +7,7 @@
 
 #include "basic_mechanics.h"
 #include "multipass_engine.h"
+#include "debug.h"
 
 #include "entities/captain.h"
 #include "entities/red_pikmin.h"
@@ -121,6 +122,10 @@ void GameLoop() {
   for (;;) {
     touchPosition touchXY;
     touchRead(&touchXY);
+
+    //start debug timings for this loop
+    debug::StartCpuTimer();
+    debug::UpdateTopic();
 
     basicMechanicsUpdate();
 

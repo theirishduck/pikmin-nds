@@ -18,6 +18,8 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
+using debug::Topic;
+
 MultipassEngine::MultipassEngine() {
 }
 
@@ -38,14 +40,18 @@ void MultipassEngine::AddEntity(DrawableEntity* entity) {
 void MultipassEngine::Update() {
   scanKeys();
 
+  debug::StartTopic(Topic::kUpdate);
   for (auto entity : entities_) {
     entity->Update();
   }
+  debug::EndTopic(Topic::kUpdate);
 
+  debug::StartTopic(Topic::kPhysics);
   world_.Update();
+  debug::EndTopic(Topic::kPhysics);
 
   camera_.Update();
-  debug::UpdateFlags();
+  debug::UpdateInput();
 }
 
 Brads MultipassEngine::DPadDirection()  {
@@ -247,7 +253,8 @@ void MultipassEngine::DrawClearPlane() {
 }
 
 void MultipassEngine::InitFrame() {
-  debug::TimingColor(RGB5(0, 15, 0));
+  //debug::TimingColor(RGB5(0, 15, 0));
+  debug::StartTopic(Topic::kFrameInit);
   // Handle everything that happens at the start of a frame. This includes
   // gathering the initial draw list, and setting up caches for subsequent
   // passes.
@@ -263,11 +270,11 @@ void MultipassEngine::InitFrame() {
   current_pass_ = 0;
 
   // consoleClear();
-  debug::TimingColor(RGB5(0, 0, 0));
+  debug::EndTopic(Topic::kFrameInit);
 }
 
 void MultipassEngine::GatherPassList() {
-  debug::TimingColor(RGB5(31, 31, 0));
+  debug::StartTopic(Topic::kPassInit);
 
   // Build up the list of objects to render this pass.
   int polycount = 0;
@@ -291,7 +298,7 @@ void MultipassEngine::GatherPassList() {
     draw_list_.pop();
   }
 
-  debug::TimingColor(RGB5(0, 0, 0));
+  debug::EndTopic(Topic::kPassInit);
 }
 
 bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
@@ -373,9 +380,9 @@ bool MultipassEngine::ValidateDividingPlane() {
       DrawClearPlane();
 
       GFX_FLUSH = 0;
-      debug::TimingColor(RGB5(6, 6, 6));
+      debug::StartTopic(Topic::kIdle);
       swiWaitForVBlank();
-      debug::TimingColor(RGB5(0, 0, 0));
+      debug::EndTopic(Topic::kIdle);
 
       SetVRAMforPass(current_pass_);
       current_pass_++;
@@ -393,7 +400,7 @@ bool MultipassEngine::ValidateDividingPlane() {
 
 void MultipassEngine::DrawPassList() {
   // Draw the entities for the pass.
-  debug::TimingColor(RGB5(0, 0, 31));
+  debug::StartTopic(Topic::kDraw);
   //int o = 0;
   for (auto& container : pass_list_) {
     glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
@@ -416,7 +423,7 @@ void MultipassEngine::DrawPassList() {
       overlap_list_.push_back(container);
     }
   }
-  debug::TimingColor(RGB5(0, 0, 0));
+  debug::EndTopic(Topic::kDraw);
 }
 
 
@@ -453,9 +460,9 @@ void MultipassEngine::Draw() {
   DrawClearPlane();
 
   GFX_FLUSH = 0;
-  debug::TimingColor(RGB5(6, 6, 6));
+  debug::StartTopic(Topic::kIdle);
   swiWaitForVBlank();
-  debug::TimingColor(RGB5(0, 0, 0));
+  debug::EndTopic(Topic::kIdle);
 
   if (debug::g_render_first_pass_only) {
     // Empty the draw list; limiting the frame to one pass.

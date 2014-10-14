@@ -1,6 +1,7 @@
 #include "debug.h"
 #include <cstdio>
 #include <nds.h>
+#include <map>
 
 
 bool debug::g_timing_colors{false};
@@ -52,7 +53,7 @@ void debug::DrawGroundPlane(int width, int segments, rgb color) {
   glEnd();
 }
 
-void debug::TimingColor(rgb color) {
+void debug::_TimingColor(rgb color) {
   if (g_timing_colors) {
     BG_PALETTE_SUB[0] = color;
   }
@@ -64,7 +65,7 @@ void Status(char const* status) {
 }
 }  // namespace
 
-void debug::UpdateFlags() {
+void debug::UpdateInput() {
   // Hold debug modifier [SELECT], then press:
   // A = Render only First Pass
   // B = Skip VBlank, useful for:
@@ -72,30 +73,122 @@ void debug::UpdateFlags() {
 
   // Check for debug-related input and update the flags accordingly.
   // Todo(Nick) Make this touchscreen based instead of key combo based.
-  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_A)) {
-    debug::g_render_first_pass_only = not debug::g_render_first_pass_only;
-    if (debug::g_render_first_pass_only) {
-      Status("Rendering only first pass.");
-    } else {
-      Status("Rendering every pass.");
+  if (keysHeld() & KEY_SELECT) {
+    if (keysDown() & KEY_A) {
+      debug::g_render_first_pass_only = not debug::g_render_first_pass_only;
+      if (debug::g_render_first_pass_only) {
+        Status("Rendering only first pass.");
+      } else {
+        Status("Rendering every pass.");
+      }
     }
-  }
 
-  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_B)) {
-    debug::g_skip_vblank = not debug::g_skip_vblank;
-    if (debug::g_skip_vblank) {
-      Status("Skipping vBlank");
-    } else {
-      Status("Not skipping vBlank");
+    if (keysDown() & KEY_B) {
+      debug::g_skip_vblank = not debug::g_skip_vblank;
+      if (debug::g_skip_vblank) {
+        Status("Skipping vBlank");
+      } else {
+        Status("Not skipping vBlank");
+      }
     }
-  }
 
-  if ((keysHeld() & KEY_SELECT) and (keysDown() & KEY_X)) {
-    debug::g_timing_colors = not debug::g_timing_colors;
-    if (debug::g_timing_colors) {
-      Status("Rendering Colors");
-    } else {
-      Status("No more flashing!");
+    if (keysDown() & KEY_X) {
+      debug::g_timing_colors = not debug::g_timing_colors;
+      if (debug::g_timing_colors) {
+        Status("Rendering Colors");
+      } else {
+        Status("No more flashing!");
+      }
+    }
+
+    //switch timing topics
+    if (keysDown() & KEY_LEFT) {
+      debug::PreviousTopic();
+    }
+
+    if (keysDown() & KEY_RIGHT) {
+      debug::NextTopic();
     }
   }
+}
+
+struct TimingResult {
+  u32 start = 0;
+  u32 end = 0;
+  u32 delta() {
+    return end - start;
+  }
+};
+
+struct TopicInfo {
+  const char* name;
+  rgb color;
+};
+
+TimingResult g_timing_results[static_cast<int>(debug::Topic::kNumTopics)];
+
+std::map<debug::Topic, TopicInfo> g_topic_info{
+  {debug::Topic::kUpdate, {
+    "Update", 
+    RGB8(255, 128, 0)}},
+  {debug::Topic::kPhysics, {
+    "Physics",
+    RGB8(255, 64, 255)}},
+  {debug::Topic::kFrameInit, {
+    "FrameInit",
+    RGB8(0, 128, 0)}},
+  {debug::Topic::kPassInit, {
+    "PassInit",
+    RGB8(255, 255, 0)}},
+  {debug::Topic::kDraw, {
+    "Draw",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kIdle, {
+    "Idle",   
+    RGB8(48, 48, 48)}},
+};
+
+void debug::StartTopic(debug::Topic topic) {
+  int index = static_cast<int>(topic);
+  g_timing_results[index].start = cpuGetTiming();
+  debug::_TimingColor(g_topic_info[topic].color);
+}
+
+void debug::EndTopic(debug::Topic topic) {
+  int index = static_cast<int>(topic);
+  g_timing_results[index].end = cpuGetTiming();
+  debug::_TimingColor(RGB8(0,0,0));
+}
+
+void debug::StartCpuTimer() {
+  // This uses two timers for 32bit precision, so this call will consume
+  // timers 0 and 1.
+  cpuStartTiming(0); 
+}
+
+int g_debug_current_topic = 0;
+
+void debug::NextTopic() {
+  g_debug_current_topic++;
+  if (g_debug_current_topic >= (int)debug::Topic::kNumTopics) {
+    g_debug_current_topic = 0;
+  }
+}
+
+void debug::PreviousTopic() {
+  g_debug_current_topic--;
+  if (g_debug_current_topic < 0) {
+    g_debug_current_topic = (int)debug::Topic::kNumTopics;
+  }
+}
+
+void debug::UpdateTopic() {
+  //clear the line
+  printf("\x1b[22;0H%32.s", " ");
+  if (g_topic_info.count((Topic)g_debug_current_topic)) {
+    printf("\x1b[22;0H%s", g_topic_info[(Topic)g_debug_current_topic].name);
+  } else {
+    printf("\x1b[22;0HTopic:%d", g_debug_current_topic);
+  }
+  printf("\x1b[22;21H%10lu", g_timing_results[g_debug_current_topic].delta());
 }
