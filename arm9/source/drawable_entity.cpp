@@ -32,6 +32,29 @@ DrawState& DrawableEntity::GetCachedState() {
 
 void DrawableEntity::SetCache() {
   cached_ = current_;
+
+  //return;
+
+  //calculate (once) the transformation matrix for this object
+  //this is lifted largely from ndslib
+  int sine = sinLerp(cached_.rotation.y.data_);
+  int cosine = cosLerp(cached_.rotation.y.data_);
+
+  cached_matrix_[0] = cosine;
+  cached_matrix_[1] = 0;
+  cached_matrix_[2] = -sine;
+
+  cached_matrix_[3] = 0;
+  cached_matrix_[4] = inttof32(1);
+  cached_matrix_[5] = 0;
+  
+  cached_matrix_[6] = sine;
+  cached_matrix_[7] = 0;
+  cached_matrix_[8] = cosine;
+  
+  cached_matrix_[9]  = cached_.position.x.data_;
+  cached_matrix_[10] = cached_.position.y.data_;
+  cached_matrix_[11] = cached_.position.z.data_;
 }
 
 void DrawableEntity::set_actor(Dsgx* actor) {
@@ -51,22 +74,33 @@ MultipassEngine* DrawableEntity::engine() {
 }
 
 void DrawableEntity::ApplyTransformation() {
-  glTranslatef32(cached_.position.x.data_, cached_.position.y.data_,
-      cached_.position.z.data_);
+  if (false and (cached_.rotation.x.data_ or cached_.rotation.z.data_)) {
+    // sub-optimal case. This is correct, but slow; I don't know how to
+    // improve arbitrary rotation yet. -Nick
+    glTranslatef32(cached_.position.x.data_, cached_.position.y.data_,
+        cached_.position.z.data_);
 
-  // If the rotation value is zero, skip the gl call; this doesn't affect the
-  // end result, but does skip an avoidable expensive matrix transformation.
-  // Most rotations will only be about the Y axis, meaning that the X/Z axes are
-  // often skipped. Initial testing shows this reducing CPU load of this
-  // function by ~1/2 for typical scenes.
-  if (cached_.rotation.y.data_) {
     glRotateYi(cached_.rotation.y.data_);
-  }
-  if (cached_.rotation.x.data_) {
-    glRotateXi(cached_.rotation.x.data_);
-  }
-  if (cached_.rotation.z.data_) {
-    glRotateZi(cached_.rotation.z.data_);
+    //glRotateXi(cached_.rotation.x.data_);
+    //glRotateZi(cached_.rotation.z.data_);
+  } else {
+    // optimized case, for a translation and a rotation about only the Y-axis.
+    // This uses a pre-calculated matrix.
+     MATRIX_MULT4x3 = cached_matrix_[0];
+     MATRIX_MULT4x3 = cached_matrix_[1];
+     MATRIX_MULT4x3 = cached_matrix_[2];
+
+     MATRIX_MULT4x3 = cached_matrix_[3];
+     MATRIX_MULT4x3 = cached_matrix_[4];
+     MATRIX_MULT4x3 = cached_matrix_[5];
+
+     MATRIX_MULT4x3 = cached_matrix_[6];
+     MATRIX_MULT4x3 = cached_matrix_[7];
+     MATRIX_MULT4x3 = cached_matrix_[8];
+
+     MATRIX_MULT4x3 = cached_matrix_[9];
+     MATRIX_MULT4x3 = cached_matrix_[10];
+     MATRIX_MULT4x3 = cached_matrix_[11];
   }
 }
 
@@ -106,15 +140,13 @@ void DrawableEntity::Update() {
 }
 
 numeric_types::fixed DrawableEntity::GetRealModelZ() {
-  // BG_PALETTE_SUB[0] = RGB5(31, 31, 0);
   // Avoid clobbering the render state for this poll by pushing the current
   // matrix before performing the position test.
   glPushMatrix();
   ApplyTransformation();
-  // BG_PALETTE_SUB[0] = RGB5(0, 31, 0);
 
   // Perform a hardware position test on the center of the model.
-  Vec3 center = current_.actor->Center();
+  Vec3& center = current_.actor->Center();
   PosTest(center.x.data_, center.y.data_, center.z.data_);
   numeric_types::fixed result;
   result.data_ = PosTestZresult();

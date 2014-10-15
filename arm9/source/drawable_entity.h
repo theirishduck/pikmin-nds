@@ -56,6 +56,8 @@ class DrawableEntity {
   DrawState current_;
   DrawState cached_;
 
+  s32 cached_matrix_[12];
+
   MultipassEngine* engine_{nullptr};
 
  protected:

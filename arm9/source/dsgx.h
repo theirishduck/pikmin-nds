@@ -31,7 +31,7 @@ class Dsgx {
   Dsgx(u32* data, const u32 length);
 
   u32* DrawList();
-  Vec3 Center();
+  Vec3& Center();
   void SetCenter(Vec3 center);
   Fixed<s32, 12> Radius();
 

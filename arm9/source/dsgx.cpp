@@ -97,7 +97,7 @@ u32* Dsgx::DrawList() {
   return model_data_;
 }
 
-Vec3 Dsgx::Center() {
+Vec3& Dsgx::Center() {
   return bounding_center_;
 }
 
