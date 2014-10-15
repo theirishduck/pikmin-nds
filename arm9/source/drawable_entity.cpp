@@ -26,7 +26,7 @@ void DrawableEntity::set_rotation(nt::Brads x, nt::Brads y, nt::Brads z) {
   current_.rotation.z = z;
 }
 
-DrawState DrawableEntity::GetCachedState() {
+DrawState& DrawableEntity::GetCachedState() {
   return cached_;
 }
 

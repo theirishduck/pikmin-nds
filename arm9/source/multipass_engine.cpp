@@ -142,7 +142,7 @@ void MultipassEngine::GatherDrawList() {
     // Cache the object so its render information stays the same across
     // multiple passes.
     entity->SetCache();
-    DrawState state = entity->GetCachedState();
+    DrawState& state = entity->GetCachedState();
 
     // Using the camera state, calculate the nearest and farthest points,
     // which we'll later use to decide where the clipping planes should go.
@@ -263,7 +263,7 @@ void MultipassEngine::InitFrame() {
   // passes and the state of these changing in the middle of a frame can cause
   // tearing.
   camera_.SetCache();
-  GatherDrawList();
+  GatherDrawList(); 
 
   // Ensure the overlap list is empty.
   overlap_list_.clear();

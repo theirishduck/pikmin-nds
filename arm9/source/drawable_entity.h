@@ -29,7 +29,7 @@ class MultipassEngine;
 // custom logic.
 class DrawableEntity {
  public:
-  DrawState GetCachedState();
+  DrawState& GetCachedState();
   void SetCache();
 
   Vec3 position();
