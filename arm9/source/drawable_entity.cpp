@@ -40,21 +40,21 @@ void DrawableEntity::SetCache() {
   int sine = sinLerp(cached_.rotation.y.data_);
   int cosine = cosLerp(cached_.rotation.y.data_);
 
-  cached_matrix_[0] = cosine;
-  cached_matrix_[1] = 0;
-  cached_matrix_[2] = -sine;
+  cached_matrix_[1] = cosine;
+  cached_matrix_[2] = 0;
+  cached_matrix_[3] = -sine;
 
-  cached_matrix_[3] = 0;
-  cached_matrix_[4] = inttof32(1);
-  cached_matrix_[5] = 0;
+  cached_matrix_[4] = 0;
+  cached_matrix_[5] = inttof32(1);
+  cached_matrix_[6] = 0;
   
-  cached_matrix_[6] = sine;
-  cached_matrix_[7] = 0;
-  cached_matrix_[8] = cosine;
+  cached_matrix_[7] = sine;
+  cached_matrix_[8] = 0;
+  cached_matrix_[9] = cosine;
   
-  cached_matrix_[9]  = cached_.position.x.data_;
-  cached_matrix_[10] = cached_.position.y.data_;
-  cached_matrix_[11] = cached_.position.z.data_;
+  cached_matrix_[10]  = cached_.position.x.data_;
+  cached_matrix_[11] = cached_.position.y.data_;
+  cached_matrix_[12] = cached_.position.z.data_;
 }
 
 void DrawableEntity::set_actor(Dsgx* actor) {
@@ -86,21 +86,29 @@ void DrawableEntity::ApplyTransformation() {
   } else {
     // optimized case, for a translation and a rotation about only the Y-axis.
     // This uses a pre-calculated matrix.
-     MATRIX_MULT4x3 = cached_matrix_[0];
-     MATRIX_MULT4x3 = cached_matrix_[1];
-     MATRIX_MULT4x3 = cached_matrix_[2];
 
-     MATRIX_MULT4x3 = cached_matrix_[3];
-     MATRIX_MULT4x3 = cached_matrix_[4];
-     MATRIX_MULT4x3 = cached_matrix_[5];
+    //with manual writes:
+    //*
+    MATRIX_MULT4x3 = cached_matrix_[1];
+    MATRIX_MULT4x3 = cached_matrix_[2];
+    MATRIX_MULT4x3 = cached_matrix_[3];
 
-     MATRIX_MULT4x3 = cached_matrix_[6];
-     MATRIX_MULT4x3 = cached_matrix_[7];
-     MATRIX_MULT4x3 = cached_matrix_[8];
+    MATRIX_MULT4x3 = cached_matrix_[4];
+    MATRIX_MULT4x3 = cached_matrix_[5];
+    MATRIX_MULT4x3 = cached_matrix_[6];
 
-     MATRIX_MULT4x3 = cached_matrix_[9];
-     MATRIX_MULT4x3 = cached_matrix_[10];
-     MATRIX_MULT4x3 = cached_matrix_[11];
+    MATRIX_MULT4x3 = cached_matrix_[7];
+    MATRIX_MULT4x3 = cached_matrix_[8];
+    MATRIX_MULT4x3 = cached_matrix_[9];
+
+    MATRIX_MULT4x3 = cached_matrix_[10];
+    MATRIX_MULT4x3 = cached_matrix_[11];
+    MATRIX_MULT4x3 = cached_matrix_[12];
+    /*/
+    //with DMA transfer
+    
+
+    //*/
   }
 }
 

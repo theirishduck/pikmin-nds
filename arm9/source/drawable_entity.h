@@ -56,7 +56,7 @@ class DrawableEntity {
   DrawState current_;
   DrawState cached_;
 
-  s32 cached_matrix_[12];
+  s32 cached_matrix_[13]; //one extra entry for size; for DMA transfers
 
   MultipassEngine* engine_{nullptr};
 
