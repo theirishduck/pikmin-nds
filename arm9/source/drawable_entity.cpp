@@ -8,6 +8,17 @@
 
 namespace nt = numeric_types;
 
+DrawableEntity::DrawableEntity() {
+  //zero out the cached matrix to initialize it
+  for (int i = 1; i < 13; i++) {
+    cached_matrix_[i] = 0;
+  }
+
+  //the first byte needs to be the geometry command for a
+  //MATRIX_MUL4x3
+  cached_matrix_[0] = 0x19;
+}
+
 Vec3 DrawableEntity::position() {
   return current_.position;
 }
@@ -41,15 +52,15 @@ void DrawableEntity::SetCache() {
   int cosine = cosLerp(cached_.rotation.y.data_);
 
   cached_matrix_[1] = cosine;
-  cached_matrix_[2] = 0;
+  //cached_matrix_[2] = 0;
   cached_matrix_[3] = -sine;
 
-  cached_matrix_[4] = 0;
+  //cached_matrix_[4] = 0;
   cached_matrix_[5] = inttof32(1);
-  cached_matrix_[6] = 0;
+  //cached_matrix_[6] = 0;
   
   cached_matrix_[7] = sine;
-  cached_matrix_[8] = 0;
+  //cached_matrix_[8] = 0;
   cached_matrix_[9] = cosine;
   
   cached_matrix_[10]  = cached_.position.x.data_;
@@ -88,7 +99,7 @@ void DrawableEntity::ApplyTransformation() {
     // This uses a pre-calculated matrix.
 
     //with manual writes:
-    //*
+    /*
     MATRIX_MULT4x3 = cached_matrix_[1];
     MATRIX_MULT4x3 = cached_matrix_[2];
     MATRIX_MULT4x3 = cached_matrix_[3];
@@ -107,7 +118,16 @@ void DrawableEntity::ApplyTransformation() {
     /*/
     //with DMA transfer
     
+    //flush cache?
+    //DC_FlushRange(cached_matrix_, 13*4);
 
+    //wait for prev. DMA?
+    //while((DMA_CR(0) & DMA_BUSY)||(DMA_CR(1) & DMA_BUSY)||(DMA_CR(2) & DMA_BUSY)||(DMA_CR(3) & DMA_BUSY));
+
+    DMA_SRC(0) = (u32)cached_matrix_;
+    DMA_DEST(0) = 0x4000400; //GPU FIFO ADDRESs (Todo: Name this! -nick)
+    DMA_CR(0) = DMA_FIFO | 13;
+    //while(DMA_CR(0) & DMA_BUSY);
     //*/
   }
 }

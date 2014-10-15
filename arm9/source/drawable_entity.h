@@ -29,6 +29,7 @@ class MultipassEngine;
 // custom logic.
 class DrawableEntity {
  public:
+  DrawableEntity();
   DrawState& GetCachedState();
   void SetCache();
 
