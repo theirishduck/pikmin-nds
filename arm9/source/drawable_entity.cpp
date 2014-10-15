@@ -121,27 +121,15 @@ void DrawableEntity::ApplyTransformation() {
 }
 
 void DrawableEntity::Draw() {
-  //BG_PALETTE_SUB[0] = RGB5(31, 31, 0);
   ApplyTransformation();
 
   // Apply animation.
   if (cached_.animation) {
-    // make sure the GFX engine is done drawing the previous object
-    // while (GFX_STATUS & BIT(14)) {
-    //   continue;
-    // }
-    // while (GFX_STATUS & BIT(27)) {
-    //   continue;
-    // }
-    // BG_PALETTE_SUB[0] = RGB5(0, 31, 31);
     cached_.actor->ApplyAnimation(cached_.animation, cached_.animation_frame);
-    // BG_PALETTE_SUB[0] = RGB5(0, 0, 31);
   }
 
-  // Draw the object.
-  // BG_PALETTE_SUB[0] = RGB5(31, 0, 31);
+  // Draw the object using display lists.
   glCallList(cached_.actor->DrawList());
-  // BG_PALETTE_SUB[0] = RGB5(0, 0, 31);
 }
 
 void DrawableEntity::Update() {

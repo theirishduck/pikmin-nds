@@ -44,10 +44,10 @@ class DrawableEntity {
 
   void set_engine(MultipassEngine* engine);
 
-  virtual void Draw();
   virtual void Update();
   virtual void Init();
-  virtual void ApplyTransformation();
+  inline void ApplyTransformation();
+  void Draw();
 
   numeric_types::fixed GetRealModelZ();
 

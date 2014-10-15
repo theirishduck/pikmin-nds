@@ -404,8 +404,8 @@ void MultipassEngine::DrawPassList() {
   debug::StartTopic(Topic::kDraw);
   //int o = 0;
   for (auto& container : pass_list_) {
-    glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
-    glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(0.32), floattov10(0.32));
+    //glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
+    //glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(0.32), floattov10(0.32));
     /*
     // TODO(Nick): Set this up to be turned on and off using a debug flag
     if (o++ < overlaps_count) {
