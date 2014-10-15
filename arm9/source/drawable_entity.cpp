@@ -85,21 +85,23 @@ MultipassEngine* DrawableEntity::engine() {
 }
 
 void DrawableEntity::ApplyTransformation() {
-  if (false and (cached_.rotation.x.data_ or cached_.rotation.z.data_)) {
+  if (cached_.rotation.x.data_ or cached_.rotation.z.data_) {
     // sub-optimal case. This is correct, but slow; I don't know how to
     // improve arbitrary rotation yet. -Nick
     glTranslatef32(cached_.position.x.data_, cached_.position.y.data_,
         cached_.position.z.data_);
 
     glRotateYi(cached_.rotation.y.data_);
-    //glRotateXi(cached_.rotation.x.data_);
-    //glRotateZi(cached_.rotation.z.data_);
+    glRotateXi(cached_.rotation.x.data_);
+    glRotateZi(cached_.rotation.z.data_);
   } else {
     // optimized case, for a translation and a rotation about only the Y-axis.
     // This uses a pre-calculated matrix.
 
-    //with manual writes:
-    /*
+    // This ends up being slightly faster than using DMA transfers for some reason on real hardware, by about
+    // 5k hardware cycles for 100 objects drawn. It also dodges needing to worry about the cache, which is
+    // a plus.
+
     MATRIX_MULT4x3 = cached_matrix_[1];
     MATRIX_MULT4x3 = cached_matrix_[2];
     MATRIX_MULT4x3 = cached_matrix_[3];
@@ -115,20 +117,6 @@ void DrawableEntity::ApplyTransformation() {
     MATRIX_MULT4x3 = cached_matrix_[10];
     MATRIX_MULT4x3 = cached_matrix_[11];
     MATRIX_MULT4x3 = cached_matrix_[12];
-    /*/
-    //with DMA transfer
-    
-    //flush cache?
-    //DC_FlushRange(cached_matrix_, 13*4);
-
-    //wait for prev. DMA?
-    //while((DMA_CR(0) & DMA_BUSY)||(DMA_CR(1) & DMA_BUSY)||(DMA_CR(2) & DMA_BUSY)||(DMA_CR(3) & DMA_BUSY));
-
-    DMA_SRC(0) = (u32)cached_matrix_;
-    DMA_DEST(0) = 0x4000400; //GPU FIFO ADDRESs (Todo: Name this! -nick)
-    DMA_CR(0) = DMA_FIFO | 13;
-    //while(DMA_CR(0) & DMA_BUSY);
-    //*/
   }
 }
 
