@@ -123,13 +123,11 @@ Animation* Dsgx::GetAnimation(string name) {
 }
 
 void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
+  auto destination = model_data_ + 1;
   m4x4 const* current_matrix = animation->transforms + bones_.size() * frame;
   for (auto bone = bones_.begin(); bone != bones_.end(); bone++) {
     for (u32 i = 0; i < bone->num_offsets; i++) {
-      *((m4x4*)(model_data_ + bone->offsets[i] + 1)) = *current_matrix;
-      // Try DMA copy; see if it's faster.
-      // dmaCopyWordsAsynch(0, current_matrix,
-      //    (model_data_ + bone->offsets[i] + 1), sizeof(m4x4));
+      *((m4x4*)(destination + bone->offsets[i])) = *current_matrix;
     }
     current_matrix++;
   }
