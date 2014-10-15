@@ -462,7 +462,7 @@ void MultipassEngine::Draw() {
   GFX_FLUSH = 0;
   debug::StartTopic(Topic::kIdle);
   swiWaitForVBlank();
-  debug::EndTopic(Topic::kIdle);
+
 
   if (debug::g_render_first_pass_only) {
     // Empty the draw list; limiting the frame to one pass.
@@ -480,4 +480,5 @@ void MultipassEngine::Draw() {
     irqEnable(IRQ_HBLANK);
     swiIntrWait(1, IRQ_HBLANK);
   }
+  debug::EndTopic(Topic::kIdle);
 }
