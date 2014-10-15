@@ -113,17 +113,6 @@ Vec3 DrawableEntity::GetRealModelCenter() {
   ApplyTransformation();
   // BG_PALETTE_SUB[0] = RGB5(0, 31, 0);
 
-  // wait for the matrix status to clear, and the geometry engine
-  // to not be busy drawing (according to GBATEK, maybe not needed?)
-  // Wait for the matrix and geometry engine to not be busy.
-  // Todo(Nick) Check if this is needed. GBATEK states it may not be.
-  while (GFX_STATUS & BIT(14)) {
-    continue;
-  }
-  while (GFX_STATUS & BIT(27)) {
-    continue;
-  }
-
   // Perform a hardware position test on the center of the model.
   PosTest(current_.actor->Center().x.data_, current_.actor->Center().y.data_,
       current_.actor->Center().z.data_);
