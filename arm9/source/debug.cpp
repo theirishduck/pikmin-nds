@@ -184,7 +184,7 @@ void debug::PreviousTopic() {
 
 void debug::UpdateTopic() {
   //clear the line
-  printf("\x1b[22;0H%32.s", " ");
+  printf("\x1b[22;0H                                ");
   if (g_topic_info.count((Topic)g_debug_current_topic)) {
     printf("\x1b[22;0H%s", g_topic_info[(Topic)g_debug_current_topic].name);
   } else {
