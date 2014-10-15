@@ -114,8 +114,8 @@ Vec3 DrawableEntity::GetRealModelCenter() {
   // BG_PALETTE_SUB[0] = RGB5(0, 31, 0);
 
   // Perform a hardware position test on the center of the model.
-  PosTest(current_.actor->Center().x.data_, current_.actor->Center().y.data_,
-      current_.actor->Center().z.data_);
+  Vec3 center = current_.actor->Center();
+  PosTest(center.x.data_, center.y.data_, center.z.data_);
   Vec3 result;
   result.x.data_ = PosTestXresult();
   result.y.data_ = PosTestYresult();
