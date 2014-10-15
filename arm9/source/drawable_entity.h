@@ -48,7 +48,7 @@ class DrawableEntity {
   virtual void Init();
   virtual void ApplyTransformation();
 
-  Vec3 GetRealModelCenter();
+  numeric_types::fixed GetRealModelZ();
 
   void SetAnimation(std::string name);
 

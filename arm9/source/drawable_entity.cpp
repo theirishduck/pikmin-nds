@@ -105,7 +105,7 @@ void DrawableEntity::Update() {
   }
 }
 
-Vec3 DrawableEntity::GetRealModelCenter() {
+numeric_types::fixed DrawableEntity::GetRealModelZ() {
   // BG_PALETTE_SUB[0] = RGB5(31, 31, 0);
   // Avoid clobbering the render state for this poll by pushing the current
   // matrix before performing the position test.
@@ -116,10 +116,8 @@ Vec3 DrawableEntity::GetRealModelCenter() {
   // Perform a hardware position test on the center of the model.
   Vec3 center = current_.actor->Center();
   PosTest(center.x.data_, center.y.data_, center.z.data_);
-  Vec3 result;
-  result.x.data_ = PosTestXresult();
-  result.y.data_ = PosTestYresult();
-  result.z.data_ = PosTestZresult();
+  numeric_types::fixed result;
+  result.data_ = PosTestZresult();
 
   glPopMatrix(1);
   return result;

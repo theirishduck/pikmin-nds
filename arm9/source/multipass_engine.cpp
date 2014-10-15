@@ -14,6 +14,7 @@
 
 using namespace std;
 using numeric_types::literals::operator"" _f;
+using numeric_types::fixed;
 
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -148,9 +149,9 @@ void MultipassEngine::GatherDrawList() {
     // which we'll later use to decide where the clipping planes should go.
     EntityContainer container;
     container.entity = entity;
-    Vec3 object_center = entity->GetRealModelCenter();
-    container.far_z  = object_center.z + state.actor->Radius();
-    container.near_z = object_center.z - state.actor->Radius();
+    fixed object_z = entity->GetRealModelZ();
+    container.far_z  = object_z + state.actor->Radius();
+    container.near_z = object_z - state.actor->Radius();
 
     draw_list_.push(container);
   }
