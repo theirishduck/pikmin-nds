@@ -29,6 +29,7 @@ void RedPikmin::Init() {
   body_->position = position();
   body_->collides_with_bodies = 1;
   body_->is_movable = 1;
+  body_->is_pikmin = 1;
 }
 
 void RedPikmin::Update() {

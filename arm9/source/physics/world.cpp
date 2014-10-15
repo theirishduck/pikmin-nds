@@ -47,9 +47,14 @@ void World::Sleep(Body* body) {
 
 void World::RebuildIndex() {
   active_bodies_ = 0;
+  active_pikmin_ = 0;
   for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
     if (bodies_[i].active) {
-      active_[active_bodies_++] = i;
+      if (bodies_[i].is_pikmin) {
+        pikmin_[active_pikmin_++] = i;
+      } else {
+        active_[active_bodies_++] = i;
+      }
     }
   }
   rebuild_index_ = false;
@@ -81,7 +86,7 @@ void World::ResolveCollision(Body& a, Body& b) {
   // One of the bodies must be able to respond to collisions
   if (a.is_movable) {
     auto a_direction = (a.position - b.position);
-    // this is intended to be a slow push, so roughly 10% the distance
+    // this is intended to be a slow push, so roughly 5% the distance
     // seems appropriate.
     a_direction.y = 0_f;
     a_direction = a_direction * 0.05_f;
@@ -89,23 +94,30 @@ void World::ResolveCollision(Body& a, Body& b) {
   }
   if (b.is_movable) {
     auto b_direction = (b.position - a.position);
-    // this is intended to be a slow push, so roughly 10% the distance
+    // this is intended to be a slow push, so roughly 5% the distance
     // seems appropriate.
-    b_direction = b_direction * 0.1_f;
+    b_direction = b_direction * 0.05_f;
     b_direction.y = 0_f;
     b.position = b.position + b_direction;
   }
 }
 
+void World::MoveBody(Body& body) {
+  body.position += body.velocity;
+  body.velocity += body.acceleration;
+
+  //clear results from the previous run
+  body.sensor_result = 0;
+}
+
 void World::MoveBodies() {
   for (int i = 0; i < active_bodies_; i++) {
     // First, make sure this is an active body
-    Body& body = bodies_[active_[i]];
-    body.position += body.velocity;
-    body.velocity += body.acceleration;
-
-    //clear results from the previous run
-    body.sensor_result = 0;
+    MoveBody(bodies_[active_[i]]);
+  }
+  for (int i = 0; i < active_pikmin_; i++) {
+    // First, make sure this is an active body
+    MoveBody(bodies_[pikmin_[i]]);
   }
 }
 
@@ -132,6 +144,24 @@ void World::ProcessCollision() {
           }
         }
       }      
+    }
+  }
+
+  //Repeat this with pikmin, our special case heros
+  //Pikmin need to collide against all active bodies, but not with each other
+  
+  //Also, pikmin are assumed to collide with both bodies and sensors, and are
+  //always considered movable, so we can skip all of those checks.
+  for (int p = 0; p < active_pikmin_; p++) {
+    Body& P = bodies_[pikmin_[p]];
+    for (int a = 0; a < active_bodies_; a++) {
+      Body& A = bodies_[active_[a]];
+      if (BodiesOverlap(A, P)) {
+        ResolveCollision(A, P);
+        if (A.is_sensor) {
+          P.sensor_result = &A;
+        }
+      }
     }
   }
 }
