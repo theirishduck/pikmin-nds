@@ -51,7 +51,7 @@ class MultipassEngine {
   bool ProgressMadeThisPass(unsigned int initial_length);
   void SetupDividingPlane();
   bool ValidateDividingPlane();
-  void DrawPassList() ITCM_CODE;
+  void DrawPassList();
 
   std::priority_queue<EntityContainer> draw_list_;
 

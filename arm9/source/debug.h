@@ -27,7 +27,7 @@ enum Topic {
   kNumTopics
 };
 
-void StartTopic(Topic topic) ITCM_CODE;
+void StartTopic(Topic topic);
 void EndTopic(Topic topic);
 void StartCpuTimer();
 void NextTopic();

@@ -38,7 +38,7 @@ class Dsgx {
   u32 DrawCost();
 
   Animation* GetAnimation(std::string name);
-  void ApplyAnimation(Animation* animation, u32 frame) ITCM_CODE;
+  void ApplyAnimation(Animation* animation, u32 frame);
 
 private:
   u32 ProcessChunk(u32* location);
