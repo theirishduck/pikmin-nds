@@ -46,8 +46,8 @@ class DrawableEntity {
 
   virtual void Update();
   virtual void Init();
-  inline void ApplyTransformation();
-  void Draw();
+  inline void ApplyTransformation() ITCM_CODE;
+  void Draw() ITCM_CODE;
 
   numeric_types::fixed GetRealModelZ();
 
