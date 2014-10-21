@@ -72,7 +72,7 @@ void RedPikmin::Move() {
     SetAnimation("Armature|Run");
   }
   if (not target_is_far_enough_away and running_) {
-    //SetAnimation("Armature|Idle");
+    SetAnimation("Armature|Idle");
   }
   running_ = target_is_far_enough_away;
 
