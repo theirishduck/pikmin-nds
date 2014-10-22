@@ -3,7 +3,9 @@
 #include <stdio.h>
 
 #include "dsgx.h"
-#include "pikmin_dsgx.h"
+#include "red_pikmin_dsgx.h"
+#include "yellow_pikmin_dsgx.h"
+#include "blue_pikmin_dsgx.h"
 
 using entities::RedPikmin;
 
@@ -15,8 +17,20 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
 RedPikmin::RedPikmin() {
-  Dsgx* pikmin_actor = new Dsgx((u32*)pikmin_dsgx, pikmin_dsgx_size);
-  set_actor(pikmin_actor);
+  int color = rand() % 3;
+  Dsgx* pikmin_actor;
+  if (color == 0) {
+    pikmin_actor = new Dsgx((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
+    set_actor(pikmin_actor);
+  }
+  if (color == 1) {
+    pikmin_actor = new Dsgx((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
+    set_actor(pikmin_actor);
+  }
+  if (color == 2) {
+    pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
+    set_actor(pikmin_actor);
+  }
   SetAnimation("Armature|Run");
 }
 
