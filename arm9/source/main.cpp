@@ -10,25 +10,24 @@
 #include "debug.h"
 
 #include "entities/captain.h"
-#include "entities/red_pikmin.h"
-#include "entities/yellow_pikmin.h"
+#include "entities/pikmin.h"
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
 
-using entities::RedPikmin;
-using entities::YellowPikmin;
+using entities::Pikmin;
+using entities::PikminType;
 using entities::Captain;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
-u32 const kTestPikmin{33};
+s32 const kTestPikmin{33};
 
 MultipassEngine g_engine;
-RedPikmin g_red_pikmin[kTestPikmin];
-RedPikmin g_red_pikmin2[kTestPikmin];
-RedPikmin g_red_pikmin3[kTestPikmin];
+Pikmin g_red_pikmin[kTestPikmin];
+Pikmin g_yellow_pikmin[kTestPikmin];
+Pikmin g_blue_pikmin[kTestPikmin];
 Captain g_captain;
 
 // Initialize the console using the full version of the console init function so
@@ -71,18 +70,21 @@ void InitMainScreen() {
 }
 
 void SetupDemoPikmin() {
-  for (u32 i = 0; i < kTestPikmin; i++) {
+  for (s32 i = 0; i < kTestPikmin; i++) {
+    g_red_pikmin[i].SetPikminType(PikminType::kRedPikmin);
     g_red_pikmin[i].set_position({-5_f, 0_f,
-        fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
+        fixed::FromInt(-2 + i * -2)});
     g_engine.AddEntity(&g_red_pikmin[i]);
 
-    g_red_pikmin2[i].set_position({0_f, 0_f,
-        fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
-    g_engine.AddEntity(&g_red_pikmin2[i]);
+    g_yellow_pikmin[i].SetPikminType(PikminType::kYellowPikmin);
+    g_yellow_pikmin[i].set_position({0_f, 0_f,
+        fixed::FromInt(-2 + i * -2)});
+    g_engine.AddEntity(&g_yellow_pikmin[i]);
 
-    g_red_pikmin3[i].set_position({5_f, 0_f,
-        fixed::FromInt(-2 + static_cast<s32>(i) * -2)});
-    g_engine.AddEntity(&g_red_pikmin3[i]);
+    g_blue_pikmin[i].SetPikminType(PikminType::kBluePikmin);
+    g_blue_pikmin[i].set_position({5_f, 0_f,
+        fixed::FromInt(-2 + i * -2)});
+    g_engine.AddEntity(&g_blue_pikmin[i]);
   }
 }
 

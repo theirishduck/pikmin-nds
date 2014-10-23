@@ -5,18 +5,29 @@
 
 namespace entities {
 
-class RedPikmin : public DrawableEntity {
+enum class PikminType {
+  kRedPikmin,
+  kYellowPikmin,
+  kBluePikmin,
+};
+
+class Pikmin : public DrawableEntity {
  public:
-  RedPikmin();
-  ~RedPikmin();
+  Pikmin(PikminType = PikminType::kRedPikmin);
+  ~Pikmin();
 
   void Update() override;
   void Init() override;
+  void SetPikminType(PikminType type);
 
  private:
   bool NeedsNewTarget() const;
   void ChooseNewTarget();
   void Move();
+
+  Dsgx* red_pikmin_actor;
+  Dsgx* blue_pikmin_actor;
+  Dsgx* yellow_pikmin_actor;
 
   numeric_types::Brads rotation_;
   bool running_{false};

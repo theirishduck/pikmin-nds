@@ -1,4 +1,4 @@
-#include "red_pikmin.h"
+#include "pikmin.h"
 
 #include <stdio.h>
 
@@ -7,7 +7,8 @@
 #include "yellow_pikmin_dsgx.h"
 #include "blue_pikmin_dsgx.h"
 
-using entities::RedPikmin;
+using entities::Pikmin;
+using entities::PikminType;
 
 namespace nt = numeric_types;
 using numeric_types::literals::operator"" _f;
@@ -16,29 +17,39 @@ using numeric_types::fixed;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
-RedPikmin::RedPikmin() {
-  int color = rand() % 3;
-  Dsgx* pikmin_actor;
-  if (color == 0) {
-    pikmin_actor = new Dsgx((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
-    set_actor(pikmin_actor);
-  }
-  if (color == 1) {
-    pikmin_actor = new Dsgx((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
-    set_actor(pikmin_actor);
-  }
-  if (color == 2) {
-    pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
-    set_actor(pikmin_actor);
-  }
+Pikmin::Pikmin(PikminType type) {
+  // initialize all the pikmin actors
+  // Todo(Nick): Replace this with the asset loader logic; this is very
+  // inefficient right now.
+  red_pikmin_actor = new Dsgx((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
+  yellow_pikmin_actor = new Dsgx((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
+  blue_pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
+
+  SetPikminType(type);
   SetAnimation("Armature|Run");
 }
 
-RedPikmin::~RedPikmin() {
-  delete actor();
+void Pikmin::SetPikminType(PikminType type) {
+  switch (type) {
+    case PikminType::kRedPikmin:
+      set_actor(red_pikmin_actor);
+      break;
+    case PikminType::kYellowPikmin:
+      set_actor(yellow_pikmin_actor);
+      break;
+    case PikminType::kBluePikmin:
+      set_actor(blue_pikmin_actor);
+      break;
+  }
 }
 
-void RedPikmin::Init() {
+Pikmin::~Pikmin() {
+  delete red_pikmin_actor;
+  delete yellow_pikmin_actor;
+  delete blue_pikmin_actor;
+}
+
+void Pikmin::Init() {
   body_ = engine()->World().AllocateBody(this, 10_f, 2_f);
   body_->position = position();
   body_->collides_with_bodies = 1;
@@ -46,7 +57,7 @@ void RedPikmin::Init() {
   body_->is_pikmin = 1;
 }
 
-void RedPikmin::Update() {
+void Pikmin::Update() {
   set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
 
   updates_until_new_target_--;
@@ -60,11 +71,11 @@ void RedPikmin::Update() {
   DrawableEntity::Update();
 }
 
-bool RedPikmin::NeedsNewTarget() const {
+bool Pikmin::NeedsNewTarget() const {
   return updates_until_new_target_ <= 0;
 }
 
-void RedPikmin::ChooseNewTarget() {
+void Pikmin::ChooseNewTarget() {
   target_.x = fixed::FromInt((rand() & 63) - 32);
   target_.y = 0_f;
   target_.z = fixed::FromInt((rand() & 63) - 32);
@@ -79,7 +90,7 @@ void RedPikmin::ChooseNewTarget() {
   //     (float)target_.y, (float)target_.z);
 }
 
-void RedPikmin::Move() {
+void Pikmin::Move() {
   nt::Fixed<s32, 12> distance{(target_ - position()).Length2()};
   bool const target_is_far_enough_away{distance > 5.0_f * 5.0_f};
   if (target_is_far_enough_away and not running_) {
