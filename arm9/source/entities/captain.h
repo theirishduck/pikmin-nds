@@ -1,8 +1,6 @@
 #ifndef CAPTAIN_H
 #define CAPTAIN_H
 
-#include <nds/arm9/videoGL.h>
-
 #include "drawable_entity.h"
 
 class MultipassEngine;

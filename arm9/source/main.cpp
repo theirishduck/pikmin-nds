@@ -11,6 +11,7 @@
 
 #include "entities/captain.h"
 #include "entities/pikmin.h"
+#include "entities/pellet_posy.h"
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
@@ -18,17 +19,19 @@
 using entities::Pikmin;
 using entities::PikminType;
 using entities::Captain;
+using entities::PelletPosy;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{33};
+s32 const kTestPikmin{1};
 
 MultipassEngine g_engine;
 Pikmin g_red_pikmin[kTestPikmin];
 Pikmin g_yellow_pikmin[kTestPikmin];
 Pikmin g_blue_pikmin[kTestPikmin];
 Captain g_captain;
+PelletPosy g_posy;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -88,6 +91,12 @@ void SetupDemoPikmin() {
   }
 }
 
+void SetupDemoStage() {
+  //spawn in test objects
+  g_posy.set_position({0_f, 0_f, 10_f});
+  g_engine.AddEntity(&g_posy);
+}
+
 void InitCaptain() {
   g_captain.set_position({0_f, 1_f, 0_f});
   g_captain.SetAnimation("Armature|Idle1");
@@ -114,6 +123,7 @@ void Init() {
   InitMainScreen();
 
   SetupDemoPikmin();
+  SetupDemoStage();
   InitCaptain();
   InitPikminEyeTexture();
 
