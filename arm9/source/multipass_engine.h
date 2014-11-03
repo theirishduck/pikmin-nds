@@ -4,7 +4,7 @@
 #include <queue>
 
 #include "drawable_entity.h"
-#include "camera.h"
+#include "entities/camera.h"
 #include "physics/world.h"
 
 struct EntityContainer {
