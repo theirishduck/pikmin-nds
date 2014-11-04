@@ -64,7 +64,7 @@ void InitDebugConsole() {
 void InitMainScreen() {
   videoSetMode(MODE_0_3D);
   glInit();
-  glEnable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE);
 
   glClearColor(4, 4, 4, 31);
   // TODO(Nick?) Play with this - it may be why there used to be clipping at
@@ -119,7 +119,7 @@ void SetupDemoPikmin() {
 void SetupDemoStage() {
   //spawn in test objects
   PelletPosy* posy = new PelletPosy(texture_allocator);
-  posy->set_position({0_f, 0_f, 10_f});
+  posy->set_position({10_f, 0_f, 0_f});
   g_engine.AddEntity(posy);
 }
 
