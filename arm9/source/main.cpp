@@ -30,7 +30,7 @@ using entities::PelletPosy;
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{1};
+s32 const kTestPikmin{33};
 
 MultipassEngine g_engine;
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);
@@ -64,7 +64,7 @@ void InitDebugConsole() {
 void InitMainScreen() {
   videoSetMode(MODE_0_3D);
   glInit();
-  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE);
+  glEnable(GL_TEXTURE_2D | GL_BLEND);
 
   glClearColor(4, 4, 4, 31);
   // TODO(Nick?) Play with this - it may be why there used to be clipping at
