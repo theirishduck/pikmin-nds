@@ -2,6 +2,7 @@
 #define PELLET_POSY_H
 
 #include "drawable_entity.h"
+#include "vram_allocator.h"
 
 class MultipassEngine;
 
@@ -13,7 +14,7 @@ namespace entities {
 
 class PelletPosy : public DrawableEntity {
   public:
-    PelletPosy();
+    PelletPosy(VramAllocator& texture_allocator);
     ~PelletPosy();
   private:
     physics::Body* body_{nullptr};

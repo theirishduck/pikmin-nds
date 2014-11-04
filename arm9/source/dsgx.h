@@ -9,6 +9,7 @@
 #include <nds/ndstypes.h>
 
 #include "vector.h"
+#include "vram_allocator.h"
 
 struct Bone {
   char* name;
@@ -19,6 +20,12 @@ struct Bone {
 struct Animation {
   u32 length;  // Animation length in frames.
   m4x4* transforms;
+};
+
+struct Texture {
+  char* name;
+  u32 num_offsets;
+  u32* offsets;
 };
 
 // Represents the contents of a .dsgx file.
@@ -40,6 +47,8 @@ class Dsgx {
   Animation* GetAnimation(std::string name);
   void ApplyAnimation(Animation* animation, u32 frame);
 
+  void ApplyTextures(VramAllocator& texture_allocator);
+
 private:
   u32 ProcessChunk(u32* location);
   void DsgxChunk(u32* data);
@@ -47,6 +56,7 @@ private:
   void CostChunk(u32* data);
   void BoneChunk(u32* data);
   void BaniChunk(u32* data);
+  void TextureChunk(u32* data);
 
   u32* model_data_;
 
@@ -56,6 +66,7 @@ private:
   u32 draw_cost_;
 
   std::vector<Bone> bones_;
+  std::vector<Texture> textures_;
   std::map<std::string, Animation> animations_;
 };
 

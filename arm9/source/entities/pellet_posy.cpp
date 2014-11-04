@@ -10,9 +10,10 @@ using entities::PelletPosy;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
-PelletPosy::PelletPosy() {
-  // Todo(Nick) Share Dsgx instances across Captain instances.
+PelletPosy::PelletPosy(VramAllocator& texture_allocator) {
+  // Todo(Nick) Share Dsgx instances across instances.
   Dsgx* posy_actor = new Dsgx((u32*)pellet_posy_dsgx, pellet_posy_dsgx_size);
+  posy_actor->ApplyTextures(texture_allocator);
   set_actor(posy_actor);
   set_rotation(-90_brad, 0_brad, 0_brad);
 }

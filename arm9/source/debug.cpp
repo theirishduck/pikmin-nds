@@ -8,8 +8,15 @@ bool debug::g_timing_colors{false};
 bool debug::g_render_first_pass_only{false};
 bool debug::g_skip_vblank{false};
 
+void debug::nocashNumber(int num) {
+  char buffer[20];
+  sprintf(buffer, "%i", num);
+  nocashMessage(buffer);
+}
+
 void debug::DrawCrosshair(Vec3 p, rgb color) {
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+  glTexParameter(0, 0); //disable textures
   glBegin(GL_TRIANGLE);
   glColor(color);
   glPushMatrix();
@@ -33,6 +40,7 @@ void debug::DrawGroundPlane(int width, int segments, rgb color) {
   // 0 0rrrr 0gggg 0bbbb, which is the desired result.
   rgb dark_color = (color & 0x7BDE) >> 1;
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | (1 << 12));
+  glTexParameter(0, 0); //disable textures
   glBegin(GL_TRIANGLE);
   glPushMatrix();
   glScalef(width / 2, 0, width / 2);

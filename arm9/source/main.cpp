@@ -8,6 +8,7 @@
 #include "basic_mechanics.h"
 #include "multipass_engine.h"
 #include "debug.h"
+#include "vram_allocator.h"
 
 #include "entities/captain.h"
 #include "entities/pikmin.h"
@@ -15,6 +16,11 @@
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
+#include "posy_leaf1_img_bin.h"
+#include "posy_leaf2_img_bin.h"
+#include "posy_leaf3_img_bin.h"
+#include "posy_petal_img_bin.h"
+#include "numbers_img_bin.h"
 
 using entities::Pikmin;
 using entities::PikminType;
@@ -27,11 +33,12 @@ using numeric_types::fixed;
 s32 const kTestPikmin{1};
 
 MultipassEngine g_engine;
+VramAllocator texture_allocator(VRAM_C, 128 * 1024);
+
 Pikmin g_red_pikmin[kTestPikmin];
 Pikmin g_yellow_pikmin[kTestPikmin];
 Pikmin g_blue_pikmin[kTestPikmin];
 Captain g_captain;
-PelletPosy g_posy;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -72,6 +79,24 @@ void InitMainScreen() {
       floattov10(0.32));
 }
 
+void LoadTextures() {
+  // VRAM is not memory mapped to the CPU when in texture mode, so all
+  // modifications to textures must be done by changing the bank to a mode
+  // where it is mapped to the CPU, performing the modifications, and
+  // switching it back to texture mode.
+  vramSetBankC(VRAM_C_LCD);
+
+  //dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
+  texture_allocator.Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
+  texture_allocator.Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
+  texture_allocator.Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size);
+  texture_allocator.Load("posy-leaf3", posy_leaf2_img_bin, posy_leaf3_img_bin_size);
+  texture_allocator.Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
+  texture_allocator.Load("numbers", numbers_img_bin, numbers_img_bin_size);
+  
+  vramSetBankC(VRAM_C_TEXTURE);
+}
+
 void SetupDemoPikmin() {
   for (s32 i = 0; i < kTestPikmin; i++) {
     g_red_pikmin[i].SetPikminType(PikminType::kRedPikmin);
@@ -93,8 +118,9 @@ void SetupDemoPikmin() {
 
 void SetupDemoStage() {
   //spawn in test objects
-  g_posy.set_position({0_f, 0_f, 10_f});
-  g_engine.AddEntity(&g_posy);
+  PelletPosy* posy = new PelletPosy(texture_allocator);
+  posy->set_position({0_f, 0_f, 10_f});
+  g_engine.AddEntity(posy);
 }
 
 void InitCaptain() {
@@ -104,17 +130,6 @@ void InitCaptain() {
   g_engine.TargetEntity(&g_captain);
 }
 
-// Copy the pikmin eye texture into the beginning of VRAM bank C.
-void InitPikminEyeTexture() {
-  // VRAM is not memory mapped to the CPU when in texture mode, so all
-  // modifications to textures must be done by changing the bank to a mode
-  // where it is mapped to the CPU, performing the modifications, and
-  // switching it back to texture mode.
-  vramSetBankC(VRAM_C_LCD);
-  dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
-  vramSetBankC(VRAM_C_TEXTURE);
-}
-
 void Init() {
   InitSubScreen();
   InitDebugConsole();
@@ -122,10 +137,11 @@ void Init() {
 
   InitMainScreen();
 
+  LoadTextures();
   SetupDemoPikmin();
   SetupDemoStage();
   InitCaptain();
-  InitPikminEyeTexture();
+  
 
   glPushMatrix();
 }
@@ -151,3 +167,4 @@ int main() {
   GameLoop();
   return 0;
 }
+
