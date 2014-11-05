@@ -3,6 +3,7 @@
 #include <nds.h>
 #include <map>
 
+using numeric_types::fixed;
 
 bool debug::g_timing_colors{false};
 bool debug::g_render_first_pass_only{false};
@@ -28,6 +29,31 @@ void debug::DrawCrosshair(Vec3 p, rgb color) {
   glVertex3v16(1 << 10, 0, 0);
   glVertex3v16(-1 << 10, 0, 0);
   glVertex3v16(-1 << 10, 0, 0);
+
+  glPopMatrix(1);
+  glEnd();
+}
+
+void debug::DrawCircle(Vec3 p, fixed radius, rgb color, u32 segments) {
+  float const radiansPerArc = 360.0 / segments;
+
+  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+  glTexParameter(0, 0); //disable textures
+  glBegin(GL_TRIANGLE);
+  glColor(color);
+  glPushMatrix();
+  glTranslatef32(p.x.data_, p.y.data_, p.z.data_);
+  glScalef32(radius.data_,radius.data_,radius.data_);
+  //spin right round
+  for (u32 i = 0; i < segments; ++i) {
+    glPushMatrix();
+    glRotateY(i * radiansPerArc);
+    glVertex3v16(1 << 12, 0, 0);
+    glVertex3v16(1 << 12, 0, 0);
+    glRotateY(radiansPerArc);
+    glVertex3v16(1 << 12, 0, 0);
+    glPopMatrix(1);
+  }
 
   glPopMatrix(1);
   glEnd();

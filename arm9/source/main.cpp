@@ -30,7 +30,7 @@ using entities::PelletPosy;
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{33};
+s32 const kTestPikmin{3};
 
 MultipassEngine g_engine;
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);

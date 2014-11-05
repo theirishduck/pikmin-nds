@@ -6,6 +6,7 @@
 #include "multipass_engine.h"
 #include "physics/world.h"
 #include "physics/body.h"
+#include "debug.h"
 
 // Model data
 #include "olimar_dsgx.h"
@@ -34,7 +35,7 @@ Captain::~Captain() {
 }
 
 void Captain::Init() {
-  body_ = engine()->World().AllocateBody(this, 10_f, 7.5_f);
+  body_ = engine()->World().AllocateBody(this, 10_f, 3_f);
   body_->position = position();
   body_->collides_with_bodies = 1;
 }
@@ -96,4 +97,7 @@ void Captain::Update() {
   set_position(body_->position);
 
   DrawableEntity::Update();
+
+  //try a thing
+  debug::DrawCircle(body_->position, body_->radius, RGB5(31,31,31));
 }
