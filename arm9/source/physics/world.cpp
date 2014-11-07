@@ -85,47 +85,51 @@ void World::ResolveCollision(Body& a, Body& b) {
     return;
   }
   // One of the bodies must be able to respond to collisions
-  if (a.is_movable) {
+  if (a.is_movable || b.is_movable) {
     auto a_direction = (a.position - b.position);
- 
-    // perform this resolution only on the XZ plane   
+    // only resolve on the XZ plane
     a_direction.y = 0_f;
-
     auto distance = a_direction.Length();
 
-    // multiply, so that we move exactly the distance required to undo the
-    // overlap between these objects
-    //a_direction = a_direction.Normalize();
-    a_direction *= (a.radius + b.radius) - distance;
-    a_direction *= 1_f / distance;
-
-    //if b is also movable, then half the distance
-    if (b.is_movable) {
-      a_direction *= 0.5_f;
+    if (distance == 0_f) {
+      //can't correctly resolve this collision, so bail to avoid
+      //crashes
+      return;
     }
+    if (a.is_movable) {
 
-    //a_direction = a_direction * 0.05_f;
-    a.position = a.position + a_direction;
-  }
-  if (b.is_movable) {
-    auto b_direction = (b.position - a.position);
-    
-    // perform this resolution only on the XZ plane
-    b_direction.y = 0_f;
+      // multiply, so that we move exactly the distance required to undo the
+      // overlap between these objects
+      //a_direction = a_direction.Normalize();
+      auto offset = (a.radius + b.radius) - distance;
+      if (offset > (b.radius / 8_f)) {
+        offset = b.radius / 8_f;
+      }
 
-    auto distance = b_direction.Length();
+      a_direction *= offset;
+      a_direction *= 1_f / distance;
 
-    // multiply, so that we move exactly the distance required to undo the
-    // overlap between these objects
-    //b_direction = b_direction.Normalize();
-    b_direction *= (a.radius + b.radius) - distance;
-    b_direction *= 1_f / distance;
+      a.position = a.position + a_direction;
+    }
+    if (b.is_movable) {
+      auto b_direction = (b.position - a.position);
+      
+      // perform this resolution only on the XZ plane
+      b_direction.y = 0_f;
 
-    // Note: no halvsies here; if we halved the direction above, then this will
-    // already be the other half of that movement.
-    
-    //b_direction = b_direction * 0.05_f;
-    b.position = b.position + b_direction;
+      // multiply, so that we move exactly the distance required to undo the
+      // overlap between these objects
+      //b_direction = b_direction.Normalize();
+      auto offset = (a.radius + b.radius) - distance;
+      if (offset > (a.radius / 8_f)) {
+        offset = a.radius / 8_f;
+      }
+
+      b_direction *= offset;
+      b_direction *= 1_f / distance;
+      
+      b.position = b.position + b_direction;
+    }
   }
 }
 

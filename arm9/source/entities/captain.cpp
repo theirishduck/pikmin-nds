@@ -38,6 +38,7 @@ void Captain::Init() {
   body_ = engine()->World().AllocateBody(this, 6_f, 1.5_f);
   body_->position = position();
   body_->collides_with_bodies = 1;
+  current_angle_ = 270_brad;
 }
 
 void Captain::Update() {

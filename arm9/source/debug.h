@@ -23,8 +23,8 @@ void _TimingColor(rgb color);
 void UpdateInput();
 
 enum Topic {
-  kUpdate = 0,
-  kPhysics,
+  kPhysics = 0,
+  kUpdate,
   kFrameInit,
   kPassInit,
   kDraw,

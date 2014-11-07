@@ -30,3 +30,4 @@ class Captain : public DrawableEntity {
 }  // namespace entities
 
 #endif  // CAPTAIN_H
+

@@ -120,6 +120,13 @@ constexpr fixed operator"" _f(long double value) {
 }
 }  // namespace literals
 
+// Hardware division overloads
+/*
+template<>
+fixed Fixed<s32, 12>::operator/(const fixed& other);// {fixed r; r.data_ = divf32(data_, other.data_); return r;}
+template<>
+fixed& Fixed<s32, 12>::operator/=(const fixed& other);// {data_ = divf32(data_, other.data_); return *this;}
+*/
 class Degrees
 {
  public:

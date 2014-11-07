@@ -28,6 +28,7 @@ using entities::Captain;
 using entities::PelletPosy;
 
 using numeric_types::literals::operator"" _f;
+using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
 s32 const kTestPikmin{3};
@@ -101,17 +102,17 @@ void SetupDemoPikmin() {
   for (s32 i = 0; i < kTestPikmin; i++) {
     g_red_pikmin[i].SetPikminType(PikminType::kRedPikmin);
     g_red_pikmin[i].set_position({-5_f, 0_f,
-        fixed::FromInt(-2 + i * -2)});
+        fixed::FromInt(-2 - i * -2)});
     g_engine.AddEntity(&g_red_pikmin[i]);
 
     g_yellow_pikmin[i].SetPikminType(PikminType::kYellowPikmin);
     g_yellow_pikmin[i].set_position({0_f, 0_f,
-        fixed::FromInt(-2 + i * -2)});
+        fixed::FromInt(-2 - i * -2)});
     g_engine.AddEntity(&g_yellow_pikmin[i]);
 
     g_blue_pikmin[i].SetPikminType(PikminType::kBluePikmin);
     g_blue_pikmin[i].set_position({5_f, 0_f,
-        fixed::FromInt(-2 + i * -2)});
+        fixed::FromInt(-2 - i * -2)});
     g_engine.AddEntity(&g_blue_pikmin[i]);
   }
 }
@@ -125,6 +126,7 @@ void SetupDemoStage() {
 
 void InitCaptain() {
   g_captain.set_position({0_f, 0_f, 0_f});
+  g_captain.set_rotation(0_brad, 0_brad, 0_brad);
   g_captain.SetAnimation("Armature|Idle1");
   g_engine.AddEntity(&g_captain);
   g_engine.TargetEntity(&g_captain);
