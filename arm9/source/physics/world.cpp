@@ -95,8 +95,9 @@ void World::ResolveCollision(Body& a, Body& b) {
 
     // multiply, so that we move exactly the distance required to undo the
     // overlap between these objects
-    a_direction = a_direction.Normalize();
+    //a_direction = a_direction.Normalize();
     a_direction *= (a.radius + b.radius) - distance;
+    a_direction *= 1_f / distance;
 
     //if b is also movable, then half the distance
     if (b.is_movable) {
@@ -116,8 +117,9 @@ void World::ResolveCollision(Body& a, Body& b) {
 
     // multiply, so that we move exactly the distance required to undo the
     // overlap between these objects
-    b_direction = b_direction.Normalize();
+    //b_direction = b_direction.Normalize();
     b_direction *= (a.radius + b.radius) - distance;
+    b_direction *= 1_f / distance;
 
     // Note: no halvsies here; if we halved the direction above, then this will
     // already be the other half of that movement.
