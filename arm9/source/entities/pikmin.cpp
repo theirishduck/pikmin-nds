@@ -27,7 +27,7 @@ Pikmin::Pikmin(PikminType type) {
   blue_pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
 
   SetPikminType(type);
-  SetAnimation("Armature|Run");
+  SetAnimation("Armature|Idle");
 }
 
 void Pikmin::SetPikminType(PikminType type) {
@@ -75,6 +75,7 @@ void Pikmin::Update() {
 }
 
 bool Pikmin::NeedsNewTarget() const {
+  return false;
   return updates_until_new_target_ <= 0;
 }
 

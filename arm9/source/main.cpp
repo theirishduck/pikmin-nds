@@ -124,7 +124,7 @@ void SetupDemoStage() {
 }
 
 void InitCaptain() {
-  g_captain.set_position({0_f, 1_f, 0_f});
+  g_captain.set_position({0_f, 0_f, 0_f});
   g_captain.SetAnimation("Armature|Idle1");
   g_engine.AddEntity(&g_captain);
   g_engine.TargetEntity(&g_captain);

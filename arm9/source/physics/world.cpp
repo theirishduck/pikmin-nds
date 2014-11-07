@@ -65,7 +65,8 @@ bool World::BodiesOverlap(Body& a, Body& b) {
   Vec2 axz = Vec2{a.position.x, a.position.z};
   Vec2 bxz = Vec2{b.position.x, b.position.z};
   auto distance2 = (axz - bxz).Length2();
-  auto radius2 = (a.radius2 + b.radius2);
+  auto sum = a.radius + b.radius;
+  auto radius2 = sum * sum;
   if (distance2 < radius2) {
     //Check to see if their Y values are overlapping also
     if (a.position.y + a.height >= b.position.y) {
@@ -86,18 +87,42 @@ void World::ResolveCollision(Body& a, Body& b) {
   // One of the bodies must be able to respond to collisions
   if (a.is_movable) {
     auto a_direction = (a.position - b.position);
-    // this is intended to be a slow push, so roughly 5% the distance
-    // seems appropriate.
+ 
+    // perform this resolution only on the XZ plane   
     a_direction.y = 0_f;
-    a_direction = a_direction * 0.05_f;
+
+    auto distance = a_direction.Length();
+
+    // multiply, so that we move exactly the distance required to undo the
+    // overlap between these objects
+    a_direction = a_direction.Normalize();
+    a_direction *= (a.radius + b.radius) - distance;
+
+    //if b is also movable, then half the distance
+    if (b.is_movable) {
+      a_direction *= 0.5_f;
+    }
+
+    //a_direction = a_direction * 0.05_f;
     a.position = a.position + a_direction;
   }
   if (b.is_movable) {
     auto b_direction = (b.position - a.position);
-    // this is intended to be a slow push, so roughly 5% the distance
-    // seems appropriate.
-    b_direction = b_direction * 0.05_f;
+    
+    // perform this resolution only on the XZ plane
     b_direction.y = 0_f;
+
+    auto distance = b_direction.Length();
+
+    // multiply, so that we move exactly the distance required to undo the
+    // overlap between these objects
+    b_direction = b_direction.Normalize();
+    b_direction *= (a.radius + b.radius) - distance;
+
+    // Note: no halvsies here; if we halved the direction above, then this will
+    // already be the other half of that movement.
+    
+    //b_direction = b_direction * 0.05_f;
     b.position = b.position + b_direction;
   }
 }
