@@ -31,7 +31,7 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{3};
+s32 const kTestPikmin{33};
 
 MultipassEngine g_engine;
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);
