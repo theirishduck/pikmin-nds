@@ -4,10 +4,12 @@
 #include <map>
 
 using numeric_types::fixed;
+using numeric_types::literals::operator"" _f;
 
 bool debug::g_timing_colors{false};
 bool debug::g_render_first_pass_only{false};
 bool debug::g_skip_vblank{false};
+bool debug::g_physics_circles{false};
 
 void debug::nocashNumber(int num) {
   char buffer[20];
@@ -42,15 +44,16 @@ void debug::DrawCircle(Vec3 p, fixed radius, rgb color, u32 segments) {
   glBegin(GL_TRIANGLE);
   glColor(color);
   glPushMatrix();
-  glTranslatef32(p.x.data_, p.y.data_, p.z.data_);
+  // We add 0.5 here to avoid a collision with the ground plane.
+  glTranslatef32(p.x.data_, p.y.data_ + (1 << 11), p.z.data_);
   glScalef32(radius.data_,radius.data_,radius.data_);
   //spin right round
   for (u32 i = 0; i < segments; ++i) {
     glPushMatrix();
     glRotateY(i * radiansPerArc);
     glVertex3v16(1 << 12, 0, 0);
-    glVertex3v16(1 << 12, 0, 0);
     glRotateY(radiansPerArc);
+    glVertex3v16(1 << 12, 0, 0);
     glVertex3v16(1 << 12, 0, 0);
     glPopMatrix(1);
   }
@@ -132,6 +135,15 @@ void debug::UpdateInput() {
         Status("Rendering Colors");
       } else {
         Status("No more flashing!");
+      }
+    }
+
+    if (keysDown() & KEY_Y) {
+      debug::g_physics_circles = not debug::g_physics_circles;
+      if (debug::g_physics_circles) {
+        Status("Physics Circles!");
+      } else {
+        Status("No more circles.");
       }
     }
 

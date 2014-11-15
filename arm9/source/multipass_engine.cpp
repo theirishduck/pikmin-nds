@@ -458,6 +458,10 @@ void MultipassEngine::Draw() {
   // void basicMechanicsDraw();
   // basicMechanicsDraw();
 
+  if (debug::g_physics_circles) {
+    world_.DebugCircles();
+  }
+
   DrawClearPlane();
 
   GFX_FLUSH = 0;

@@ -70,8 +70,6 @@ void Pikmin::Update() {
   Move();
 
   DrawableEntity::Update();
-
-  debug::DrawCircle(body_->position, body_->radius, RGB5(31,31,15));
 }
 
 bool Pikmin::NeedsNewTarget() const {

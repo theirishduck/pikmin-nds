@@ -12,6 +12,7 @@ class World {
         numeric_types::fixed radius);
     void FreeBody(Body* body);
     void Update();
+    void DebugCircles();
 
   private:
     bool BodiesOverlap(physics::Body& A, physics::Body& b);

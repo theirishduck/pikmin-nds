@@ -204,3 +204,25 @@ void World::Update() {
   MoveBodies();
   ProcessCollision();
 }
+
+#include "debug.h"
+void World::DebugCircles() {
+  for (int i = 0; i < active_bodies_; i++) {
+    Body& body = bodies_[active_[i]];
+    
+    //pick a color based on the state of this body
+    rgb color = RGB5(31,31,31);
+    int segments = 16;
+    if (body.is_sensor) {
+      color = RGB5(31,31,0); //yellow for sensors
+    }
+    debug::DrawCircle(body.position, body.radius, color, segments);
+  }
+  for (int i = 0; i < active_pikmin_; i++) {
+    Body& body = bodies_[pikmin_[i]];
+    //pick a color based on the state of this body
+    rgb color = RGB5(31,15,15);
+    int segments = 6;
+    debug::DrawCircle(body.position, body.radius, color, segments); 
+  }
+}

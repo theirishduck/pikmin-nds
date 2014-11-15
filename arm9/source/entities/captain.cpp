@@ -98,7 +98,4 @@ void Captain::Update() {
   set_position(body_->position);
 
   DrawableEntity::Update();
-
-  //try a thing
-  debug::DrawCircle(body_->position, body_->radius, RGB5(31,31,31));
 }
