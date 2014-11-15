@@ -75,7 +75,6 @@ void Pikmin::Update() {
 }
 
 bool Pikmin::NeedsNewTarget() const {
-  return false;
   return updates_until_new_target_ <= 0;
 }
 

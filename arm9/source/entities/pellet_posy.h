@@ -16,8 +16,6 @@ class PelletPosy : public DrawableEntity {
   public:
     PelletPosy(VramAllocator& texture_allocator);
     ~PelletPosy();
-  private:
-    physics::Body* body_{nullptr};
 };
 
 }  // namespace entities

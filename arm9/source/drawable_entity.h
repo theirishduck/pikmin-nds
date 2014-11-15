@@ -5,6 +5,7 @@
 
 #include "dsgx.h"
 #include "vector.h"
+#include "physics/body.h"
 
 struct Rotation {
   numeric_types::Brads x;
@@ -63,7 +64,7 @@ class DrawableEntity {
 
  protected:
   MultipassEngine* engine();
-
+  physics::Body* body_{nullptr};
 };
 
 #endif  // DRAWABLE_ENTITY_H

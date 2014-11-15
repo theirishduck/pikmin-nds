@@ -2,7 +2,9 @@
 #define PHYSICS_BODY_H
 
 #include "numeric_types.h"
-#include "drawable_entity.h"
+#include "vector.h"
+
+class DrawableEntity;
 
 namespace physics {
 

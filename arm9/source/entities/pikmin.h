@@ -34,8 +34,6 @@ class Pikmin : public DrawableEntity {
   s32 updates_until_new_target_{0};
   Vec3 target_;
   Vec3 direction_;
-
-  physics::Body* body_{nullptr};
 };
 
 }  // namespace entities 
