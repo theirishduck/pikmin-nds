@@ -29,6 +29,10 @@ void IdleAlways(PikminState& state) {
 
 }
 
+bool NearbyTaskDelay(PikminState& state) {
+  return state.frames_at_this_node > state.time_until_task_search;
+}
+
 Edge<PikminState> edge_list[] {
   Edge<PikminState>{kAlways, nullptr, InitAlways, 1}, // -> Idle
   {kAlways,nullptr,IdleAlways,1} // -> Idle (loopback)

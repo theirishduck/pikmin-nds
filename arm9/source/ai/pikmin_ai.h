@@ -14,6 +14,10 @@ enum class PikminType {
 
 struct PikminState : ObjectState {
   PikminType type = PikminType::kRedPikmin;
+  int id = 0;
+
+  //variables related to locating nearby tasks
+  int time_until_task_search = 300;
 };
 
 extern StateMachine<PikminState> machine;
