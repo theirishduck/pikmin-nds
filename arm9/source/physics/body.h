@@ -21,7 +21,7 @@ struct Body {
   //starts at position.y, so their highest point is at position.y + height.
   numeric_types::Fixed<s32,12> height;
   numeric_types::Fixed<s32,12> radius;
-  numeric_types::Fixed<s32,12> radius2;
+  //numeric_types::Fixed<s32,12> radius2;
 
   //collision results
   DrawableEntity* owner{nullptr};

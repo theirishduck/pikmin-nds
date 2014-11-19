@@ -52,7 +52,10 @@ Pikmin::~Pikmin() {
 }
 
 void Pikmin::Init() {
-  body_ = engine()->World().AllocateBody(this, 4_f, 1_f);
+  DrawableEntity::Init();
+  body_->height = 4_f;
+  body_->radius = 1_f;
+
   body_->position = position();
   body_->collides_with_bodies = 1;
   body_->is_movable = 1;

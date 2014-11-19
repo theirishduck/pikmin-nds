@@ -165,5 +165,5 @@ void DrawableEntity::SetAnimation(std::string name) {
 }
 
 void DrawableEntity::Init() {
-  
+  body_ = engine()->World().AllocateBody(this);
 }

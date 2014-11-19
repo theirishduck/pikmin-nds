@@ -9,7 +9,7 @@ using physics::Body;
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
-Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
+Body* World::AllocateBody(DrawableEntity* owner) {
   // This is a fairly naive implementation.
   // TODO(Nick): See if there's a better way to do this? Alternately, just
   // remember not to spawn 73 things in a single frame.
@@ -19,9 +19,9 @@ Body* World::AllocateBody(DrawableEntity* owner, fixed height, fixed radius) {
     if (bodies_[i].owner == nullptr) {
       bodies_[i].owner = owner;
       bodies_[i].active = 1;
-      bodies_[i].height = height;
-      bodies_[i].radius = radius;
-      bodies_[i].radius2 = radius * radius;
+      bodies_[i].height = 1_f;
+      bodies_[i].radius = 1_f;
+      //bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
       return &bodies_[i];
     }

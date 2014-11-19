@@ -8,8 +8,7 @@ namespace physics {
 
 class World {
   public:
-    Body* AllocateBody(DrawableEntity* owner, numeric_types::fixed height, 
-        numeric_types::fixed radius);
+    Body* AllocateBody(DrawableEntity* owner);
     void FreeBody(Body* body);
     void Update();
     void DebugCircles();
