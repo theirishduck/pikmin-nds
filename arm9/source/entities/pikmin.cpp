@@ -62,6 +62,8 @@ void Pikmin::Init() {
 void Pikmin::Update() {
   //test things!
   pikmin_ai::machine.RunLogic(state);
+  
+  DrawableEntity::Update();
   return;
 
   set_rotation(0_brad, rotation_ + 90_brad, 0_brad);

@@ -65,14 +65,18 @@ class StateMachine {
             if (edge.action != nullptr) {
               edge.action(state);
             }
+
+            // update our animation if needed; ie, the new state has animation
+            // set, and it's not the animation we're already playing
+            if (node_list[edge.destination].animation != nullptr and
+                node_list[edge.destination].animation != current_node.animation) {
+              state.entity->SetAnimation(node_list[edge.destination].animation);
+            }
             // now set our new destination, and reset our counters
             state.current_node = edge.destination;
             state.frames_at_this_node = 0;
 
-            //if this node has an animation set, go ahead and switch to it now
-            if (node_list[state.current_node].animation != nullptr) {
-              state.entity->SetAnimation(node_list[state.current_node].animation);
-            }
+            
 
             //finally, break out so we stop processing edges
             break;
