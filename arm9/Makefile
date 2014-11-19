@@ -15,7 +15,7 @@ include $(DEVKITARM)/ds_rules
 # all directories are relative to this makefile
 #---------------------------------------------------------------------------------
 BUILD		:=	build
-NAMESPACES := entities physics
+NAMESPACES := entities physics ai
 NAMESPACE_SOURCES := $(addprefix source/,$(NAMESPACES))
 SOURCES		:=	gfx source $(NAMESPACE_SOURCES)  
 # The .. here causes the project root to be a valid include path, for explicit

@@ -2,6 +2,7 @@
 #define RED_PIKMIN_H
 
 #include "multipass_engine.h"
+#include "ai/pikmin_ai.h"
 
 namespace entities {
 
@@ -34,8 +35,10 @@ class Pikmin : public DrawableEntity {
   s32 updates_until_new_target_{0};
   Vec3 target_;
   Vec3 direction_;
+
+  pikmin_ai::PikminState state;
 };
 
-}  // namespace entities 
+}  // namespace entities
 
 #endif  // RED_PIKMIN_H

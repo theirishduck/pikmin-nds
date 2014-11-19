@@ -26,8 +26,9 @@ Pikmin::Pikmin(PikminType type) {
   yellow_pikmin_actor = new Dsgx((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
   blue_pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
 
-  SetPikminType(type);
-  SetAnimation("Armature|Idle");
+  //SetPikminType(type);
+  //SetAnimation("Armature|Idle");
+  state.entity = this;
 }
 
 void Pikmin::SetPikminType(PikminType type) {
@@ -59,6 +60,10 @@ void Pikmin::Init() {
 }
 
 void Pikmin::Update() {
+  //test things!
+  pikmin_ai::machine.RunLogic(state);
+  return;
+
   set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
 
   updates_until_new_target_--;
