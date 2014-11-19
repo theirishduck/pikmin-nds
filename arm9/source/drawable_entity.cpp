@@ -141,6 +141,9 @@ void DrawableEntity::Update() {
       current_.animation_frame = 0;
     }
   }
+
+  //set the current position to our body's physics position
+  set_position(body_->position);
 }
 
 numeric_types::fixed DrawableEntity::GetRealModelZ() {
@@ -166,4 +169,8 @@ void DrawableEntity::SetAnimation(std::string name) {
 
 void DrawableEntity::Init() {
   body_ = engine()->World().AllocateBody(this);
+}
+
+physics::Body* DrawableEntity::body() {
+  return body_;
 }

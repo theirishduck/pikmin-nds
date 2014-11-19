@@ -14,6 +14,8 @@
 #include "entities/pikmin.h"
 #include "entities/pellet_posy.h"
 
+#include "ai/pikmin_ai.h"
+
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
 #include "posy_leaf1_img_bin.h"
@@ -23,22 +25,23 @@
 #include "numbers_img_bin.h"
 
 using entities::Pikmin;
-using entities::PikminType;
 using entities::Captain;
 using entities::PelletPosy;
+
+using pikmin_ai::PikminState;
+using pikmin_ai::PikminType;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{33};
+s32 const kTestPikmin{100};
 
 MultipassEngine g_engine;
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);
 
-Pikmin g_red_pikmin[kTestPikmin];
-Pikmin g_yellow_pikmin[kTestPikmin];
-Pikmin g_blue_pikmin[kTestPikmin];
+DrawableEntity g_pikmin_entity[kTestPikmin];
+PikminState g_pikmin_state[kTestPikmin];
 Captain g_captain;
 
 // Initialize the console using the full version of the console init function so
@@ -99,35 +102,27 @@ void LoadTextures() {
 }
 
 void SetupDemoPikmin() {
-  for (s32 i = 0; i < kTestPikmin; i++) {
-    g_red_pikmin[i].SetPikminType(PikminType::kRedPikmin);
-    g_red_pikmin[i].set_position({-5_f, 0_f,
-        fixed::FromInt(-2 - i * -2)});
-    g_engine.AddEntity(&g_red_pikmin[i]);
-
-    g_yellow_pikmin[i].SetPikminType(PikminType::kYellowPikmin);
-    g_yellow_pikmin[i].set_position({0_f, 0_f,
-        fixed::FromInt(-2 - i * -2)});
-    g_engine.AddEntity(&g_yellow_pikmin[i]);
-
-    g_blue_pikmin[i].SetPikminType(PikminType::kBluePikmin);
-    g_blue_pikmin[i].set_position({5_f, 0_f,
-        fixed::FromInt(-2 - i * -2)});
-    g_engine.AddEntity(&g_blue_pikmin[i]);
+  for (s32 i = 0; i < kTestPikmin; i += 5) {
+    for (s32 j = 0; j < 5; j++) {
+      g_pikmin_state[i + j].entity = &g_pikmin_entity[i + j];
+      g_pikmin_state[i + j].type = PikminType::kBluePikmin;
+      g_engine.AddEntity(&g_pikmin_entity[i + j]);
+      g_pikmin_entity[i + j].body()->position = {
+        fixed::FromInt(-10 + j * 5),
+        0_f,
+        fixed::FromInt(-1 - i * -1)};
+    }
   }
 }
 
 void SetupDemoStage() {
   //spawn in test objects
   PelletPosy* posy = new PelletPosy(texture_allocator);
-  posy->set_position({10_f, 0_f, 0_f});
   g_engine.AddEntity(posy);
+  posy->body()->position = {10_f, 0_f, 0_f};
 }
 
 void InitCaptain() {
-  g_captain.set_position({0_f, 0_f, 0_f});
-  g_captain.set_rotation(0_brad, 0_brad, 0_brad);
-  g_captain.SetAnimation("Armature|Idle1");
   g_engine.AddEntity(&g_captain);
   g_engine.TargetEntity(&g_captain);
 }
@@ -148,6 +143,13 @@ void Init() {
   glPushMatrix();
 }
 
+void RunLogic() {
+  //TODO: Make this more powerful, handle spawning objects and levels and stuff
+  for (int i = 0; i < kTestPikmin; i++) {
+    pikmin_ai::machine.RunLogic(g_pikmin_state[i]);
+  }
+}
+
 void GameLoop() {
   for (;;) {
     touchPosition touchXY;
@@ -158,6 +160,8 @@ void GameLoop() {
     debug::UpdateTopic();
 
     basicMechanicsUpdate();
+
+    RunLogic();
 
     g_engine.Update();
     g_engine.Draw();

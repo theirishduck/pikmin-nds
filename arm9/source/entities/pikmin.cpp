@@ -22,13 +22,13 @@ Pikmin::Pikmin(PikminType type) {
   // initialize all the pikmin actors
   // Todo(Nick): Replace this with the asset loader logic; this is very
   // inefficient right now.
-  red_pikmin_actor = new Dsgx((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
-  yellow_pikmin_actor = new Dsgx((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
-  blue_pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
+  //red_pikmin_actor = new Dsgx((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
+  //yellow_pikmin_actor = new Dsgx((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
+  //blue_pikmin_actor = new Dsgx((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
 
   //SetPikminType(type);
   //SetAnimation("Armature|Idle");
-  state.entity = this;
+  //state.entity = this;
 }
 
 void Pikmin::SetPikminType(PikminType type) {
@@ -64,10 +64,11 @@ void Pikmin::Init() {
 
 void Pikmin::Update() {
   //test things!
-  pikmin_ai::machine.RunLogic(state);
+  //pikmin_ai::machine.RunLogic(state);
   
   DrawableEntity::Update();
   return;
+
 
   set_rotation(0_brad, rotation_ + 90_brad, 0_brad);
 
@@ -78,8 +79,6 @@ void Pikmin::Update() {
   }
 
   Move();
-
-  DrawableEntity::Update();
 }
 
 bool Pikmin::NeedsNewTarget() const {

@@ -43,6 +43,8 @@ class DrawableEntity {
   void set_actor(Dsgx* actor);
   Dsgx* actor();
 
+  physics::Body* body();
+
   void set_engine(MultipassEngine* engine);
 
   virtual void Update();
