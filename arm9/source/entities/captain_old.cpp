@@ -1,4 +1,4 @@
-#include "captain.h"
+#include "captain_old.h"
 
 #include <nds/arm9/input.h>
 

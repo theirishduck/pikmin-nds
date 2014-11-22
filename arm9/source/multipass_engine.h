@@ -36,6 +36,8 @@ class MultipassEngine {
 
   void TargetEntity(DrawableEntity*);
 
+  int FrameCounter();
+
  private:
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
@@ -71,6 +73,8 @@ class MultipassEngine {
   Camera camera_;
 
   physics::World world_;
+
+  int frame_counter_{0};
 };
 
 #endif  // MULTIPASS_ENGINE_H

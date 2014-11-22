@@ -46,6 +46,7 @@ class DrawableEntity {
   physics::Body* body();
 
   void set_engine(MultipassEngine* engine);
+  MultipassEngine* engine();
 
   virtual void Update();
   virtual void Init();
@@ -65,7 +66,6 @@ class DrawableEntity {
   MultipassEngine* engine_{nullptr};
 
  protected:
-  MultipassEngine* engine();
   physics::Body* body_{nullptr};
 };
 

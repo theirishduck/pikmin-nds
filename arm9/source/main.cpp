@@ -10,11 +10,10 @@
 #include "debug.h"
 #include "vram_allocator.h"
 
-#include "entities/captain.h"
-#include "entities/pikmin.h"
 #include "entities/pellet_posy.h"
 
-#include "ai/pikmin_ai.h"
+#include "ai/pikmin.h"
+#include "ai/captain.h"
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
@@ -24,12 +23,12 @@
 #include "posy_petal_img_bin.h"
 #include "numbers_img_bin.h"
 
-using entities::Pikmin;
-using entities::Captain;
 using entities::PelletPosy;
 
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
+
+using captain_ai::CaptainState;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -42,7 +41,8 @@ VramAllocator texture_allocator(VRAM_C, 128 * 1024);
 
 DrawableEntity g_pikmin_entity[kTestPikmin];
 PikminState g_pikmin_state[kTestPikmin];
-Captain g_captain;
+DrawableEntity g_captain;
+CaptainState g_captain_state;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -106,6 +106,7 @@ void SetupDemoPikmin() {
     for (s32 j = 0; j < 5; j++) {
       g_pikmin_state[i + j].entity = &g_pikmin_entity[i + j];
       g_pikmin_state[i + j].type = PikminType::kBluePikmin;
+      g_pikmin_state[i + j].id = i + j;
       g_engine.AddEntity(&g_pikmin_entity[i + j]);
       g_pikmin_entity[i + j].body()->position = {
         fixed::FromInt(-10 + j * 5),
@@ -123,6 +124,7 @@ void SetupDemoStage() {
 }
 
 void InitCaptain() {
+  g_captain_state.entity = &g_captain;
   g_engine.AddEntity(&g_captain);
   g_engine.TargetEntity(&g_captain);
 }
@@ -148,6 +150,8 @@ void RunLogic() {
   for (int i = 0; i < kTestPikmin; i++) {
     pikmin_ai::machine.RunLogic(g_pikmin_state[i]);
   }
+
+  captain_ai::machine.RunLogic(g_captain_state);
 }
 
 void GameLoop() {

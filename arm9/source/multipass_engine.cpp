@@ -53,6 +53,12 @@ void MultipassEngine::Update() {
 
   camera_.Update();
   debug::UpdateInput();
+
+  frame_counter_++;
+}
+
+int MultipassEngine::FrameCounter() {
+  return frame_counter_;
 }
 
 Brads MultipassEngine::DPadDirection()  {

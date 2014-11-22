@@ -1,6 +1,7 @@
-#include "pikmin_ai.h"
+#include "pikmin.h"
 
 #include "dsgx.h"
+#include "multipass_engine.h"
 #include "red_pikmin_dsgx.h"
 #include "yellow_pikmin_dsgx.h"
 #include "blue_pikmin_dsgx.h"
@@ -11,26 +12,30 @@ Dsgx red_pikmin_actor((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
 Dsgx yellow_pikmin_actor((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
 Dsgx blue_pikmin_actor((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
 
-void InitAlways(PikminState& state) {
-  switch (state.type) {
+void InitAlways(PikminState& pikmin) {
+  switch (pikmin.type) {
     case PikminType::kRedPikmin:
-      state.entity->set_actor(&red_pikmin_actor);
+      pikmin.entity->set_actor(&red_pikmin_actor);
       break;
     case PikminType::kYellowPikmin:
-      state.entity->set_actor(&yellow_pikmin_actor);
+      pikmin.entity->set_actor(&yellow_pikmin_actor);
       break;
     case PikminType::kBluePikmin:
-      state.entity->set_actor(&blue_pikmin_actor);
+      pikmin.entity->set_actor(&blue_pikmin_actor);
       break;
   }
 }
 
-void IdleAlways(PikminState& state) {
+void IdleAlways(PikminState& pikmin) {
 
 }
 
-bool NearbyTaskDelay(PikminState& state) {
-  return state.frames_at_this_node > state.time_until_task_search;
+// This function, assuming unique Pikmin IDs, will return true once every
+// 100 frames or so, and will only return true for one pikmin on any given
+// frame. This is very handy for making sure that very complex AI tasks aren't
+// happening too much in a single frame.
+bool AiStaggerDelay(const PikminState& pikmin) {
+  return (pikmin.entity->engine()->FrameCounter() % 100) == (pikmin.id % 100);
 }
 
 Edge<PikminState> edge_list[] {
