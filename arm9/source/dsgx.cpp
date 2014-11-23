@@ -1,4 +1,4 @@
-#include "Dsgx.h"
+#include "dsgx.h"
 
 #include <cstdio>
 
