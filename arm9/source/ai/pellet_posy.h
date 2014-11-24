@@ -7,7 +7,7 @@
 namespace posy_ai {
 
 struct PosyState : ObjectState {
-
+  int health{50};
 };
 
 }  // namespace posy_ai
