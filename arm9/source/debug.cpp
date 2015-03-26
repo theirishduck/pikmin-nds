@@ -167,6 +167,7 @@ void UpdateTimingMode() {
 
 std::map<std::string, int> g_debug_ints;
 std::map<std::string, fixed> g_debug_fixeds;
+std::map<std::string, Vec3> g_debug_vectors;
 
 void debug::DisplayValue(const std::string &name, int value) {
   g_debug_ints[name] = value;
@@ -174,6 +175,10 @@ void debug::DisplayValue(const std::string &name, int value) {
 
 void debug::DisplayValue(const std::string &name, fixed value) {
   g_debug_fixeds[name] = value;
+}
+
+void debug::DisplayValue(const std::string &name, Vec3 value) {
+  g_debug_vectors[name] = value;
 }
 
 void UpdateValuesMode() {
@@ -192,6 +197,14 @@ void UpdateValuesMode() {
   for (auto kv : g_debug_fixeds) {
     if (display_position < 22) {
       printf("\x1b[%d;0H%s: %.3f", display_position, kv.first.c_str(), (float)kv.second);
+        display_position++;
+    }
+  }
+
+  for (auto kv : g_debug_vectors) {
+    if (display_position < 22) {
+      Vec3 vector = kv.second;
+      printf("\x1b[%d;0H%s: %.2f,%.2f,%.2f", display_position, kv.first.c_str(), (float)vector.x, (float)vector.y, (float)vector.z);
         display_position++;
     }
   }
