@@ -5,7 +5,6 @@
 
 #include <nds.h>
 
-#include "basic_mechanics.h"
 #include "multipass_engine.h"
 #include "debug.h"
 #include "vram_allocator.h"
@@ -46,7 +45,7 @@ CaptainState g_captain_state;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
-void InitSubScreen() {
+void InitDebugConsole() {
   vramSetBankH(VRAM_H_SUB_BG);
   videoSetModeSub(MODE_0_2D);
 
@@ -61,8 +60,8 @@ void InitSubScreen() {
       kLoadConsoleGraphics);
 }
 
-void InitDebugConsole() {
-  consoleDebugInit(DebugDevice_NOCASH);
+void InitSubScreen() {
+  InitDebugConsole();
 }
 
 void InitMainScreen() {
@@ -130,11 +129,10 @@ void InitCaptain() {
 }
 
 void Init() {
-  InitSubScreen();
-  InitDebugConsole();
-  printf("Multipass Engine Demo\n");
-
   InitMainScreen();
+  InitSubScreen();
+
+  printf("\x1b[37mTEST\x1b[39m");
 
   LoadTextures();
   SetupDemoPikmin();
@@ -161,14 +159,12 @@ void GameLoop() {
 
     //start debug timings for this loop
     debug::StartCpuTimer();
-    debug::UpdateTopic();
-
-    basicMechanicsUpdate();
 
     RunLogic();
 
     g_engine.Update();
     g_engine.Draw();
+    debug::Update();
   }
 }
 

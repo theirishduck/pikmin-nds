@@ -52,7 +52,6 @@ void MultipassEngine::Update() {
   debug::EndTopic(Topic::kPhysics);
 
   camera_.Update();
-  debug::UpdateInput();
 
   frame_counter_++;
 }

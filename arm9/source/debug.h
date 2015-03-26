@@ -21,7 +21,7 @@ void DrawCrosshair(Vec3 p, rgb color = RGB5(31, 31, 31));
 void DrawGroundPlane(int width, int segments, rgb color = RGB5(0, 0, 0));
 void DrawCircle(Vec3 p, numeric_types::fixed radius, rgb color, u32 segments = 8);
 void _TimingColor(rgb color);
-void UpdateInput();
+void Update();
 
 enum Topic {
   kPhysics = 0,

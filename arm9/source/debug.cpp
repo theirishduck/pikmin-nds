@@ -102,7 +102,102 @@ void Status(char const* status) {
 }
 }  // namespace
 
-void debug::UpdateInput() {
+struct TimingResult {
+  u32 start = 0;
+  u32 end = 0;
+  u32 delta() {
+    return end - start;
+  }
+};
+
+struct TopicInfo {
+  const char* name;
+  rgb color;
+};
+
+TimingResult g_timing_results[static_cast<int>(debug::Topic::kNumTopics)];
+
+std::map<debug::Topic, TopicInfo> g_topic_info{
+  {debug::Topic::kUpdate, {
+    "Update", 
+    RGB8(255, 128, 0)}},
+  {debug::Topic::kPhysics, {
+    "Physics",
+    RGB8(255, 64, 255)}},
+  {debug::Topic::kFrameInit, {
+    "FrameInit",
+    RGB8(0, 128, 0)}},
+  {debug::Topic::kPassInit, {
+    "PassInit",
+    RGB8(255, 255, 0)}},
+  {debug::Topic::kDraw, {
+    "Draw",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kIdle, {
+    "Idle",   
+    RGB8(48, 48, 48)}},
+};
+
+void UpdateTimingMode() {
+  // Clear the screen
+  printf("\x1b[2J");
+  printf("-------------TIMING-------------");
+
+  // For every topic, output the timing on its own line
+  for (int i = 0; i < static_cast<int>(debug::Topic::kNumTopics); i++) {  
+    if (i & 0x1) {
+      printf("\x1b[39m");
+    } else {
+      printf("\x1b[37m");
+    }
+    int displayLine = i + 2;
+    // Print out the topic name if we have it, otherwise print out something
+    // generic
+    if (g_topic_info.count((debug::Topic)i)) {
+      printf("\x1b[%d;0H%s", displayLine, g_topic_info[(debug::Topic)i].name);
+    } else {
+      printf("\x1b[%d;0HTopic:%d", displayLine, i);
+    }
+    printf("\x1b[%d;21H%10lu", displayLine, g_timing_results[i].delta());
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
+
+}
+
+enum DebugMode {
+  kOff = 0,
+  kTiming,
+  kNumDebugModes
+};
+
+int g_debug_mode = DebugMode::kOff;
+
+void debug::Update() {
+  if (keysDown() & KEY_SELECT) {
+    g_debug_mode++;
+    if (g_debug_mode >= DebugMode::kNumDebugModes) {
+      g_debug_mode = DebugMode::kOff;
+    }
+    // Clear the screen for any switch
+    printf("\x1b[2J");
+  }
+
+  switch (g_debug_mode) {
+    case DebugMode::kOff:
+      return;
+    case DebugMode::kTiming:
+      UpdateTimingMode();
+      break;
+    default:
+      printf("\x1b[2Jm");
+      printf("Undefined debug mode!");
+  }
+
+  return;
+
+
   // Hold debug modifier [SELECT], then press:
   // A = Render only First Pass
   // B = Skip VBlank, useful for:
@@ -157,42 +252,6 @@ void debug::UpdateInput() {
     }
   }
 }
-
-struct TimingResult {
-  u32 start = 0;
-  u32 end = 0;
-  u32 delta() {
-    return end - start;
-  }
-};
-
-struct TopicInfo {
-  const char* name;
-  rgb color;
-};
-
-TimingResult g_timing_results[static_cast<int>(debug::Topic::kNumTopics)];
-
-std::map<debug::Topic, TopicInfo> g_topic_info{
-  {debug::Topic::kUpdate, {
-    "Update", 
-    RGB8(255, 128, 0)}},
-  {debug::Topic::kPhysics, {
-    "Physics",
-    RGB8(255, 64, 255)}},
-  {debug::Topic::kFrameInit, {
-    "FrameInit",
-    RGB8(0, 128, 0)}},
-  {debug::Topic::kPassInit, {
-    "PassInit",
-    RGB8(255, 255, 0)}},
-  {debug::Topic::kDraw, {
-    "Draw",   
-    RGB8(0, 0, 255)}},
-  {debug::Topic::kIdle, {
-    "Idle",   
-    RGB8(48, 48, 48)}},
-};
 
 void debug::StartTopic(debug::Topic topic) {
   int index = static_cast<int>(topic);
