@@ -163,12 +163,44 @@ void UpdateTimingMode() {
 
   // Reset the colors when we're done
   printf("\x1b[39m");
+}
 
+std::map<std::string, int> g_debug_ints;
+std::map<std::string, fixed> g_debug_fixeds;
+
+void debug::DisplayValue(const std::string &name, int value) {
+  g_debug_ints[name] = value;
+}
+
+void debug::DisplayValue(const std::string &name, fixed value) {
+  g_debug_fixeds[name] = value;
+}
+
+void UpdateValuesMode() {
+  // Clear the screen
+  printf("\x1b[2J");
+  printf("-------------VALUES-------------");
+
+  int display_position = 2;
+  for (auto kv : g_debug_ints) {
+    if (display_position < 22) {
+      printf("\x1b[%d;0H%s: %d", display_position, kv.first.c_str(), kv.second);
+        display_position++;
+    }
+  }
+
+  for (auto kv : g_debug_fixeds) {
+    if (display_position < 22) {
+      printf("\x1b[%d;0H%s: %.3f", display_position, kv.first.c_str(), (float)kv.second);
+        display_position++;
+    }
+  }
 }
 
 enum DebugMode {
   kOff = 0,
   kTiming,
+  kValues,
   kNumDebugModes
 };
 
@@ -189,6 +221,9 @@ void debug::Update() {
       return;
     case DebugMode::kTiming:
       UpdateTimingMode();
+      break;
+    case DebugMode::kValues:
+      UpdateValuesMode();
       break;
     default:
       printf("\x1b[2Jm");

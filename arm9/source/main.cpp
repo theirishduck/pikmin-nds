@@ -133,6 +133,7 @@ void Init() {
   InitSubScreen();
 
   printf("\x1b[37mTEST\x1b[39m");
+  debug::DisplayValue("Answer", 42);
 
   LoadTextures();
   SetupDemoPikmin();
