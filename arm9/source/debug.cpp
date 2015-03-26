@@ -189,14 +189,14 @@ void UpdateValuesMode() {
   int display_position = 2;
   for (auto kv : g_debug_ints) {
     if (display_position < 22) {
-      printf("\x1b[%d;0H%s: %d", display_position, kv.first.c_str(), kv.second);
+      printf("\x1b[%d;0H\x1b[39m%s: \x1b[36;1m%d", display_position, kv.first.c_str(), kv.second);
         display_position++;
     }
   }
 
   for (auto kv : g_debug_fixeds) {
     if (display_position < 22) {
-      printf("\x1b[%d;0H%s: %.3f", display_position, kv.first.c_str(), (float)kv.second);
+      printf("\x1b[%d;0H\x1b[39m%s: \x1b[32;1m%.3f", display_position, kv.first.c_str(), (float)kv.second);
         display_position++;
     }
   }
@@ -204,10 +204,13 @@ void UpdateValuesMode() {
   for (auto kv : g_debug_vectors) {
     if (display_position < 22) {
       Vec3 vector = kv.second;
-      printf("\x1b[%d;0H%s: %.2f,%.2f,%.2f", display_position, kv.first.c_str(), (float)vector.x, (float)vector.y, (float)vector.z);
+      printf("\x1b[%d;0H\x1b[39m%s: \x1b[30;1m(\x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m)", display_position, kv.first.c_str(), (float)vector.x, (float)vector.y, (float)vector.z);
         display_position++;
     }
   }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
 }
 
 enum DebugMode {
