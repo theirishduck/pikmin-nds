@@ -5,6 +5,7 @@
 #include <nds.h>
 
 #include "drawable_entity.h"
+#include "debug.h"
 
 using namespace std;
 using numeric_types::literals::operator"" _f;
@@ -60,13 +61,16 @@ void Camera::Update() {
     position_destination_ = entity_to_follow_->position() - entity_to_camera;
     position_destination_.y = height;
 
-    printf("\x1b[8;0HC. Position: %.1f, %.1f, %.1f\n",
+    /*printf("\x1b[8;0HC. Position: %.1f, %.1f, %.1f\n",
         (float)position_destination_.x, (float)position_destination_.y,
         (float)position_destination_.z);
     printf("C. Target  : %.1f, %.1f, %.1f\n", (float)target_destination_.x,
         (float)target_destination_.y, (float)target_destination_.z);
+    */
+    debug::DisplayValue("C.Position", position_destination_);
+    debug::DisplayValue("C.Target", target_destination_);
   } else {
-    printf("No entity?\n");
+    //printf("No entity?\n");
   }
 
   // Take the weighted average for position and target to take a smooth

@@ -319,7 +319,7 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
   // detail of some of the models to try to alleviate this problem.
   if (draw_list_.size() == initial_length) {
     if (not draw_list_.empty()) {
-      printf("No progress made!\n");
+      //printf("No progress made!\n");
       // TODO(Nick) Move the action for this check outside of this function;
       // it doesn't make sense for a simple check to have side effects.
 
@@ -360,8 +360,8 @@ void MultipassEngine::SetupDividingPlane() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   ClipFriendlyPerspective(near_plane_.data_, far_plane_.data_, FIELD_OF_VIEW);
-  printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass_ + 1, current_pass_,
-      (float)near_plane_, (float)far_plane_);
+  /*printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass_ + 1, current_pass_,
+      (float)near_plane_, (float)far_plane_);*/
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   camera_.ApplyTransform();
@@ -381,7 +381,7 @@ bool MultipassEngine::ValidateDividingPlane() {
     //      so prefer to drop a frame and hope the next frame has the entities
     //      spread a little further out.
     if (far_plane_ == 0.1_f) {
-      printf("\x1b[10;0H Hit front of screen!\n");
+      //printf("\x1b[10;0H Hit front of screen!\n");
       ClearDrawList();
       DrawClearPlane();
 
@@ -393,7 +393,7 @@ bool MultipassEngine::ValidateDividingPlane() {
       SetVRAMforPass(current_pass_);
       current_pass_++;
     } else {
-      printf("\x1b[10;0H Near/Far plane equal! BAD!\n");
+      //printf("\x1b[10;0H Near/Far plane equal! BAD!\n");
 
       ClearDrawList();
       GFX_FLUSH = 0;
