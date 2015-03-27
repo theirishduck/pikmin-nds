@@ -456,7 +456,7 @@ void MultipassEngine::Draw() {
   // TODO(Nick): Turn the ground plane into an object
   // Draw the ground plane for debugging.
   // debug::DrawGroundPlane(64, 10, RGB5(0, 24 - current_pass_ * 6, 0));
-  debug::DrawGroundPlane(64, 10, RGB5(0, 24, 0));
+  //debug::DrawGroundPlane(64, 10, RGB5(0, 24, 0));
 
   // Todo(Cristian) Merge the logic of basic mechanics into the existing
   // framework and remove them from the repo.
