@@ -10,6 +10,8 @@
 #include "vram_allocator.h"
 
 #include "entities/pellet_posy.h"
+#include "entities/level.h"
+
 
 #include "ai/pikmin.h"
 #include "ai/captain.h"
@@ -21,8 +23,10 @@
 #include "posy_leaf3_img_bin.h"
 #include "posy_petal_img_bin.h"
 #include "numbers_img_bin.h"
+#include "rocky_img_bin.h"
 
 using entities::PelletPosy;
+using entities::Level;
 
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
@@ -33,7 +37,7 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{100};
+s32 const kTestPikmin{10};
 
 MultipassEngine g_engine;
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);
@@ -96,6 +100,7 @@ void LoadTextures() {
   texture_allocator.Load("posy-leaf3", posy_leaf2_img_bin, posy_leaf3_img_bin_size);
   texture_allocator.Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
   texture_allocator.Load("numbers", numbers_img_bin, numbers_img_bin_size);
+  texture_allocator.Load("rocky", rocky_img_bin, rocky_img_bin_size);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -120,6 +125,10 @@ void SetupDemoStage() {
   PelletPosy* posy = new PelletPosy(texture_allocator);
   g_engine.AddEntity(posy);
   posy->body()->position = {10_f, 0_f, 0_f};
+
+  //load in the test level
+  Level* sandbox = new Level(texture_allocator);
+  g_engine.AddEntity(sandbox);
 }
 
 void InitCaptain() {
