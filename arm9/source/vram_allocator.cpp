@@ -2,7 +2,7 @@
 
 VramAllocator::VramAllocator(u16* base, u32 size) {
   this->base_ = base;
-  this->end_ = base + size / sizeof(16);
+  this->end_ = base + size / sizeof(u16);
   this->next_element_ = base;
 }
 
@@ -16,7 +16,7 @@ u16* VramAllocator::Load(std::string name, const u8* data, u32 size) {
     return loaded_assets[name];
   }
 
-  if (next_element_ + size > end_) {
+  if (next_element_ + size / sizeof(u16) > end_) {
     nocashMessage("Not enough room!");
     return 0; // we don't have enough room for this object! and there was
               // panic. much panic.
