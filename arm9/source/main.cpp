@@ -24,9 +24,11 @@
 #include "posy_petal_img_bin.h"
 #include "numbers_img_bin.h"
 #include "rocky_img_bin.h"
+#include "checkerboard_img_bin.h"
 
 // Level data and heightmaps
 #include "sandbox_height_bin.h"
+#include "checkerboard_height_bin.h"
 
 using entities::PelletPosy;
 using entities::Level;
@@ -104,6 +106,7 @@ void LoadTextures() {
   texture_allocator.Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
   texture_allocator.Load("numbers", numbers_img_bin, numbers_img_bin_size);
   texture_allocator.Load("rocky", rocky_img_bin, rocky_img_bin_size);
+  texture_allocator.Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -132,7 +135,8 @@ void SetupDemoStage() {
   //load in the test level
   Level* sandbox = new Level(texture_allocator);
   g_engine.AddEntity(sandbox);
-  g_engine.World().SetHeightmap(sandbox_height_bin);
+  //g_engine.World().SetHeightmap(sandbox_height_bin);
+  g_engine.World().SetHeightmap(checkerboard_height_bin);
 }
 
 void InitCaptain() {
