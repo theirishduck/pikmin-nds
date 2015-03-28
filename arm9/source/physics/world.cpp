@@ -252,7 +252,7 @@ void World::CollideBodyWithLevel(Body& body) {
   int hz = (int)body.position.z * -1;
 
   // TODO: NOT THIS
-  const u8* heightmap_data = sandbox_height_bin + 8; // skip over width/height
+  const fixed* heightmap_data = (fixed*)(sandbox_height_bin + 8); // skip over width/height
 
   // Clamp the positions to the map edges, so we don't get weirdness
   // TODO: Switch these to variables when you implement level loading
@@ -264,15 +264,7 @@ void World::CollideBodyWithLevel(Body& body) {
   debug::DisplayValue("hx", hx);
   debug::DisplayValue("hz", hz);
 
-  // Determine the world height of this pixel, based on the scaling factor
-  fixed pixel_value = fixed::FromInt(heightmap_data[hz * 64 + hx]);
-
-  debug::DisplayValue("pixel", pixel_value);
-
-  fixed world_height = ((pixel_value - 127_f) * 3.269_f) / 127_f;
-
-  debug::DisplayValue("adj.pixel", (pixel_value - 127_f));
-  debug::DisplayValue("pre-scale", (pixel_value - 127_f) * 3.269_f);
+  fixed world_height = heightmap_data[hz * 64 + hx];
   debug::DisplayValue("w.height", world_height);
 
   // SIMPLE CHEAT: snap the height of this entity to whatever the level height
