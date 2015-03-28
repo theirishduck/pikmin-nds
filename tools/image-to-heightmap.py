@@ -20,11 +20,12 @@ def main(args):
 
   output += struct.pack("<II", width, height)
 
-  for x in range(0,width):
-    for y in reversed(range(0,height)):
+  
+  for y in reversed(range(0,height)):
+    for x in range(0,width):
       r,g,b = pixels[x,y][:3]
       greyscale_value = min(max(0, int((r + g + b) / 3)), 255)
-      world_height = (greyscale_value - 127) * float(args[1]) / 127.0
+      world_height = (greyscale_value) * float(args[1]) / 127.0
       output += struct.pack("<I", toFixed(world_height))
 
   output_file = open(output_filename, "wb")

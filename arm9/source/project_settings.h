@@ -35,4 +35,9 @@
 #define MAX_PHYSICS_BODIES 256
 #endif
 
+// How fast objects accelerate towards the ground, per frame
+#ifndef GRAVITY_CONSTANT
+#define GRAVITY_CONSTANT 1_f / 60_f
+#endif
+
 #endif  // PROJECT_SETTINGS_H_

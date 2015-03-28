@@ -45,8 +45,9 @@ bool DpadInactive(const CaptainState& captain) {
 }
 
 void ReturnToIdle(CaptainState& captain) {
-  //reset velocity to 0, so we stop moving
-  captain.entity->body()->velocity = {0_f,0_f,0_f};
+  //reset velocity in XZ to 0, so we stop moving
+  captain.entity->body()->velocity.x = 0_f;
+  captain.entity->body()->velocity.z = 0_f;
 }
 
 void MoveCaptain(CaptainState& captain) {
@@ -76,9 +77,9 @@ void MoveCaptain(CaptainState& captain) {
 
   // Apply velocity in the direction of the current angle.
   captain.entity->body()->velocity.x.data_ = cosLerp(captain.current_angle.data_);
-  captain.entity->body()->velocity.y = 0_f;
   captain.entity->body()->velocity.z.data_ = -sinLerp(captain.current_angle.data_);
-  captain.entity->body()->velocity *= 0.2_f;
+  captain.entity->body()->velocity.x *= 0.2_f;
+  captain.entity->body()->velocity.z *= 0.2_f;
 }
 
 Edge<CaptainState> edge_list[] {

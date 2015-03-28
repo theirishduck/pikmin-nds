@@ -4,8 +4,6 @@
 #include "vector.h"
 #include "body.h"
 
-#include "sandbox_height_bin.h"
-
 using physics::World;
 using physics::Body;
 using numeric_types::fixed;
@@ -24,6 +22,7 @@ Body* World::AllocateBody(DrawableEntity* owner) {
       bodies_[i].height = 1_f;
       bodies_[i].radius = 1_f;
       bodies_[i].collides_with_level = 1;
+      bodies_[i].affected_by_gravity = 1;
       //bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
       return &bodies_[i];
@@ -137,8 +136,14 @@ void World::ResolveCollision(Body& a, Body& b) {
 }
 
 void World::MoveBody(Body& body) {
+  body.old_position = body.position;
   body.position += body.velocity;
   body.velocity += body.acceleration;
+
+  // Gravity!
+  if (body.affected_by_gravity) {
+    body.velocity.y -= GRAVITY_CONSTANT;
+  }
 
   //clear results from the previous run
   body.sensor_result = 0;
@@ -242,33 +247,56 @@ void World::CollideBodiesWithLevel() {
   }
 }
 
+void World::SetHeightmap(const u8* raw_heightmap_data) {
+  heightmap_data = (fixed*)(raw_heightmap_data + 8); // skip over width/height
+  int* heightmap_coords = (int*)raw_heightmap_data;
+  heightmap_width = heightmap_coords[0];
+  heightmap_height = heightmap_coords[1];
+}
+
+// Given a world position, figured out the level's height within the loaded
+// height map
+fixed World::HeightFromMap(const Vec3& position) {
+  // Figure out the body's "pixel" within the heightmap; we simply clamp to
+  // integers to do this since one pixel is equivalent to one unit in the world
+  int hx = (int)position.x;
+  int hz = (int)position.z * -1;
+
+  // Clamp the positions to the map edges, so we don't get weirdness
+  if (hx < 0) {hx = 0;}
+  if (hz < 0) {hz = 0;}
+  if (hx >= heightmap_width) {hx = heightmap_width - 1;}
+  if (hz >= heightmap_height) {hz = heightmap_height - 1;}
+
+  return heightmap_data[hz * heightmap_width + hx];
+}
+
+const fixed kWallThreshold = 2_f; //this seems reasonable
+
 void World::CollideBodyWithLevel(Body& body) {
   if (!body.collides_with_level) {
     return;
   }
-  // Figure out the body's "pixel" within the heightmap; we simply clamp to
-  // integers to do this since one pixel is equivalent to one unit in the world
-  int hx = (int)body.position.x;
-  int hz = (int)body.position.z * -1;
 
-  // TODO: NOT THIS
-  const fixed* heightmap_data = (fixed*)(sandbox_height_bin + 8); // skip over width/height
-
-  // Clamp the positions to the map edges, so we don't get weirdness
-  // TODO: Switch these to variables when you implement level loading
-  if (hx < 0) {hx = 0;}
-  if (hz < 0) {hz = 0;}
-  if (hx >= 64) {hx = 64 - 1;}
-  if (hz >= 64) {hz = 64 - 1;}
-
-  debug::DisplayValue("hx", hx);
-  debug::DisplayValue("hz", hz);
-
-  fixed world_height = heightmap_data[hz * 64 + hx];
-  debug::DisplayValue("w.height", world_height);
-
-  // SIMPLE CHEAT: snap the height of this entity to whatever the level height
-  // is at this point. (TODO: Something fancier than this.)
-  body.position.y = world_height;
-
+  fixed current_level_height = HeightFromMap(body.position);
+  if (body.position.y < current_level_height) {
+    fixed old_level_height = HeightFromMap(body.old_position);
+    if (current_level_height - old_level_height > kWallThreshold) {
+      // Don't let this object cross the wall! move them back.
+      // Note: we ignore Y here to allow gravity to still take effect when
+      // running into walls.
+      body.position.x = body.old_position.x;
+      body.position.z = body.old_position.z;
+      // TODO: Reset xz velocity here?
+      if (body.position.y < old_level_height) {
+        body.position.y = old_level_height;
+      }
+    } else {
+      // Simple case: just adjust their height so they don't sink through the
+      // ground, and can walk up slopes and stuff.
+      body.position.y = current_level_height;  
+      // Reset velocity to 0; we hit the ground
+      body.velocity.y = 0_f;
+    }
+  }
 }

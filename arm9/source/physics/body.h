@@ -34,8 +34,10 @@ struct Body {
   unsigned short collides_with_level : 1;
   unsigned short is_movable : 1;  // Can this body be moved during collision?
   unsigned short is_pikmin : 1;  // Pikmin are treated as a special case
+  unsigned short affected_by_gravity : 1;
   private:
     unsigned short active : 1;
+    Vec3 old_position;
 };
 
 }  // namespace physics

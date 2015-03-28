@@ -25,6 +25,9 @@
 #include "numbers_img_bin.h"
 #include "rocky_img_bin.h"
 
+// Level data and heightmaps
+#include "sandbox_height_bin.h"
+
 using entities::PelletPosy;
 using entities::Level;
 
@@ -97,7 +100,7 @@ void LoadTextures() {
   texture_allocator.Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
   texture_allocator.Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
   texture_allocator.Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size);
-  texture_allocator.Load("posy-leaf3", posy_leaf2_img_bin, posy_leaf3_img_bin_size);
+  texture_allocator.Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size);
   texture_allocator.Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
   texture_allocator.Load("numbers", numbers_img_bin, numbers_img_bin_size);
   texture_allocator.Load("rocky", rocky_img_bin, rocky_img_bin_size);
@@ -124,11 +127,12 @@ void SetupDemoStage() {
   //spawn in test objects
   PelletPosy* posy = new PelletPosy(texture_allocator);
   g_engine.AddEntity(posy);
-  posy->body()->position = {10_f, 0_f, 0_f};
+  posy->body()->position = {6.2_f, 0_f, -6.2_f};
 
   //load in the test level
   Level* sandbox = new Level(texture_allocator);
   g_engine.AddEntity(sandbox);
+  g_engine.World().SetHeightmap(sandbox_height_bin);
 }
 
 void InitCaptain() {
@@ -172,7 +176,8 @@ void GameLoop() {
 
     RunLogic();
 
-    debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->position());
+    debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->body()->position);
+    debug::DisplayValue("Olimar Vel: ", g_captain_state.entity->body()->velocity);
 
     g_engine.Update();
     g_engine.Draw();
