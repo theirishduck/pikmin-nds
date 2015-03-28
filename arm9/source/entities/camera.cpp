@@ -59,7 +59,7 @@ void Camera::Update() {
     entity_to_camera = entity_to_camera.Normalize();
     entity_to_camera = entity_to_camera * follow_distance;
     position_destination_ = entity_to_follow_->position() - entity_to_camera;
-    position_destination_.y = height;
+    position_destination_.y = entity_to_follow_->position().y + height;
 
     /*printf("\x1b[8;0HC. Position: %.1f, %.1f, %.1f\n",
         (float)position_destination_.x, (float)position_destination_.y,
