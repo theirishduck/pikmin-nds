@@ -31,6 +31,7 @@ struct Body {
   unsigned short is_sensor : 1;  // Does this body inform its colliders?
   unsigned short collides_with_bodies : 1;
   unsigned short collides_with_sensors : 1;
+  unsigned short collides_with_level : 1;
   unsigned short is_movable : 1;  // Can this body be moved during collision?
   unsigned short is_pikmin : 1;  // Pikmin are treated as a special case
   private:

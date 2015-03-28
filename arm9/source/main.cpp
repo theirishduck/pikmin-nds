@@ -37,7 +37,7 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{10};
+s32 const kTestPikmin{0};
 
 MultipassEngine g_engine;
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);
@@ -171,6 +171,8 @@ void GameLoop() {
     debug::StartCpuTimer();
 
     RunLogic();
+
+    debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->position());
 
     g_engine.Update();
     g_engine.Draw();

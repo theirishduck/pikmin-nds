@@ -74,8 +74,8 @@ class Fixed {
   // Multiplication and division
   Fixed<T, F> operator*(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = ((s64)data_ * (s64)other.data_) >> F; return r;}
   Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data_ = ((s64)data_ * (s64)other.data_) >> F; return *this;}
-  Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = (data_ << F) / (other.data_); return r;}
-  Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data_ = (data_ << F) / (other.data_); return *this;}
+  Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = (data_ << (F / 2)) / (other.data_ >> (F / 2)); return r;}
+  Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data_ = (data_ << (F / 2)) / (other.data_ >> (F / 2)); return *this;}
 
   //unary negation
   constexpr Fixed operator-() { return Fixed{-data_}; }

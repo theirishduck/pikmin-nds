@@ -4,6 +4,8 @@
 #include "vector.h"
 #include "body.h"
 
+#include "sandbox_height_bin.h"
+
 using physics::World;
 using physics::Body;
 using numeric_types::fixed;
@@ -21,6 +23,7 @@ Body* World::AllocateBody(DrawableEntity* owner) {
       bodies_[i].active = 1;
       bodies_[i].height = 1_f;
       bodies_[i].radius = 1_f;
+      bodies_[i].collides_with_level = 1;
       //bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
       return &bodies_[i];
@@ -203,6 +206,7 @@ void World::Update() {
   }
   MoveBodies();
   ProcessCollision();
+  CollideBodiesWithLevel();
 }
 
 #include "debug.h"
@@ -225,4 +229,54 @@ void World::DebugCircles() {
     int segments = 6;
     debug::DrawCircle(body.position, body.radius, color, segments); 
   }
+}
+
+void World::CollideBodiesWithLevel() {
+  for (int i = 0; i < active_bodies_; i++) {
+    // First, make sure this is an active body
+    CollideBodyWithLevel(bodies_[active_[i]]);
+  }
+  for (int i = 0; i < active_pikmin_; i++) {
+    // First, make sure this is an active body
+    CollideBodyWithLevel(bodies_[pikmin_[i]]);
+  }
+}
+
+void World::CollideBodyWithLevel(Body& body) {
+  if (!body.collides_with_level) {
+    return;
+  }
+  // Figure out the body's "pixel" within the heightmap; we simply clamp to
+  // integers to do this since one pixel is equivalent to one unit in the world
+  int hx = (int)body.position.x;
+  int hz = (int)body.position.z * -1;
+
+  // TODO: NOT THIS
+  const u8* heightmap_data = sandbox_height_bin + 8; // skip over width/height
+
+  // Clamp the positions to the map edges, so we don't get weirdness
+  // TODO: Switch these to variables when you implement level loading
+  if (hx < 0) {hx = 0;}
+  if (hz < 0) {hz = 0;}
+  if (hx >= 64) {hx = 64 - 1;}
+  if (hz >= 64) {hz = 64 - 1;}
+
+  debug::DisplayValue("hx", hx);
+  debug::DisplayValue("hz", hz);
+
+  // Determine the world height of this pixel, based on the scaling factor
+  fixed pixel_value = fixed::FromInt(heightmap_data[hz * 64 + hx]);
+
+  debug::DisplayValue("pixel", pixel_value);
+
+  fixed world_height = ((pixel_value - 127_f) * 3.269_f) / 127_f;
+
+  debug::DisplayValue("adj.pixel", (pixel_value - 127_f));
+  debug::DisplayValue("pre-scale", (pixel_value - 127_f) * 3.269_f);
+  debug::DisplayValue("w.height", world_height);
+
+  // SIMPLE CHEAT: snap the height of this entity to whatever the level height
+  // is at this point. (TODO: Something fancier than this.)
+  body.position.y = world_height;
+
 }

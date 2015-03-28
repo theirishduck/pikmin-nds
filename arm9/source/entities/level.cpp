@@ -21,3 +21,8 @@ Level::Level(VramAllocator& texture_allocator) {
 Level::~Level() {
   delete actor();
 }
+
+void Level::Init() {
+  DrawableEntity::Init();
+  body_->collides_with_level = 0;
+}

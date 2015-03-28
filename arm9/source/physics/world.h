@@ -22,6 +22,8 @@ class World {
     void RebuildIndex();
     void Wake(physics::Body* body);
     void Sleep(physics::Body* body);
+    void CollideBodyWithLevel(physics::Body& body);
+    void CollideBodiesWithLevel();
 
     physics::Body bodies_[MAX_PHYSICS_BODIES];
 
