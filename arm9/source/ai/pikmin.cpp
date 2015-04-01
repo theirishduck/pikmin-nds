@@ -38,14 +38,55 @@ bool AiStaggerDelay(const PikminState& pikmin) {
   return (pikmin.entity->engine()->FrameCounter() % 100) == (pikmin.id % 100);
 }
 
+bool HasNewParent(const PikminState& pikmin) {
+  return pikmin.parent != nullptr;
+}
+
+void StoreParentLocation(PikminState& pikmin) {
+  if (pikmin.parent) {
+    pikmin.parent_initial_location = pikmin.parent->body()->position;
+    pikmin.child_offset = pikmin.parent_initial_location
+        - pikmin.entity->body()->position;
+  }
+}
+
+void FollowParent(PikminState& pikmin) {
+  if (pikmin.parent) {
+    pikmin.entity->body()->position = pikmin.parent->body()->position 
+        + pikmin.child_offset;
+  }
+}
+
+bool LeftParent(const PikminState& pikmin) {
+  return pikmin.parent == nullptr;
+}
+
+namespace PikminNode {
+enum PikminNode {
+  kInit = 0,
+  kIdle,
+  kGrabbed
+};
+}
+
 Edge<PikminState> edge_list[] {
-  Edge<PikminState>{kAlways, nullptr, InitAlways, 1}, // -> Idle
-  {kAlways,nullptr,IdleAlways,1} // -> Idle (loopback)
+  //Init
+  Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
+
+  //Idle
+  {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
+  {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
+
+  //Grabbed
+  {kAlways, LeftParent, nullptr, PikminNode::kIdle},
+  {kAlways, nullptr, FollowParent, PikminNode::kGrabbed},  // Loopback
+
 };
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 1, "Armature|Idle", 30}
+  {"Idle", true, 1, 2, "Armature|Idle", 30},
+  {"Grabbed", true, 3, 4, "Armature|Idle", 30},
 };
 
 StateMachine<PikminState> machine(node_list, edge_list);

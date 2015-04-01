@@ -4,6 +4,8 @@
 #include "state_machine.h"
 #include "drawable_entity.h"
 
+class Squad;
+
 namespace pikmin_ai {
 
 enum class PikminType {
@@ -15,9 +17,15 @@ enum class PikminType {
 struct PikminState : ObjectState {
   PikminType type = PikminType::kRedPikmin;
   int id = 0;
+  Squad* current_squad{nullptr};
 
   //variables related to locating nearby tasks
   int time_until_task_search = 300;
+
+  //parent: used for being thrown and chewed
+  DrawableEntity* parent{nullptr};
+  Vec3 parent_initial_location;
+  Vec3 child_offset;
 };
 
 extern StateMachine<PikminState> machine;

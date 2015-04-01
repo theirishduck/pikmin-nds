@@ -154,6 +154,7 @@ void InitCaptain() {
   g_captain_state.entity = &g_captain;
   g_engine.AddEntity(&g_captain);
   g_engine.TargetEntity(&g_captain);
+  g_captain_state.game = &g_game;
 }
 
 void Init() {
