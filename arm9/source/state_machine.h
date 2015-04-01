@@ -9,11 +9,15 @@ using GuardFunction = std::function<bool(T const&)>;
 template<typename T>
 using ActionFunction = std::function<void(T &)>;
 
+class Game;
+
 struct ObjectState {
   DrawableEntity* entity = nullptr;
   int current_node = 0;
   int frames_alive = 0;
   int frames_at_this_node = 0;
+  bool dead = false;
+  Game* game;
 };
 
 enum Trigger {
