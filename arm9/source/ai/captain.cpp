@@ -89,7 +89,7 @@ void MoveCaptain(CaptainState& captain) {
     delta = -11_brad;
   }
 
-  captain.current_angle += delta;
+  captain.current_angle = dpad_angle;
   captain.entity->set_rotation(0_brad, captain.current_angle + 90_brad, 0_brad);
 
   // Apply velocity in the direction of the current angle.
@@ -98,15 +98,15 @@ void MoveCaptain(CaptainState& captain) {
   captain.entity->body()->velocity.x *= 0.2_f;
   captain.entity->body()->velocity.z *= 0.2_f;
 
-  captain.cursor->body()->velocity.x = captain.entity->body()->velocity.x * 4_f;
-  captain.cursor->body()->velocity.z = captain.entity->body()->velocity.z * 4_f;
+  captain.cursor->body()->velocity.x = captain.entity->body()->velocity.x * 3_f;
+  captain.cursor->body()->velocity.z = captain.entity->body()->velocity.z * 3_f;
 
   // Clamp the cursor to a certain distance from the captain
   Vec2 captain_xz = Vec2{captain.entity->body()->position.x, captain.entity->body()->position.z};
   Vec2 cursor_xz = Vec2{captain.cursor->body()->position.x, captain.cursor->body()->position.z};
   fixed distance = (cursor_xz - captain_xz).Length();
-  if (distance > 10_f) {
-    cursor_xz = (cursor_xz - captain_xz).Normalize() * 10_f;
+  if (distance > 15_f) {
+    cursor_xz = (cursor_xz - captain_xz).Normalize() * 15_f;
     cursor_xz += captain_xz;
     captain.cursor->body()->position.x = cursor_xz.x;
     captain.cursor->body()->position.z = cursor_xz.y;
@@ -135,8 +135,20 @@ void GrabPikmin(CaptainState& captain) {
 }
 
 void ThrowPikmin(CaptainState& captain) {
+  fixed pikmin_y_velocity = 1_f;
+  if (captain.held_pikmin->type == PikminType::kYellowPikmin) {
+    pikmin_y_velocity = 1.2_f;
+  }
 
-  captain.held_pikmin->entity->body()->velocity = Vec3{0_f, 1_f, 0_f};
+  fixed pikmin_travel_time = pikmin_y_velocity * 2_f / GRAVITY_CONSTANT;
+  Vec3 distance_to_cursor = captain.cursor->body()->position - 
+      captain.entity->body()->position;
+
+  fixed pikmin_x_velocity = distance_to_cursor.x / pikmin_travel_time;
+  fixed pikmin_z_velocity = distance_to_cursor.z / pikmin_travel_time;
+
+  captain.held_pikmin->entity->body()->velocity = Vec3{
+      pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity};
   captain.held_pikmin->parent = nullptr;
 }
 

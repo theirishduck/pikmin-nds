@@ -55,6 +55,10 @@ void Game::RemoveObject<CaptainState>(CaptainState* object) {
 }
 
 void Game::Step() {
+  if (captain_) {
+    captain_ai::machine.RunLogic(*captain_);
+  }
+  
   auto i = pikmin_.begin();
   while (i != pikmin_.end()) {
     auto pikmin_state = *i;
@@ -65,8 +69,5 @@ void Game::Step() {
     } else {
       i++;
     }
-  }
-  if (captain_) {
-    captain_ai::machine.RunLogic(*captain_);
   }
 }
