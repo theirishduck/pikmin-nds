@@ -129,7 +129,12 @@ void GrabPikmin(CaptainState& captain) {
   //Cheat horribly! Spawn a pikmin RIGHT NOW and hold onto it for dear life
   PikminState* pikmin = captain.game->SpawnObject<PikminState>();
   pikmin->type = PikminType::kBluePikmin;
+
+  //Move the pikmin to olimar's hand
   pikmin->entity->body()->position = captain.entity->body()->position;
+  pikmin->entity->body()->position.x.data_ += cosLerp(captain.current_angle.data_);
+  pikmin->entity->body()->position.y += 0.5_f;
+  pikmin->entity->body()->position.z.data_ += -sinLerp(captain.current_angle.data_);
   pikmin->parent = captain.entity;
   captain.held_pikmin = pikmin;
 }
