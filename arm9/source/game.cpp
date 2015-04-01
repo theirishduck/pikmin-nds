@@ -1,6 +1,7 @@
 #include "game.h"
 
 using pikmin_ai::PikminState;
+using captain_ai::CaptainState;
 
 Game::Game(MultipassEngine& engine) : engine{engine} {
 }
@@ -8,7 +9,11 @@ Game::Game(MultipassEngine& engine) : engine{engine} {
 Game::~Game() {
 }
 
- DrawableEntity* Game::allocate_entity() {
+VramAllocator* Game::TextureAllocator() {
+  return &texture_allocator_;
+}
+
+DrawableEntity* Game::allocate_entity() {
   if (entities_.size() >= kMaxEntities) {
     return nullptr;
   }
@@ -30,6 +35,25 @@ void Game::RemoveObject<PikminState>(PikminState* object) {
   CleanupObject(object);
 }
 
+template <>
+CaptainState* Game::SpawnObject<CaptainState>() {
+  if (captain_) {
+    return captain_;
+  }
+  captain_ = InitObject<CaptainState>();
+  captain_->cursor = allocate_entity();
+  return captain_;
+}
+
+template<>
+void Game::RemoveObject<CaptainState>(CaptainState* object) {
+  engine.RemoveEntity(object->cursor);
+  entities_.remove(object->cursor);
+  delete object->cursor;
+  captain_ = nullptr;
+  CleanupObject(object);
+}
+
 void Game::Step() {
   auto i = pikmin_.begin();
   while (i != pikmin_.end()) {
@@ -41,5 +65,8 @@ void Game::Step() {
     } else {
       i++;
     }
+  }
+  if (captain_) {
+    captain_ai::machine.RunLogic(*captain_);
   }
 }

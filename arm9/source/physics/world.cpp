@@ -23,6 +23,7 @@ Body* World::AllocateBody(DrawableEntity* owner) {
       bodies_[i].radius = 1_f;
       bodies_[i].collides_with_level = 1;
       bodies_[i].affected_by_gravity = 1;
+      bodies_[i].ignores_walls = 0;
       //bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
       return &bodies_[i];
@@ -281,7 +282,7 @@ void World::CollideBodyWithLevel(Body& body) {
   fixed current_level_height = HeightFromMap(body.position);
   if (body.position.y < current_level_height) {
     fixed old_level_height = HeightFromMap(body.old_position);
-    if (current_level_height - old_level_height > kWallThreshold) {
+    if (current_level_height - old_level_height > kWallThreshold && !(body.ignores_walls)) {
       // Don't let this object cross the wall! move them back.
       // Note: we ignore Y here to allow gravity to still take effect when
       // running into walls.

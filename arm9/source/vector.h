@@ -86,8 +86,28 @@ struct Vector2 {
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
+  // Warning: Only correct for 1.19.12 fixed specialization.
+  Fixed<T, F> Length() {
+    s32 root = sqrtf32((x * x + y * y).data_);
+    Fixed<T, F> result;
+    result.data_ = root;
+    return result;
+  }
+
   Fixed<T, F> Length2() {
     return x*x + y*y;
+  }
+
+  // Return a unit vector with the same orientation as this instance.
+  Vector2<T, F> Normalize() {
+    Vector2<T, F> result;
+    Fixed<T, F> current_length = Length();
+    if (current_length == Fixed<s32,12>::FromInt(0)) {
+        return Vector2{Fixed<s32,12>::FromInt(0), Fixed<s32,12>::FromInt(0)};
+    }
+    result.x.data_ = divf32(x.data_, current_length.data_);
+    result.y.data_ = divf32(y.data_, current_length.data_);
+    return result;
   }
 
   Vector2 operator+(const Vector2& other) {
@@ -108,6 +128,20 @@ struct Vector2 {
     difference.x = x - other.x;
     difference.y = y - other.y;
     return difference;
+  }
+
+  // Multiply the vector elements by a scalar and return the new vector.
+  Vector2 operator*(const Fixed<s32,12>& other) {
+    Vector2 result;
+    result.x = x * other;
+    result.y = y * other;
+    return result;
+  }
+
+  Vector2& operator*=(const Fixed<s32,12>& other) {
+    x *= other;
+    y *= other;
+    return *this;
   }
 
   Fixed<T, F> x;

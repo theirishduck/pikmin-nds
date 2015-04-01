@@ -8,11 +8,9 @@
 #include "multipass_engine.h"
 #include "game.h"
 #include "debug.h"
-#include "vram_allocator.h"
 
 #include "entities/pellet_posy.h"
 #include "entities/level.h"
-
 
 #include "ai/pikmin.h"
 #include "ai/captain.h"
@@ -26,6 +24,7 @@
 #include "numbers_img_bin.h"
 #include "rocky_img_bin.h"
 #include "checkerboard_img_bin.h"
+#include "cursor_img_bin.h"
 
 // Level data and heightmaps
 #include "sandbox_height_bin.h"
@@ -47,12 +46,11 @@ s32 const kTestPikmin{10};
 
 MultipassEngine g_engine;
 Game g_game(g_engine);
-VramAllocator texture_allocator(VRAM_C, 128 * 1024);
 
 DrawableEntity g_pikmin_entity[kTestPikmin];
 PikminState g_pikmin_state[kTestPikmin];
-DrawableEntity g_captain;
-CaptainState g_captain_state;
+//DrawableEntity g_captain;
+//CaptainState g_captain_state;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -101,14 +99,15 @@ void LoadTextures() {
   vramSetBankC(VRAM_C_LCD);
 
   //dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
-  texture_allocator.Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
-  texture_allocator.Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
-  texture_allocator.Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size);
-  texture_allocator.Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size);
-  texture_allocator.Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
-  texture_allocator.Load("numbers", numbers_img_bin, numbers_img_bin_size);
-  texture_allocator.Load("rocky", rocky_img_bin, rocky_img_bin_size);
-  texture_allocator.Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size);
+  g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
+  g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
+  g_game.TextureAllocator()->Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size);
+  g_game.TextureAllocator()->Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size);
+  g_game.TextureAllocator()->Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
+  g_game.TextureAllocator()->Load("numbers", numbers_img_bin, numbers_img_bin_size);
+  g_game.TextureAllocator()->Load("rocky", rocky_img_bin, rocky_img_bin_size);
+  g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size);
+  g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -139,22 +138,26 @@ void SetupDemoPikmin() {
 
 void SetupDemoStage() {
   //spawn in test objects
-  PelletPosy* posy = new PelletPosy(texture_allocator);
+  PelletPosy* posy = new PelletPosy(g_game.TextureAllocator());
   g_engine.AddEntity(posy);
   posy->body()->position = {6.2_f, 0_f, -6.2_f};
 
   //load in the test level
-  Level* sandbox = new Level(texture_allocator);
+  Level* sandbox = new Level(g_game.TextureAllocator());
   g_engine.AddEntity(sandbox);
   //g_engine.World().SetHeightmap(sandbox_height_bin);
   g_engine.World().SetHeightmap(checkerboard_height_bin);
 }
 
 void InitCaptain() {
-  g_captain_state.entity = &g_captain;
-  g_engine.AddEntity(&g_captain);
-  g_engine.TargetEntity(&g_captain);
-  g_captain_state.game = &g_game;
+  //g_captain_state.entity = &g_captain;
+  //g_engine.AddEntity(&g_captain);
+  //g_engine.TargetEntity(&g_captain);
+  //g_captain_state.game = &g_game;
+  CaptainState* captain = g_game.SpawnObject<CaptainState>();
+  g_engine.TargetEntity(captain->entity);
+  captain->entity->body()->position = Vec3{64_f,0_f,-64_f};
+
 }
 
 void Init() {
@@ -166,8 +169,9 @@ void Init() {
 
   LoadTextures();
   SetupDemoPikmin();
-  SetupDemoStage();
   InitCaptain();
+  SetupDemoStage();
+  
   
 
   glPushMatrix();
@@ -179,7 +183,7 @@ void RunLogic() {
     pikmin_ai::machine.RunLogic(g_pikmin_state[i]);
   }
 
-  captain_ai::machine.RunLogic(g_captain_state);
+  //captain_ai::machine.RunLogic(g_captain_state);
 
   g_game.Step();
 }
@@ -194,8 +198,8 @@ void GameLoop() {
 
     RunLogic();
 
-    debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->body()->position);
-    debug::DisplayValue("Olimar Vel: ", g_captain_state.entity->body()->velocity);
+    //debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->body()->position);
+    //debug::DisplayValue("Olimar Vel: ", g_captain_state.entity->body()->velocity);
 
     g_engine.Update();
     g_engine.Draw();

@@ -4,9 +4,11 @@
 #include "multipass_engine.h"
 #include "drawable_entity.h"
 #include "ai/pikmin.h"
+#include "ai/captain.h"
 #include <list>
 
 #include "debug.h"
+#include "vram_allocator.h"
 
 class Game {
  public:
@@ -20,12 +22,15 @@ class Game {
   void RemoveObject(StateType* object);
 
   void Step();
+  VramAllocator* TextureAllocator();
 
  private:
+  VramAllocator texture_allocator_ = VramAllocator(VRAM_C, 128 * 1024);
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
   std::list<pikmin_ai::PikminState*> pikmin_;
+  captain_ai::CaptainState* captain_;
 
   DrawableEntity* allocate_entity();
   MultipassEngine& engine;

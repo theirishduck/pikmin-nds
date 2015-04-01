@@ -10,6 +10,7 @@ namespace captain_ai {
 struct CaptainState : ObjectState {
   numeric_types::Brads current_angle = numeric_types::Brads::Raw(0);
   pikmin_ai::PikminState* held_pikmin;
+  DrawableEntity* cursor;
 };
 
 extern StateMachine<CaptainState> machine;

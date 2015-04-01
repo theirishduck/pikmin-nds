@@ -8,11 +8,13 @@
 // Model data
 #include "olimar_dsgx.h"
 #include "olimar_low_poly_dsgx.h"
+#include "cursor_dsgx.h"
 
 using numeric_types::literals::operator"" _f;
 
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
+using numeric_types::fixed;
 
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
@@ -21,6 +23,7 @@ namespace captain_ai {
 
 Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
 Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
+Dsgx cursor_actor((u32*)cursor_dsgx, cursor_dsgx_size);
 
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
@@ -35,6 +38,13 @@ void InitAlways(CaptainState& captain) {
 
   //initialize our walking angle?
   captain.current_angle = 270_brad;
+
+  //Initialize the cursor
+  captain.cursor->set_actor(&cursor_actor);
+  cursor_actor.ApplyTextures(captain.game->TextureAllocator());
+  captain.cursor->body()->ignores_walls = 1;
+  captain.cursor->body()->position = body->position
+      + Vec3{0_f,0_f,5_f};
 }
 
 bool DpadActive(const CaptainState& captain) {
@@ -52,6 +62,9 @@ void StopCaptain(CaptainState& captain) {
   //reset velocity in XZ to 0, so we stop moving
   captain.entity->body()->velocity.x = 0_f;
   captain.entity->body()->velocity.z = 0_f;
+  captain.cursor->body()->velocity.x = 0_f;
+  captain.cursor->body()->velocity.z = 0_f;
+   
 }
 
 void MoveCaptain(CaptainState& captain) {
@@ -84,6 +97,20 @@ void MoveCaptain(CaptainState& captain) {
   captain.entity->body()->velocity.z.data_ = -sinLerp(captain.current_angle.data_);
   captain.entity->body()->velocity.x *= 0.2_f;
   captain.entity->body()->velocity.z *= 0.2_f;
+
+  captain.cursor->body()->velocity.x = captain.entity->body()->velocity.x * 4_f;
+  captain.cursor->body()->velocity.z = captain.entity->body()->velocity.z * 4_f;
+
+  // Clamp the cursor to a certain distance from the captain
+  Vec2 captain_xz = Vec2{captain.entity->body()->position.x, captain.entity->body()->position.z};
+  Vec2 cursor_xz = Vec2{captain.cursor->body()->position.x, captain.cursor->body()->position.z};
+  fixed distance = (cursor_xz - captain_xz).Length();
+  if (distance > 10_f) {
+    cursor_xz = (cursor_xz - captain_xz).Normalize() * 10_f;
+    cursor_xz += captain_xz;
+    captain.cursor->body()->position.x = cursor_xz.x;
+    captain.cursor->body()->position.z = cursor_xz.y;
+  }
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {
@@ -108,6 +135,7 @@ void GrabPikmin(CaptainState& captain) {
 }
 
 void ThrowPikmin(CaptainState& captain) {
+
   captain.held_pikmin->entity->body()->velocity = Vec3{0_f, 1_f, 0_f};
   captain.held_pikmin->parent = nullptr;
 }
