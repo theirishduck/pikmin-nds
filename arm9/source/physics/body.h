@@ -26,6 +26,7 @@ struct Body {
   //collision results
   DrawableEntity* owner{nullptr};
   Body* sensor_result{nullptr};
+  unsigned short touching_ground : 1;
 
   //collision parameters
   unsigned short is_sensor : 1;  // Does this body inform its colliders?

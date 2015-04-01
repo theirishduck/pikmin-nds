@@ -6,6 +6,8 @@
 #include "yellow_pikmin_dsgx.h"
 #include "blue_pikmin_dsgx.h"
 
+using numeric_types::literals::operator"" _f;
+
 namespace pikmin_ai {
 
 Dsgx red_pikmin_actor((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
@@ -61,11 +63,22 @@ bool LeftParent(const PikminState& pikmin) {
   return pikmin.parent == nullptr;
 }
 
+void StopMoving(PikminState& pikmin) {
+  pikmin.entity->body()->velocity = Vec3{0_f, 0_f, 0_f};
+}
+
+bool Landed(const PikminState& pikmin) {
+  return pikmin.entity->body()->touching_ground;
+}
+
+
+
 namespace PikminNode {
 enum PikminNode {
   kInit = 0,
   kIdle,
-  kGrabbed
+  kGrabbed,
+  kThrown,
 };
 }
 
@@ -78,8 +91,11 @@ Edge<PikminState> edge_list[] {
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
   //Grabbed
-  {kAlways, LeftParent, nullptr, PikminNode::kIdle},
+  {kAlways, LeftParent, nullptr, PikminNode::kThrown},
   {kAlways, nullptr, FollowParent, PikminNode::kGrabbed},  // Loopback
+
+  //Thrown
+  {kAlways, Landed, StopMoving, PikminNode::kIdle},
 
 };
 
@@ -87,6 +103,7 @@ Node node_list[] {
   {"Init", true, 0, 0},
   {"Idle", true, 1, 2, "Armature|Idle", 30},
   {"Grabbed", true, 3, 4, "Armature|Idle", 30},
+  {"Thrown", true, 5, 5, "Armature|Idle", 30},
 };
 
 StateMachine<PikminState> machine(node_list, edge_list);
