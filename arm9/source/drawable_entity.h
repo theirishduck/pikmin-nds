@@ -31,6 +31,7 @@ class MultipassEngine;
 class DrawableEntity {
  public:
   DrawableEntity();
+  virtual ~DrawableEntity();
   DrawState& GetCachedState();
   void SetCache();
 

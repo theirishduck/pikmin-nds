@@ -38,6 +38,10 @@ void MultipassEngine::AddEntity(DrawableEntity* entity) {
   entity->Init();
 }
 
+void MultipassEngine::RemoveEntity(DrawableEntity* entity) {
+  entities_.remove(entity);
+}
+
 void MultipassEngine::Update() {
   scanKeys();
 

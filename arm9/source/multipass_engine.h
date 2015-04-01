@@ -2,6 +2,7 @@
 #define MULTIPASS_ENGINE_H
 
 #include <queue>
+#include <list>
 
 #include "drawable_entity.h"
 #include "entities/camera.h"
@@ -30,6 +31,7 @@ class MultipassEngine {
   physics::World& World();
 
   void AddEntity(DrawableEntity* entity);
+  void RemoveEntity(DrawableEntity* entity);
 
   numeric_types::Brads DPadDirection();
   numeric_types::Brads CameraAngle();
@@ -57,7 +59,7 @@ class MultipassEngine {
 
   std::priority_queue<EntityContainer> draw_list_;
 
-  std::vector<DrawableEntity*> entities_;
+  std::list<DrawableEntity*> entities_;
   std::vector<EntityContainer> overlap_list_;
   std::vector<EntityContainer> pass_list_;
 

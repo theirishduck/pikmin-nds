@@ -19,6 +19,9 @@ DrawableEntity::DrawableEntity() {
   cached_matrix_[0] = 0x19;
 }
 
+DrawableEntity::~DrawableEntity() {
+}
+
 Vec3 DrawableEntity::position() {
   return current_.position;
 }

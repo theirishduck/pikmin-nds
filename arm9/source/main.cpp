@@ -6,6 +6,7 @@
 #include <nds.h>
 
 #include "multipass_engine.h"
+#include "game.h"
 #include "debug.h"
 #include "vram_allocator.h"
 
@@ -42,9 +43,10 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{0};
+s32 const kTestPikmin{10};
 
 MultipassEngine g_engine;
+Game g_game(g_engine);
 VramAllocator texture_allocator(VRAM_C, 128 * 1024);
 
 DrawableEntity g_pikmin_entity[kTestPikmin];
@@ -114,14 +116,23 @@ void LoadTextures() {
 void SetupDemoPikmin() {
   for (s32 i = 0; i < kTestPikmin; i += 5) {
     for (s32 j = 0; j < 5; j++) {
+      //*
+      PikminState* pikmin = g_game.SpawnObject<PikminState>();
+      pikmin->type = PikminType::kRedPikmin;
+      pikmin->entity->body()->position = {
+        fixed::FromInt(-10 + j * 5),
+        0_f,
+        fixed::FromInt(-1 - i * -1)};
+      /*/
       g_pikmin_state[i + j].entity = &g_pikmin_entity[i + j];
-      g_pikmin_state[i + j].type = PikminType::kBluePikmin;
+      g_pikmin_state[i + j].type = PikminType::kRedPikmin;
       g_pikmin_state[i + j].id = i + j;
       g_engine.AddEntity(&g_pikmin_entity[i + j]);
       g_pikmin_entity[i + j].body()->position = {
         fixed::FromInt(-10 + j * 5),
         0_f,
         fixed::FromInt(-1 - i * -1)};
+      //*/
     }
   }
 }
@@ -168,6 +179,8 @@ void RunLogic() {
   }
 
   captain_ai::machine.RunLogic(g_captain_state);
+
+  g_game.Step();
 }
 
 void GameLoop() {

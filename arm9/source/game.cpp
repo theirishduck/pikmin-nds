@@ -1,0 +1,45 @@
+#include "game.h"
+
+using pikmin_ai::PikminState;
+
+Game::Game(MultipassEngine& engine) : engine{engine} {
+}
+
+Game::~Game() {
+}
+
+ DrawableEntity* Game::allocate_entity() {
+  if (entities_.size() >= kMaxEntities) {
+    return nullptr;
+  }
+  entities_.push_back(new DrawableEntity());
+  engine.AddEntity(entities_.back());
+  return entities_.back();
+}
+
+template <>
+PikminState* Game::SpawnObject<PikminState>() {
+  PikminState* state = InitObject<PikminState>();
+  pikmin_.push_back(state);
+  return state;
+}
+
+template<>
+void Game::RemoveObject<PikminState>(PikminState* object) {
+  pikmin_.remove(object);
+  CleanupObject(object);
+}
+
+void Game::Step() {
+  auto i = pikmin_.begin();
+  while (i != pikmin_.end()) {
+    auto pikmin_state = *i;
+    pikmin_ai::machine.RunLogic(*pikmin_state);
+    if (pikmin_state->dead) {
+      CleanupObject(pikmin_state);
+      pikmin_.erase(i++);
+    } else {
+      i++;
+    }
+  }
+}
