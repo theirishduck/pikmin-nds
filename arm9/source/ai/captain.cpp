@@ -95,6 +95,34 @@ void MoveCaptain(CaptainState& captain) {
     cursor_body->position.x = cursor_xz.x;
     cursor_body->position.z = cursor_xz.y;
   }
+
+  // Rotate the cursor so that it faces away from the captain
+  /*
+  Vec3 facing;
+  facing = entity_to_follow_->position() - position_current_;
+  facing.y = 0_f;  // Work on the XZ plane.
+  if (facing.Length() <= 0_f) {
+    return 0_brad;
+  }
+  facing = facing.Normalize();
+
+  // return 0;
+  if (facing.z <= 0_f) {
+    return Brads::Raw(acosLerp(facing.x.data_));
+  } else {
+    return Brads::Raw(-acosLerp(facing.x.data_));
+  }*/
+  Vec3 cursor_facing;
+  cursor_facing = cursor_body->position - body->position;
+  cursor_facing.y = 0_f;  // Work on the XZ plane.
+  if (cursor_facing.Length() > 0_f) {
+    cursor_facing = cursor_facing.Normalize();
+    if (cursor_facing.z <= 0_f) {
+      captain.cursor->set_rotation(0_brad, Brads::Raw(acosLerp(cursor_facing.x.data_)), 0_brad);
+    } else {
+      captain.cursor->set_rotation(0_brad, Brads::Raw(-acosLerp(cursor_facing.x.data_)), 0_brad);
+    }
+  }
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {
