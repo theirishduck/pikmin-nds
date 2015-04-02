@@ -97,21 +97,6 @@ void MoveCaptain(CaptainState& captain) {
   }
 
   // Rotate the cursor so that it faces away from the captain
-  /*
-  Vec3 facing;
-  facing = entity_to_follow_->position() - position_current_;
-  facing.y = 0_f;  // Work on the XZ plane.
-  if (facing.Length() <= 0_f) {
-    return 0_brad;
-  }
-  facing = facing.Normalize();
-
-  // return 0;
-  if (facing.z <= 0_f) {
-    return Brads::Raw(acosLerp(facing.x.data_));
-  } else {
-    return Brads::Raw(-acosLerp(facing.x.data_));
-  }*/
   Vec3 cursor_facing;
   cursor_facing = cursor_body->position - body->position;
   cursor_facing.y = 0_f;  // Work on the XZ plane.
@@ -172,6 +157,19 @@ void ThrowPikmin(CaptainState& captain) {
   captain.held_pikmin->entity->body()->velocity = Vec3{
       pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity};
   captain.held_pikmin->parent = nullptr;
+
+  // Rotate the cursor so that it faces away from the captain
+  Vec3 pikmin_facing;
+  pikmin_facing = captain.cursor->body()->position - captain.entity->body()->position;
+  pikmin_facing.y = 0_f;  // Work on the XZ plane.
+  if (pikmin_facing.Length() > 0_f) {
+    pikmin_facing = pikmin_facing.Normalize();
+    if (pikmin_facing.z <= 0_f) {
+      captain.held_pikmin->entity->set_rotation(0_brad, Brads::Raw(acosLerp(pikmin_facing.x.data_)) + 90_brad, 0_brad);
+    } else {
+      captain.held_pikmin->entity->set_rotation(0_brad, Brads::Raw(-acosLerp(pikmin_facing.x.data_)) + 90_brad, 0_brad);
+    }
+  }
 }
 
 namespace CaptainNode {

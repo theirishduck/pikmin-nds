@@ -101,9 +101,9 @@ Edge<PikminState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 2, "Armature|Idle", 30},
-  {"Grabbed", true, 3, 4, "Armature|Idle", 30},
-  {"Thrown", true, 5, 5, "Armature|Idle", 30},
+  {"Idle", true, 1, 2, "Armature|Idle", 60},
+  {"Grabbed", true, 3, 4, "Armature|Idle", 60},
+  {"Thrown", true, 5, 5, "Armature|Throw", 20},
 };
 
 StateMachine<PikminState> machine(node_list, edge_list);
