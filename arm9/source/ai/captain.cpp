@@ -165,6 +165,10 @@ void ThrowPikmin(CaptainState& captain) {
   fixed pikmin_x_velocity = distance_to_cursor.x / pikmin_travel_time;
   fixed pikmin_z_velocity = distance_to_cursor.z / pikmin_travel_time;
 
+  // Add in the captain's velocity; this is an intended gameplay mechanic
+  pikmin_x_velocity += captain.entity->body()->velocity.x;
+  pikmin_z_velocity += captain.entity->body()->velocity.z;
+
   captain.held_pikmin->entity->body()->velocity = Vec3{
       pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity};
   captain.held_pikmin->parent = nullptr;
