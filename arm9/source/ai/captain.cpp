@@ -140,7 +140,7 @@ bool ActionReleased(const CaptainState& captain) {
 void GrabPikmin(CaptainState& captain) {
   //Cheat horribly! Spawn a pikmin RIGHT NOW and hold onto it for dear life
   PikminState* pikmin = captain.game->SpawnObject<PikminState>();
-  pikmin->type = PikminType::kBluePikmin;
+  pikmin->type = PikminType::kYellowPikmin;
 
   //Move the pikmin to olimar's hand
   auto pikmin_body = pikmin->entity->body();
@@ -153,9 +153,9 @@ void GrabPikmin(CaptainState& captain) {
 }
 
 void ThrowPikmin(CaptainState& captain) {
-  fixed pikmin_y_velocity = 0.80_f;
+  fixed pikmin_y_velocity = 0.8_f;
   if (captain.held_pikmin->type == PikminType::kYellowPikmin) {
-    pikmin_y_velocity = 1.2_f;
+    pikmin_y_velocity = 1.0_f;
   }
 
   fixed pikmin_travel_time = pikmin_y_velocity * 2_f / GRAVITY_CONSTANT;
