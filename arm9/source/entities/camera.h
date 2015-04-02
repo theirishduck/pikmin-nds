@@ -6,6 +6,13 @@
 
 class DrawableEntity;
 
+struct CameraState {
+  Vec3 target{numeric_types::fixed::FromInt(0), numeric_types::fixed::FromInt(6), numeric_types::fixed::FromInt(4)};
+  numeric_types::Brads angle{numeric_types::Brads::Raw(0)};
+  numeric_types::fixed height{numeric_types::fixed::FromFloat(0.5f)};
+  numeric_types::fixed distance{numeric_types::fixed::FromInt(17)};
+};
+
 class Camera {
  public:
   Camera();
@@ -21,19 +28,11 @@ class Camera {
  private:
   DrawableEntity* target_;
 
-  Vec3 position_current_;
-  Vec3 target_current_;
-
-  Vec3 position_destination_;
-  Vec3 target_destination_;
-
-  Vec3 position_cached_;
-  Vec3 target_cached_;
+  CameraState target_state_;
+  CameraState current_state_;
+  CameraState cached_state_; 
 
   DrawableEntity* entity_to_follow_;
-
-  bool high_camera_{false};
-  int distance_{2};
 };
 
 #endif  // CAMERA_H
