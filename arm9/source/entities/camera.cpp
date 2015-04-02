@@ -37,7 +37,7 @@ void Camera::Update() {
   }
 
   if (entity_to_follow_) {
-    fixed const height = (high_camera_ ? 7.5_f : 2.5_f) *
+    fixed const height = (high_camera_ ? 7.0_f : 3.0_f) *
         fixed::FromInt(distance_ + 1);
 
     if (keysDown() & KEY_L) {
@@ -50,7 +50,8 @@ void Camera::Update() {
           -sinLerp((entity_to_follow_->rotation().y - 90_brad).data_);
     }
 
-    fixed follow_distance = 4.0_f + 6.0_f * fixed::FromInt(distance_);
+    fixed follow_distance = 4.0_f + 6.0_f * fixed::FromInt(distance_)
+        + (high_camera_ ? 0_f : 1_f);
 
     target_destination_ = entity_to_follow_->position();
     Vec3 entity_to_camera = entity_to_follow_->position() -
