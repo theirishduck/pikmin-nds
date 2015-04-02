@@ -60,56 +60,40 @@ bool DpadInactive(const CaptainState& captain) {
 
 void StopCaptain(CaptainState& captain) {
   //reset velocity in XZ to 0, so we stop moving
-  captain.entity->body()->velocity.x = 0_f;
-  captain.entity->body()->velocity.z = 0_f;
-  captain.cursor->body()->velocity.x = 0_f;
-  captain.cursor->body()->velocity.z = 0_f;
-   
+  auto body = captain.entity->body();
+  body->velocity.x = 0_f;
+  body->velocity.z = 0_f;
+  auto cursor_body = captain.cursor->body();
+  cursor_body->velocity.x = 0_f;
+  cursor_body->velocity.z = 0_f;
 }
 
 void MoveCaptain(CaptainState& captain) {
   auto engine = captain.entity->engine();
   Brads dpad_angle = engine->CameraAngle() + engine->DPadDirection() - 90_brad;
-  Brads delta = dpad_angle - captain.current_angle;
-
-  // Translate delta to be in +/-180 degrees
-  // Todo(Cristian) This may not be necessary anymore due to the use of Brads.
-  while (delta >= 180_brad) {
-    delta -= 360_brad;
-  }
-  while (delta < -180_brad) {
-    delta += 360_brad;
-  }
-
-  //Now clamp delta, so that we achieve smooth turning angles
-  if (delta > 11_brad) {
-    delta = 11_brad;
-  }
-  if (delta < -11_brad) {
-    delta = -11_brad;
-  }
-
   captain.current_angle = dpad_angle;
   captain.entity->set_rotation(0_brad, captain.current_angle + 90_brad, 0_brad);
 
   // Apply velocity in the direction of the current angle.
-  captain.entity->body()->velocity.x.data_ = cosLerp(captain.current_angle.data_);
-  captain.entity->body()->velocity.z.data_ = -sinLerp(captain.current_angle.data_);
-  captain.entity->body()->velocity.x *= 0.2_f;
-  captain.entity->body()->velocity.z *= 0.2_f;
+  auto body = captain.entity->body();
+  body->velocity.x.data_ = cosLerp(captain.current_angle.data_);
+  body->velocity.z.data_ = -sinLerp(captain.current_angle.data_);
+  body->velocity.x *= 0.2_f;
+  body->velocity.z *= 0.2_f;
 
-  captain.cursor->body()->velocity.x = captain.entity->body()->velocity.x * 3_f;
-  captain.cursor->body()->velocity.z = captain.entity->body()->velocity.z * 3_f;
+  auto cursor_body = captain.cursor->body();
+  cursor_body->velocity.x = body->velocity.x * 4_f;
+  cursor_body->velocity.z = body->velocity.z * 4_f;
 
   // Clamp the cursor to a certain distance from the captain
-  Vec2 captain_xz = Vec2{captain.entity->body()->position.x, captain.entity->body()->position.z};
-  Vec2 cursor_xz = Vec2{captain.cursor->body()->position.x, captain.cursor->body()->position.z};
+  Vec2 captain_xz = Vec2{body->position.x, body->position.z};
+  Vec2 cursor_xz = Vec2{cursor_body->position.x, cursor_body->position.z};
   fixed distance = (cursor_xz - captain_xz).Length();
-  if (distance > 15_f) {
-    cursor_xz = (cursor_xz - captain_xz).Normalize() * 15_f;
+  if (distance > 12_f) {
+    cursor_xz = (cursor_xz - captain_xz).Normalize() * 12_f;
     cursor_xz += captain_xz;
-    captain.cursor->body()->position.x = cursor_xz.x;
-    captain.cursor->body()->position.z = cursor_xz.y;
+    cursor_body->position.x = cursor_xz.x;
+    cursor_body->position.z = cursor_xz.y;
   }
 }
 
@@ -131,10 +115,11 @@ void GrabPikmin(CaptainState& captain) {
   pikmin->type = PikminType::kBluePikmin;
 
   //Move the pikmin to olimar's hand
-  pikmin->entity->body()->position = captain.entity->body()->position;
-  pikmin->entity->body()->position.x.data_ += cosLerp(captain.current_angle.data_);
-  pikmin->entity->body()->position.y += 0.5_f;
-  pikmin->entity->body()->position.z.data_ += -sinLerp(captain.current_angle.data_);
+  auto pikmin_body = pikmin->entity->body();
+  pikmin_body->position = captain.entity->body()->position;
+  pikmin_body->position.x.data_ += cosLerp(captain.current_angle.data_);
+  pikmin_body->position.y += 0.5_f;
+  pikmin_body->position.z.data_ += -sinLerp(captain.current_angle.data_);
   pikmin->parent = captain.entity;
   captain.held_pikmin = pikmin;
 }
