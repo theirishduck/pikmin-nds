@@ -37,7 +37,7 @@
 
 // How fast objects accelerate towards the ground, per frame
 #ifndef GRAVITY_CONSTANT
-#define GRAVITY_CONSTANT (3_f / 60_f)
+#define GRAVITY_CONSTANT (1.75_f / 60_f)
 #endif
 
 #endif  // PROJECT_SETTINGS_H_

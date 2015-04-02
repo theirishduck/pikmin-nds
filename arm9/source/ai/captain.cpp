@@ -89,8 +89,8 @@ void MoveCaptain(CaptainState& captain) {
   Vec2 captain_xz = Vec2{body->position.x, body->position.z};
   Vec2 cursor_xz = Vec2{cursor_body->position.x, cursor_body->position.z};
   fixed distance = (cursor_xz - captain_xz).Length();
-  if (distance > 12_f) {
-    cursor_xz = (cursor_xz - captain_xz).Normalize() * 12_f;
+  if (distance > 14_f) {
+    cursor_xz = (cursor_xz - captain_xz).Normalize() * 14_f;
     cursor_xz += captain_xz;
     cursor_body->position.x = cursor_xz.x;
     cursor_body->position.z = cursor_xz.y;
@@ -125,7 +125,7 @@ void GrabPikmin(CaptainState& captain) {
 }
 
 void ThrowPikmin(CaptainState& captain) {
-  fixed pikmin_y_velocity = 1_f;
+  fixed pikmin_y_velocity = 0.80_f;
   if (captain.held_pikmin->type == PikminType::kYellowPikmin) {
     pikmin_y_velocity = 1.2_f;
   }
