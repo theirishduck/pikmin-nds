@@ -72,12 +72,16 @@ bool Landed(const PikminState& pikmin) {
   return pikmin.entity->body()->touching_ground;
 }
 
-const fixed kRunningSpeed = 10.0_f / 60_f;
+const fixed kRunningSpeed = 20.0_f / 60_f;
 
 void FaceTarget(PikminState& pikmin) {
   auto body = pikmin.entity->body();
   Vec2 posXZ{body->position.x, body->position.z};
-  Vec2 new_velocity = (pikmin.target - posXZ).Normalize() * kRunningSpeed;
+  Vec2 random_offset = Vec2{
+    fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
+    fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
+  };
+  Vec2 new_velocity = (pikmin.target + random_offset - posXZ).Normalize() * kRunningSpeed;
   body->velocity.x = new_velocity.x;
   body->velocity.z = new_velocity.y;
   pikmin.entity->RotateToXZDirection(new_velocity);
@@ -100,7 +104,7 @@ void ChooseRandomTarget(PikminState& pikmin) {
   pikmin.target = new_target;
 }
 
-const fixed kTargetThreshold = 1.0_f;
+const fixed kTargetThreshold = 2.0_f;
 
 bool TargetReached(const PikminState& pikmin) {
   auto position = pikmin.entity->body()->position;

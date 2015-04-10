@@ -77,8 +77,8 @@ void MoveCaptain(CaptainState& captain) {
   auto body = captain.entity->body();
   body->velocity.x.data_ = cosLerp(captain.current_angle.data_);
   body->velocity.z.data_ = -sinLerp(captain.current_angle.data_);
-  body->velocity.x *= 0.2_f;
-  body->velocity.z *= 0.2_f;
+  body->velocity.x *= 0.4_f;
+  body->velocity.z *= 0.4_f;
 
   auto cursor_body = captain.cursor->body();
   cursor_body->velocity.x = body->velocity.x * 4_f;

@@ -1,5 +1,6 @@
 #include "squad.h"
 #include "pikmin.h"
+#include "captain.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -41,11 +42,21 @@ void InitAlways(SquadState& squad) {
   squad.position = Vec3{64_f,0_f,-64_f};
 }
 
+const fixed kMaxDistanceFromCaptain = 10_f;
+
 void UpdateTestShape(SquadState& squad) {
+  // move ourselves close to the captain
+  auto distance = (squad.captain->entity->body()->position - squad.position).Length();
+  if (distance > kMaxDistanceFromCaptain) {
+    auto direction = squad.captain->entity->body()->position - squad.position;
+    direction = direction.Normalize() * kMaxDistanceFromCaptain;
+    squad.position = squad.captain->entity->body()->position - direction;
+  }
+
   // easy pie! update all the pikmin targets in this squad
   for (int slot = 0; slot < squad.squad_size; slot++) {
-    fixed x = (fixed::FromInt(slot % 10) - 5_f) * 3_f;
-    fixed y = (fixed::FromInt(slot / 10) - 5_f) * 3_f;
+    fixed x = (fixed::FromInt(slot % 10) - 4.5_f) * 2.5_f;
+    fixed y = (fixed::FromInt(slot / 10) - 4.5_f) * 2.5_f;
     squad.pikmin[slot]->target = Vec2{
       squad.position.x + x,
       squad.position.z + y // This is confusing!
