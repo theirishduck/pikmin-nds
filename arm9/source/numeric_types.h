@@ -66,17 +66,17 @@ class Fixed {
   //bool operator!=(const float& other) const {return !(data_ == ((Fixed<T, F>)other).data_);}
 
   // Addition and subtraction
-  Fixed<T, F> operator+(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = data_ + other.data_; return r;}
+  Fixed<T, F> operator+(const Fixed<T, F>& other) const {Fixed<T,F> r; r.data_ = data_ + other.data_; return r;}
   Fixed<T, F>& operator+=(const Fixed<T, F>& other) {data_ += other.data_; return *this;}
-  Fixed<T, F> operator-(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = data_ - other.data_; return r;}
+  Fixed<T, F> operator-(const Fixed<T, F>& other) const {Fixed<T,F> r; r.data_ = data_ - other.data_; return r;}
   Fixed<T, F>& operator-=(const Fixed<T, F>& other) {data_ -= other.data_; return *this;}
 
   // Multiplication and division
-  Fixed<T, F> operator*(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = ((s64)data_ * (s64)other.data_) >> F; return r;}
+  Fixed<T, F> operator*(const Fixed<T, F>& other) const {Fixed<T,F> r; r.data_ = ((s64)data_ * (s64)other.data_) >> F; return r;}
   Fixed<T, F>& operator*=(const Fixed<T, F>& other) {data_ = ((s64)data_ * (s64)other.data_) >> F; return *this;}
   //Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = (data_ << (F / 2)) / (other.data_ >> (F / 2)); return r;}
   //Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data_ = (data_ << (F / 2)) / (other.data_ >> (F / 2)); return *this;}
-  Fixed<T, F> operator/(const Fixed<T, F>& other) {Fixed<T,F> r; r.data_ = ((s64)data_ << F) / (other.data_); return r;}
+  Fixed<T, F> operator/(const Fixed<T, F>& other) const {Fixed<T,F> r; r.data_ = ((s64)data_ << F) / (other.data_); return r;}
   Fixed<T, F>& operator/=(const Fixed<T, F>& other) {data_ = ((s64)data_ << F) / (other.data_); return *this;}
 
   //unary negation
