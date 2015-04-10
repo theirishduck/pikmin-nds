@@ -17,15 +17,15 @@ enum class PikminType {
 struct PikminState : ObjectState {
   PikminType type = PikminType::kRedPikmin;
   int id = 0;
+  bool active; // Used by the allocator to flag unused slots
   Squad* current_squad{nullptr};
-
-  //variables related to locating nearby tasks
-  int time_until_task_search = 300;
 
   //parent: used for being thrown and chewed
   DrawableEntity* parent{nullptr};
   Vec3 parent_initial_location;
   Vec3 child_offset;
+
+  Vec2 target;
 };
 
 extern StateMachine<PikminState> machine;

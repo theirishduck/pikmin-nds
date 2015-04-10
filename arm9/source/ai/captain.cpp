@@ -125,7 +125,16 @@ bool ActionReleased(const CaptainState& captain) {
 void GrabPikmin(CaptainState& captain) {
   //Cheat horribly! Spawn a pikmin RIGHT NOW and hold onto it for dear life
   PikminState* pikmin = captain.game->SpawnObject<PikminState>();
-  pikmin->type = PikminType::kYellowPikmin;
+
+  //Pick a random color
+  int type = rand() % 3;
+  if (type == 0) {
+    pikmin->type = PikminType::kRedPikmin;
+  } else if (type == 1) {
+    pikmin->type = PikminType::kYellowPikmin;
+  } else {
+    pikmin->type = PikminType::kBluePikmin;
+  }
 
   //Move the pikmin to olimar's hand
   auto pikmin_body = pikmin->entity->body();
@@ -158,7 +167,7 @@ void ThrowPikmin(CaptainState& captain) {
       pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity};
   captain.held_pikmin->parent = nullptr;
 
-  // Rotate the cursor so that it faces away from the captain
+  // Rotate the pikmin so that it faces away from the captain
   Vec3 pikmin_facing;
   pikmin_facing = captain.cursor->body()->position - captain.entity->body()->position;
   pikmin_facing.y = 0_f;  // Work on the XZ plane.

@@ -24,15 +24,36 @@ DrawableEntity* Game::allocate_entity() {
 
 template <>
 PikminState* Game::SpawnObject<PikminState>() {
-  PikminState* state = InitObject<PikminState>();
-  pikmin_.push_back(state);
-  return state;
+  // find an available slot for this pikmin
+  int slot = 0;
+  while (slot < 100 and pikmin_[slot].active) { slot++; }
+  if (slot == 100) {
+    return nullptr; // fail; can't spawn more pikmin.
+  }
+
+  // clear the slot to defaults, then set the ID based on the slot chosen
+  pikmin_[slot] = PikminState();
+  pikmin_[slot].id = slot;
+  pikmin_[slot].active = true;
+
+  // Perform allocation; similar to InitObject, minus the allocation for the
+  // state
+  pikmin_[slot].entity = allocate_entity();
+  pikmin_[slot].game = this;
+  const bool too_many_objects = pikmin_[slot].entity == nullptr;
+  if (too_many_objects) {    
+    return nullptr;
+  }
+  return &pikmin_[slot];
 }
 
 template<>
 void Game::RemoveObject<PikminState>(PikminState* object) {
-  pikmin_.remove(object);
-  CleanupObject(object);
+  // similar to cleanup object, again minus the state allocation
+  pikmin_[object->id].active = false;
+  engine.RemoveEntity(object->entity);
+  entities_.remove(object->entity);
+  delete object->entity;
 }
 
 template <>
@@ -61,11 +82,9 @@ void Game::Step() {
   
   auto i = pikmin_.begin();
   while (i != pikmin_.end()) {
-    auto pikmin_state = *i;
-    pikmin_ai::machine.RunLogic(*pikmin_state);
-    if (pikmin_state->dead) {
-      CleanupObject(pikmin_state);
-      pikmin_.erase(i++);
+    pikmin_ai::machine.RunLogic(*i);
+    if (i->dead) {
+      RemoveObject(i);
     } else {
       i++;
     }

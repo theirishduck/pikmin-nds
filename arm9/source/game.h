@@ -29,7 +29,7 @@ class Game {
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
-  std::list<pikmin_ai::PikminState*> pikmin_;
+  std::array<pikmin_ai::PikminState, 100> pikmin_;
   captain_ai::CaptainState* captain_;
 
   DrawableEntity* allocate_entity();

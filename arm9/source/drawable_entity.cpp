@@ -8,6 +8,11 @@
 
 namespace nt = numeric_types;
 
+using numeric_types::literals::operator"" _f;
+using numeric_types::literals::operator"" _brad;
+using numeric_types::fixed;
+using numeric_types::Brads;
+
 DrawableEntity::DrawableEntity() {
   //zero out the cached matrix to initialize it
   for (int i = 1; i < 13; i++) {
@@ -38,6 +43,18 @@ void DrawableEntity::set_rotation(nt::Brads x, nt::Brads y, nt::Brads z) {
   current_.rotation.x = x;
   current_.rotation.y = y;
   current_.rotation.z = z;
+}
+
+void DrawableEntity::RotateToXZDirection(Vec2 direction) {
+  // Rotate the entity so that it faces towards the provided vector
+  if (direction.Length() > 0_f) {
+    direction = direction.Normalize();
+    if (direction.y <= 0_f) {
+      set_rotation(0_brad, Brads::Raw(acosLerp(direction.x.data_)) + 90_brad, 0_brad);
+    } else {
+      set_rotation(0_brad, Brads::Raw(-acosLerp(direction.x.data_)) + 90_brad, 0_brad);
+    }
+  }
 }
 
 DrawState& DrawableEntity::GetCachedState() {
