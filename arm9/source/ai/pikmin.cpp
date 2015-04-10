@@ -107,9 +107,13 @@ void ChooseRandomTarget(PikminState& pikmin) {
 const fixed kTargetThreshold = 2.0_f;
 
 bool TargetReached(const PikminState& pikmin) {
-  auto position = pikmin.entity->body()->position;
-  return (pikmin.target - Vec2{position.x, position.z}).Length2() < 
-      kTargetThreshold * kTargetThreshold;
+  //don't do this every frame, for intentional inaccuracy
+  if ((pikmin.id + pikmin.entity->engine()->FrameCounter()) % 7 == 0) {
+    auto position = pikmin.entity->body()->position;
+    return (pikmin.target - Vec2{position.x, position.z}).Length2() < 
+        kTargetThreshold * kTargetThreshold;
+  }
+  return false;
 }
 
 bool CantReachTarget(const PikminState& pikmin) {
