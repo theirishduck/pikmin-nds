@@ -11,7 +11,6 @@
 #include "cursor_dsgx.h"
 
 using numeric_types::literals::operator"" _f;
-
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
@@ -179,6 +178,10 @@ void ThrowPikmin(CaptainState& captain) {
       captain.held_pikmin->entity->set_rotation(0_brad, Brads::Raw(-acosLerp(pikmin_facing.x.data_)) + 90_brad, 0_brad);
     }
   }
+
+  // Cheat a bit; add this pikmin to our squad (so when it lands, it'll run to the squad location)
+  captain.held_pikmin->current_squad = &captain.squad;
+  captain.squad.AddPikmin(captain.held_pikmin);
 }
 
 namespace CaptainNode {

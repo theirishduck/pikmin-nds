@@ -78,6 +78,7 @@ void Game::RemoveObject<CaptainState>(CaptainState* object) {
 void Game::Step() {
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
+    squad_ai::machine.RunLogic((*captain_).squad);
   }
   
   auto i = pikmin_.begin();

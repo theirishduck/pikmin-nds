@@ -72,7 +72,7 @@ bool Landed(const PikminState& pikmin) {
   return pikmin.entity->body()->touching_ground;
 }
 
-const fixed kRunningSpeed = 3.0_f / 60_f;
+const fixed kRunningSpeed = 10.0_f / 60_f;
 
 void FaceTarget(PikminState& pikmin) {
   auto body = pikmin.entity->body();
@@ -89,7 +89,7 @@ bool PikminTurn(const PikminState& pikmin) {
 
 template <int Chance>
 bool RandomTurnChance(const PikminState& pikmin) {
-  return PikminTurn(pikmin) and rand() % 100 > Chance;
+  return PikminTurn(pikmin) and rand() % 100 < Chance;
 }
 
 void ChooseRandomTarget(PikminState& pikmin) {
@@ -112,7 +112,17 @@ bool CantReachTarget(const PikminState& pikmin) {
   return false; // STUB
 }
 
+bool TooFarFromSquad(const PikminState& pikmin) {
+  // Are we in a squad at all?
+  if (pikmin.current_squad == nullptr) {
+    return false;
+  }
 
+  //Are we too far away from our squad's set position?
+  auto position = pikmin.entity->body()->position;
+  return (pikmin.target - Vec2{position.x, position.z}).Length2() > 
+      kTargetThreshold * kTargetThreshold;
+}
 
 namespace PikminNode {
 enum PikminNode {
@@ -131,6 +141,7 @@ Edge<PikminState> edge_list[] {
   //Idle
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, RandomTurnChance<25>, ChooseRandomTarget, PikminNode::kTargeting},
+  {kAlways, TooFarFromSquad, nullptr, PikminNode::kTargeting},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
   //Grabbed
@@ -149,10 +160,10 @@ Edge<PikminState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 3, "Armature|Idle", 60},
-  {"Grabbed", true, 4, 5, "Armature|Idle", 60},
-  {"Thrown", true, 6, 6, "Armature|Throw", 20},
-  {"Targeting", true, 7, 9, "Armature|Run", 60},
+  {"Idle", true, 1, 4, "Armature|Idle", 60},
+  {"Grabbed", true, 5, 6, "Armature|Idle", 60},
+  {"Thrown", true, 7, 7, "Armature|Throw", 20},
+  {"Targeting", true, 8, 10, "Armature|Run", 60},
 
 };
 
