@@ -190,14 +190,14 @@ void World::ProcessCollision() {
             ResolveCollision(A, B);
 
             //if A is a sensor that B cares about
-            if (A.is_sensor and (A.collision_group & B.sensor_groups)) {
+            if (A.collision_group & B.sensor_groups) {
               B.result_groups = B.result_groups | A.collision_group;
               if (B.num_results < 8) {
                 B.collision_results[B.num_results++] = {&A, A.collision_group};
               }
             }
             //if B is a sensor that A cares about
-            if (B.is_sensor and A.sensor_groups) {
+            if (B.collision_group & A.sensor_groups) {
               A.result_groups = A.result_groups | B.collision_group;
               if (A.num_results < 8) {
                 A.collision_results[A.num_results++] = {&B, B.collision_group};
@@ -222,7 +222,7 @@ void World::ProcessCollision() {
           (not A.is_sensor)) {
         if (BodiesOverlap(A, P)) {
           ResolveCollision(A, P);
-          if (A.is_sensor and (A.collision_group & P.sensor_groups)) {
+          if (A.collision_group & P.sensor_groups) {
             P.result_groups = P.result_groups | A.collision_group;
             if (P.num_results < 8) {
               P.collision_results[P.num_results++] = {&A, A.collision_group};
