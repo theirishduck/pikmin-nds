@@ -45,11 +45,9 @@ void MultipassEngine::RemoveEntity(DrawableEntity* entity) {
 void MultipassEngine::Update() {
   scanKeys();
 
-  debug::StartTopic(Topic::kUpdate);
   for (auto entity : entities_) {
     entity->Update();
   }
-  debug::EndTopic(Topic::kUpdate);
 
   debug::StartTopic(Topic::kPhysics);
   world_.Update();
