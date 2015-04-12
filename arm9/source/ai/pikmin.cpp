@@ -27,6 +27,14 @@ void InitAlways(PikminState& pikmin) {
       pikmin.entity->set_actor(&blue_pikmin_actor);
       break;
   }
+
+  auto body = pikmin.entity->body();
+  body->height = 6_f;
+  body->radius = 1.5_f;
+
+  body->collides_with_bodies = 1;
+  body->is_pikmin = 1;
+  body->is_movable = 1;
 }
 
 void IdleAlways(PikminState& pikmin) {
