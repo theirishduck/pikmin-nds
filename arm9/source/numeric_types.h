@@ -26,6 +26,7 @@ class Fixed {
 
   static constexpr Fixed<T, F> FromInt(const int& value) {return Fixed<T,F>(value << F);}
   static constexpr Fixed<T, F> FromFloat(const float& value) {return Fixed<T,F>(value * (1 << F));}
+  static Fixed<T, F> FromRaw(const T& value) {Fixed<T,F> result; result.data_ = value; return result;}
 
   // Initialization from other types
   template <typename T2, int F2>

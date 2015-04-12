@@ -95,6 +95,18 @@ void UpdateTriangleShape(SquadState& squad) {
       rank_delta.x *= -1_f;
     }
 
+    // rotate our start and our delta
+    auto rot_angle = squad.captain->entity->AngleTo(squad.captain->cursor);
+    rank_start = Vec2{
+      rank_start.x * fixed::FromRaw(cosLerp(rot_angle.data_)) - rank_start.y * fixed::FromRaw(sinLerp(rot_angle.data_)),
+      -rank_start.x * fixed::FromRaw(sinLerp(rot_angle.data_)) - rank_start.y * fixed::FromRaw(cosLerp(rot_angle.data_)),
+    };
+
+    rank_delta = Vec2{
+      rank_delta.x * fixed::FromRaw(cosLerp(rot_angle.data_)) - rank_delta.y * fixed::FromRaw(sinLerp(rot_angle.data_)),
+      -rank_delta.x * fixed::FromRaw(sinLerp(rot_angle.data_)) - rank_delta.y * fixed::FromRaw(cosLerp(rot_angle.data_)),
+    };
+
     Vec2 rank_pos = rank_start;
     int rank_index = 0;
     while (rank_index < rank_count and slot < squad.squad_size) {

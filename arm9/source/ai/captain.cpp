@@ -69,6 +69,7 @@ void InitAlways(CaptainState& captain) {
   captain.cursor->body()->ignores_walls = 1;
   captain.cursor->body()->position = body->position
       + Vec3{0_f,0_f,5_f};
+  captain.cursor->body()->is_sensor = 1;
 
   //Initialize the whistle
   captain.whistle->set_actor(&whistle_actor);
