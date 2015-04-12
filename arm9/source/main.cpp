@@ -43,6 +43,8 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
+using debug::Topic;
+
 s32 const kTestPikmin{50};
 
 MultipassEngine g_engine;
@@ -198,7 +200,9 @@ void GameLoop() {
     //start debug timings for this loop
     debug::StartCpuTimer();
 
+    debug::StartTopic(Topic::kUpdate);
     RunLogic();
+    debug::EndTopic(Topic::kUpdate);
 
     //debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->body()->position);
     //debug::DisplayValue("Olimar Vel: ", g_captain_state.entity->body()->velocity);
