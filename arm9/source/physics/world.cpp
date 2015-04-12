@@ -164,7 +164,7 @@ void World::MoveBodies() {
   }
   for (int i = 0; i < active_pikmin_; i++) {
     // First, make sure this is an active body
-    PrepareBody(bodies_[active_[i]]);
+    PrepareBody(bodies_[pikmin_[i]]);
     MoveBody(bodies_[pikmin_[i]]);
   }
 }
