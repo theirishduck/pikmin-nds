@@ -22,6 +22,7 @@ DrawableEntity::DrawableEntity() {
   //the first byte needs to be the geometry command for a
   //MATRIX_MUL4x3
   cached_matrix_[0] = 0x19;
+  current_.scale = 1.0_f;
 }
 
 DrawableEntity::~DrawableEntity() {
@@ -43,6 +44,14 @@ void DrawableEntity::set_rotation(nt::Brads x, nt::Brads y, nt::Brads z) {
   current_.rotation.x = x;
   current_.rotation.y = y;
   current_.rotation.z = z;
+}
+
+fixed DrawableEntity::scale() {
+  return current_.scale;
+}
+
+void DrawableEntity::set_scale(fixed new_scale) {
+  current_.scale = new_scale;
 }
 
 void DrawableEntity::RotateToXZDirection(Vec2 direction) {
@@ -105,11 +114,13 @@ MultipassEngine* DrawableEntity::engine() {
 }
 
 void DrawableEntity::ApplyTransformation() {
-  if (cached_.rotation.x.data_ or cached_.rotation.z.data_) {
+  if (cached_.rotation.x.data_ or cached_.rotation.z.data_ or cached_.scale != 1.0_f) {
     // sub-optimal case. This is correct, but slow; I don't know how to
     // improve arbitrary rotation yet. -Nick
     glTranslatef32(cached_.position.x.data_, cached_.position.y.data_,
         cached_.position.z.data_);
+
+    glScalef32(cached_.scale.data_, cached_.scale.data_, cached_.scale.data_);
 
     glRotateYi(cached_.rotation.y.data_);
     glRotateXi(cached_.rotation.x.data_);

@@ -40,4 +40,10 @@
 #define GRAVITY_CONSTANT (1.75_f / 60_f)
 #endif
 
+// Collision groups for the physics engine
+#define PLAYER_GROUP  (0x1 << 0)
+#define PIKMIN_GROUP  (0x1 << 1)
+#define WHISTLE_GROUP (0x1 << 2)
+
+
 #endif  // PROJECT_SETTINGS_H_

@@ -40,7 +40,7 @@ struct Body {
   u32 sensor_groups{0};
 
   //contains all the groups we collided with *this frame*
-  u32 result_group{0};
+  u32 result_groups{0};
 
   u32 num_results{0};
   CollisionResult collision_results[8];
@@ -55,6 +55,8 @@ struct Body {
   unsigned short is_movable : 1;  // Can this body be moved during collision?
   unsigned short is_pikmin : 1;  // Pikmin are treated as a special case
   unsigned short affected_by_gravity : 1;
+
+  CollisionResult FirstCollisionWith(u32 collision_mask);
   private:
     unsigned short active : 1;
     Vec3 old_position;

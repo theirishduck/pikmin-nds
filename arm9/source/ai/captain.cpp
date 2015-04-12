@@ -9,6 +9,7 @@
 #include "olimar_dsgx.h"
 #include "olimar_low_poly_dsgx.h"
 #include "cursor_dsgx.h"
+#include "whistle_dsgx.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -23,6 +24,22 @@ namespace captain_ai {
 Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
 Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
 Dsgx cursor_actor((u32*)cursor_dsgx, cursor_dsgx_size);
+Dsgx whistle_actor((u32*)whistle_dsgx, whistle_dsgx_size);
+
+void HandleWhistle(CaptainState& captain) {
+  captain.whistle->body()->position = captain.cursor->body()->position;
+
+  // Do a bit of cheating and handle the whistle here for now
+  if (keysHeld() & KEY_B and captain.whistle_timer < 16) {
+    captain.whistle_timer++;
+  } else if (captain.whistle_timer > 0) {
+    captain.whistle_timer--;
+  }
+
+  captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / 16_f;
+  captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / 16_f);
+  captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y - 10_brad ,0_brad);
+}
 
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
@@ -44,6 +61,16 @@ void InitAlways(CaptainState& captain) {
   captain.cursor->body()->ignores_walls = 1;
   captain.cursor->body()->position = body->position
       + Vec3{0_f,0_f,5_f};
+
+  //Initialize the whistle
+  captain.whistle->set_actor(&whistle_actor);
+  whistle_actor.ApplyTextures(captain.game->TextureAllocator());
+  auto whistle_body = captain.whistle->body();
+
+  whistle_body->height = 10.0_f;
+  whistle_body->is_sensor = 1;
+  whistle_body->collision_group = WHISTLE_GROUP;
+  whistle_body->owner = &captain;
 }
 
 bool DpadActive(const CaptainState& captain) {
@@ -65,6 +92,10 @@ void StopCaptain(CaptainState& captain) {
   auto cursor_body = captain.cursor->body();
   cursor_body->velocity.x = 0_f;
   cursor_body->velocity.z = 0_f;
+}
+
+void IdleAlways(CaptainState& captain) {
+  HandleWhistle(captain);
 }
 
 void MoveCaptain(CaptainState& captain) {
@@ -107,6 +138,9 @@ void MoveCaptain(CaptainState& captain) {
       captain.cursor->set_rotation(0_brad, Brads::Raw(-acosLerp(cursor_facing.x.data_)), 0_brad);
     }
   }
+
+  // Move the whistle to where the cursor is
+  HandleWhistle(captain);
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {
@@ -180,8 +214,8 @@ void ThrowPikmin(CaptainState& captain) {
   }
 
   // Cheat a bit; add this pikmin to our squad (so when it lands, it'll run to the squad location)
-  captain.held_pikmin->current_squad = &captain.squad;
-  captain.squad.AddPikmin(captain.held_pikmin);
+  //captain.held_pikmin->current_squad = &captain.squad;
+  //captain.squad.AddPikmin(captain.held_pikmin);
 }
 
 namespace CaptainNode {
@@ -203,6 +237,7 @@ Edge<CaptainState> edge_list[] {
   // Idle
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrab},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kRun},
+  {kAlways, nullptr, IdleAlways, CaptainNode::kIdle},  // Loopback
 
   // Run
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrabRun},
@@ -232,12 +267,12 @@ Edge<CaptainState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 2, "Armature|Idle1", 30},
-  {"Run", true, 3, 5, "Armature|Run", 60},
-  {"Grab", true, 6, 7, "Armature|Idle1", 30},
-  {"GrabRun", true, 8, 10, "Armature|Run", 60},
-  {"Throw", true, 11, 13, "Armature|Idle1", 10},
-  {"ThrowRun", true, 14, 17, "Armature|Run", 10},
+  {"Idle", true, 1, 3, "Armature|Idle1", 30},
+  {"Run", true, 4, 6, "Armature|Run", 60},
+  {"Grab", true, 7, 8, "Armature|Idle1", 30},
+  {"GrabRun", true, 9, 11, "Armature|Run", 60},
+  {"Throw", true, 12, 14, "Armature|Idle1", 10},
+  {"ThrowRun", true, 15, 18, "Armature|Run", 10},
 };
 
 StateMachine<CaptainState> machine(node_list, edge_list);

@@ -16,6 +16,7 @@ struct Rotation {
 struct DrawState {
   Vec3 position;
   Rotation rotation;
+  numeric_types::fixed scale;
 
   // TODO(Nick) try making this reference an animation state instead.
   Dsgx* actor;
@@ -40,6 +41,9 @@ class DrawableEntity {
 
   Rotation rotation();
   void set_rotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z);
+
+  numeric_types::fixed scale();
+  void set_scale(numeric_types::fixed new_scale);
 
   void RotateToXZDirection(Vec2 direction);
 
@@ -67,7 +71,6 @@ class DrawableEntity {
   s32 cached_matrix_[13]; //one extra entry for size; for DMA transfers
 
   MultipassEngine* engine_{nullptr};
-
  protected:
   physics::Body* body_{nullptr};
 };

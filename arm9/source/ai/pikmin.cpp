@@ -1,4 +1,5 @@
 #include "pikmin.h"
+#include "captain.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"
@@ -35,6 +36,7 @@ void InitAlways(PikminState& pikmin) {
   body->collides_with_bodies = 1;
   body->is_pikmin = 1;
   body->is_movable = 1;
+  body->sensor_groups = WHISTLE_GROUP;
 }
 
 void IdleAlways(PikminState& pikmin) {
@@ -140,6 +142,26 @@ bool TooFarFromSquad(const PikminState& pikmin) {
       kTargetThreshold * kTargetThreshold;
 }
 
+bool CollidedWithWhistle(const PikminState& pikmin) {
+  if (pikmin.current_squad == nullptr) {
+    if (pikmin.entity->body()->result_groups & WHISTLE_GROUP) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void JoinSquad(PikminState& pikmin) {
+  auto result = pikmin.entity->body()->FirstCollisionWith(WHISTLE_GROUP);
+  // make sure we got a real result (this can fail in extreme cases)
+  if (result.body) {
+    auto captain = (captain_ai::CaptainState*)result.body->owner;
+    pikmin.current_squad = &captain->squad;
+    captain->squad.AddPikmin(&pikmin);
+  }
+}
+
+
 namespace PikminNode {
 enum PikminNode {
   kInit = 0,
@@ -158,6 +180,7 @@ Edge<PikminState> edge_list[] {
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, RandomTurnChance<25>, ChooseRandomTarget, PikminNode::kTargeting},
   {kAlways, TooFarFromSquad, nullptr, PikminNode::kTargeting},
+  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
   //Grabbed
@@ -176,10 +199,10 @@ Edge<PikminState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 4, "Armature|Idle", 60},
-  {"Grabbed", true, 5, 6, "Armature|Idle", 60},
-  {"Thrown", true, 7, 7, "Armature|Throw", 20},
-  {"Targeting", true, 8, 10, "Armature|Run", 60},
+  {"Idle", true, 1, 5, "Armature|Idle", 60},
+  {"Grabbed", true, 6, 7, "Armature|Idle", 60},
+  {"Thrown", true, 8, 8, "Armature|Throw", 20},
+  {"Targeting", true, 9, 11, "Armature|Run", 60},
 
 };
 

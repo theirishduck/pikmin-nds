@@ -63,6 +63,7 @@ CaptainState* Game::SpawnObject<CaptainState>() {
   }
   captain_ = InitObject<CaptainState>();
   captain_->cursor = allocate_entity();
+  captain_->whistle = allocate_entity();
   captain_->squad.captain = captain_;
   return captain_;
 }

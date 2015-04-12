@@ -25,6 +25,7 @@
 #include "rocky_img_bin.h"
 #include "checkerboard_img_bin.h"
 #include "cursor_img_bin.h"
+#include "bad_whistle_img_bin.h"
 
 // Level data and heightmaps
 #include "sandbox_height_bin.h"
@@ -42,7 +43,7 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{10};
+s32 const kTestPikmin{0};
 
 MultipassEngine g_engine;
 Game g_game(g_engine);
@@ -108,6 +109,7 @@ void LoadTextures() {
   g_game.TextureAllocator()->Load("rocky", rocky_img_bin, rocky_img_bin_size);
   g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size);
   g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size);
+  g_game.TextureAllocator()->Load("bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
