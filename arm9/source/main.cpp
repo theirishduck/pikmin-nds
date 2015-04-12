@@ -43,7 +43,7 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
-s32 const kTestPikmin{0};
+s32 const kTestPikmin{50};
 
 MultipassEngine g_engine;
 Game g_game(g_engine);
@@ -115,8 +115,8 @@ void LoadTextures() {
 }
 
 void SetupDemoPikmin() {
-  for (s32 i = 0; i < kTestPikmin; i += 5) {
-    for (s32 j = 0; j < 5; j++) {
+  for (s32 i = 0; i < kTestPikmin; i += 1) {
+    for (s32 j = 0; j < 1; j++) {
       //*
       PikminState* pikmin = g_game.SpawnObject<PikminState>();
       pikmin->type = PikminType::kRedPikmin;

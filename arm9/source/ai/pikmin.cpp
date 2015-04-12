@@ -61,6 +61,7 @@ void StoreParentLocation(PikminState& pikmin) {
     pikmin.child_offset = pikmin.parent_initial_location
         - pikmin.entity->body()->position;
   }
+  pikmin.entity->body()->velocity = Vec3{0_f,0_f,0_f};
 }
 
 void FollowParent(PikminState& pikmin) {
@@ -177,10 +178,10 @@ Edge<PikminState> edge_list[] {
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
 
   //Idle
-  {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
-  {kAlways, RandomTurnChance<25>, ChooseRandomTarget, PikminNode::kTargeting},
   {kAlways, TooFarFromSquad, nullptr, PikminNode::kTargeting},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {kAlways, RandomTurnChance<0>, ChooseRandomTarget, PikminNode::kTargeting},
+  {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
   //Grabbed
@@ -193,6 +194,7 @@ Edge<PikminState> edge_list[] {
   //Targeting
   {kAlways, TargetReached, StopMoving, PikminNode::kIdle},
   {kAlways, CantReachTarget, StopMoving, PikminNode::kIdle},
+  {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, nullptr, FaceTarget, PikminNode::kTargeting},
 
 };
@@ -202,7 +204,7 @@ Node node_list[] {
   {"Idle", true, 1, 5, "Armature|Idle", 60},
   {"Grabbed", true, 6, 7, "Armature|Idle", 60},
   {"Thrown", true, 8, 8, "Armature|Throw", 20},
-  {"Targeting", true, 9, 11, "Armature|Run", 60},
+  {"Targeting", true, 9, 12, "Armature|Run", 60},
 
 };
 

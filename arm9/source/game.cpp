@@ -92,4 +92,7 @@ void Game::Step() {
       i++;
     }
   }
+
+  debug::DisplayValue("pik pos", pikmin_[0].entity->body()->position);
+  debug::DisplayValue("pik vel", pikmin_[0].entity->body()->velocity);
 }

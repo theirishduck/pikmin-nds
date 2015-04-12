@@ -32,8 +32,12 @@ void HandleWhistle(CaptainState& captain) {
   // Do a bit of cheating and handle the whistle here for now
   if (keysHeld() & KEY_B and captain.whistle_timer < 16) {
     captain.whistle_timer++;
+    //turn the whistle on
+    captain.whistle->body()->collision_group = WHISTLE_GROUP;
   } else if (captain.whistle_timer > 0) {
     captain.whistle_timer--;
+    //turn the whistle back off
+    captain.whistle->body()->collision_group = 0;
   }
 
   captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / 16_f;
@@ -69,7 +73,6 @@ void InitAlways(CaptainState& captain) {
 
   whistle_body->height = 10.0_f;
   whistle_body->is_sensor = 1;
-  whistle_body->collision_group = WHISTLE_GROUP;
   whistle_body->owner = &captain;
 }
 
@@ -144,8 +147,8 @@ void MoveCaptain(CaptainState& captain) {
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {
-  if (keysDown() & KEY_A) {
-    //TODO: Actually check for pikmin somehow. Don't do this noise.
+  if (keysDown() & KEY_A and captain.squad.squad_size > 0) {
+    //todo: check for proximity? this will work for now I guess
     return true;
   }
   return false;
@@ -157,7 +160,7 @@ bool ActionReleased(const CaptainState& captain) {
 
 void GrabPikmin(CaptainState& captain) {
   //Cheat horribly! Spawn a pikmin RIGHT NOW and hold onto it for dear life
-  PikminState* pikmin = captain.game->SpawnObject<PikminState>();
+  /*PikminState* pikmin = captain.game->SpawnObject<PikminState>();
 
   //Pick a random color
   int type = rand() % 3;
@@ -167,7 +170,11 @@ void GrabPikmin(CaptainState& captain) {
     pikmin->type = PikminType::kYellowPikmin;
   } else {
     pikmin->type = PikminType::kBluePikmin;
-  }
+  }*/
+
+  //grab the first pikmin in the squad
+  PikminState* pikmin = captain.squad.pikmin[0];
+  captain.squad.RemovePikmin(pikmin);
 
   //Move the pikmin to olimar's hand
   auto pikmin_body = pikmin->entity->body();
