@@ -57,6 +57,9 @@ void UpdateTestShape(SquadState& squad) {
   for (int slot = 0; slot < squad.squad_size; slot++) {
     fixed x = (fixed::FromInt(slot % 10) - 4.5_f) * 2.5_f;
     fixed y = (fixed::FromInt(slot / 10) - 4.5_f) * 2.5_f;
+    if ((slot / 10) % 2 == 0) {
+      x *= -1_f;
+    }
     squad.pikmin[slot]->target = Vec2{
       squad.position.x + x,
       squad.position.z + y // This is confusing!
