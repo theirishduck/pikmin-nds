@@ -86,16 +86,18 @@ bool Landed(const PikminState& pikmin) {
 const fixed kRunningSpeed = 20.0_f / 60_f;
 
 void FaceTarget(PikminState& pikmin) {
-  auto body = pikmin.entity->body();
-  Vec2 posXZ{body->position.x, body->position.z};
-  Vec2 random_offset = Vec2{
-    fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
-    fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
-  };
-  Vec2 new_velocity = (pikmin.target + random_offset - posXZ).Normalize() * kRunningSpeed;
-  body->velocity.x = new_velocity.x;
-  body->velocity.z = new_velocity.y;
-  pikmin.entity->RotateToXZDirection(new_velocity);
+  if ((pikmin.id + pikmin.entity->engine()->FrameCounter()) % 4 == 0) {
+    auto body = pikmin.entity->body();
+    Vec2 posXZ{body->position.x, body->position.z};
+    Vec2 random_offset = Vec2{
+      fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
+      fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
+    };
+    Vec2 new_velocity = (pikmin.target + random_offset - posXZ).Normalize() * kRunningSpeed;
+    body->velocity.x = new_velocity.x;
+    body->velocity.z = new_velocity.y;
+    pikmin.entity->RotateToXZDirection(new_velocity);
+  }
 }
 
 bool PikminTurn(const PikminState& pikmin) {
@@ -119,7 +121,7 @@ const fixed kTargetThreshold = 2.0_f;
 
 bool TargetReached(const PikminState& pikmin) {
   //don't do this every frame, for intentional inaccuracy
-  if ((pikmin.id + pikmin.entity->engine()->FrameCounter()) % 7 == 0) {
+  if ((pikmin.id + pikmin.entity->engine()->FrameCounter()) % 16 == 0) {
     auto position = pikmin.entity->body()->position;
     return (pikmin.target - Vec2{position.x, position.z}).Length2() < 
         kTargetThreshold * kTargetThreshold;
@@ -180,7 +182,6 @@ Edge<PikminState> edge_list[] {
   //Idle
   {kAlways, TooFarFromSquad, nullptr, PikminNode::kTargeting},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
-  {kAlways, RandomTurnChance<0>, ChooseRandomTarget, PikminNode::kTargeting},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
@@ -201,10 +202,10 @@ Edge<PikminState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 5, "Armature|Idle", 60},
-  {"Grabbed", true, 6, 7, "Armature|Idle", 60},
-  {"Thrown", true, 8, 8, "Armature|Throw", 20},
-  {"Targeting", true, 9, 12, "Armature|Run", 60},
+  {"Idle", true, 1, 4, "Armature|Idle", 60},
+  {"Grabbed", true, 5, 6, "Armature|Idle", 60},
+  {"Thrown", true, 7, 7, "Armature|Throw", 20},
+  {"Targeting", true, 8, 11, "Armature|Run", 60},
 
 };
 
