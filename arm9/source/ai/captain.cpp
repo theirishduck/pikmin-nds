@@ -44,7 +44,7 @@ void HandleWhistle(CaptainState& captain) {
 
   captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / 16_f;
   captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / 16_f);
-  captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 2_brad, 0_brad);
+  captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 3_brad, 0_brad);
 }
 
 void InitAlways(CaptainState& captain) {
@@ -109,7 +109,6 @@ void MoveCaptain(CaptainState& captain) {
   auto engine = captain.entity->engine();
   Brads dpad_angle = engine->CameraAngle() + engine->DPadDirection() - 90_brad;
   captain.current_angle = dpad_angle;
-  //captain.entity->set_rotation(0_brad, captain.current_angle + 90_brad, 0_brad);
   captain.entity->RotateToFace(captain.current_angle + 90_brad, 10_brad);
 
   // Apply velocity in the direction of the current angle.
@@ -135,17 +134,7 @@ void MoveCaptain(CaptainState& captain) {
   }
 
   // Rotate the cursor so that it faces away from the captain
-  Vec3 cursor_facing;
-  cursor_facing = cursor_body->position - body->position;
-  cursor_facing.y = 0_f;  // Work on the XZ plane.
-  if (cursor_facing.Length() > 0_f) {
-    cursor_facing = cursor_facing.Normalize();
-    if (cursor_facing.z <= 0_f) {
-      captain.cursor->set_rotation(0_brad, Brads::Raw(acosLerp(cursor_facing.x.data_)), 0_brad);
-    } else {
-      captain.cursor->set_rotation(0_brad, Brads::Raw(-acosLerp(cursor_facing.x.data_)), 0_brad);
-    }
-  }
+  captain.cursor->RotateToFace(captain.entity->AngleTo(captain.cursor) - 90_brad);
 
   // Move the whistle to where the cursor is
   HandleWhistle(captain);
@@ -164,20 +153,8 @@ bool ActionReleased(const CaptainState& captain) {
 }
 
 void GrabPikmin(CaptainState& captain) {
-  //Cheat horribly! Spawn a pikmin RIGHT NOW and hold onto it for dear life
-  /*PikminState* pikmin = captain.game->SpawnObject<PikminState>();
-
-  //Pick a random color
-  int type = rand() % 3;
-  if (type == 0) {
-    pikmin->type = PikminType::kRedPikmin;
-  } else if (type == 1) {
-    pikmin->type = PikminType::kYellowPikmin;
-  } else {
-    pikmin->type = PikminType::kBluePikmin;
-  }*/
-
   //grab the first pikmin in the squad
+  //TODO: this should later be changed to grab the *closest pikmin*
   PikminState* pikmin = captain.squad.pikmin[0];
   captain.squad.RemovePikmin(pikmin);
 
@@ -212,22 +189,7 @@ void ThrowPikmin(CaptainState& captain) {
       pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity};
   captain.held_pikmin->parent = nullptr;
 
-  // Rotate the pikmin so that it faces away from the captain
-  Vec3 pikmin_facing;
-  pikmin_facing = captain.cursor->body()->position - captain.entity->body()->position;
-  pikmin_facing.y = 0_f;  // Work on the XZ plane.
-  if (pikmin_facing.Length() > 0_f) {
-    pikmin_facing = pikmin_facing.Normalize();
-    if (pikmin_facing.z <= 0_f) {
-      captain.held_pikmin->entity->set_rotation(0_brad, Brads::Raw(acosLerp(pikmin_facing.x.data_)) + 90_brad, 0_brad);
-    } else {
-      captain.held_pikmin->entity->set_rotation(0_brad, Brads::Raw(-acosLerp(pikmin_facing.x.data_)) + 90_brad, 0_brad);
-    }
-  }
-
-  // Cheat a bit; add this pikmin to our squad (so when it lands, it'll run to the squad location)
-  //captain.held_pikmin->current_squad = &captain.squad;
-  //captain.squad.AddPikmin(captain.held_pikmin);
+  captain.held_pikmin->entity->RotateToFace(captain.cursor);
 }
 
 namespace CaptainNode {
@@ -259,6 +221,7 @@ Edge<CaptainState> edge_list[] {
   // Grab
   {kAlways, ActionReleased, ThrowPikmin, CaptainNode::kThrow},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kGrabRun},
+  {kAlways, nullptr, IdleAlways, CaptainNode::kGrab},  // Loopback
 
   // GrabRun
   {kAlways, ActionReleased, ThrowPikmin, CaptainNode::kThrowRun},
@@ -268,7 +231,8 @@ Edge<CaptainState> edge_list[] {
   // Throw
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrab},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kThrowRun},
-  {kLastFrame, nullptr, nullptr, CaptainNode::kIdle},
+  {kLastFrame, nullptr, IdleAlways, CaptainNode::kIdle},
+  {kAlways, nullptr, IdleAlways, CaptainNode::kThrow},  // Loopback
 
   // ThrowRun
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrabRun},
@@ -281,10 +245,10 @@ Node node_list[] {
   {"Init", true, 0, 0},
   {"Idle", true, 1, 3, "Armature|Idle1", 30},
   {"Run", true, 4, 6, "Armature|Run", 60},
-  {"Grab", true, 7, 8, "Armature|Idle1", 30},
-  {"GrabRun", true, 9, 11, "Armature|Run", 60},
-  {"Throw", true, 12, 14, "Armature|Idle1", 10},
-  {"ThrowRun", true, 15, 18, "Armature|Run", 10},
+  {"Grab", true, 7, 9, "Armature|Idle1", 30},
+  {"GrabRun", true, 10, 12, "Armature|Run", 60},
+  {"Throw", true, 13, 16, "Armature|Idle1", 10},
+  {"ThrowRun", true, 17, 20, "Armature|Run", 10},
 };
 
 StateMachine<CaptainState> machine(node_list, edge_list);

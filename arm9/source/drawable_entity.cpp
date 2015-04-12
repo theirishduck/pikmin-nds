@@ -227,3 +227,20 @@ void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {
 
   current_.rotation.y += delta;
 }
+
+Brads DrawableEntity::AngleTo(const DrawableEntity* destination) {
+  auto difference = Vec2{destination->body_->position.x, destination->body_->position.z} - 
+      Vec2{body_->position.x, body_->position.z};
+  if (difference.Length2() > 0_f) {
+    difference = difference.Normalize();
+    if (difference.y <= 0_f) {
+      return Brads::Raw(acosLerp(difference.x.data_)) + 90_brad;
+    }
+    return Brads::Raw(-acosLerp(difference.x.data_)) + 90_brad;
+  }
+  return 0_brad;
+}
+
+void DrawableEntity::RotateToFace(const DrawableEntity* destination, Brads rate) {
+  RotateToFace(AngleTo(destination), rate);
+}
