@@ -18,6 +18,7 @@ class World {
     bool BodiesOverlap(physics::Body& A, physics::Body& b);
     void ResolveCollision(physics::Body& A, physics::Body& B);
     void ProcessCollision();
+    void PrepareBody(Body& body);
     void MoveBody(Body& body);
     void MoveBodies();
     void RebuildIndex();

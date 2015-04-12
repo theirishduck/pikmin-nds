@@ -8,6 +8,13 @@ class DrawableEntity;
 
 namespace physics {
 
+struct Body;
+
+struct CollisionResult {
+  Body* body;
+  u32 collision_group;
+};
+
 struct Body {
   friend class World;
   //movement information
@@ -23,15 +30,26 @@ struct Body {
   numeric_types::Fixed<s32,12> radius;
   //numeric_types::Fixed<s32,12> radius2;
 
-  //collision results
-  DrawableEntity* owner{nullptr};
-  Body* sensor_result{nullptr};
+  //used to store arbitrary information. Flexible, dangerous; be careful.
+  void* owner{nullptr};
+
+  //list of which collision groups we BELONG TO
+  u32 collision_group{0};
+
+  //list of all groups which we WANT TO KNOW ABOUT
+  u32 sensor_groups{0};
+
+  //contains all the groups we collided with *this frame*
+  u32 result_group{0};
+
+  u32 num_results{0};
+  CollisionResult collision_results[8];
+
   unsigned short touching_ground : 1;
 
   //collision parameters
   unsigned short is_sensor : 1;  // Does this body inform its colliders?
   unsigned short collides_with_bodies : 1;
-  unsigned short collides_with_sensors : 1;
   unsigned short collides_with_level : 1;
   unsigned short ignores_walls : 1;
   unsigned short is_movable : 1;  // Can this body be moved during collision?

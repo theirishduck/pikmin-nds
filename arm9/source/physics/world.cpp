@@ -137,8 +137,16 @@ void World::ResolveCollision(Body& a, Body& b) {
   }
 }
 
-void World::MoveBody(Body& body) {
+void World::PrepareBody(Body& body) {
+  //set the old position (used later for comparison)
   body.old_position = body.position;
+
+  //clear sensor results for this run
+  body.result_group = 0;
+  body.num_results = 0;
+}
+
+void World::MoveBody(Body& body) {
   body.position += body.velocity;
   body.velocity += body.acceleration;
 
@@ -146,18 +154,17 @@ void World::MoveBody(Body& body) {
   if (body.affected_by_gravity) {
     body.velocity.y -= GRAVITY_CONSTANT;
   }
-
-  //clear results from the previous run
-  body.sensor_result = 0;
 }
 
 void World::MoveBodies() {
   for (int i = 0; i < active_bodies_; i++) {
     // First, make sure this is an active body
+    PrepareBody(bodies_[active_[i]]);
     MoveBody(bodies_[active_[i]]);
   }
   for (int i = 0; i < active_pikmin_; i++) {
     // First, make sure this is an active body
+    PrepareBody(bodies_[active_[i]]);
     MoveBody(bodies_[pikmin_[i]]);
   }
 }
@@ -169,18 +176,26 @@ void World::ProcessCollision() {
     for (int* b = a + 1; b < active_end; b++) {
       if (a != b) {
         Body& B = bodies_[*b];
-        if ((A.is_sensor and B.collides_with_sensors) or
-            (B.is_sensor and A.collides_with_sensors) or
+        if ((A.is_sensor and (A.collision_group & B.sensor_groups)) or
+            (B.is_sensor and (B.collision_group & A.sensor_groups)) or
             (not A.is_sensor and B.collides_with_bodies) or
             (not B.is_sensor and A.collides_with_bodies)) {
           if (BodiesOverlap(A, B)) {
             ResolveCollision(A, B);
 
-            if (A.is_sensor and B.collides_with_sensors) {
-              B.sensor_result = &A;
+            //if A is a sensor that B cares about
+            if (A.is_sensor and (A.collision_group & B.sensor_groups)) {
+              B.result_group = B.result_group | A.collision_group;
+              if (B.num_results < 8) {
+                B.collision_results[B.num_results++] = {&A, A.collision_group};
+              }
             }
-            if (B.is_sensor and A.collides_with_sensors) {
-              A.sensor_result = &B;
+            //if B is a sensor that A cares about
+            if (B.is_sensor and A.sensor_groups) {
+              A.result_group = A.result_group | B.collision_group;
+              if (A.num_results < 8) {
+                A.collision_results[A.num_results++] = {&B, B.collision_group};
+              }
             }
           }
         }
@@ -197,10 +212,16 @@ void World::ProcessCollision() {
     Body& P = bodies_[pikmin_[p]];
     for (int a = 0; a < active_bodies_; a++) {
       Body& A = bodies_[active_[a]];
-      if (BodiesOverlap(A, P)) {
-        ResolveCollision(A, P);
-        if (A.is_sensor) {
-          P.sensor_result = &A;
+      if ((A.is_sensor and (A.collision_group & P.sensor_groups)) or
+          (not A.is_sensor)) {
+        if (BodiesOverlap(A, P)) {
+          ResolveCollision(A, P);
+          if (A.is_sensor and (A.collision_group & P.sensor_groups)) {
+            P.result_group = P.result_group | A.collision_group;
+            if (P.num_results < 8) {
+              P.collision_results[P.num_results++] = {&A, A.collision_group};
+            }
+          }
         }
       }
     }
