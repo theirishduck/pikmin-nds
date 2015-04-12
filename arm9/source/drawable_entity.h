@@ -46,6 +46,7 @@ class DrawableEntity {
   void set_scale(numeric_types::fixed new_scale);
 
   void RotateToXZDirection(Vec2 direction);
+  void RotateToFace(numeric_types::Brads target_angle, numeric_types::Brads rate);
 
   void set_actor(Dsgx* actor);
   Dsgx* actor();

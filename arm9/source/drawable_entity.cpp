@@ -205,3 +205,25 @@ void DrawableEntity::Init() {
 physics::Body* DrawableEntity::body() {
   return body_;
 }
+
+void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {
+  auto delta = target_angle - current_.rotation.y;
+
+  // clamp the delta so that it is within -180, 180
+  while (delta > 180_brad) {
+    delta -= 360_brad;
+  }
+  while (delta < -180_brad) {
+    delta += 360_brad;
+  }
+
+  // if the delta is greater than the rate, limit it for slow turning
+  if (delta > rate) {
+    delta = rate;
+  }
+  if (delta < -rate) {
+    delta = -rate;
+  }
+
+  current_.rotation.y += delta;
+}
