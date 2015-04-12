@@ -30,10 +30,12 @@ void HandleWhistle(CaptainState& captain) {
   captain.whistle->body()->position = captain.cursor->body()->position;
 
   // Do a bit of cheating and handle the whistle here for now
-  if (keysHeld() & KEY_B and captain.whistle_timer < 16) {
-    captain.whistle_timer++;
-    //turn the whistle on
-    captain.whistle->body()->collision_group = WHISTLE_GROUP;
+  if (keysHeld() & KEY_B) {
+    if (captain.whistle_timer < 16) {
+      captain.whistle_timer++;
+      //turn the whistle on
+      captain.whistle->body()->collision_group = WHISTLE_GROUP;
+    }
   } else if (captain.whistle_timer > 0) {
     captain.whistle_timer--;
     //turn the whistle back off
@@ -42,7 +44,7 @@ void HandleWhistle(CaptainState& captain) {
 
   captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / 16_f;
   captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / 16_f);
-  captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y - 10_brad ,0_brad);
+  captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 2_brad, 0_brad);
 }
 
 void InitAlways(CaptainState& captain) {
