@@ -176,10 +176,16 @@ void World::ProcessCollision() {
     for (int* b = a + 1; b < active_end; b++) {
       if (a != b) {
         Body& B = bodies_[*b];
-        if ((A.is_sensor and (A.collision_group & B.sensor_groups)) or
-            (B.is_sensor and (B.collision_group & A.sensor_groups)) or
-            (not A.is_sensor and B.collides_with_bodies) or
-            (not B.is_sensor and A.collides_with_bodies)) {
+
+        const bool a_senses_b = B.is_sensor and 
+            (B.collision_group & A.sensor_groups);
+        const bool b_senses_a = A.is_sensor and 
+            (A.collision_group & B.sensor_groups);
+
+        const bool a_pushes_b = A.collides_with_bodies and not B.is_sensor;
+        const bool b_pushes_a = B.collides_with_bodies and not A.is_sensor;
+
+        if (a_senses_b or b_senses_a or a_pushes_b or b_pushes_a) {
           if (BodiesOverlap(A, B)) {
             ResolveCollision(A, B);
 
