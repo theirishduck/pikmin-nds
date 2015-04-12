@@ -115,15 +115,15 @@ void LoadTextures() {
 }
 
 void SetupDemoPikmin() {
-  for (s32 i = 0; i < kTestPikmin; i += 1) {
-    for (s32 j = 0; j < 1; j++) {
+  for (s32 i = 0; i < kTestPikmin; i += 10) {
+    for (s32 j = 0; j < 10; j++) {
       //*
       PikminState* pikmin = g_game.SpawnObject<PikminState>();
-      pikmin->type = PikminType::kRedPikmin;
+      pikmin->type = PikminType::kBluePikmin;
       pikmin->entity->body()->position = {
-        fixed::FromInt(-10 + j * 5),
+        fixed::FromInt(-10 + j * 5 + 64),
         0_f,
-        fixed::FromInt(-1 - i * -1)};
+        fixed::FromInt(-1 - i * -1 - 64)};
       /*/
       g_pikmin_state[i + j].entity = &g_pikmin_entity[i + j];
       g_pikmin_state[i + j].type = PikminType::kRedPikmin;
