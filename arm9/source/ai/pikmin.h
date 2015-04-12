@@ -28,6 +28,9 @@ struct PikminState : ObjectState {
   Vec3 child_offset;
 
   Vec2 target;
+
+  //cache values for not updating so often
+  numeric_types::Brads target_facing_angle;
 };
 
 extern StateMachine<PikminState> machine;

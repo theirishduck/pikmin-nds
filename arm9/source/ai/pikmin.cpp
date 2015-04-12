@@ -8,6 +8,8 @@
 #include "blue_pikmin_dsgx.h"
 
 using numeric_types::literals::operator"" _f;
+using numeric_types::literals::operator"" _brad;
+using numeric_types::Brads;
 using numeric_types::fixed;
 
 namespace pikmin_ai {
@@ -40,7 +42,13 @@ void InitAlways(PikminState& pikmin) {
 }
 
 void IdleAlways(PikminState& pikmin) {
-
+  if (pikmin.current_squad) {
+    //every 8 frames or so, update our facing direction to look at the captain
+    if ((pikmin.entity->engine()->FrameCounter() + pikmin.id) % 8 == 0) {
+      pikmin.target_facing_angle = pikmin.entity->AngleTo(pikmin.current_squad->captain->entity);
+    }
+    pikmin.entity->RotateToFace(pikmin.target_facing_angle, 10_brad);
+  }
 }
 
 // This function, assuming unique Pikmin IDs, will return true once every
