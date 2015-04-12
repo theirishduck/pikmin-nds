@@ -43,8 +43,9 @@ void InitAlways(SquadState& squad) {
 }
 
 const fixed kMaxDistanceFromCaptain = 10_f;
+const fixed kSquadSpacing = 2.5_f;
 
-void UpdateTestShape(SquadState& squad) {
+void UpdateTestSquare(SquadState& squad) {
   // move ourselves close to the captain
   auto distance = (squad.captain->entity->body()->position - squad.position).Length();
   if (distance > kMaxDistanceFromCaptain) {
@@ -55,8 +56,8 @@ void UpdateTestShape(SquadState& squad) {
 
   // easy pie! update all the pikmin targets in this squad
   for (int slot = 0; slot < squad.squad_size; slot++) {
-    fixed x = (fixed::FromInt(slot % 10) - 4.5_f) * 2.5_f;
-    fixed y = (fixed::FromInt(slot / 10) - 4.5_f) * 2.5_f;
+    fixed x = (fixed::FromInt(slot % 10) - 4.5_f) * kSquadSpacing;
+    fixed y = (fixed::FromInt(slot / 10) - 4.5_f) * kSquadSpacing;
     if ((slot / 10) % 2 == 0) {
       x *= -1_f;
     }
@@ -67,12 +68,56 @@ void UpdateTestShape(SquadState& squad) {
   }
 }
 
+// Note: might be useful to keep around as a C-stick shape, with some
+// tweaking to values.
+void UpdateTriangleShape(SquadState& squad) {
+  // move ourselves close to the captain
+  auto distance = (squad.captain->entity->body()->position - squad.position).Length();
+  if (distance > 3.0_f) {
+    auto direction = squad.captain->entity->body()->position - squad.position;
+    direction = direction.Normalize() * 3.0_f;
+    squad.position = squad.captain->entity->body()->position - direction;
+  }
+
+  // loop through all the slots and assign a target position for each pikmin
+  int slot = 0;
+  int rank = 0;
+  while (slot < squad.squad_size) {
+    // This produces a triangle shape
+    int rank_count = 1 + rank * 2;
+
+    fixed rank_size = fixed::FromInt(rank_count - 1) * kSquadSpacing;
+    Vec2 rank_start = {(rank_size * 0.5_f), fixed::FromInt(rank) * kSquadSpacing};
+    Vec2 rank_delta = {-kSquadSpacing, 0_f};
+    if (rank % 2 == 0) {
+      // Every other frame, reverse the direction
+      rank_start.x *= -1_f;
+      rank_delta.x *= -1_f;
+    }
+
+    Vec2 rank_pos = rank_start;
+    int rank_index = 0;
+    while (rank_index < rank_count and slot < squad.squad_size) {
+      squad.pikmin[slot]->target = Vec2{
+        squad.position.x + rank_pos.x,
+        squad.position.z + rank_pos.y // This is confusing!
+      };
+
+      rank_pos += rank_delta;
+      rank_index++;
+      slot++;
+    }
+    rank++;
+  }
+}
+
+
 Edge<SquadState> edge_list[] {
   // Init
   Edge<SquadState>{kAlways, nullptr, InitAlways, 1},
 
   // Test / Follow Captain thing
-  Edge<SquadState>{kAlways, nullptr, UpdateTestShape, 1},  
+  Edge<SquadState>{kAlways, nullptr, UpdateTriangleShape, 1},  
 };
 
 Node node_list[] {
