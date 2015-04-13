@@ -43,6 +43,7 @@ u16* VramAllocator::Retrieve(std::string name) {
     return loaded_assets[name];
   } else {
     nocashMessage("Bad Retrieve!!");
+    nocashMessage(name.c_str());
     return 0; // bad things! panicing!
   }
 }

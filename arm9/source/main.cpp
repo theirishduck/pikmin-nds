@@ -17,6 +17,7 @@
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
+#include "piki_leaf_img_bin.h"
 #include "posy_leaf1_img_bin.h"
 #include "posy_leaf2_img_bin.h"
 #include "posy_leaf3_img_bin.h"
@@ -103,6 +104,7 @@ void LoadTextures() {
 
   //dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
   g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
+  g_game.TextureAllocator()->Load("piki_leaf", piki_leaf_img_bin, piki_leaf_img_bin_size);
   g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
   g_game.TextureAllocator()->Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size);
   g_game.TextureAllocator()->Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size);
@@ -219,4 +221,3 @@ int main() {
   GameLoop();
   return 0;
 }
-

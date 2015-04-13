@@ -1,5 +1,6 @@
 #include "pikmin.h"
 #include "captain.h"
+#include "game.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"
@@ -22,12 +23,15 @@ void InitAlways(PikminState& pikmin) {
   switch (pikmin.type) {
     case PikminType::kRedPikmin:
       pikmin.entity->set_actor(&red_pikmin_actor);
+      red_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());
       break;
     case PikminType::kYellowPikmin:
       pikmin.entity->set_actor(&yellow_pikmin_actor);
+      yellow_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());
       break;
     case PikminType::kBluePikmin:
       pikmin.entity->set_actor(&blue_pikmin_actor);
+      blue_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());
       break;
   }
 
