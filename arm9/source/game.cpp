@@ -27,7 +27,7 @@ PikminState* Game::SpawnObject<PikminState>() {
   // find an available slot for this pikmin
   int slot = 0;
   while (slot < 100 and pikmin_[slot].active) { slot++; }
-  if (slot == 100) {
+  if (slot >= 100) {
     return nullptr; // fail; can't spawn more pikmin.
   }
 
@@ -85,7 +85,9 @@ void Game::Step() {
   
   auto i = pikmin_.begin();
   while (i != pikmin_.end()) {
-    pikmin_ai::machine.RunLogic(*i);
+    if ((*i).active) {
+      pikmin_ai::machine.RunLogic(*i);
+    }
     if (i->dead) {
       RemoveObject(i);
     } else {
