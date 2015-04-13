@@ -124,8 +124,8 @@ void SetupDemoPikmin() {
       //*
       PikminState* pikmin = g_game.SpawnObject<PikminState>();
       //random colors!
-      //pikmin->type = (PikminType)(rand() % 3);
-      pikmin->type = PikminType::kBluePikmin;
+      pikmin->type = (PikminType)(rand() % 3);
+      //pikmin->type = PikminType::kBluePikmin;
       pikmin->entity->body()->position = {
         fixed::FromInt(-10 + j * 2 + 64),
         0_f,
