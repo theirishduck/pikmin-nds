@@ -2,6 +2,8 @@
 #include "pikmin.h"
 #include "captain.h"
 
+#include <algorithm>
+
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -38,12 +40,49 @@ void SquadState::RemovePikmin(PikminState* old_pikmin) {
   squad_size--;
 }
 
+void SquadState::SortPikmin(const PikminState* selected_pikmin) {
+  int pass = 0;
+  int selected_color = (int)selected_pikmin->type;
+
+  int current_slot = 0;
+  while (pass < 3) {
+    int comparison_slot = current_slot + 1;
+    while (comparison_slot < squad_size) {
+      //loop current_slot until we find a pikmin that isn't the active type
+      while ((int)pikmin[current_slot]->type == selected_color and current_slot < squad_size) {
+        current_slot++;
+      }
+      //sanity: make sure comparison starts *after* the current slot
+      if (comparison_slot <= current_slot) {
+        comparison_slot = current_slot + 1;
+      }
+      //finally, loop comparison forward until we hit either a pikmin to swap
+      //with (one that matches the current type) or the end of the list
+      while(comparison_slot < squad_size and (int)pikmin[comparison_slot]->type != selected_color) {
+        comparison_slot++;
+      }
+      //if we didn't run off the end of the list, perform the swap
+      if (comparison_slot < squad_size) {
+        std::swap(pikmin[current_slot], pikmin[comparison_slot]);
+        current_slot++;
+      }
+      comparison_slot++;
+    }
+
+    selected_color++;
+    if (selected_color >= 3) {
+      selected_color = 0;
+    }
+    pass++;
+  }
+}
+
 void InitAlways(SquadState& squad) {
   squad.position = Vec3{64_f,0_f,-64_f};
 }
 
 const fixed kMaxDistanceFromCaptain = 10_f;
-const fixed kSquadSpacing = 2.5_f;
+const fixed kSquadSpacing = 3.0_f;
 
 void UpdateTestSquare(SquadState& squad) {
   // move ourselves close to the captain
@@ -71,6 +110,10 @@ void UpdateTestSquare(SquadState& squad) {
 // Note: might be useful to keep around as a C-stick shape, with some
 // tweaking to values.
 void UpdateTriangleShape(SquadState& squad) {
+  if (squad.captain->held_pikmin) {
+    squad.SortPikmin(squad.captain->held_pikmin);
+  }
+
   // move ourselves close to the captain
   auto distance = (squad.captain->entity->body()->position - squad.position).Length();
   if (distance > 3.0_f) {

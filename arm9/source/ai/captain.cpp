@@ -191,6 +191,7 @@ void ThrowPikmin(CaptainState& captain) {
   captain.held_pikmin->parent = nullptr;
 
   captain.held_pikmin->entity->RotateToFace(captain.cursor);
+  captain.held_pikmin = nullptr;
 }
 
 namespace CaptainNode {

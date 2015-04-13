@@ -121,7 +121,8 @@ void SetupDemoPikmin() {
     for (s32 j = 0; j < 10; j++) {
       //*
       PikminState* pikmin = g_game.SpawnObject<PikminState>();
-      pikmin->type = PikminType::kBluePikmin;
+      //random colors!
+      pikmin->type = (PikminType)(rand() % 3);
       pikmin->entity->body()->position = {
         fixed::FromInt(-10 + j * 5 + 64),
         0_f,
@@ -160,7 +161,7 @@ void InitCaptain() {
   //g_captain_state.game = &g_game;
   CaptainState* captain = g_game.SpawnObject<CaptainState>();
   g_engine.TargetEntity(captain->entity);
-  captain->entity->body()->position = Vec3{64_f,0_f,-64_f};
+  captain->entity->body()->position = Vec3{64_f,0_f,-62_f};
 
 }
 
