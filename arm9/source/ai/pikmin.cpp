@@ -43,6 +43,8 @@ void InitAlways(PikminState& pikmin) {
   body->is_pikmin = 1;
   body->is_movable = 1;
   body->sensor_groups = WHISTLE_GROUP;
+
+  pikmin.entity->important = false;
 }
 
 void IdleAlways(PikminState& pikmin) {
