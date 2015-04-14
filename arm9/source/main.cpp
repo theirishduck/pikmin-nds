@@ -14,6 +14,7 @@
 
 #include "ai/pikmin.h"
 #include "ai/captain.h"
+#include "ai/onion.h"
 
 // Included to debug texture loading.
 #include "piki_eyes_img_bin.h"
@@ -27,6 +28,8 @@
 #include "checkerboard_img_bin.h"
 #include "cursor_img_bin.h"
 #include "bad_whistle_img_bin.h"
+#include "flower_img_bin.h"
+#include "redonion_img_bin.h"
 
 // Level data and heightmaps
 #include "sandbox_height_bin.h"
@@ -40,13 +43,15 @@ using pikmin_ai::PikminType;
 
 using captain_ai::CaptainState;
 
+using onion_ai::OnionState;
+
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 
 using debug::Topic;
 
-s32 const kTestPikmin{50};
+s32 const kTestPikmin{100};
 
 MultipassEngine g_engine;
 Game g_game(g_engine);
@@ -114,6 +119,8 @@ void LoadTextures() {
   g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size);
   g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size);
   g_game.TextureAllocator()->Load("bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size);
+  g_game.TextureAllocator()->Load("flower", flower_img_bin, flower_img_bin_size);
+  g_game.TextureAllocator()->Load("redonion", redonion_img_bin, redonion_img_bin_size);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -155,6 +162,10 @@ void SetupDemoStage() {
   g_engine.AddEntity(sandbox);
   //g_engine.World().SetHeightmap(sandbox_height_bin);
   g_engine.World().SetHeightmap(checkerboard_height_bin);
+
+  //spawn in an onion!
+  auto onion = g_game.SpawnObject<OnionState>();
+  onion->entity->body()->position = Vec3{64_f, 0_f, -72_f};
 }
 
 void InitCaptain() {

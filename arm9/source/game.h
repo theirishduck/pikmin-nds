@@ -5,6 +5,7 @@
 #include "drawable_entity.h"
 #include "ai/pikmin.h"
 #include "ai/captain.h"
+#include "ai/onion.h"
 #include <list>
 
 #include "debug.h"
@@ -30,6 +31,8 @@ class Game {
   std::list<DrawableEntity*> entities_;
 
   std::array<pikmin_ai::PikminState, 100> pikmin_;
+  std::array<onion_ai::OnionState*, 3> onions_;
+  int num_onions_{0};
   captain_ai::CaptainState* captain_;
 
   DrawableEntity* allocate_entity();
@@ -38,13 +41,9 @@ class Game {
   template <typename StateType>
   void CleanupObject(StateType* object) {
     engine.RemoveEntity(object->entity);
-    debug::nocashNumber(1);
     entities_.remove(object->entity);
-    debug::nocashNumber(2);
     delete object->entity;
-    debug::nocashNumber(3);
     delete object;
-    debug::nocashNumber(4);
   }
 
   template <typename StateType>

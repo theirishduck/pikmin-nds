@@ -2,6 +2,7 @@
 
 using pikmin_ai::PikminState;
 using captain_ai::CaptainState;
+using onion_ai::OnionState;
 
 Game::Game(MultipassEngine& engine) : engine{engine} {
 }
@@ -20,6 +21,15 @@ DrawableEntity* Game::allocate_entity() {
   entities_.push_back(new DrawableEntity());
   engine.AddEntity(entities_.back());
   return entities_.back();
+}
+
+template <>
+OnionState* Game::SpawnObject<OnionState>() {
+  if (num_onions_ < 3) {
+    onions_[num_onions_] = InitObject<OnionState>();
+    return onions_[num_onions_++];
+  }
+  return nullptr;
 }
 
 template <>
@@ -93,6 +103,10 @@ void Game::Step() {
     } else {
       i++;
     }
+  }
+
+  for (int o = 0; o < num_onions_; o++) {
+    onion_ai::machine.RunLogic(*onions_[o]);
   }
 
   debug::DisplayValue("pik pos", pikmin_[0].entity->body()->position);
