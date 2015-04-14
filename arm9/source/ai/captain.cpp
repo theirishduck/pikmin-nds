@@ -4,6 +4,7 @@
 #include "dsgx.h"
 #include "multipass_engine.h"
 #include "game.h"
+#include "trig.h"
 
 // Model data
 #include "olimar_dsgx.h"
@@ -114,14 +115,14 @@ void MoveCaptain(CaptainState& captain) {
 
   // Apply velocity in the direction of the current angle.
   auto body = captain.entity->body();
-  body->velocity.x.data_ = cosLerp(captain.current_angle.data_);
-  body->velocity.z.data_ = -sinLerp(captain.current_angle.data_);
+  body->velocity.x = trig::CosLerp(captain.current_angle);
+  body->velocity.z = -trig::SinLerp(captain.current_angle);
   body->velocity.x *= 0.4_f;
   body->velocity.z *= 0.4_f;
 
   auto cursor_body = captain.cursor->body();
-  cursor_body->velocity.x = body->velocity.x * 4_f;
-  cursor_body->velocity.z = body->velocity.z * 4_f;
+  cursor_body->velocity.x = body->velocity.x * 3_f;
+  cursor_body->velocity.z = body->velocity.z * 3_f;
 
   // Clamp the cursor to a certain distance from the captain
   Vec2 captain_xz = Vec2{body->position.x, body->position.z};
@@ -162,9 +163,9 @@ void GrabPikmin(CaptainState& captain) {
   //Move the pikmin to olimar's hand
   auto pikmin_body = pikmin->entity->body();
   pikmin_body->position = captain.entity->body()->position;
-  pikmin_body->position.x.data_ += cosLerp(captain.current_angle.data_);
+  pikmin_body->position.x += trig::CosLerp(captain.current_angle);
   pikmin_body->position.y += 0.5_f;
-  pikmin_body->position.z.data_ += -sinLerp(captain.current_angle.data_);
+  pikmin_body->position.z += -trig::SinLerp(captain.current_angle);
   pikmin->parent = captain.entity;
   captain.held_pikmin = pikmin;
 }

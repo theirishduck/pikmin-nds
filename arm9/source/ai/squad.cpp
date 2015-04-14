@@ -143,16 +143,7 @@ void UpdateTriangleShape(SquadState& squad) {
 
     // rotate our start and our delta
     auto rot_angle = squad.captain->entity->AngleTo(squad.captain->cursor);
-    /*rank_start = Vec2{
-      rank_start.x * CosLerp(rot_angle) - rank_start.y * SinLerp(rot_angle),
-      -rank_start.x * SinLerp(rot_angle) - rank_start.y * CosLerp(rot_angle),
-    };*/
     rank_start = rank_start.Rotate(rot_angle);
-
-    /*rank_delta = Vec2{
-      rank_delta.x * CosLerp(rot_angle) - rank_delta.y * SinLerp(rot_angle),
-      -rank_delta.x * SinLerp(rot_angle) - rank_delta.y * CosLerp(rot_angle),
-    };*/
     rank_delta = rank_delta.Rotate(rot_angle);
 
     Vec2 rank_pos = rank_start;
