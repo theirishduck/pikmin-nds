@@ -67,6 +67,8 @@ class DrawableEntity {
 
   void SetAnimation(std::string name);
 
+  bool important{true};
+
  private:
   DrawState current_;
   DrawState cached_;

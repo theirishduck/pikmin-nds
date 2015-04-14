@@ -295,6 +295,20 @@ void MultipassEngine::GatherPassList() {
     pass_list_.push_back(entity);
     polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
   }
+  if (polycount >= MAX_POLYGONS_PER_PASS) {
+    // attempt to recover here; *drop* the overlap list, and rebuild it only
+    // out of "important" flagged items; this will have the effect of creating
+    // artifacts for unimportant items (pikmin) but it should cause the render
+    // to succeed, for some definition of success
+    pass_list_.clear();
+    polycount = 0;
+    for (auto entity : overlap_list_) {
+      if (entity.entity->important) {
+        pass_list_.push_back(entity);
+        polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
+      }
+    }
+  }
   overlap_list_.clear();
 
   // Pull entities from the list of all entities to draw this frame until all
@@ -325,7 +339,7 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
       // TODO(Nick) Move the action for this check outside of this function;
       // it doesn't make sense for a simple check to have side effects.
 
-      ClearDrawList();
+      //ClearDrawList();
     }
 
     GFX_FLUSH = 0;
