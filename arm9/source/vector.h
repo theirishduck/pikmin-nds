@@ -4,6 +4,7 @@
 #include <nds/ndstypes.h>
 
 #include "numeric_types.h"
+#include "trig.h"
 
 template <typename T = s32, int F = 12>
 struct Vector3 {
@@ -108,6 +109,13 @@ struct Vector2 {
     result.x.data_ = divf32(x.data_, current_length.data_);
     result.y.data_ = divf32(y.data_, current_length.data_);
     return result;
+  }
+
+  Vector2<T, F> Rotate(numeric_types::Brads angle) const {
+    return Vector2<T, F>{
+      x * trig::CosLerp(angle) - y * trig::SinLerp(angle),
+      -x * trig::SinLerp(angle) - y * trig::CosLerp(angle),
+    };
   }
 
   Vector2 operator+(const Vector2& other) const {

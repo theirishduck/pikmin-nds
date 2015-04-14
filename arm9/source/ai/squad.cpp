@@ -1,6 +1,7 @@
 #include "squad.h"
 #include "pikmin.h"
 #include "captain.h"
+#include "trig.h"
 
 #include <algorithm>
 
@@ -10,6 +11,8 @@ using numeric_types::Brads;
 using numeric_types::fixed;
 
 using pikmin_ai::PikminState;
+
+using namespace trig;
 
 namespace squad_ai {
 
@@ -140,15 +143,17 @@ void UpdateTriangleShape(SquadState& squad) {
 
     // rotate our start and our delta
     auto rot_angle = squad.captain->entity->AngleTo(squad.captain->cursor);
-    rank_start = Vec2{
-      rank_start.x * fixed::FromRaw(cosLerp(rot_angle.data_)) - rank_start.y * fixed::FromRaw(sinLerp(rot_angle.data_)),
-      -rank_start.x * fixed::FromRaw(sinLerp(rot_angle.data_)) - rank_start.y * fixed::FromRaw(cosLerp(rot_angle.data_)),
-    };
+    /*rank_start = Vec2{
+      rank_start.x * CosLerp(rot_angle) - rank_start.y * SinLerp(rot_angle),
+      -rank_start.x * SinLerp(rot_angle) - rank_start.y * CosLerp(rot_angle),
+    };*/
+    rank_start = rank_start.Rotate(rot_angle);
 
-    rank_delta = Vec2{
-      rank_delta.x * fixed::FromRaw(cosLerp(rot_angle.data_)) - rank_delta.y * fixed::FromRaw(sinLerp(rot_angle.data_)),
-      -rank_delta.x * fixed::FromRaw(sinLerp(rot_angle.data_)) - rank_delta.y * fixed::FromRaw(cosLerp(rot_angle.data_)),
-    };
+    /*rank_delta = Vec2{
+      rank_delta.x * CosLerp(rot_angle) - rank_delta.y * SinLerp(rot_angle),
+      -rank_delta.x * SinLerp(rot_angle) - rank_delta.y * CosLerp(rot_angle),
+    };*/
+    rank_delta = rank_delta.Rotate(rot_angle);
 
     Vec2 rank_pos = rank_start;
     int rank_index = 0;
