@@ -27,7 +27,7 @@
 // Field of view, used by all 3D perspective transformations. (Ignored by ortho
 // projections)
 #ifndef FIELD_OF_VIEW
-#define FIELD_OF_VIEW 45.0
+#define FIELD_OF_VIEW 45.0_brad
 #endif
 
 // Maximum number of Physics Bodies that can be declared.

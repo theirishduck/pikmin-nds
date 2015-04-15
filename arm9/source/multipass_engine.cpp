@@ -100,36 +100,40 @@ Brads MultipassEngine::CameraAngle() {
   return camera_.GetAngle();
 }
 
-void ClipFriendlyPerspective(s32 near, s32 far, float angle) {
+void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   // Setup a projection matrix that, critically, does not scale Z-values. This
   // ensures that no matter how the near and far plane are set, the resulting
   // z-coordinate is not stretched or squashed, and is more or less accurate.
   // (within rounding errors.) This is necessary for the clip planes to work
   // consistently between passes, at the cost of being slightly less accurate
   // when calculating depth values. (This is hardly noticable.)
-  int ang = degreesToAngle(angle);
-  int sine = sinLerp(ang);
-  int cosine = sinLerp(ang);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
 
-  MATRIX_MULT4x4 = divf32((3 * cosine), (4 * sine));
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = 0;
+  fixed sine = trig::SinLerp(angle);
+  //fixed cosine = trig::CosLerp(angle);
+  fixed cosine = trig::SinLerp(angle);
 
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = divf32(cosine, sine);
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = 0;
+  MATRIX_LOAD4x4  = (((3_f * cosine) / (4_f * sine)).data_);
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = 0;
 
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = -divf32(far + near, far - near);
-  MATRIX_MULT4x4 = floattof32(-1.0);
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = (cosine / sine).data_;
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = 0;
 
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = 0;
-  MATRIX_MULT4x4 = -divf32(2 * mulf32(far, near), far - near);
-  MATRIX_MULT4x4 = 0;
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = -((far + near) / (far - near)).data_;
+  MATRIX_LOAD4x4  = (-1.0_f).data_;
+
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = 0;
+  MATRIX_LOAD4x4  = -((2_f * (far * near)) / (far - near)).data_;
+  MATRIX_LOAD4x4  = 0;
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void MultipassEngine::GatherDrawList() {
@@ -137,10 +141,7 @@ void MultipassEngine::GatherDrawList() {
   // without having to accout for errors caused by the clip plane.
   // 256 will be our backplane because it's a good largeish number which
   // reduces rouding errors.
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  ClipFriendlyPerspective(floattof32(0.1), floattof32(256.0), FIELD_OF_VIEW);
-  glMatrixMode(GL_MODELVIEW);
+  ClipFriendlyPerspective(0.1_f, 256.0_f, FIELD_OF_VIEW);
 
   // Reset to the identity matrix in prep for calculations.
   glLoadIdentity();
@@ -157,8 +158,13 @@ void MultipassEngine::GatherDrawList() {
     EntityContainer container;
     container.entity = entity;
     fixed object_z = entity->GetRealModelZ();
-    container.far_z  = object_z + state.actor->Radius();
-    container.near_z = object_z - state.actor->Radius();
+    if (entity->important) {
+      container.far_z  = object_z + state.actor->Radius();
+      container.near_z = object_z - state.actor->Radius();
+    } else {
+      container.far_z  = object_z;
+      container.near_z = object_z;
+    }
 
     draw_list_.push(container);
   }
@@ -217,10 +223,7 @@ void MultipassEngine::DrawClearPlane() {
 
   // Because the rear texture needs to cover the whole screen no matter what,
   // draw it using an orthagonal projection.
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  ClipFriendlyPerspective(floattof32(0.1), floattof32(768.0), 1000.0);
-  glMatrixMode(GL_MODELVIEW);
+  ClipFriendlyPerspective(0.1_f, 768.0_f, 1000.0_brad);
   glLoadIdentity();
 
   // Set the draw mode to quad, set up the texture format, and draw the back
@@ -339,7 +342,7 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
       // TODO(Nick) Move the action for this check outside of this function;
       // it doesn't make sense for a simple check to have side effects.
 
-      //ClearDrawList();
+      ClearDrawList();
     }
 
     GFX_FLUSH = 0;
@@ -373,12 +376,7 @@ void MultipassEngine::SetupDividingPlane() {
 
   // Set up the matrices for the render based on the near and far plane
   // calculations.
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  ClipFriendlyPerspective(near_plane_.data_, far_plane_.data_, FIELD_OF_VIEW);
-  /*printf("\x1b[%d;0H(%d)n: %.3f f: %.3f\n", current_pass_ + 1, current_pass_,
-      (float)near_plane_, (float)far_plane_);*/
-  glMatrixMode(GL_MODELVIEW);
+  ClipFriendlyPerspective(near_plane_, far_plane_, FIELD_OF_VIEW);
   glLoadIdentity();
   camera_.ApplyTransform();
 }
@@ -508,3 +506,4 @@ void MultipassEngine::Draw() {
   }
   debug::EndTopic(Topic::kIdle);
 }
+
