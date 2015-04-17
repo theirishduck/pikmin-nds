@@ -376,7 +376,8 @@ void MultipassEngine::SetupDividingPlane() {
 
   // Set up the matrices for the render based on the near and far plane
   // calculations.
-  ClipFriendlyPerspective(near_plane_, far_plane_, FIELD_OF_VIEW);
+  //ClipFriendlyPerspective(near_plane_, far_plane_, FIELD_OF_VIEW);
+  ClipFriendlyPerspective(0.1_f, far_plane_, FIELD_OF_VIEW);
   glLoadIdentity();
   camera_.ApplyTransform();
 }
@@ -432,6 +433,15 @@ void MultipassEngine::DrawPassList() {
       glLight(0, RGB15(15, 15, 15), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
       glLight(1, RGB15(15, 15, 15), floattov10(0.32), floattov10(0.32), floattov10(0.32));
     }//*/
+
+    /*
+    if (container.entity->important) {
+      //draw using the clipping matrix
+      ClipFriendlyPerspective(near_plane_, far_plane_, FIELD_OF_VIEW);
+    } else {
+      //ignore the front clipping  matrix (this is a hack)
+      ClipFriendlyPerspective(0.1_f, 256_f, FIELD_OF_VIEW);
+    }*/
 
     glPushMatrix();
     container.entity->Draw();
