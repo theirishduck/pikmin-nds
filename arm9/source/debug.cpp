@@ -130,8 +130,32 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
   {debug::Topic::kPassInit, {
     "PassInit",
     RGB8(255, 255, 0)}},
-  {debug::Topic::kDraw, {
-    "Draw",   
+  {debug::Topic::kPass1, {
+    "Pass1",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass2, {
+    "Pass2",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass3, {
+    "Pass3",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass4, {
+    "Pass4",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass5, {
+    "Pass5",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass6, {
+    "Pass6",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass7, {
+    "Pass7",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass8, {
+    "Pass8",   
+    RGB8(0, 0, 255)}},
+  {debug::Topic::kPass9, {
+    "Pass9",   
     RGB8(0, 0, 255)}},
   {debug::Topic::kIdle, {
     "Idle",   
@@ -145,20 +169,22 @@ void UpdateTimingMode() {
 
   // For every topic, output the timing on its own line
   for (int i = 0; i < static_cast<int>(debug::Topic::kNumTopics); i++) {  
-    if (i & 0x1) {
-      printf("\x1b[39m");
-    } else {
-      printf("\x1b[37m");
+    if (g_timing_results[i].delta() > 0) {
+      if (i & 0x1) {
+        printf("\x1b[39m");
+      } else {
+        printf("\x1b[37m");
+      }
+      int displayLine = i + 2;
+      // Print out the topic name if we have it, otherwise print out something
+      // generic
+      if (g_topic_info.count((debug::Topic)i)) {
+        printf("\x1b[%d;0H%s", displayLine, g_topic_info[(debug::Topic)i].name);
+      } else {
+        printf("\x1b[%d;0HTopic:%d", displayLine, i);
+      }
+      printf("\x1b[%d;21H%10lu", displayLine, g_timing_results[i].delta());
     }
-    int displayLine = i + 2;
-    // Print out the topic name if we have it, otherwise print out something
-    // generic
-    if (g_topic_info.count((debug::Topic)i)) {
-      printf("\x1b[%d;0H%s", displayLine, g_topic_info[(debug::Topic)i].name);
-    } else {
-      printf("\x1b[%d;0HTopic:%d", displayLine, i);
-    }
-    printf("\x1b[%d;21H%10lu", displayLine, g_timing_results[i].delta());
   }
 
   // Reset the colors when we're done

@@ -421,28 +421,9 @@ bool MultipassEngine::ValidateDividingPlane() {
 
 void MultipassEngine::DrawPassList() {
   // Draw the entities for the pass.
-  debug::StartTopic(Topic::kDraw);
-  //int o = 0;
+  debug::StartTopic((Topic)((int)Topic::kPass1 + current_pass_));
+  
   for (auto& container : pass_list_) {
-    //glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
-    //glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(0.32), floattov10(0.32));
-    /*
-    // TODO(Nick): Set this up to be turned on and off using a debug flag
-    if (o++ < overlaps_count) {
-      // Highlight the entities that are straddling passes by dimming them.
-      glLight(0, RGB15(15, 15, 15), floattov10(-0.40), floattov10(0.32), floattov10(0.27));
-      glLight(1, RGB15(15, 15, 15), floattov10(0.32), floattov10(0.32), floattov10(0.32));
-    }//*/
-
-    /*
-    if (container.entity->important) {
-      //draw using the clipping matrix
-      ClipFriendlyPerspective(near_plane_, far_plane_, FIELD_OF_VIEW);
-    } else {
-      //ignore the front clipping  matrix (this is a hack)
-      ClipFriendlyPerspective(0.1_f, 256_f, FIELD_OF_VIEW);
-    }*/
-
     glPushMatrix();
     container.entity->Draw();
     glPopMatrix(1);
@@ -453,7 +434,7 @@ void MultipassEngine::DrawPassList() {
       overlap_list_.push_back(container);
     }
   }
-  debug::EndTopic(Topic::kDraw);
+  debug::EndTopic((Topic)((int)Topic::kPass1 + current_pass_));
 }
 
 

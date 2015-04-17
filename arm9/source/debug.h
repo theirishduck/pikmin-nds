@@ -33,7 +33,15 @@ enum Topic {
   kUpdate,
   kFrameInit,
   kPassInit,
-  kDraw,
+  kPass1,
+  kPass2,
+  kPass3,
+  kPass4,
+  kPass5,
+  kPass6,
+  kPass7,
+  kPass8,
+  kPass9,
   kIdle,
   kNumTopics
 };
