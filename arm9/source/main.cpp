@@ -32,7 +32,6 @@
 #include "redonion_img_bin.h"
 
 // Level data and heightmaps
-#include "sandbox_height_bin.h"
 #include "checkerboard_height_bin.h"
 
 using entities::PelletPosy;
@@ -55,11 +54,6 @@ s32 const kTestPikmin{100};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
-
-DrawableEntity g_pikmin_entity[kTestPikmin];
-PikminState g_pikmin_state[kTestPikmin];
-//DrawableEntity g_captain;
-//CaptainState g_captain_state;
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -88,8 +82,6 @@ void InitMainScreen() {
   glEnable(GL_TEXTURE_2D | GL_BLEND);
 
   glClearColor(4, 4, 4, 31);
-  // TODO(Nick?) Play with this - it may be why there used to be clipping at
-  // the back plane.
   glClearDepth(0x7FFF);
   glViewport(0, 0, 255, 191);
 
@@ -107,7 +99,6 @@ void LoadTextures() {
   // switching it back to texture mode.
   vramSetBankC(VRAM_C_LCD);
 
-  //dmaCopy(piki_eyes_img_bin, VRAM_C, piki_eyes_img_bin_size);
   g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
   g_game.TextureAllocator()->Load("piki_leaf", piki_leaf_img_bin, piki_leaf_img_bin_size);
   g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
@@ -133,20 +124,11 @@ void SetupDemoPikmin() {
       //random colors!
       pikmin->type = (PikminType)(rand() % 3);
       //pikmin->type = PikminType::kRedPikmin;
+
       pikmin->entity->body()->position = {
         fixed::FromInt(-10 + j * 2 + 64),
         0_f,
         fixed::FromInt(-1 - i * -1 - 64)};
-      /*/
-      g_pikmin_state[i + j].entity = &g_pikmin_entity[i + j];
-      g_pikmin_state[i + j].type = PikminType::kRedPikmin;
-      g_pikmin_state[i + j].id = i + j;
-      g_engine.AddEntity(&g_pikmin_entity[i + j]);
-      g_pikmin_entity[i + j].body()->position = {
-        fixed::FromInt(-10 + j * 5),
-        0_f,
-        fixed::FromInt(-1 - i * -1)};
-      //*/
     }
   }
 }
@@ -160,7 +142,6 @@ void SetupDemoStage() {
   //load in the test level
   Level* sandbox = new Level(g_game.TextureAllocator());
   g_engine.AddEntity(sandbox);
-  //g_engine.World().SetHeightmap(sandbox_height_bin);
   g_engine.World().SetHeightmap(checkerboard_height_bin);
 
   //spawn in an onion!
@@ -169,10 +150,6 @@ void SetupDemoStage() {
 }
 
 void InitCaptain() {
-  //g_captain_state.entity = &g_captain;
-  //g_engine.AddEntity(&g_captain);
-  //g_engine.TargetEntity(&g_captain);
-  //g_captain_state.game = &g_game;
   CaptainState* captain = g_game.SpawnObject<CaptainState>();
   g_engine.TargetEntity(captain->entity);
   captain->entity->body()->position = Vec3{64_f,0_f,-62_f};
@@ -183,27 +160,15 @@ void Init() {
   InitMainScreen();
   InitSubScreen();
 
-  printf("\x1b[37mTEST\x1b[39m");
-  debug::DisplayValue("Answer", 42);
-
   LoadTextures();
   SetupDemoPikmin();
   InitCaptain();
   SetupDemoStage();
   
-  
-
   glPushMatrix();
 }
 
 void RunLogic() {
-  //TODO: Make this more powerful, handle spawning objects and levels and stuff
-  for (int i = 0; i < kTestPikmin; i++) {
-    pikmin_ai::machine.RunLogic(g_pikmin_state[i]);
-  }
-
-  //captain_ai::machine.RunLogic(g_captain_state);
-
   g_game.Step();
 }
 
@@ -218,9 +183,6 @@ void GameLoop() {
     debug::StartTopic(Topic::kUpdate);
     RunLogic();
     debug::EndTopic(Topic::kUpdate);
-
-    //debug::DisplayValue("Olimar Pos: ", g_captain_state.entity->body()->position);
-    //debug::DisplayValue("Olimar Vel: ", g_captain_state.entity->body()->velocity);
 
     g_engine.Update();
     g_engine.Draw();
