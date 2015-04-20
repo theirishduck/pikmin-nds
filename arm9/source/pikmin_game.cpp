@@ -1,20 +1,20 @@
-#include "game.h"
+#include "pikmin_game.h"
 
 using pikmin_ai::PikminState;
 using captain_ai::CaptainState;
 using onion_ai::OnionState;
 
-Game::Game(MultipassEngine& engine) : engine{engine} {
+PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
 }
 
-Game::~Game() {
+PikminGame::~PikminGame() {
 }
 
-VramAllocator* Game::TextureAllocator() {
+VramAllocator* PikminGame::TextureAllocator() {
   return &texture_allocator_;
 }
 
-DrawableEntity* Game::allocate_entity() {
+DrawableEntity* PikminGame::allocate_entity() {
   if (entities_.size() >= kMaxEntities) {
     return nullptr;
   }
@@ -24,7 +24,7 @@ DrawableEntity* Game::allocate_entity() {
 }
 
 template <>
-OnionState* Game::SpawnObject<OnionState>() {
+OnionState* PikminGame::SpawnObject<OnionState>() {
   if (num_onions_ < 3) {
     onions_[num_onions_] = InitObject<OnionState>();
     return onions_[num_onions_++];
@@ -33,7 +33,7 @@ OnionState* Game::SpawnObject<OnionState>() {
 }
 
 template <>
-PikminState* Game::SpawnObject<PikminState>() {
+PikminState* PikminGame::SpawnObject<PikminState>() {
   // find an available slot for this pikmin
   int slot = 0;
   while (slot < 100 and pikmin_[slot].active) { slot++; }
@@ -58,7 +58,7 @@ PikminState* Game::SpawnObject<PikminState>() {
 }
 
 template<>
-void Game::RemoveObject<PikminState>(PikminState* object) {
+void PikminGame::RemoveObject<PikminState>(PikminState* object) {
   // similar to cleanup object, again minus the state allocation
   pikmin_[object->id].active = false;
   engine.RemoveEntity(object->entity);
@@ -67,7 +67,7 @@ void Game::RemoveObject<PikminState>(PikminState* object) {
 }
 
 template <>
-CaptainState* Game::SpawnObject<CaptainState>() {
+CaptainState* PikminGame::SpawnObject<CaptainState>() {
   if (captain_) {
     return captain_;
   }
@@ -79,7 +79,7 @@ CaptainState* Game::SpawnObject<CaptainState>() {
 }
 
 template<>
-void Game::RemoveObject<CaptainState>(CaptainState* object) {
+void PikminGame::RemoveObject<CaptainState>(CaptainState* object) {
   engine.RemoveEntity(object->cursor);
   entities_.remove(object->cursor);
   delete object->cursor;
@@ -87,7 +87,7 @@ void Game::RemoveObject<CaptainState>(CaptainState* object) {
   CleanupObject(object);
 }
 
-void Game::Step() {
+void PikminGame::Step() {
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
     squad_ai::machine.RunLogic((*captain_).squad);

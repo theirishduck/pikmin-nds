@@ -1,6 +1,6 @@
 #include "pikmin.h"
 #include "captain.h"
-#include "game.h"
+#include "pikmin_game.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"

@@ -3,7 +3,7 @@
 #include <nds/arm9/input.h>
 #include "dsgx.h"
 #include "multipass_engine.h"
-#include "game.h"
+#include "pikmin_game.h"
 #include "trig.h"
 
 // Model data

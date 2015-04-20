@@ -1,5 +1,5 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef PIKMIN_GAME_H
+#define PIKMIN_GAME_H
 
 #include "multipass_engine.h"
 #include "drawable_entity.h"
@@ -11,10 +11,10 @@
 #include "debug.h"
 #include "vram_allocator.h"
 
-class Game {
+class PikminGame {
  public:
-  Game(MultipassEngine& engine);
-  ~Game();
+  PikminGame(MultipassEngine& engine);
+  ~PikminGame();
 
   template <typename StateType> 
   StateType* SpawnObject();

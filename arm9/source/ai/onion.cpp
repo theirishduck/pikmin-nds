@@ -1,7 +1,7 @@
 #include "onion.h"
 
 #include "dsgx.h"
-#include "game.h"
+#include "pikmin_game.h"
 
 // Model data
 #include "redonion_dsgx.h"

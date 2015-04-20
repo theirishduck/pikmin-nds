@@ -6,7 +6,7 @@
 #include <nds.h>
 
 #include "multipass_engine.h"
-#include "game.h"
+#include "pikmin_game.h"
 #include "debug.h"
 
 #include "entities/pellet_posy.h"
@@ -54,7 +54,7 @@ using debug::Topic;
 s32 const kTestPikmin{100};
 
 MultipassEngine g_engine;
-Game g_game(g_engine);
+PikminGame g_game(g_engine);
 
 DrawableEntity g_pikmin_entity[kTestPikmin];
 PikminState g_pikmin_state[kTestPikmin];
