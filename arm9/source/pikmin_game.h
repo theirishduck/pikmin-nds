@@ -6,6 +6,7 @@
 #include "ai/pikmin.h"
 #include "ai/captain.h"
 #include "ai/onion.h"
+#include "ui.h"
 #include <list>
 
 #include "debug.h"
@@ -24,9 +25,14 @@ class PikminGame {
 
   void Step();
   VramAllocator* TextureAllocator();
+  VramAllocator* SpriteAllocator();
+
+  //useful polling functions
+  captain_ai::CaptainState* ActiveCaptain();
 
  private:
   VramAllocator texture_allocator_ = VramAllocator(VRAM_C, 128 * 1024);
+  VramAllocator sprite_allocator_ = VramAllocator(SPRITE_GFX_SUB, 32 * 1024);
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
@@ -34,6 +40,7 @@ class PikminGame {
   std::array<onion_ai::OnionState*, 3> onions_;
   int num_onions_{0};
   captain_ai::CaptainState* captain_;
+  ui::UIState ui_;
 
   DrawableEntity* allocate_entity();
   MultipassEngine& engine;

@@ -1,9 +1,14 @@
 #include "vram_allocator.h"
+#include "debug.h"
+
+using debug::nocashNumber;
 
 VramAllocator::VramAllocator(u16* base, u32 size) {
   this->base_ = base;
   this->end_ = base + size / sizeof(u16);
   this->next_element_ = base;
+  nocashMessage("Constructor called with size: ");
+  nocashNumber(size);
 }
 
 VramAllocator::~VramAllocator() {
@@ -17,7 +22,14 @@ u16* VramAllocator::Load(std::string name, const u8* data, u32 size) {
   }
 
   if (next_element_ + size / sizeof(u16) > end_) {
-    nocashMessage("Not enough room!");
+    nocashMessage("Not enough room for:");
+    nocashMessage(name.c_str());
+    nocashMessage("next element was:");
+    nocashNumber((int)next_element_);
+    nocashMessage("size was:");
+    nocashNumber((int)size);
+    nocashMessage("end was:");
+    nocashNumber((int)end_);
     return 0; // we don't have enough room for this object! and there was
               // panic. much panic.
   }
@@ -50,4 +62,8 @@ u16* VramAllocator::Retrieve(std::string name) {
 
 u16* VramAllocator::Base() {
   return base_;
+}
+
+void VramAllocator::Reset() {
+  next_element_ = base_;
 }

@@ -186,7 +186,9 @@ void GameLoop() {
 
     g_engine.Update();
     g_engine.Draw();
-    debug::Update();
+    //debug::Update();
+
+    oamUpdate(&oamSub);
   }
 }
 

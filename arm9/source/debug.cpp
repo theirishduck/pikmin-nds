@@ -162,7 +162,7 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
     RGB8(48, 48, 48)}},
 };
 
-void UpdateTimingMode() {
+void debug::UpdateTimingMode() {
   // Clear the screen
   printf("\x1b[2J");
   printf("-------------TIMING-------------");
@@ -207,7 +207,7 @@ void debug::DisplayValue(const std::string &name, Vec3 value) {
   g_debug_vectors[name] = value;
 }
 
-void UpdateValuesMode() {
+void debug::UpdateValuesMode() {
   // Clear the screen
   printf("\x1b[2J");
   printf("-------------VALUES-------------");

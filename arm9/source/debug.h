@@ -23,6 +23,8 @@ void DrawGroundPlane(int width, int segments, rgb color = RGB5(0, 0, 0));
 void DrawCircle(Vec3 p, numeric_types::fixed radius, rgb color, u32 segments = 8);
 void _TimingColor(rgb color);
 void Update();
+void UpdateValuesMode();
+void UpdateTimingMode();
 
 void DisplayValue(const std::string &name, int value);
 void DisplayValue(const std::string &name, numeric_types::fixed value);

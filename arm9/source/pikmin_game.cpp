@@ -5,6 +5,7 @@ using captain_ai::CaptainState;
 using onion_ai::OnionState;
 
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
+  ui_.game = this;
 }
 
 PikminGame::~PikminGame() {
@@ -12,6 +13,10 @@ PikminGame::~PikminGame() {
 
 VramAllocator* PikminGame::TextureAllocator() {
   return &texture_allocator_;
+}
+
+VramAllocator* PikminGame::SpriteAllocator() {
+  return &sprite_allocator_;
 }
 
 DrawableEntity* PikminGame::allocate_entity() {
@@ -109,6 +114,11 @@ void PikminGame::Step() {
     onion_ai::machine.RunLogic(*onions_[o]);
   }
 
-  debug::DisplayValue("pik pos", pikmin_[0].entity->body()->position);
-  debug::DisplayValue("pik vel", pikmin_[0].entity->body()->velocity);
+  ui::machine.RunLogic(ui_);
+
+  
+}
+
+CaptainState* PikminGame::ActiveCaptain() {
+  return captain_;
 }
