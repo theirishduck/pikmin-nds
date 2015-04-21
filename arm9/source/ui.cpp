@@ -37,18 +37,11 @@ void BubbleNumber(int index, int x, int y, int value, int cells) {
 }
 
 void InitNavPad(UIState& ui) {
-  // just in case there's anything on the debug screen, kill it with fire
-  printf("\x1b[2J");
-
   // Set up the video modes for the NavPad
   vramSetBankH(VRAM_H_SUB_BG);
   vramSetBankI(VRAM_I_SUB_SPRITE);
   videoSetModeSub(MODE_2_2D);
   oamInit(&oamSub, SpriteMapping_1D_32, false);
-  //oamClear(&oamSub, 0, 0);
-
-  // Clear out old sprite data; it's *our* turn to play!
-  //ui.game->SpriteAllocator()->Reset();
 
   // copy in the bubble font data, for number updating
   memcpy(&SPRITE_PALETTE_SUB[0], bubblefont_pal_bin, bubblefont_pal_bin_size);
@@ -78,9 +71,10 @@ void InitDebug(UIState& ui) {
 }
 
 void UpdateNavPad(UIState& ui) {
-  BubbleNumber(0, 64, 0, ui.game->ActiveCaptain()->squad.squad_size, 3);
-  //BubbleNumber(0, 64, 0, 44);
-  oamUpdate(&oamSub);
+  // Update pikmin counts
+  BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
+  BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
+  BubbleNumber(106, 158, 168, ui.game->PikminInField(), 3);
 }
 
 void UpdateDebugValues(UIState& ui) {

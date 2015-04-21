@@ -122,3 +122,13 @@ void PikminGame::Step() {
 CaptainState* PikminGame::ActiveCaptain() {
   return captain_;
 }
+
+int PikminGame::PikminInField() {
+  int count = 0;
+  for (int slot = 0; slot < 100; slot++) {
+    if (pikmin_[slot].active) {
+      count++;
+    }
+  }
+  return count;
+}

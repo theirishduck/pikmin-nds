@@ -29,6 +29,7 @@ class PikminGame {
 
   //useful polling functions
   captain_ai::CaptainState* ActiveCaptain();
+  int PikminInField();
 
  private:
   VramAllocator texture_allocator_ = VramAllocator(VRAM_C, 128 * 1024);
