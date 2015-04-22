@@ -50,6 +50,20 @@ u16* VramAllocator::Load(std::string name, const u8* data, u32 size) {
   return destination;
 }
 
+// Replaces a given asset with a modified version. Does NOT resize the heap;
+// use this only with new assets that are the same size as the original.
+u16* VramAllocator::Replace(std::string name, const u8* data, u32 size) {
+  if (loaded_assets.count(name) > 0) {
+    u16* destination = loaded_assets[name];
+    dmaCopy(data, destination, size);
+    return loaded_assets[name];
+  } else {
+    nocashMessage("Couldn't replace; doesn't exist!");
+    nocashMessage(name.c_str());
+    return nullptr;
+  }
+}
+
 u16* VramAllocator::Retrieve(std::string name) {
   if (loaded_assets.count(name) > 0) {
     return loaded_assets[name];

@@ -12,6 +12,7 @@ class VramAllocator {
     ~VramAllocator();
 
     u16* Load(std::string name, const u8* data, u32 size);
+    u16* Replace(std::string name, const u8* data, u32 size);
     u16* Retrieve(std::string name);
     void Reset();
 
