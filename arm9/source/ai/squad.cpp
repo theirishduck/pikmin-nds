@@ -16,6 +16,14 @@ using namespace trig;
 
 namespace squad_ai {
 
+PikminState* SquadState::NextPikmin() {
+  // Later: make this consider proximity to olimar perhaps?
+  if (squad_size > 0) {
+    return pikmin[0];
+  }
+  return nullptr;
+}
+
 void SquadState::AddPikmin(PikminState* new_pikmin) {
   pikmin[squad_size] = new_pikmin;
   new_pikmin->current_squad = this;

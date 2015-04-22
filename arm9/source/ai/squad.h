@@ -23,6 +23,7 @@ struct SquadState : ObjectState {
   void AddPikmin(pikmin_ai::PikminState* pikmin);
   void RemovePikmin(pikmin_ai::PikminState* pikmin);
   void SortPikmin(const pikmin_ai::PikminState* selected_pikmin);
+  pikmin_ai::PikminState* NextPikmin();
 };
 
 extern StateMachine<SquadState> machine;

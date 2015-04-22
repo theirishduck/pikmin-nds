@@ -6,6 +6,7 @@
 namespace ui {
 
 struct UIState : ObjectState {
+  
 };
 
 extern StateMachine<UIState> machine;

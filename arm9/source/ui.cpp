@@ -9,11 +9,28 @@
 #include "bubblefont_img_bin.h"
 #include "bubblefont_pal_bin.h"
 
+#include "red_button_light_img_bin.h"
+#include "red_button_light_pal_bin.h"
+#include "red_button_dark_img_bin.h"
+#include "red_button_dark_pal_bin.h"
+
+#include "yellow_button_lit_img_bin.h"
+#include "yellow_button_lit_pal_bin.h"
+#include "yellow_button_dark_img_bin.h"
+#include "yellow_button_dark_pal_bin.h"
+
+#include "blue_button_lit_img_bin.h"
+#include "blue_button_lit_pal_bin.h"
+#include "blue_button_dark_img_bin.h"
+#include "blue_button_dark_pal_bin.h"
+
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
+
+using pikmin_ai::PikminType;
 
 namespace ui {
 
@@ -36,6 +53,64 @@ void BubbleNumber(int index, int x, int y, int value, int cells) {
   }
 }
 
+void UpdatePikminSelector(UIState& ui, int index, PikminType selected) {
+  // TODO: make this not copy data every frame? perhaps?
+
+  // Red pikmin
+  oamSetHidden(&oamSub, index, false);
+  oamSetXY(&oamSub, index, 0, 0);
+  oamSetPalette(&oamSub, index, 1);
+  oamSetGfx(&oamSub, index, SpriteSize_64x64, SpriteColorFormat_16Color, 
+      ui.game->SpriteAllocator()->Retrieve("redbutton"));
+  
+  // Yellow pikmin
+  oamSetHidden(&oamSub, index + 1, false);
+  oamSetXY(&oamSub, index + 1, 0, 64);
+  oamSetPalette(&oamSub, index + 1, 2);
+  oamSetGfx(&oamSub, index + 1, SpriteSize_64x64, SpriteColorFormat_16Color, 
+      ui.game->SpriteAllocator()->Retrieve("yellowbutton"));
+
+  // Blue pikmin
+  oamSetHidden(&oamSub, index + 2, false);
+  oamSetXY(&oamSub, index + 2, 0, 128);
+  oamSetPalette(&oamSub, index + 2, 3);
+  oamSetGfx(&oamSub, index + 2, SpriteSize_64x64, SpriteColorFormat_16Color, 
+      ui.game->SpriteAllocator()->Retrieve("bluebutton"));
+
+  // Decide which version to display
+  auto next_pikmin = ui.game->ActiveCaptain()->squad.NextPikmin();
+  if (next_pikmin and next_pikmin->type == PikminType::kRedPikmin) {
+    // Use the lit texture
+    memcpy(&SPRITE_PALETTE_SUB[16], red_button_light_pal_bin, red_button_light_pal_bin_size);
+    ui.game->SpriteAllocator()->Replace("redbutton", red_button_light_img_bin, red_button_light_img_bin_size);
+  } else {
+    // Use the dark texture
+    memcpy(&SPRITE_PALETTE_SUB[16], red_button_dark_pal_bin, red_button_dark_pal_bin_size);
+    ui.game->SpriteAllocator()->Replace("redbutton", red_button_dark_img_bin, red_button_dark_img_bin_size);
+  }
+
+  if (next_pikmin and next_pikmin->type == PikminType::kYellowPikmin) {
+    // Use the lit texture
+    memcpy(&SPRITE_PALETTE_SUB[32], yellow_button_lit_pal_bin, yellow_button_lit_pal_bin_size);
+    ui.game->SpriteAllocator()->Replace("yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size);
+  } else {
+    // Use the dark texture
+    memcpy(&SPRITE_PALETTE_SUB[32], yellow_button_dark_pal_bin, yellow_button_dark_pal_bin_size);
+    ui.game->SpriteAllocator()->Replace("yellowbutton", yellow_button_dark_img_bin, yellow_button_dark_img_bin_size);
+  }
+
+  if (next_pikmin and next_pikmin->type == PikminType::kBluePikmin) {
+    // Use the lit texture
+    memcpy(&SPRITE_PALETTE_SUB[48], blue_button_lit_pal_bin, blue_button_lit_pal_bin_size);
+    ui.game->SpriteAllocator()->Replace("bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size);
+  } else {
+    // Use the dark texture
+    memcpy(&SPRITE_PALETTE_SUB[48], blue_button_dark_pal_bin, blue_button_dark_pal_bin_size);
+    ui.game->SpriteAllocator()->Replace("bluebutton", blue_button_dark_img_bin, blue_button_dark_img_bin_size);
+  }
+
+}
+
 void InitNavPad(UIState& ui) {
   // Set up the video modes for the NavPad
   vramSetBankH(VRAM_H_SUB_BG);
@@ -47,6 +122,13 @@ void InitNavPad(UIState& ui) {
   memcpy(&SPRITE_PALETTE_SUB[0], bubblefont_pal_bin, bubblefont_pal_bin_size);
   ui.game->SpriteAllocator()->Load("bubblefont", bubblefont_img_bin, bubblefont_img_bin_size);
   
+  // copy in the pikmin button data
+  memcpy(&SPRITE_PALETTE_SUB[16], red_button_light_pal_bin, red_button_light_pal_bin_size);
+  ui.game->SpriteAllocator()->Load("redbutton", red_button_light_img_bin, red_button_light_img_bin_size);
+  memcpy(&SPRITE_PALETTE_SUB[32], yellow_button_lit_pal_bin, yellow_button_lit_pal_bin_size);
+  ui.game->SpriteAllocator()->Load("yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size);
+  memcpy(&SPRITE_PALETTE_SUB[48], blue_button_lit_pal_bin, blue_button_lit_pal_bin_size);
+  ui.game->SpriteAllocator()->Load("bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size);
 }
 
 // Initialize the console using the full version of the console init function so
@@ -75,6 +157,7 @@ void UpdateNavPad(UIState& ui) {
   BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->PikminInField(), 3);
+  UpdatePikminSelector(ui, 109, PikminType::kRedPikmin);
 }
 
 void UpdateDebugValues(UIState& ui) {

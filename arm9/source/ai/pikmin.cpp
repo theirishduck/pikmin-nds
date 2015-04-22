@@ -21,6 +21,7 @@ Dsgx blue_pikmin_actor((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
 
 void InitAlways(PikminState& pikmin) {
   switch (pikmin.type) {
+    case PikminType::kNone:
     case PikminType::kRedPikmin:
       pikmin.entity->set_actor(&red_pikmin_actor);
       red_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());

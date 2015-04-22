@@ -11,6 +11,7 @@ struct SquadState;
 namespace pikmin_ai {
 
 enum class PikminType {
+  kNone,
   kRedPikmin,
   kYellowPikmin,
   kBluePikmin,
