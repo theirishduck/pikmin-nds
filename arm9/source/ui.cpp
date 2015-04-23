@@ -6,9 +6,11 @@
 
 #include "pikmin_game.h"
 
+// Numbers and fonts
 #include "bubblefont_img_bin.h"
 #include "bubblefont_pal_bin.h"
 
+// Pikmin buttons (and their states)
 #include "red_button_light_img_bin.h"
 #include "red_button_light_pal_bin.h"
 #include "red_button_dark_img_bin.h"
@@ -23,6 +25,12 @@
 #include "blue_button_lit_pal_bin.h"
 #include "blue_button_dark_img_bin.h"
 #include "blue_button_dark_pal_bin.h"
+
+// Map icons
+#include "red_dot_img_bin.h"
+#include "yellow_dot_img_bin.h"
+#include "blue_dot_img_bin.h"
+#include "map_icons_pal_bin.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
@@ -53,7 +61,51 @@ void BubbleNumber(int index, int x, int y, int value, int cells) {
   }
 }
 
-void UpdatePikminSelector(UIState& ui, int index, PikminType selected) {
+void UpdateMapIcons(UIState& ui) {
+  // look these up just once
+  auto red_dot = ui.game->SpriteAllocator()->Retrieve("red_dot");
+  auto yellow_dot = ui.game->SpriteAllocator()->Retrieve("yellow_dot");
+  auto blue_dot = ui.game->SpriteAllocator()->Retrieve("blue_dot");
+
+  auto pikmin = ui.game->Pikmin();
+  auto olimar_position = ui.game->ActiveCaptain()->entity->body()->position;
+  for (int slot = 0; slot < 100; slot++) {
+    if (pikmin[slot].active) {
+      // calculate the on-screen position of these pikmin
+      auto position = pikmin[slot].entity->body()->position;
+      int x = (int)(position.x - olimar_position.x) + 128;
+      int y = (int)(position.z - olimar_position.z) + 96;
+
+      if (x > 0 and y > 0 and x < 256 and y < 192) {
+        // draw the thing!
+        oamSetHidden(&oamSub, slot, false);
+        oamSetXY(&oamSub, slot, x, y);
+        oamSetPalette(&oamSub, slot, 4);
+        switch(pikmin[slot].type) {
+          case PikminType::kNone:
+          case PikminType::kRedPikmin:
+            oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color, 
+              red_dot);
+            break;
+          case PikminType::kYellowPikmin:
+          oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color, 
+            yellow_dot);
+            break;
+          case PikminType::kBluePikmin:
+            oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color, 
+              blue_dot);
+            break;
+        }
+      } else {
+        oamSetHidden(&oamSub, slot, true);
+      }
+    } else {
+      oamSetHidden(&oamSub, slot, false);
+    }
+  }
+}
+
+void UpdatePikminSelector(UIState& ui, int index) {
   // TODO: make this not copy data every frame? perhaps?
 
   // Red pikmin
@@ -129,6 +181,12 @@ void InitNavPad(UIState& ui) {
   ui.game->SpriteAllocator()->Load("yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size);
   memcpy(&SPRITE_PALETTE_SUB[48], blue_button_lit_pal_bin, blue_button_lit_pal_bin_size);
   ui.game->SpriteAllocator()->Load("bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size);
+
+  // setup the map icon data
+  memcpy(&SPRITE_PALETTE_SUB[64], map_icons_pal_bin, map_icons_pal_bin_size);
+  ui.game->SpriteAllocator()->Load("red_dot", red_dot_img_bin, red_dot_img_bin_size);
+  ui.game->SpriteAllocator()->Load("yellow_dot", yellow_dot_img_bin, yellow_dot_img_bin_size);
+  ui.game->SpriteAllocator()->Load("blue_dot", blue_dot_img_bin, blue_dot_img_bin_size);
 }
 
 // Initialize the console using the full version of the console init function so
@@ -157,7 +215,8 @@ void UpdateNavPad(UIState& ui) {
   BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->PikminInField(), 3);
-  UpdatePikminSelector(ui, 109, PikminType::kRedPikmin);
+  UpdatePikminSelector(ui, 109);
+  UpdateMapIcons(ui);
 }
 
 void UpdateDebugValues(UIState& ui) {

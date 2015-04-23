@@ -132,3 +132,7 @@ int PikminGame::PikminInField() {
   }
   return count;
 }
+
+PikminState* PikminGame::Pikmin() {
+  return &pikmin_[0];
+}
