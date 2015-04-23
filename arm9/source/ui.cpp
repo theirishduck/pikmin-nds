@@ -73,8 +73,8 @@ void UpdateMapIcons(UIState& ui) {
     if (pikmin[slot].active) {
       // calculate the on-screen position of these pikmin
       auto position = pikmin[slot].entity->body()->position;
-      int x = (int)(position.x - olimar_position.x) + 128;
-      int y = (int)(position.z - olimar_position.z) + 96;
+      int x = (int)(position.x - olimar_position.x) * 2 + 128;
+      int y = (int)(position.z - olimar_position.z) * 2 + 96;
 
       if (x > 0 and y > 0 and x < 256 and y < 192) {
         // draw the thing!
@@ -211,12 +211,14 @@ void InitDebug(UIState& ui) {
 }
 
 void UpdateNavPad(UIState& ui) {
+  debug::StartTopic(debug::Topic::kUi);
   // Update pikmin counts
   BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->PikminInField(), 3);
   UpdatePikminSelector(ui, 109);
   UpdateMapIcons(ui);
+  debug::EndTopic(debug::Topic::kUi);
 }
 
 void UpdateDebugValues(UIState& ui) {

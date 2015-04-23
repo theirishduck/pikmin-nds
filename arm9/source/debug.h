@@ -45,6 +45,7 @@ enum Topic {
   kPass8,
   kPass9,
   kIdle,
+  kUi,
   kNumTopics
 };
 

@@ -160,6 +160,9 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
   {debug::Topic::kIdle, {
     "Idle",   
     RGB8(48, 48, 48)}},
+  {debug::Topic::kUi, {
+    "UI",   
+    RGB8(48, 48, 48)}},
 };
 
 void debug::UpdateTimingMode() {

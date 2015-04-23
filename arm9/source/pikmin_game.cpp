@@ -114,9 +114,7 @@ void PikminGame::Step() {
     onion_ai::machine.RunLogic(*onions_[o]);
   }
 
-  ui::machine.RunLogic(ui_);
-
-  
+  ui::machine.RunLogic(ui_);  
 }
 
 CaptainState* PikminGame::ActiveCaptain() {
