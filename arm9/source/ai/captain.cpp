@@ -158,7 +158,6 @@ void GrabPikmin(CaptainState& captain) {
   //grab the first pikmin in the squad
   //TODO: this should later be changed to grab the *closest pikmin*
   PikminState* pikmin = captain.squad.pikmin[0];
-  captain.squad.RemovePikmin(pikmin);
 
   //Move the pikmin to olimar's hand
   auto pikmin_body = pikmin->entity->body();
@@ -171,6 +170,8 @@ void GrabPikmin(CaptainState& captain) {
 }
 
 void ThrowPikmin(CaptainState& captain) {
+  captain.squad.RemovePikmin(captain.held_pikmin);
+
   fixed pikmin_y_velocity = 0.8_f;
   if (captain.held_pikmin->type == PikminType::kYellowPikmin) {
     pikmin_y_velocity = 1.0_f;
