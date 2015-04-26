@@ -43,9 +43,7 @@ void MultipassEngine::RemoveEntity(DrawableEntity* entity) {
 }
 
 void MultipassEngine::Update() {
-  scanKeys();
-  touchPosition throwaway;
-  touchRead(&throwaway);
+  scanKeys();  
 
   for (auto entity : entities_) {
     entity->Update();

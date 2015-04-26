@@ -180,9 +180,7 @@ void GameLoop() {
     //start debug timings for this loop
     debug::StartCpuTimer();
 
-    debug::StartTopic(Topic::kUpdate);
     RunLogic();
-    debug::EndTopic(Topic::kUpdate);
 
     g_engine.Update();
     g_engine.Draw();

@@ -1,4 +1,5 @@
 #include "pikmin_game.h"
+#include "debug.h"
 
 using pikmin_ai::PikminState;
 using captain_ai::CaptainState;
@@ -93,6 +94,7 @@ void PikminGame::RemoveObject<CaptainState>(CaptainState* object) {
 }
 
 void PikminGame::Step() {
+  debug::StartTopic(debug::Topic::kUpdate);
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
     squad_ai::machine.RunLogic((*captain_).squad);
@@ -113,6 +115,7 @@ void PikminGame::Step() {
   for (int o = 0; o < num_onions_; o++) {
     onion_ai::machine.RunLogic(*onions_[o]);
   }
+  debug::EndTopic(debug::Topic::kUpdate);
 
   ui::machine.RunLogic(ui_);  
 }

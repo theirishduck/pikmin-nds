@@ -242,8 +242,6 @@ void SwitchTo(CaptainState& captain) {
 
   //grab (again) the first pikmin in the squad
   GrabPikmin(captain);
-
-  nocashMessage("TOUCHED BUTTON");
 }
 
 namespace CaptainNode {
