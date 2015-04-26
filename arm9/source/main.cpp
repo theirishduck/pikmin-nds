@@ -126,9 +126,9 @@ void SetupDemoPikmin() {
       //pikmin->type = PikminType::kRedPikmin;
 
       pikmin->entity->body()->position = {
-        fixed::FromInt(-10 + j * 2 + 64),
+        fixed::FromInt(-10 + j * 1 + 64),
         0_f,
-        fixed::FromInt(-1 - i * -1 - 64)};
+        fixed::FromInt(-1 - (i * -0.2) - 64)};
     }
   }
 }
