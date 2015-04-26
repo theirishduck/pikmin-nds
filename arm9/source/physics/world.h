@@ -41,6 +41,7 @@ class World {
     int heightmap_height = 0;
     numeric_types::fixed* heightmap_data = nullptr;
 
+    int iteration = 0;
 };
 
 }  // namespace physics

@@ -238,14 +238,14 @@ void World::ProcessCollision() {
 
   // Special case: collide pikmin with each other, but only if they share a
   // heightmap position (later: or an adjacent location?)
-  for (int p1 = 0; p1 < active_pikmin_; p1++) {
+  for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
     for (int p2 = p1 + 1; p2 < active_pikmin_; p2++) {
       Body& pikmin1 = bodies_[pikmin_[p1]];
       Body& pikmin2 = bodies_[pikmin_[p2]];
       if ((int)pikmin1.position.x == (int)pikmin2.position.x and 
           (int)pikmin1.position.z == (int)pikmin2.position.z) {
         if (BodiesOverlap(pikmin1, pikmin2)) {
-          ResolveCollision(pikmin1, pikmin2);          
+          ResolveCollision(pikmin1, pikmin2);
         }
       }
     }
@@ -259,6 +259,8 @@ void World::Update() {
   MoveBodies();
   ProcessCollision();
   CollideBodiesWithLevel();
+
+  iteration++;
 }
 
 #include "debug.h"
