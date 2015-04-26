@@ -17,6 +17,14 @@
 #define MAX_POLYGONS_PER_PASS 1800
 #endif
 
+// This is a cheap CPU limiter; don't ever try to squeeze more than this many
+// objects into a single pass. This resolves some issues with many (MANY)
+// small objects causing frames to skip because the GPU chokes on that many
+// display lists in a row
+#ifndef MAX_OBJECTS_PER_PASS
+#define MAX_OBJECTS_PER_PASS 35
+#endif
+
 // Maximum number of entities, total. Used to initialize various structs
 // in the multipass engine, acts as a limiter for both scene objects and
 // static bits of a level.

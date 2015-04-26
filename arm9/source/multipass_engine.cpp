@@ -314,13 +314,16 @@ void MultipassEngine::GatherPassList() {
   }
   overlap_list_.clear();
 
+  int objects_this_pass = 0;
+
   // Pull entities from the list of all entities to draw this frame until all
   // objects are marked for drawing (marking a complete frame) or the polygon
   // quota is hit, whichever comes first.
-  while (not draw_list_.empty() and polycount < MAX_POLYGONS_PER_PASS) {
+  while (not draw_list_.empty() and polycount < MAX_POLYGONS_PER_PASS and objects_this_pass < MAX_OBJECTS_PER_PASS) {
     pass_list_.push_back(draw_list_.top());
     polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
     draw_list_.pop();
+    objects_this_pass++;
   }
 
   debug::EndTopic(Topic::kPassInit);
