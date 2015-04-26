@@ -196,6 +196,56 @@ void ThrowPikmin(CaptainState& captain) {
   captain.held_pikmin = nullptr;
 }
 
+bool RedButtonPressed(const CaptainState& captain) {
+  if (keysDown() & KEY_TOUCH) {
+    touchPosition touch;
+    touchRead(&touch);
+
+    if (touch.px < 40 and touch.py < 64) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool YellowButtonPressed(const CaptainState& captain) {
+  if (keysDown() & KEY_TOUCH) {
+    touchPosition touch;
+    touchRead(&touch);
+
+    if (touch.px < 40 and touch.py >= 64 and touch.py < 128) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool BlueButtonPressed(const CaptainState& captain) {
+  if (keysDown() & KEY_TOUCH) {
+    touchPosition touch;
+    touchRead(&touch);
+
+    if (touch.px < 40 and touch.py >= 128) {
+      return true;
+    }
+  }
+  return false;
+}
+
+template <PikminType T>
+void SwitchTo(CaptainState& captain) {
+  //un-hold the active pikmin
+  captain.held_pikmin->parent = nullptr;
+
+  //perform the sorting magic
+  captain.squad.SortPikmin(T);
+
+  //grab (again) the first pikmin in the squad
+  GrabPikmin(captain);
+
+  nocashMessage("TOUCHED BUTTON");
+}
+
 namespace CaptainNode {
 enum CaptainNode {
   kInit = 0,
@@ -225,11 +275,17 @@ Edge<CaptainState> edge_list[] {
   // Grab
   {kAlways, ActionReleased, ThrowPikmin, CaptainNode::kThrow},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kGrabRun},
+  {kAlways, RedButtonPressed, SwitchTo<PikminType::kRedPikmin>, CaptainNode::kGrab},
+  {kAlways, YellowButtonPressed, SwitchTo<PikminType::kYellowPikmin>, CaptainNode::kGrab},
+  {kAlways, BlueButtonPressed, SwitchTo<PikminType::kBluePikmin>, CaptainNode::kGrab},
   {kAlways, nullptr, IdleAlways, CaptainNode::kGrab},  // Loopback
 
   // GrabRun
   {kAlways, ActionReleased, ThrowPikmin, CaptainNode::kThrowRun},
   {kAlways, DpadInactive, StopCaptain, CaptainNode::kGrab},
+  {kAlways, RedButtonPressed, SwitchTo<PikminType::kRedPikmin>, CaptainNode::kGrabRun},
+  {kAlways, YellowButtonPressed, SwitchTo<PikminType::kYellowPikmin>, CaptainNode::kGrabRun},
+  {kAlways, BlueButtonPressed, SwitchTo<PikminType::kBluePikmin>, CaptainNode::kGrabRun},
   {kAlways, nullptr, MoveCaptain, CaptainNode::kGrabRun},  // Loopback
 
   // Throw
@@ -249,10 +305,10 @@ Node node_list[] {
   {"Init", true, 0, 0},
   {"Idle", true, 1, 3, "Armature|Idle1", 30},
   {"Run", true, 4, 6, "Armature|Run", 60},
-  {"Grab", true, 7, 9, "Armature|Idle1", 30},
-  {"GrabRun", true, 10, 12, "Armature|Run", 60},
-  {"Throw", true, 13, 16, "Armature|Idle1", 10},
-  {"ThrowRun", true, 17, 20, "Armature|Run", 10},
+  {"Grab", true, 7, 12, "Armature|Idle1", 30},
+  {"GrabRun", true, 13, 18, "Armature|Run", 60},
+  {"Throw", true, 19, 22, "Armature|Idle1", 10},
+  {"ThrowRun", true, 23, 26, "Armature|Run", 10},
 };
 
 StateMachine<CaptainState> machine(node_list, edge_list);

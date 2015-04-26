@@ -11,6 +11,7 @@ using numeric_types::Brads;
 using numeric_types::fixed;
 
 using pikmin_ai::PikminState;
+using pikmin_ai::PikminType;
 
 using namespace trig;
 
@@ -51,9 +52,9 @@ void SquadState::RemovePikmin(PikminState* old_pikmin) {
   squad_size--;
 }
 
-void SquadState::SortPikmin(const PikminState* selected_pikmin) {
+void SquadState::SortPikmin(PikminType pikmin_type) {
   int pass = 0;
-  int selected_color = (int)selected_pikmin->type;
+  int selected_color = (int)pikmin_type;
 
   int current_slot = 0;
   while (pass < 3) {
@@ -122,7 +123,7 @@ void UpdateTestSquare(SquadState& squad) {
 // tweaking to values.
 void UpdateTriangleShape(SquadState& squad) {
   if (squad.captain->held_pikmin) {
-    squad.SortPikmin(squad.captain->held_pikmin);
+    squad.SortPikmin(squad.captain->held_pikmin->type);
   }
 
   // move ourselves close to the captain

@@ -5,6 +5,7 @@
 
 namespace pikmin_ai {
 struct PikminState;
+enum class PikminType;
 }
 
 namespace captain_ai {
@@ -22,7 +23,7 @@ struct SquadState : ObjectState {
 
   void AddPikmin(pikmin_ai::PikminState* pikmin);
   void RemovePikmin(pikmin_ai::PikminState* pikmin);
-  void SortPikmin(const pikmin_ai::PikminState* selected_pikmin);
+  void SortPikmin(pikmin_ai::PikminType pikmin_type);
   pikmin_ai::PikminState* NextPikmin();
 };
 
