@@ -82,8 +82,8 @@ void SquadState::SortPikmin(PikminType pikmin_type) {
     }
 
     selected_color++;
-    if (selected_color >= 3) {
-      selected_color = 0;
+    if (selected_color > (int)PikminType::kBluePikmin) {
+      selected_color = (int)PikminType::kRedPikmin;
     }
     pass++;
   }
