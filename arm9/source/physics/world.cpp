@@ -235,7 +235,7 @@ void World::ProcessCollision() {
       }
     }
   }
-
+  
   // Special case: collide pikmin with each other, but only if they share a
   // heightmap position (later: or an adjacent location?)
   for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
@@ -250,6 +250,7 @@ void World::ProcessCollision() {
       }
     }
   }
+
 }
 
 void World::Update() {

@@ -171,13 +171,72 @@ void UpdateTriangleShape(SquadState& squad) {
   }
 }
 
+void UpdateCircleShape(SquadState& squad) {
+  if (squad.captain->held_pikmin) {
+    squad.SortPikmin(squad.captain->held_pikmin->type);
+  }
+
+  // move ourselves close to the captain
+  auto distance = (squad.captain->entity->body()->position - squad.position).Length();
+  if (distance > 3.0_f) {
+    auto direction = squad.captain->entity->body()->position - squad.position;
+    direction = direction.Normalize() * 3.0_f;
+    squad.position = squad.captain->entity->body()->position - direction;
+  }
+
+  // calculate the diameter of our circle
+  fixed diameter = fixed::FromRaw(sqrtf32((fixed::FromInt(squad.squad_size) / 3.1415926_f).data_)) * 2_f;
+  Brads stride = 180_brad / diameter * 0.85_f;
+
+  // loop through all the slots and assign a target position for each pikmin
+  int slot = 0;
+  int rank = 0;
+  while (slot < squad.squad_size) {
+    // This produces a triangle shape
+    int rank_count = (int)(trig::SinLerp(stride * (rank + 1)) * diameter);
+
+    //sanity
+    if (rank_count < 0) {
+      rank_count *= -1;
+    }
+    rank_count += 1;
+
+    fixed rank_size = fixed::FromInt(rank_count - 1) * kSquadSpacing;
+    Vec2 rank_start = {(rank_size * 0.5_f), fixed::FromInt(rank) * kSquadSpacing};
+    Vec2 rank_delta = {-kSquadSpacing, 0_f};
+    if (rank % 2 == 0) {
+      // Every other frame, reverse the direction
+      rank_start.x *= -1_f;
+      rank_delta.x *= -1_f;
+    }
+
+    // rotate our start and our delta
+    auto rot_angle = squad.captain->entity->AngleTo(squad.captain->cursor);
+    rank_start = rank_start.Rotate(rot_angle);
+    rank_delta = rank_delta.Rotate(rot_angle);
+
+    Vec2 rank_pos = rank_start;
+    int rank_index = 0;
+    while (rank_index < rank_count and slot < squad.squad_size) {
+      squad.pikmin[slot]->target = Vec2{
+        squad.position.x + rank_pos.x,
+        squad.position.z + rank_pos.y // This is confusing!
+      };
+
+      rank_pos += rank_delta;
+      rank_index++;
+      slot++;
+    }
+    rank++;
+  }
+}
 
 Edge<SquadState> edge_list[] {
   // Init
   Edge<SquadState>{kAlways, nullptr, InitAlways, 1},
 
   // Test / Follow Captain thing
-  Edge<SquadState>{kAlways, nullptr, UpdateTriangleShape, 1},  
+  Edge<SquadState>{kAlways, nullptr, UpdateCircleShape, 1},  
 };
 
 Node node_list[] {

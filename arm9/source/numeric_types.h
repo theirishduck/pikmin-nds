@@ -191,12 +191,19 @@ class Brads
   Brads& operator+=(Brads const other) {data_ += other.data_; return *this;}
   constexpr Brads operator-(Brads const other) const {return Brads{static_cast<value_type>(data_ - other.data_)};}
   Brads& operator-=(Brads const other) {data_ -= other.data_; return *this;}
-  constexpr Brads operator*(Brads const other) const {return Brads{static_cast<value_type>(data_ * other.data_)};}
-  Brads& operator*=(Brads const other) {data_ *= other.data_; return *this;}
-  Brads const operator/(Brads const other) const {return Brads{static_cast<value_type>(div32(data_, other.data_))};}
-  Brads& operator/=(Brads const other) {data_ = static_cast<value_type>(div32(data_, other.data_)); return *this;}
-  Brads const operator%(Brads const other) const {return Brads{static_cast<value_type>(mod32(data_, other.data_))};}
-  Brads& operator%=(Brads const other) {data_ = static_cast<value_type>(mod32(data_, other.data_)); return *this;}
+  //constexpr Brads operator*(Brads const other) const {return Brads{static_cast<value_type>(data_ * other.data_)};}
+  //Brads& operator*=(Brads const other) {data_ *= other.data_; return *this;}
+  //Brads const operator/(Brads const other) const {return Brads{static_cast<value_type>(div32(data_, other.data_))};}
+  //Brads& operator/=(Brads const other) {data_ = static_cast<value_type>(div32(data_, other.data_)); return *this;}
+  //Brads const operator%(Brads const other) const {return Brads{static_cast<value_type>(mod32(data_, other.data_))};}
+  //Brads& operator%=(Brads const other) {data_ = static_cast<value_type>(mod32(data_, other.data_)); return *this;}
+
+  // interaction with other types
+  Brads const operator/(int const other) const {return Brads{static_cast<value_type>(div32(data_, other))};}
+  Brads const operator*(int const other) const {return Brads{static_cast<value_type>(data_ * other)};}
+
+  Brads const operator/(fixed const other) const {return Brads{static_cast<value_type>((int)(fixed::FromInt(data_) / other))};}
+  Brads const operator*(fixed const other) const {return Brads{static_cast<value_type>((int)(fixed::FromInt(data_) * other))};}
 
   //unary negation
   constexpr Brads operator-() { return Brads{static_cast<value_type>(-data_)}; }
