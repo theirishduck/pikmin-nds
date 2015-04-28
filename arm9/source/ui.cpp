@@ -81,6 +81,7 @@ void UpdateMapIcons(UIState& ui) {
         oamSetHidden(&oamSub, slot, false);
         oamSetXY(&oamSub, slot, x, y);
         oamSetPalette(&oamSub, slot, 4);
+        oamSetPriority(&oamSub, slot, 3);
         switch(pikmin[slot].type) {
           case PikminType::kNone:
           case PikminType::kRedPikmin:
