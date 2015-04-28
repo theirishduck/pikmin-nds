@@ -20,6 +20,7 @@ struct SquadState : ObjectState {
   int squad_size{0};
 
   Vec3 position;
+  numeric_types::Brads current_rotation;
 
   void AddPikmin(pikmin_ai::PikminState* pikmin);
   void RemovePikmin(pikmin_ai::PikminState* pikmin);

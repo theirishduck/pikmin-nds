@@ -176,17 +176,32 @@ void UpdateCircleShape(SquadState& squad) {
     squad.SortPikmin(squad.captain->held_pikmin->type);
   }
 
-  // move ourselves close to the captain
-  auto distance = (squad.captain->entity->body()->position - squad.position).Length();
-  if (distance > 3.0_f) {
-    auto direction = squad.captain->entity->body()->position - squad.position;
-    direction = direction.Normalize() * 3.0_f;
-    squad.position = squad.captain->entity->body()->position - direction;
-  }
-
   // calculate the diameter of our circle
   fixed diameter = fixed::FromRaw(sqrtf32((fixed::FromInt(squad.squad_size) / 3.1415926_f).data_)) * 2_f;
   Brads stride = 180_brad / diameter * 0.85_f;
+
+  // calculate the rotation for the squad
+  if (squad.captain->held_pikmin) {
+    squad.current_rotation = squad.captain->entity->AngleTo(squad.captain->cursor);
+  }
+  auto rot_angle = squad.current_rotation;
+
+  // move ourselves close to the captain
+  // use a modified squad position, based on our expected diameter
+  auto squad_radius = (diameter * kSquadSpacing) / 2_f;
+  Vec2 squad_center = {0_f, squad_radius};
+  squad_center = squad_center.Rotate(rot_angle);
+  squad_center += Vec2{squad.position.x, squad.position.z};
+  Vec2 captain_position = {squad.captain->entity->body()->position.x, squad.captain->entity->body()->position.z};
+  auto distance = (captain_position - squad_center).Length();
+  if (distance > squad_radius + 1_f) {
+    //zap to the captain!
+    auto offset = captain_position - squad_center;
+    auto difference_delta = (distance - (squad_radius + 1_f)) / distance;
+    offset *= difference_delta;
+    squad.position.x += offset.x;
+    squad.position.z += offset.y;
+  }
 
   // loop through all the slots and assign a target position for each pikmin
   int slot = 0;
@@ -211,7 +226,6 @@ void UpdateCircleShape(SquadState& squad) {
     }
 
     // rotate our start and our delta
-    auto rot_angle = squad.captain->entity->AngleTo(squad.captain->cursor);
     rank_start = rank_start.Rotate(rot_angle);
     rank_delta = rank_delta.Rotate(rot_angle);
 
