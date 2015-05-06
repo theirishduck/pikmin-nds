@@ -12,6 +12,8 @@
 
 #include "debug.h"
 
+#include "particle.h"
+
 using namespace std;
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
@@ -460,6 +462,7 @@ void MultipassEngine::Draw() {
   }
 
   DrawPassList();
+  DrawParticles(camera_.Position(), camera_.Target());
 
   // TODO(Nick): Turn the ground plane into an object
   // Draw the ground plane for debugging.

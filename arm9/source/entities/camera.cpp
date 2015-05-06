@@ -96,11 +96,7 @@ void Camera::FollowEntity(DrawableEntity* entity) {
   entity_to_follow_ = entity;
 }
 
-// TODO(Nick) Convert this to non-float implementation.
-void Camera::ApplyTransform() {
-  // With our camera parameters, generate a position and a target for
-  // OpenGL's LookAt function
-
+Vec3 Camera::Position() {
   Vec3 offset{0_f,0_f,0_f};
   offset.x.data_ = -cosLerp(cached_state_.angle.data_);
   offset.z.data_ = sinLerp(cached_state_.angle.data_);
@@ -108,8 +104,19 @@ void Camera::ApplyTransform() {
   offset = offset.Normalize();
   offset *= cached_state_.distance + cached_state_.height;
 
-  Vec3 position = cached_state_.target + offset;
-  Vec3 target = cached_state_.target;
+  return cached_state_.target + offset;
+}
+
+Vec3 Camera::Target() {
+  return cached_state_.target;
+}
+
+// TODO(Nick) Convert this to non-float implementation.
+void Camera::ApplyTransform() {
+  // With our camera parameters, generate a position and a target for
+  // OpenGL's LookAt function
+  Vec3 position = Position();
+  Vec3 target = Target();
 
   gluLookAt(
       (float)position.x, (float)position.y,

@@ -7,6 +7,7 @@
 
 #include "multipass_engine.h"
 #include "pikmin_game.h"
+#include "particle.h"
 #include "debug.h"
 
 #include "entities/pellet_posy.h"
@@ -172,7 +173,21 @@ void RunLogic() {
   g_game.Step();
 }
 
+//returns a random vector from -1 to 1 in all directions
+Vec3 RandomVector() {
+  return Vec3{
+    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)), 
+    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)), 
+    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
+  }.Normalize();
+}
+
 void GameLoop() {
+  Particle test_flower;
+  test_flower.texture = g_game.TextureAllocator()->Retrieve("flower");
+  test_flower.position = Vec3{64_f, 10_f, -64_f};
+  test_flower.lifespan = 128;
+
   for (;;) {
     touchPosition touchXY;
     touchRead(&touchXY);
@@ -181,6 +196,12 @@ void GameLoop() {
     debug::StartCpuTimer();
 
     RunLogic();
+
+    Particle* new_particle = SpawnParticle(test_flower);
+    new_particle->velocity = RandomVector() * 0.5_f;
+
+    UpdateParticles();
+
 
     g_engine.Update();
     g_engine.Draw();

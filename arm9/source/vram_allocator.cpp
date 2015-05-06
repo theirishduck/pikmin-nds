@@ -14,6 +14,15 @@ VramAllocator::VramAllocator(u16* base, u32 size) {
 VramAllocator::~VramAllocator() {
 }
 
+int texture_format_size(int pixel_size) {
+  int format_size = 0;
+  while (pixel_size > 8 and format_size < 7) {
+    pixel_size = pixel_size >> 1;
+    format_size++;
+  }
+  return format_size;
+}
+
 Texture VramAllocator::Load(std::string name, const u8* data, u32 size, int width, int height) {
   if (loaded_assets.count(name) > 0) {
     nocashMessage("Already loaded!");
@@ -41,7 +50,8 @@ Texture VramAllocator::Load(std::string name, const u8* data, u32 size, int widt
   // offset the next element for the next call to Load
   next_element_ += size / sizeof(u16);
 
-  loaded_assets[name] = Texture{destination, width, height};
+
+  loaded_assets[name] = Texture{destination, width, height, texture_format_size(width), texture_format_size(height)};
 
   nocashMessage("Loaded Texture: ");
   nocashMessage(name.c_str());

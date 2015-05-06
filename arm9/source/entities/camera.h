@@ -24,6 +24,8 @@ class Camera {
   void Update();
   void ApplyTransform();
   void SetCache();
+  Vec3 Position();
+  Vec3 Target();
 
  private:
   DrawableEntity* target_;

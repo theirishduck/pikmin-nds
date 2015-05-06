@@ -10,6 +10,8 @@ struct Texture {
     u16* offset;
     int width;
     int height;
+    int format_width;
+    int format_height;
 };
 
 class VramAllocator {
