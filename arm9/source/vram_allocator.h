@@ -6,14 +6,20 @@
 #include <map>
 #include <string>
 
+struct Texture {
+    u16* offset;
+    int width;
+    int height;
+};
+
 class VramAllocator {
   public:
     VramAllocator(u16* cpu_base, u32 size);
     ~VramAllocator();
 
-    u16* Load(std::string name, const u8* data, u32 size);
-    u16* Replace(std::string name, const u8* data, u32 size);
-    u16* Retrieve(std::string name);
+    Texture Load(std::string name, const u8* data, u32 size, int width, int height);
+    Texture Replace(std::string name, const u8* data, u32 size);
+    Texture Retrieve(std::string name);
     void Reset();
 
     u16* Base();
@@ -23,7 +29,7 @@ class VramAllocator {
     u16* next_element_;
     u16* end_;
 
-    std::map<std::string, u16*> loaded_assets;
+    std::map<std::string, Texture> loaded_assets;
 };
 
 #endif

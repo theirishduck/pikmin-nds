@@ -14,7 +14,7 @@ VramAllocator::VramAllocator(u16* base, u32 size) {
 VramAllocator::~VramAllocator() {
 }
 
-u16* VramAllocator::Load(std::string name, const u8* data, u32 size) {
+Texture VramAllocator::Load(std::string name, const u8* data, u32 size, int width, int height) {
   if (loaded_assets.count(name) > 0) {
     nocashMessage("Already loaded!");
     // this is already loaded! Just return a reference to the data
@@ -30,7 +30,7 @@ u16* VramAllocator::Load(std::string name, const u8* data, u32 size) {
     nocashNumber((int)size);
     nocashMessage("end was:");
     nocashNumber((int)end_);
-    return 0; // we don't have enough room for this object! and there was
+    return Texture{}; // we don't have enough room for this object! and there was
               // panic. much panic.
   }
 
@@ -41,36 +41,36 @@ u16* VramAllocator::Load(std::string name, const u8* data, u32 size) {
   // offset the next element for the next call to Load
   next_element_ += size / sizeof(u16);
 
-  loaded_assets[name] = destination;
+  loaded_assets[name] = Texture{destination, width, height};
 
   nocashMessage("Loaded Texture: ");
   nocashMessage(name.c_str());
 
   // return the address we just copied data to, for immediate use
-  return destination;
+  return loaded_assets[name];
 }
 
 // Replaces a given asset with a modified version. Does NOT resize the heap;
 // use this only with new assets that are the same size as the original.
-u16* VramAllocator::Replace(std::string name, const u8* data, u32 size) {
+Texture VramAllocator::Replace(std::string name, const u8* data, u32 size) {
   if (loaded_assets.count(name) > 0) {
-    u16* destination = loaded_assets[name];
-    dmaCopy(data, destination, size);
+    Texture destination = loaded_assets[name];
+    dmaCopy(data, destination.offset, size);
     return loaded_assets[name];
   } else {
     nocashMessage("Couldn't replace; doesn't exist!");
     nocashMessage(name.c_str());
-    return nullptr;
+    return Texture{};
   }
 }
 
-u16* VramAllocator::Retrieve(std::string name) {
+Texture VramAllocator::Retrieve(std::string name) {
   if (loaded_assets.count(name) > 0) {
     return loaded_assets[name];
   } else {
     nocashMessage("Bad Retrieve!!");
     nocashMessage(name.c_str());
-    return 0; // bad things! panicing!
+    return Texture{}; // bad things! panicing!
   }
 }
 

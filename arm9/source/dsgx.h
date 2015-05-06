@@ -22,7 +22,7 @@ struct Animation {
   m4x4* transforms;
 };
 
-struct Texture {
+struct TextureParam {
   char* name;
   u32 num_offsets;
   u32* offsets;
@@ -66,7 +66,7 @@ private:
   u32 draw_cost_;
 
   std::vector<Bone> bones_;
-  std::vector<Texture> textures_;
+  std::vector<TextureParam> textures_;
   std::map<std::string, Animation> animations_;
 };
 

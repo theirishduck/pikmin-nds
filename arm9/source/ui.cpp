@@ -63,9 +63,9 @@ void BubbleNumber(int index, int x, int y, int value, int cells) {
 
 void UpdateMapIcons(UIState& ui) {
   // look these up just once
-  auto red_dot = ui.game->SpriteAllocator()->Retrieve("red_dot");
-  auto yellow_dot = ui.game->SpriteAllocator()->Retrieve("yellow_dot");
-  auto blue_dot = ui.game->SpriteAllocator()->Retrieve("blue_dot");
+  auto red_dot = ui.game->SpriteAllocator()->Retrieve("red_dot").offset;
+  auto yellow_dot = ui.game->SpriteAllocator()->Retrieve("yellow_dot").offset;
+  auto blue_dot = ui.game->SpriteAllocator()->Retrieve("blue_dot").offset;
 
   auto pikmin = ui.game->Pikmin();
   auto olimar_position = ui.game->ActiveCaptain()->entity->body()->position;
@@ -114,21 +114,21 @@ void UpdatePikminSelector(UIState& ui, int index) {
   oamSetXY(&oamSub, index, 0, 0);
   oamSetPalette(&oamSub, index, 1);
   oamSetGfx(&oamSub, index, SpriteSize_64x64, SpriteColorFormat_16Color, 
-      ui.game->SpriteAllocator()->Retrieve("redbutton"));
+      ui.game->SpriteAllocator()->Retrieve("redbutton").offset);
   
   // Yellow pikmin
   oamSetHidden(&oamSub, index + 1, false);
   oamSetXY(&oamSub, index + 1, 0, 64);
   oamSetPalette(&oamSub, index + 1, 2);
   oamSetGfx(&oamSub, index + 1, SpriteSize_64x64, SpriteColorFormat_16Color, 
-      ui.game->SpriteAllocator()->Retrieve("yellowbutton"));
+      ui.game->SpriteAllocator()->Retrieve("yellowbutton").offset);
 
   // Blue pikmin
   oamSetHidden(&oamSub, index + 2, false);
   oamSetXY(&oamSub, index + 2, 0, 128);
   oamSetPalette(&oamSub, index + 2, 3);
   oamSetGfx(&oamSub, index + 2, SpriteSize_64x64, SpriteColorFormat_16Color, 
-      ui.game->SpriteAllocator()->Retrieve("bluebutton"));
+      ui.game->SpriteAllocator()->Retrieve("bluebutton").offset);
 
   // Decide which version to display
   auto next_pikmin = ui.game->ActiveCaptain()->squad.NextPikmin();
@@ -173,21 +173,21 @@ void InitNavPad(UIState& ui) {
 
   // copy in the bubble font data, for number updating
   memcpy(&SPRITE_PALETTE_SUB[0], bubblefont_pal_bin, bubblefont_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("bubblefont", bubblefont_img_bin, bubblefont_img_bin_size);
+  ui.game->SpriteAllocator()->Load("bubblefont", bubblefont_img_bin, bubblefont_img_bin_size, 16, 160);
   
   // copy in the pikmin button data
   memcpy(&SPRITE_PALETTE_SUB[16], red_button_light_pal_bin, red_button_light_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("redbutton", red_button_light_img_bin, red_button_light_img_bin_size);
+  ui.game->SpriteAllocator()->Load("redbutton", red_button_light_img_bin, red_button_light_img_bin_size, 64, 64);
   memcpy(&SPRITE_PALETTE_SUB[32], yellow_button_lit_pal_bin, yellow_button_lit_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size);
+  ui.game->SpriteAllocator()->Load("yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size, 64, 64);
   memcpy(&SPRITE_PALETTE_SUB[48], blue_button_lit_pal_bin, blue_button_lit_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size);
+  ui.game->SpriteAllocator()->Load("bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size, 64, 64);
 
   // setup the map icon data
   memcpy(&SPRITE_PALETTE_SUB[64], map_icons_pal_bin, map_icons_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("red_dot", red_dot_img_bin, red_dot_img_bin_size);
-  ui.game->SpriteAllocator()->Load("yellow_dot", yellow_dot_img_bin, yellow_dot_img_bin_size);
-  ui.game->SpriteAllocator()->Load("blue_dot", blue_dot_img_bin, blue_dot_img_bin_size);
+  ui.game->SpriteAllocator()->Load("red_dot", red_dot_img_bin, red_dot_img_bin_size, 8, 8);
+  ui.game->SpriteAllocator()->Load("yellow_dot", yellow_dot_img_bin, yellow_dot_img_bin_size, 8, 8);
+  ui.game->SpriteAllocator()->Load("blue_dot", blue_dot_img_bin, blue_dot_img_bin_size, 8, 8);
 }
 
 // Initialize the console using the full version of the console init function so

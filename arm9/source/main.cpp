@@ -79,7 +79,7 @@ void InitSubScreen() {
 void InitMainScreen() {
   videoSetMode(MODE_0_3D);
   glInit();
-  glEnable(GL_TEXTURE_2D | GL_BLEND);
+  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE);
 
   glClearColor(4, 4, 4, 31);
   glClearDepth(0x7FFF);
@@ -99,19 +99,19 @@ void LoadTextures() {
   // switching it back to texture mode.
   vramSetBankC(VRAM_C_LCD);
 
-  g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size);
-  g_game.TextureAllocator()->Load("piki_leaf", piki_leaf_img_bin, piki_leaf_img_bin_size);
-  g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size);
-  g_game.TextureAllocator()->Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size);
-  g_game.TextureAllocator()->Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size);
-  g_game.TextureAllocator()->Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size);
-  g_game.TextureAllocator()->Load("numbers", numbers_img_bin, numbers_img_bin_size);
-  g_game.TextureAllocator()->Load("rocky", rocky_img_bin, rocky_img_bin_size);
-  g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size);
-  g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size);
-  g_game.TextureAllocator()->Load("bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size);
-  g_game.TextureAllocator()->Load("flower", flower_img_bin, flower_img_bin_size);
-  g_game.TextureAllocator()->Load("redonion", redonion_img_bin, redonion_img_bin_size);
+  g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size, 64, 16);
+  g_game.TextureAllocator()->Load("piki_leaf", piki_leaf_img_bin, piki_leaf_img_bin_size, 32, 64);
+  g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size, 16, 16);
+  g_game.TextureAllocator()->Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size, 16, 16);
+  g_game.TextureAllocator()->Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size, 16, 32);
+  g_game.TextureAllocator()->Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size, 8, 16);
+  g_game.TextureAllocator()->Load("numbers", numbers_img_bin, numbers_img_bin_size, 64, 32);
+  g_game.TextureAllocator()->Load("rocky", rocky_img_bin, rocky_img_bin_size, 128, 128);
+  g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size, 32, 64);
+  g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size, 64, 64);
+  g_game.TextureAllocator()->Load("bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size, 16, 16);
+  g_game.TextureAllocator()->Load("flower", flower_img_bin, flower_img_bin_size, 32, 32);
+  g_game.TextureAllocator()->Load("redonion", redonion_img_bin, redonion_img_bin_size, 8, 32);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }

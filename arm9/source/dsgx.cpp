@@ -103,7 +103,7 @@ void Dsgx::TextureChunk(u32* data) {
   nocashMessage("Loading Textures...");
 
   for (u32 i = 0; i < num_textures; i++) {
-    Texture texture;
+    TextureParam texture;
     texture.name = (char*)data;
     data += 8; //skip past the texture name
 
@@ -164,7 +164,8 @@ void Dsgx::ApplyTextures(VramAllocator* texture_allocator) {
   // into VRAM, based on where they got loaded
   auto destination = model_data_ + 1;
   for (auto texture = textures_.begin(); texture != textures_.end(); texture++) {
-    u16 location = (u32)texture_allocator->Retrieve(texture->name) / 8;    
+    u32 location = (u32)texture_allocator->Retrieve(texture->name).offset;
+    location /= 8;
     for (u32 i = 0; i < texture->num_offsets; i++) {
       *(destination + texture->offsets[i]) = ((*(destination + texture->offsets[i])) & 0xFFFF0000) | (location & 0x0000FFFF);
       nocashMessage("Wrote an offset!");
