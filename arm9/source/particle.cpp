@@ -27,15 +27,27 @@ void UpdateParticles() {
 void DrawParticles(Vec3 camera_position, Vec3 target_position) {
   // figure out the angle toward the camera (From the target; this will
   // end up being shared among all particles)
+  Brads x_angle;
   Brads y_angle;
-  auto difference = Vec2{camera_position.x, camera_position.z} - 
+  auto difference_xz = Vec2{camera_position.x, camera_position.z} - 
       Vec2{target_position.x, target_position.z};
-  if (difference.Length2() > 0_f) {
-    difference = difference.Normalize();
+  if (difference_xz.Length2() > 0_f) {
+    // Rotate about the Y axis to face the camera
+    auto difference = difference_xz.Normalize();
     if (difference.y <= 0_f) {
       y_angle = Brads::Raw(acosLerp(difference.x.data_)) + 90_brad;
+    } else {
+      y_angle = Brads::Raw(-acosLerp(difference.x.data_)) + 90_brad;
     }
-    y_angle = Brads::Raw(-acosLerp(difference.x.data_)) + 90_brad;
+
+    // Use the distance to figure out rotation about the X axis
+    auto xz_length = difference_xz.Length();
+    difference = Vec2{xz_length, camera_position.y}.Normalize();
+    if (difference.y <= 0_f) {
+      x_angle = Brads::Raw(acosLerp(difference.x.data_));
+    } else {
+      x_angle = Brads::Raw(-acosLerp(difference.x.data_));
+    }
   }
 
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
@@ -59,6 +71,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
       glTranslatef32(particle.position.x.data_, particle.position.y.data_,
         particle.position.z.data_);
       glRotateYi(y_angle.data_);
+      glRotateXi(x_angle.data_);
 
       glBegin(GL_QUAD);
       glColor(RGB15(31,31,31));

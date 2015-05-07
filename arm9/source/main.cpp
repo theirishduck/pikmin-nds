@@ -179,7 +179,7 @@ Vec3 RandomVector() {
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)), 
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)), 
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
-  }.Normalize();
+  };
 }
 
 void GameLoop() {
@@ -198,9 +198,7 @@ void GameLoop() {
     RunLogic();
 
     Particle* new_particle = SpawnParticle(test_flower);
-    new_particle->velocity = RandomVector() * 0.5_f;
-
-    UpdateParticles();
+    new_particle->velocity = RandomVector() * 0.2_f;
 
 
     g_engine.Update();

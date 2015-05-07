@@ -46,6 +46,8 @@ enum Topic {
   kPass9,
   kIdle,
   kUi,
+  kParticleUpdate,
+  kParticleDraw,
   kNumTopics
 };
 

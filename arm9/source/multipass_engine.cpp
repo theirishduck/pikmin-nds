@@ -55,6 +55,10 @@ void MultipassEngine::Update() {
   world_.Update();
   debug::EndTopic(Topic::kPhysics);
 
+  debug::StartTopic(Topic::kParticleUpdate);
+  UpdateParticles();
+  debug::EndTopic(Topic::kParticleUpdate);
+
   camera_.Update();
 
   frame_counter_++;
@@ -462,7 +466,10 @@ void MultipassEngine::Draw() {
   }
 
   DrawPassList();
+
+  debug::StartTopic(Topic::kParticleDraw);
   DrawParticles(camera_.Position(), camera_.Target());
+  debug::EndTopic(Topic::kParticleDraw);
 
   // TODO(Nick): Turn the ground plane into an object
   // Draw the ground plane for debugging.

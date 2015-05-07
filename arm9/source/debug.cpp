@@ -163,6 +163,12 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
   {debug::Topic::kUi, {
     "UI",   
     RGB8(48, 48, 48)}},
+  {debug::Topic::kParticleUpdate, {
+    "Particle.Update",   
+    RGB8(48, 48, 48)}},
+  {debug::Topic::kParticleDraw, {
+    "Particle.Draw",   
+    RGB8(48, 48, 48)}},
 };
 
 void debug::UpdateTimingMode() {
