@@ -471,15 +471,9 @@ void MultipassEngine::Draw() {
   DrawParticles(camera_.Position(), camera_.Target());
   debug::EndTopic(Topic::kParticleDraw);
 
-  // TODO(Nick): Turn the ground plane into an object
-  // Draw the ground plane for debugging.
-  // debug::DrawGroundPlane(64, 10, RGB5(0, 24 - current_pass_ * 6, 0));
-  //debug::DrawGroundPlane(64, 10, RGB5(0, 24, 0));
+  // Reset the polygon format after all that drawing
+  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
 
-  // Todo(Cristian) Merge the logic of basic mechanics into the existing
-  // framework and remove them from the repo.
-  // void basicMechanicsDraw();
-  // basicMechanicsDraw();
 
   if (debug::g_physics_circles) {
     world_.DebugCircles();

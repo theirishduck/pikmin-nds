@@ -14,6 +14,9 @@ struct Particle {
 
   bool active;
   Texture texture;
+
+  numeric_types::fixed alpha{numeric_types::fixed::FromInt(1)};
+  numeric_types::fixed fade_rate;
 };
 
 void UpdateParticles();

@@ -187,6 +187,7 @@ void GameLoop() {
   test_flower.texture = g_game.TextureAllocator()->Retrieve("flower");
   test_flower.position = Vec3{64_f, 10_f, -64_f};
   test_flower.lifespan = 128;
+  test_flower.fade_rate = 1_f / 128_f;
 
   for (;;) {
     touchPosition touchXY;
@@ -198,7 +199,7 @@ void GameLoop() {
     RunLogic();
 
     Particle* new_particle = SpawnParticle(test_flower);
-    new_particle->velocity = RandomVector() * 0.2_f;
+    new_particle->velocity = RandomVector() * 0.1_f;
 
 
     g_engine.Update();
