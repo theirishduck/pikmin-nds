@@ -18,6 +18,19 @@ Camera::Camera() {
   SetCache();
 }
 
+Brads AngleBetween(const Vec3 source_position, const Vec3 destination_position) {
+  auto difference = Vec2{destination_position.x, destination_position.z} - 
+      Vec2{source_position.x, source_position.z};
+  if (difference.Length2() > 0_f) {
+    difference = difference.Normalize();
+    if (difference.y <= 0_f) {
+      return Brads::Raw(acosLerp(difference.x.data_)) + 90_brad;
+    }
+    return Brads::Raw(-acosLerp(difference.x.data_)) + 90_brad;
+  }
+  return 0_brad;
+}
+
 void Camera::Update() {
   if (keysDown() & KEY_R) {
     if (keysHeld() & KEY_L) {
@@ -39,6 +52,17 @@ void Camera::Update() {
       // Move the camera directly behind the target entity, based on their
       // current rotation.
       target_state_.angle = entity_to_follow_->rotation().y - 90_brad;
+    }
+    if (keysHeld() & KEY_L) {
+      // Adjust the rotation based on the new position of the entity, to
+      // achieve kind of a lazy follow and rotate
+      auto angle_to_current_target = AngleBetween(Position(), target_state_.target);
+      auto angle_to_new_target = AngleBetween(Position(), entity_to_follow_->position());
+
+      // clamp for more lazy factor
+      auto delta = angle_to_new_target - angle_to_current_target;
+      delta = delta / 2_f;
+      target_state_.angle += delta;
     }
     target_state_.target = entity_to_follow_->position() + Vec3{0_f,2.5_f,0_f};
   } else {
