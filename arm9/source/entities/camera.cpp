@@ -58,9 +58,17 @@ void Camera::Update() {
       // achieve kind of a lazy follow and rotate
       auto angle_to_current_target = AngleBetween(Position(), target_state_.target);
       auto angle_to_new_target = AngleBetween(Position(), entity_to_follow_->position());
-
-      // clamp for more lazy factor
       auto delta = angle_to_new_target - angle_to_current_target;
+
+      // clamp the delta so that it is within -180, 180
+      while (delta > 180_brad) {
+        delta -= 360_brad;
+      }
+      while (delta < -180_brad) {
+        delta += 360_brad;
+      }
+
+      // dampen to make the camera more lazy
       delta = delta / 2_f;
       target_state_.angle += delta;
     }
