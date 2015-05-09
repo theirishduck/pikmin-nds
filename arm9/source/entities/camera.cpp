@@ -58,9 +58,26 @@ void Camera::Update() {
       + target_state_.distance * 0.125_f;
 
   // For the angle, we need to do fancy delta clamping
-  //TODO: that later
-  current_state_.angle = target_state_.angle;
+  auto delta = target_state_.angle - current_state_.angle;  
+  Brads max_jump = 1_brad;
 
+  // clamp the delta so that it is within -180, 180
+  while (delta > 180_brad) {
+    delta -= 360_brad;
+  }
+  while (delta < -180_brad) {
+    delta += 360_brad;
+  }
+
+  // if the delta is greater than the rate, limit it for slow turning
+  if (delta > max_jump) {
+    delta = delta / 8_f;
+  }
+  if (delta < -max_jump) {
+    delta = delta / 8_f;
+  }
+
+  current_state_.angle += delta;
 }
 
 void Camera::LookAt(Vec3 position, Vec3 target, bool instant) {
