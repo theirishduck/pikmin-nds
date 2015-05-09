@@ -36,7 +36,7 @@ class MultipassEngine {
   numeric_types::Brads DPadDirection();
   numeric_types::Brads CameraAngle();
 
-  void TargetEntity(DrawableEntity*);
+  Camera* camera();
 
   int FrameCounter();
 

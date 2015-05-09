@@ -4,7 +4,9 @@
 #include "numeric_types.h"
 #include "vector.h"
 
-class DrawableEntity;
+namespace captain_ai {
+class CaptainState;
+}
 
 struct CameraState {
   Vec3 target{numeric_types::fixed::FromInt(0), numeric_types::fixed::FromInt(6), numeric_types::fixed::FromInt(4)};
@@ -17,7 +19,7 @@ class Camera {
  public:
   Camera();
   void LookAt(Vec3 position, Vec3 target, bool instant = false);
-  void FollowEntity(DrawableEntity* target);
+  void FollowCaptain(captain_ai::CaptainState* target);
 
   numeric_types::Brads GetAngle();
 
@@ -28,13 +30,13 @@ class Camera {
   Vec3 Target();
 
  private:
-  DrawableEntity* target_;
+  captain_ai::CaptainState* target_;
 
   CameraState target_state_;
   CameraState current_state_;
   CameraState cached_state_; 
 
-  DrawableEntity* entity_to_follow_;
+  captain_ai::CaptainState* captain_to_follow_;
 };
 
 #endif  // CAMERA_H

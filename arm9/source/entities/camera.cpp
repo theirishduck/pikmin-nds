@@ -4,7 +4,7 @@
 
 #include <nds.h>
 
-#include "drawable_entity.h"
+#include "ai/captain.h"
 #include "debug.h"
 
 using namespace std;
@@ -47,17 +47,19 @@ void Camera::Update() {
     }
   }
 
-  if (entity_to_follow_) {
+  if (captain_to_follow_) {
     if (keysDown() & KEY_L) {
       // Move the camera directly behind the target entity, based on their
       // current rotation.
-      target_state_.angle = entity_to_follow_->rotation().y - 90_brad;
+      
+      //target_state_.angle = captain_to_follow_->entity->rotation().y - 90_brad;
+      target_state_.angle = captain_to_follow_->entity->AngleTo(captain_to_follow_->cursor) - 90_brad;
     }
     if (keysHeld() & KEY_L) {
       // Adjust the rotation based on the new position of the entity, to
       // achieve kind of a lazy follow and rotate
       auto angle_to_current_target = AngleBetween(Position(), target_state_.target);
-      auto angle_to_new_target = AngleBetween(Position(), entity_to_follow_->position());
+      auto angle_to_new_target = AngleBetween(Position(), captain_to_follow_->entity->position());
       auto delta = angle_to_new_target - angle_to_current_target;
 
       // clamp the delta so that it is within -180, 180
@@ -72,7 +74,7 @@ void Camera::Update() {
       delta = delta / 2_f;
       target_state_.angle += delta;
     }
-    target_state_.target = entity_to_follow_->position() + Vec3{0_f,2.5_f,0_f};
+    target_state_.target = captain_to_follow_->entity->position() + Vec3{0_f,2.5_f,0_f};
   } else {
     //printf("No entity?\n");
   }
@@ -141,8 +143,8 @@ Brads Camera::GetAngle() {
   return current_state_.angle;
 }
 
-void Camera::FollowEntity(DrawableEntity* entity) {
-  entity_to_follow_ = entity;
+void Camera::FollowCaptain(captain_ai::CaptainState* target) {
+  captain_to_follow_ = target;
 }
 
 Vec3 Camera::Position() {

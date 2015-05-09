@@ -30,8 +30,8 @@ physics::World& MultipassEngine::World() {
   return world_;
 }
 
-void MultipassEngine::TargetEntity(DrawableEntity* entity) {
-  camera_.FollowEntity(entity);
+Camera* MultipassEngine::camera() {
+  return &camera_;
 }
 
 void MultipassEngine::AddEntity(DrawableEntity* entity) {

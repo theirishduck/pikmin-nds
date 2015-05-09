@@ -152,7 +152,7 @@ void SetupDemoStage() {
 
 void InitCaptain() {
   CaptainState* captain = g_game.SpawnObject<CaptainState>();
-  g_engine.TargetEntity(captain->entity);
+  g_engine.camera()->FollowCaptain(captain);
   captain->entity->body()->position = Vec3{64_f,0_f,-62_f};
 
 }
