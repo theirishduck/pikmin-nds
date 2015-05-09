@@ -53,6 +53,7 @@ enum Topic {
 
 void StartTopic(Topic topic);
 void EndTopic(Topic topic);
+void ClearTopic(Topic topic);
 void StartCpuTimer();
 void NextTopic();
 void PreviousTopic();

@@ -272,6 +272,11 @@ void MultipassEngine::DrawClearPlane() {
 }
 
 void MultipassEngine::InitFrame() {
+  // Initialize the debug counts for this pass
+  for (int i = current_pass_; i < 9; i++) {
+    debug::ClearTopic((Topic)((int)Topic::kPass1 + i));
+  }
+
   //debug::TimingColor(RGB5(0, 15, 0));
   debug::StartTopic(Topic::kFrameInit);
   // Handle everything that happens at the start of a frame. This includes
@@ -286,6 +291,7 @@ void MultipassEngine::InitFrame() {
 
   // Ensure the overlap list is empty.
   overlap_list_.clear();
+
   current_pass_ = 0;
 
   // consoleClear();

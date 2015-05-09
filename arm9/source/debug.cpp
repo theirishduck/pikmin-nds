@@ -351,6 +351,12 @@ void debug::EndTopic(debug::Topic topic) {
   debug::_TimingColor(RGB8(0,0,0));
 }
 
+void debug::ClearTopic(Topic topic) {
+  int index = static_cast<int>(topic);
+  g_timing_results[index].start = 0;
+  g_timing_results[index].end = 0;
+}
+
 void debug::StartCpuTimer() {
   // This uses two timers for 32bit precision, so this call will consume
   // timers 0 and 1.
