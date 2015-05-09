@@ -159,20 +159,22 @@ void MultipassEngine::GatherDrawList() {
     entity->SetCache();
     DrawState& state = entity->GetCachedState();
 
-    // Using the camera state, calculate the nearest and farthest points,
-    // which we'll later use to decide where the clipping planes should go.
-    EntityContainer container;
-    container.entity = entity;
-    fixed object_z = entity->GetRealModelZ();
-    if (entity->important) {
-      container.far_z  = object_z + state.actor->Radius();
-      container.near_z = object_z - state.actor->Radius();
-    } else {
-      container.far_z  = object_z;
-      container.near_z = object_z;
-    }
+    if (entity->InsideViewFrustrum()) {
+      // Using the camera state, calculate the nearest and farthest points,
+      // which we'll later use to decide where the clipping planes should go.
+      EntityContainer container;
+      container.entity = entity;
+      fixed object_z = entity->GetRealModelZ();
+      if (entity->important) {
+        container.far_z  = object_z + state.actor->Radius();
+        container.near_z = object_z - state.actor->Radius();
+      } else {
+        container.far_z  = object_z;
+        container.near_z = object_z;
+      }
 
-    draw_list_.push(container);
+      draw_list_.push(container);
+    }
   }
 }
 

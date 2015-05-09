@@ -177,6 +177,25 @@ void DrawableEntity::Update() {
   set_position(body_->position);
 }
 
+bool DrawableEntity::InsideViewFrustrum() {
+  // Determine if this object is in the view frustrum using a BOX_TEST
+  glPushMatrix();
+  ApplyTransformation();
+  glScalef32(cached_.actor->Radius().data_, cached_.actor->Radius().data_, cached_.actor->Radius().data_);
+
+  bool result = BoxTest(
+      (-1_f).data_,
+      (-1_f).data_,
+      (-1_f).data_,
+      (2_f).data_,
+      (2_f).data_,
+      (2_f).data_);
+
+  glPopMatrix(1);
+
+  return result;
+}
+
 numeric_types::fixed DrawableEntity::GetRealModelZ() {
   // Avoid clobbering the render state for this poll by pushing the current
   // matrix before performing the position test.
@@ -184,7 +203,7 @@ numeric_types::fixed DrawableEntity::GetRealModelZ() {
   ApplyTransformation();
 
   // Perform a hardware position test on the center of the model.
-  Vec3& center = current_.actor->Center();
+  Vec3& center = cached_.actor->Center();
   PosTest(center.x.data_, center.y.data_, center.z.data_);
   numeric_types::fixed result;
   result.data_ = PosTestZresult();

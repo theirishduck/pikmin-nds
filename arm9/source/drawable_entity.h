@@ -50,6 +50,8 @@ class DrawableEntity {
   void RotateToFace(numeric_types::Brads target_angle, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));
   void RotateToFace(const DrawableEntity* destination, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));
 
+  bool InsideViewFrustrum();
+
   void set_actor(Dsgx* actor);
   Dsgx* actor();
 
