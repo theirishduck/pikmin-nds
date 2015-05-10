@@ -22,7 +22,7 @@ SOURCES		:=	gfx source $(NAMESPACE_SOURCES)
 # including of files from the ARM9 side when required.
 INCLUDES	:=	include source build ..
 DATA		:= data
-
+FBX := art
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -63,12 +63,14 @@ export ARM9ELF	:=	$(CURDIR)/$(TARGET).elf
 export DEPSDIR := $(CURDIR)/$(BUILD)
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
-					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir)) \
+					$(foreach dir,$(FBX),$(CURDIR)/$(dir))
  
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+FBXFILES	:=	$(foreach dir,$(FBX),$(notdir $(wildcard $(dir)/*.fbx)))
  
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -84,7 +86,7 @@ else
 endif
 #---------------------------------------------------------------------------------
 
-export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
+export OFILES	:=	$(addsuffix .o,$(BINFILES)) $(FBXFILES:.fbx=.dsgx.o) \
 					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
  
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
@@ -104,6 +106,8 @@ $(BUILD):
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) *.elf *.nds* *.bin 
+
+print-%  : ; @echo $* = $($*)
  
  
 #---------------------------------------------------------------------------------
@@ -128,6 +132,14 @@ $(ARM9ELF)	:	$(OFILES)
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	@$(bin2o)
+
+%.dsgx	:	%.fbx
+#---------------------------------------------------------------------------------
+	@echo FBX CONVERSION
+	@echo $(FBXFILES)
+	@echo $(BINFILES)
+	@echo $(notdir $<)
+	@model2dsgx $< $@
 
 -include $(DEPSDIR)/*.d
  

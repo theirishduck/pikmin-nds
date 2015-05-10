@@ -86,3 +86,4 @@ RUN mkdir /opt/dsgx-converter \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
   
+CMD make

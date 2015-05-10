@@ -7,7 +7,7 @@
 #include "trig.h"
 
 // Model data
-#include "olimar_dsgx.h"
+//#include "olimar_dsgx.h"
 #include "olimar_low_poly_dsgx.h"
 #include "cursor_dsgx.h"
 #include "whistle_dsgx.h"
@@ -22,7 +22,7 @@ using pikmin_ai::PikminType;
 
 namespace captain_ai {
 
-Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
+//Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
 Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
 Dsgx cursor_actor((u32*)cursor_dsgx, cursor_dsgx_size);
 Dsgx whistle_actor((u32*)whistle_dsgx, whistle_dsgx_size);
