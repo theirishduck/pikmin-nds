@@ -10,8 +10,9 @@ RUN apt-get update && \
   apt-get -y install \ 
   build-essential \
   curl \
-  zlib1g-dev \
-  libssl-dev && \
+  git \
+  libssl-dev  \
+  zlib1g-dev && \
   rm -rf /var/lib/apt/lists/*
 
 # remove several traces of debian python
@@ -79,3 +80,9 @@ RUN wget http://images.autodesk.com/adsk/files/fbx20151_fbxpythonsdk_linux.tar.g
   && cp /opt/FBX_SDK/Python/lib/Python33_x64/* /usr/local/lib/python3.3/site-packages \
   && rm fbx20151_fbxpythonsdk_linux.tar.gz fbx20151_fbxpythonsdk_linux  Install_FbxSdk.txt
 
+# Clone in the dsgx-converter project
+RUN mkdir /opt/dsgx-converter \
+  && git clone --depth=1 https://github.com/zeta0134/dsgx-converter.git /opt/dsgx-converter \
+  && chmod +x /opt/dsgx-converter/model2dsgx.py \
+  && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
+  
