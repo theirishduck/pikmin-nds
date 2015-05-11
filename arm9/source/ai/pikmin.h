@@ -28,6 +28,7 @@ struct PikminState : ObjectState {
   Vec3 parent_initial_location;
   Vec3 child_offset;
 
+  bool has_target{false};
   Vec2 target;
 
   //cache values for not updating so often

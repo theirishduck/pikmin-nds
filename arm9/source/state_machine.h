@@ -60,7 +60,7 @@ class StateMachine {
         // Make sure we pass this edge's trigger condition
         if (edge.trigger == kAlways or edge.trigger == kGuardOnly or
             (edge.trigger == kFirstFrame and state.frames_at_this_node == 0) or
-            (edge.trigger == kLastFrame and state.frames_at_this_node == current_node.duration - 1)) {
+            (edge.trigger == kLastFrame and state.frames_at_this_node >= current_node.duration - 1)) {
           // If this edge has a guard function, only continue if the guard
           // passes its condition. If not, always continue.
           if (edge.guard == nullptr or edge.guard(state)) {

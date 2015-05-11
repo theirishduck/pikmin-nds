@@ -94,6 +94,11 @@ void StopMoving(PikminState& pikmin) {
   pikmin.entity->body()->velocity = Vec3{0_f, 0_f, 0_f};
 }
 
+void ClearTargetAndStop(PikminState& pikmin) {
+  pikmin.has_target = false;
+  StopMoving(pikmin);
+}
+
 bool Landed(const PikminState& pikmin) {
   return pikmin.entity->body()->touching_ground;
 }
@@ -148,9 +153,9 @@ bool CantReachTarget(const PikminState& pikmin) {
   return false; // STUB
 }
 
-bool TooFarFromSquad(const PikminState& pikmin) {
-  // Are we in a squad at all?
-  if (pikmin.current_squad == nullptr) {
+bool TooFarFromTarget(const PikminState& pikmin) {
+  // Do we have a valid target?
+  if (pikmin.current_squad == nullptr and !pikmin.has_target) {
     return false;
   }
 
@@ -195,7 +200,7 @@ Edge<PikminState> edge_list[] {
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
 
   //Idle
-  {kAlways, TooFarFromSquad, nullptr, PikminNode::kTargeting},
+  {kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
@@ -208,7 +213,7 @@ Edge<PikminState> edge_list[] {
   {kAlways, Landed, StopMoving, PikminNode::kIdle},
 
   //Targeting
-  {kAlways, TargetReached, StopMoving, PikminNode::kIdle},
+  {kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CantReachTarget, StopMoving, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, nullptr, FaceTarget, PikminNode::kTargeting},
