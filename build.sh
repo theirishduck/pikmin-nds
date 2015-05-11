@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# build the docker file if it isn't already here
+# build the docker image if necessary
 docker build --quiet=true -t zeta0134/pikmin-nds ./docker
 
 # run the dockerfile on this directory, which will build the project
