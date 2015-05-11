@@ -133,7 +133,7 @@ $(ARM9ELF)	:	$(OFILES)
 %.dsgx	:	%.fbx
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
-	@model2dsgx $< $@
+	@model2dsgx --quiet $< $@
 
 -include $(DEPSDIR)/*.d
  

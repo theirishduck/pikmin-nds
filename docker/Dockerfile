@@ -83,6 +83,8 @@ RUN wget http://images.autodesk.com/adsk/files/fbx20151_fbxpythonsdk_linux.tar.g
 # Clone in the dsgx-converter project
 RUN mkdir /opt/dsgx-converter \
   && git clone --depth=1 https://github.com/zeta0134/dsgx-converter.git /opt/dsgx-converter \
+  && cd /opt/dsgx-converter \
+  && git reset --hard 9cad11d1eaaa24971c671f8320cff001aac4e57d \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
   
