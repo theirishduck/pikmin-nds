@@ -9,6 +9,7 @@ FROM cromo/devkitarm
 RUN apt-get update && \
   apt-get -y install \ 
   build-essential \
+  cmake \
   curl \
   git \
   libssl-dev  \
@@ -60,6 +61,7 @@ RUN cd /usr/local/bin \
 # Install the libraries that the dsgx-converter relies on
 RUN pip install docopt \
   && pip install euclid3 \
+  && pip install numpy \
   && pip install Pillow
 
 # Here we download, untar, and install the Autodesk FBX SDK
@@ -79,6 +81,19 @@ RUN wget http://images.autodesk.com/adsk/files/fbx20151_fbxpythonsdk_linux.tar.g
   && bash -c "./fbx20151_fbxpythonsdk_linux /opt/FBX_SDK/Python <<< $'yes\nn\n'" \
   && cp /opt/FBX_SDK/Python/lib/Python33_x64/* /usr/local/lib/python3.3/site-packages \
   && rm fbx20151_fbxpythonsdk_linux.tar.gz fbx20151_fbxpythonsdk_linux  Install_FbxSdk.txt
+
+# here we install the ASSIMP library, which will maybe replace all of the above
+# with sanity. sweet sanity.
+
+RUN cd /home \
+  && git clone https://github.com/assimp/assimp.git \
+  && cd assimp \
+  && cmake -G "Unix Makefiles" \
+  && make install \
+  && cd port/PyAssimp \
+  && python setup.py install \
+  && cd /home
+  && rm -rf assimp
 
 # Clone in the dsgx-converter project
 RUN mkdir /opt/dsgx-converter \
