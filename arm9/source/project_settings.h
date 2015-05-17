@@ -53,5 +53,10 @@
 #define PIKMIN_GROUP  (0x1 << 1)
 #define WHISTLE_GROUP (0x1 << 2)
 
+// Camera distance and height constants (play with these if you adjust the FOV)
+#define CAMERA_LOW_HEIGHT 0.5_f
+#define CAMERA_HIGH_HEIGHT 2.0_f
+#define CAMERA_CLOSEST 17_f
+#define CAMERA_STEP 14_f
 
 #endif  // PROJECT_SETTINGS_H_

@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "project_settings.h"
 
 #include <cstdio>
 
@@ -34,15 +35,15 @@ Brads AngleBetween(const Vec3 source_position, const Vec3 destination_position) 
 void Camera::Update() {
   if (keysDown() & KEY_R) {
     if (keysHeld() & KEY_L) {
-      target_state_.distance += 7_f;
-      if (target_state_.distance > 24_f) {
-        target_state_.distance = 10_f;
+      target_state_.distance += CAMERA_STEP;
+      if (target_state_.distance > CAMERA_CLOSEST + (CAMERA_STEP * 2_f)) {
+        target_state_.distance = CAMERA_CLOSEST;
       }
     } else {
-      if (target_state_.height == 0.5_f) {
-        target_state_.height = 2_f;
+      if (target_state_.height == CAMERA_LOW_HEIGHT) {
+        target_state_.height = CAMERA_HIGH_HEIGHT;
       } else {
-        target_state_.height = 0.5_f;
+        target_state_.height = CAMERA_LOW_HEIGHT;
       }
     }
   }

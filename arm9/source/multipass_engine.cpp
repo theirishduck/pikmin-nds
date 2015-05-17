@@ -117,8 +117,8 @@ void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   glLoadIdentity();
 
   fixed sine = trig::SinLerp(angle);
-  //fixed cosine = trig::CosLerp(angle);
-  fixed cosine = trig::SinLerp(angle);
+  fixed cosine = trig::CosLerp(angle);
+  //fixed cosine = trig::SinLerp(angle);
 
   MATRIX_LOAD4x4  = (((3_f * cosine) / (4_f * sine)).data_);
   MATRIX_LOAD4x4  = 0;
