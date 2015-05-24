@@ -92,7 +92,7 @@ RUN cd /home \
   && make install \
   && cd port/PyAssimp \
   && python setup.py install \
-  && cd /home
+  && cd /home \
   && rm -rf assimp
 
 # Clone in the dsgx-converter project
@@ -102,5 +102,9 @@ RUN mkdir /opt/dsgx-converter \
   && git reset --hard 9cad11d1eaaa24971c671f8320cff001aac4e57d \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
-  
+
+# This sets up Hy, a lisp that runs on Python. This is used for the texture
+# conversion tool.
+RUN pip install hy
+
 CMD make
