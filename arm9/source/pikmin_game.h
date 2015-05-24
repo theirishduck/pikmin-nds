@@ -25,6 +25,7 @@ class PikminGame {
 
   void Step();
   VramAllocator* TextureAllocator();
+  VramAllocator* TexturePaletteAllocator();
   VramAllocator* SpriteAllocator();
 
   //useful polling functions
@@ -34,6 +35,7 @@ class PikminGame {
 
  private:
   VramAllocator texture_allocator_ = VramAllocator(VRAM_C, 128 * 1024);
+  VramAllocator texture_palette_allocator_ = VramAllocator(VRAM_G, 16 * 1024);
   VramAllocator sprite_allocator_ = VramAllocator(SPRITE_GFX_SUB, 32 * 1024);
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;

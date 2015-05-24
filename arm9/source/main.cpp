@@ -117,6 +117,14 @@ void LoadTextures() {
   vramSetBankC(VRAM_C_TEXTURE);
 }
 
+void LoadPalettes() {
+  vramSetBankG(VRAM_G_LCD);
+
+  // Load Texture Palettes here
+
+  vramSetBankG(VRAM_G_TEX_PALETTE);
+}
+
 void SetupDemoPikmin() {
   for (s32 i = 0; i < kTestPikmin; i += 10) {
     for (s32 j = 0; j < 10; j++) {
@@ -162,6 +170,7 @@ void Init() {
   InitSubScreen();
 
   LoadTextures();
+  LoadPalettes();
   SetupDemoPikmin();
   InitCaptain();
   SetupDemoStage();
