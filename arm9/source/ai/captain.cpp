@@ -66,7 +66,7 @@ void InitAlways(CaptainState& captain) {
 
   //Initialize the cursor
   captain.cursor->set_actor(&cursor_actor);
-  cursor_actor.ApplyTextures(captain.game->TextureAllocator());
+  cursor_actor.ApplyTextures(captain.game->TextureAllocator(), captain.game->TexturePaletteAllocator());
   captain.cursor->body()->ignores_walls = 1;
   captain.cursor->body()->position = body->position
       + Vec3{0_f,0_f,5_f};
@@ -74,7 +74,7 @@ void InitAlways(CaptainState& captain) {
 
   //Initialize the whistle
   captain.whistle->set_actor(&whistle_actor);
-  whistle_actor.ApplyTextures(captain.game->TextureAllocator());
+  whistle_actor.ApplyTextures(captain.game->TextureAllocator(), captain.game->TexturePaletteAllocator());
   auto whistle_body = captain.whistle->body();
 
   whistle_body->height = 10.0_f;

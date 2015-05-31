@@ -11,10 +11,10 @@ using entities::Level;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
-Level::Level(VramAllocator* texture_allocator) {
+Level::Level(VramAllocator* texture_allocator, VramAllocator* palette_allocator) {
   // Todo(Nick) Share Dsgx instances across instances.
   Dsgx* level_actor = new Dsgx((u32*)checkerboard_test_dsgx, checkerboard_test_dsgx_size);
-  level_actor->ApplyTextures(texture_allocator);
+  level_actor->ApplyTextures(texture_allocator, palette_allocator);
   set_actor(level_actor);
   set_rotation(0_brad, 0_brad, 0_brad);
 }

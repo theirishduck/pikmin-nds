@@ -16,6 +16,10 @@ VramAllocator* PikminGame::TextureAllocator() {
   return &texture_allocator_;
 }
 
+VramAllocator* PikminGame::TexturePaletteAllocator() {
+  return &texture_palette_allocator_;
+}
+
 VramAllocator* PikminGame::SpriteAllocator() {
   return &sprite_allocator_;
 }

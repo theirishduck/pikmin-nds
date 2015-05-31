@@ -159,17 +159,39 @@ void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
   }
 }
 
-void Dsgx::ApplyTextures(VramAllocator* texture_allocator) {
+void Dsgx::ApplyTextures(VramAllocator* texture_allocator, VramAllocator* palette_allocator) {
   // go through this object's textures and write in the correct offsets
   // into VRAM, based on where they got loaded
   auto destination = model_data_ + 1;
   for (auto texture = textures_.begin(); texture != textures_.end(); texture++) {
-    u32 location = (u32)texture_allocator->Retrieve(texture->name).offset;
+    auto loaded_texture = texture_allocator->Retrieve(texture->name);
+    // First, write the offset to actual TEXEL data; we always need to do this
+    u32 location = (u32)loaded_texture.offset;
     location /= 8;
     for (u32 i = 0; i < texture->num_offsets; i++) {
-      *(destination + texture->offsets[i]) = ((*(destination + texture->offsets[i])) & 0xFFFF0000) | (location & 0x0000FFFF);
-      nocashMessage("Wrote an offset!");
-      debug::nocashNumber((int)location);      
+      //set the texture offset
+      *(destination + texture->offsets[i]) = 
+        ((*(destination + texture->offsets[i])) & 0xFFFF0000) | (location & 0x0000FFFF);
+      
+      //set the format (warning: funky hex binary logic here)
+      *(destination + texture->offsets[i]) = 
+        ((*(destination + texture->offsets[i])) & 0xC3FFFFFF) | ((loaded_texture.format << 26) & 0x3C000000);
+    }
+    // If this is any texture format other than Direct Texture, then we need to
+    // also write in the PALETTE BASE data; this is a little funky
+    if (loaded_texture.format != 7) {
+      auto loaded_palette = palette_allocator->Retrieve(texture->name);
+      u32 palette_location = (u32)loaded_palette.offset - (u32)palette_allocator->Base();
+      // if this is a 4bpp texture (format 2) we use 8-byte offsets
+      // otherwise we use 16 byte offsets
+      if (loaded_texture.format == 2) {
+        palette_location /= 8;
+      } else {
+        palette_location /= 16;
+      }
+      for (u32 i = 0; i < texture->num_offsets; i++) {
+        *(destination + texture->offsets[i] + 2) = (palette_location & 0xFFF);
+      }
     }
   }
 }

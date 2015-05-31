@@ -32,6 +32,9 @@
 #include "flower_img_bin.h"
 #include "redonion_img_bin.h"
 
+#include "checkerboard_4bpp_bin.h"
+#include "checkerboard_pal_bin.h"
+
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
 
@@ -51,7 +54,7 @@ using numeric_types::fixed;
 
 using debug::Topic;
 
-s32 const kTestPikmin{100};
+s32 const kTestPikmin{10};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
@@ -100,19 +103,20 @@ void LoadTextures() {
   // switching it back to texture mode.
   vramSetBankC(VRAM_C_LCD);
 
-  g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size, 64, 16);
-  g_game.TextureAllocator()->Load("piki_leaf", piki_leaf_img_bin, piki_leaf_img_bin_size, 32, 64);
-  g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size, 16, 16);
-  g_game.TextureAllocator()->Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size, 16, 16);
-  g_game.TextureAllocator()->Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size, 16, 32);
-  g_game.TextureAllocator()->Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size, 8, 16);
-  g_game.TextureAllocator()->Load("numbers", numbers_img_bin, numbers_img_bin_size, 64, 32);
-  g_game.TextureAllocator()->Load("rocky", rocky_img_bin, rocky_img_bin_size, 128, 128);
-  g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size, 32, 64);
-  g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size, 64, 64);
-  g_game.TextureAllocator()->Load("bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size, 16, 16);
-  g_game.TextureAllocator()->Load("flower", flower_img_bin, flower_img_bin_size, 32, 32);
-  g_game.TextureAllocator()->Load("redonion", redonion_img_bin, redonion_img_bin_size, 8, 32);
+  g_game.TextureAllocator()->Load("piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size, 64, 16, GL_RGBA);
+  g_game.TextureAllocator()->Load("piki_leaf", piki_leaf_img_bin, piki_leaf_img_bin_size, 32, 64, GL_RGBA);
+  g_game.TextureAllocator()->Load("posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size, 16, 16, GL_RGBA);
+  g_game.TextureAllocator()->Load("posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size, 16, 16, GL_RGBA);
+  g_game.TextureAllocator()->Load("posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size, 16, 32, GL_RGBA);
+  g_game.TextureAllocator()->Load("posy-petal", posy_petal_img_bin, posy_petal_img_bin_size, 8, 16, GL_RGBA);
+  g_game.TextureAllocator()->Load("numbers", numbers_img_bin, numbers_img_bin_size, 64, 32, GL_RGBA);
+  g_game.TextureAllocator()->Load("rocky", rocky_img_bin, rocky_img_bin_size, 128, 128, GL_RGBA);
+  g_game.TextureAllocator()->Load("cursor", cursor_img_bin, cursor_img_bin_size, 32, 64, GL_RGBA);
+  g_game.TextureAllocator()->Load("bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size, 16, 16, GL_RGBA);
+  g_game.TextureAllocator()->Load("flower", flower_img_bin, flower_img_bin_size, 32, 32, GL_RGBA);
+  g_game.TextureAllocator()->Load("redonion", redonion_img_bin, redonion_img_bin_size, 8, 32, GL_RGBA);
+  //g_game.TextureAllocator()->Load("checkerboard", checkerboard_img_bin, checkerboard_img_bin_size, 64, 64, GL_RGBA);
+  g_game.TextureAllocator()->Load("checkerboard", checkerboard_4bpp_bin, checkerboard_4bpp_bin_size, 64, 64, GL_RGB16);
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -121,6 +125,7 @@ void LoadPalettes() {
   vramSetBankG(VRAM_G_LCD);
 
   // Load Texture Palettes here
+  g_game.TexturePaletteAllocator()->Load("checkerboard", checkerboard_pal_bin, checkerboard_pal_bin_size, 64, 64, GL_RGB16);
 
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
@@ -144,12 +149,12 @@ void SetupDemoPikmin() {
 
 void SetupDemoStage() {
   //spawn in test objects
-  PelletPosy* posy = new PelletPosy(g_game.TextureAllocator());
+  PelletPosy* posy = new PelletPosy(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
   g_engine.AddEntity(posy);
   posy->body()->position = {6.2_f, 0_f, -6.2_f};
 
   //load in the test level
-  Level* sandbox = new Level(g_game.TextureAllocator());
+  Level* sandbox = new Level(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
   g_engine.AddEntity(sandbox);
   g_engine.World().SetHeightmap(checkerboard_height_bin);
 

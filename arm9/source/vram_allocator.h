@@ -12,6 +12,7 @@ struct Texture {
     int height;
     int format_width;
     int format_height;
+    int format;
 };
 
 class VramAllocator {
@@ -19,7 +20,7 @@ class VramAllocator {
     VramAllocator(u16* cpu_base, u32 size);
     ~VramAllocator();
 
-    Texture Load(std::string name, const u8* data, u32 size, int width, int height);
+    Texture Load(std::string name, const u8* data, u32 size, int width, int height, int format = 0);
     Texture Replace(std::string name, const u8* data, u32 size);
     Texture Retrieve(std::string name);
     void Reset();

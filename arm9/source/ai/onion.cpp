@@ -12,7 +12,7 @@ Dsgx redonion_actor((u32*)redonion_dsgx, redonion_dsgx_size);
 
 void InitAlways(OnionState& onion) {
   onion.entity->set_actor(&redonion_actor);
-  redonion_actor.ApplyTextures(onion.game->TextureAllocator());
+  redonion_actor.ApplyTextures(onion.game->TextureAllocator(), onion.game->TexturePaletteAllocator());
 }
 
 Edge<OnionState> edge_list[] {

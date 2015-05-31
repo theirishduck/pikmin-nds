@@ -14,7 +14,7 @@ namespace entities {
 
 class PelletPosy : public DrawableEntity {
   public:
-    PelletPosy(VramAllocator* texture_allocator);
+    PelletPosy(VramAllocator* texture_allocator, VramAllocator* palette_allocator);
     ~PelletPosy();
 };
 

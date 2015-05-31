@@ -24,15 +24,15 @@ void InitAlways(PikminState& pikmin) {
     case PikminType::kNone:
     case PikminType::kRedPikmin:
       pikmin.entity->set_actor(&red_pikmin_actor);
-      red_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());
+      red_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
     case PikminType::kYellowPikmin:
       pikmin.entity->set_actor(&yellow_pikmin_actor);
-      yellow_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());
+      yellow_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
     case PikminType::kBluePikmin:
       pikmin.entity->set_actor(&blue_pikmin_actor);
-      blue_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator());
+      blue_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
   }
 
