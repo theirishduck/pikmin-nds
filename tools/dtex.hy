@@ -64,13 +64,15 @@ Options:
 
 (defn n-bit-palette-extractor [bit-depth]
   (fn [palette] (extract-n-bit-palette bit-depth palette)))
+(defn last-n [n f]
+  (fn [collection] (f (slice collection (- n) None None))))
 (def palette-converters
   {"2bpp" (n-bit-palette-extractor 2)
   "4bpp" (n-bit-palette-extractor 4)
   "8bpp" (n-bit-palette-extractor 8)
   "16bpp" bad-conversion
-  "a3i5" (n-bit-palette-extractor 5)
-  "a5i3" (n-bit-palette-extractor 3)
+  "a3i5" (last-n (** 2 5) (n-bit-palette-extractor 5))
+  "a5i3" (last-n (** 2 3) (n-bit-palette-extractor 3))
   "4x4c" unimplemented-conversion})
 
 (defn convert-to-n-bit-image [bit-depth indexes]
