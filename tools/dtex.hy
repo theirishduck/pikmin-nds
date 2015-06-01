@@ -69,8 +69,8 @@ Options:
   "4bpp" (n-bit-palette-extractor 4)
   "8bpp" (n-bit-palette-extractor 8)
   "16bpp" bad-conversion
-  "a3i5" (n-bit-palette-extractor 8)
-  "a5i3" (n-bit-palette-extractor 8)
+  "a3i5" (n-bit-palette-extractor 5)
+  "a5i3" (n-bit-palette-extractor 3)
   "4x4c" unimplemented-conversion})
 
 (defn convert-to-n-bit-image [bit-depth indexes]

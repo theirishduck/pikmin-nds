@@ -59,19 +59,28 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         alpha = 31;
       }
       if (alpha > 1) {
-        glPolyFmt(POLY_ALPHA(alpha) | POLY_CULL_BACK);
-        /*glTexParameter(0,
-          ((((u32)particle.texture.offset) / 8) & 0xFFFF) |
-          (particle.texture.format_width << 20) | 
-          (particle.texture.format_height << 23) | 
-          (GL_RGBA << 26)
-          );
-          */
+        //glPolyFmt(POLY_ALPHA(alpha) | POLY_CULL_BACK);
+        glPolyFmt(POLY_ALPHA(alpha) | POLY_ID(slot) | POLY_CULL_BACK);
+        // Note: The OpenGL functions depend on internal state, and using them
+        // here would cause a lot of overhead, so we're writing to the
+        // registers manually.
+        glBegin(GL_QUAD);
+        // TEXIMAGE_PARAM
         *((u32*)0x40004A8) = 
           ((((u32)particle.texture.offset) / 8) & 0xFFFF) |
           (particle.texture.format_width << 20) | 
           (particle.texture.format_height << 23) | 
-          (GL_RGBA << 26);
+          (particle.texture.format << 26) | 
+          (particle.texture.transparency << 29);
+
+        // PLTT_BASE
+        if (particle.texture.format == GL_RGB4) {
+          *((u32*)0x40004AC) = 
+            (u32)(particle.palette.offset - VRAM_G) / 8;
+        } else {
+          *((u32*)0x40004AC) = 
+            (u32)(particle.palette.offset - VRAM_G) / 16;
+        }
 
         glPushMatrix();
         glTranslatef32(particle.position.x.data_, particle.position.y.data_,
@@ -79,7 +88,6 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         glRotateYi(y_angle.data_);
         glRotateXi(x_angle.data_);
 
-        glBegin(GL_QUAD);
         glColor(RGB15(31,31,31));
         glTexCoord2t16(0, 0);
         glVertex3v16(-1 << 12,  1 << 12, 0);

@@ -38,6 +38,8 @@
 #include "piki_leaf_pal_bin.h"
 #include "cursor_2bpp_bin.h"
 #include "cursor_pal_bin.h"
+#include "fire_a3i5_bin.h"
+#include "fire_pal_bin.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
@@ -146,6 +148,9 @@ void LoadTextures() {
   g_game.TextureAllocator()->Load(
     "checkerboard", checkerboard_4bpp_bin, checkerboard_4bpp_bin_size, 
     {TEXTURE_SIZE_64, TEXTURE_SIZE_64, GL_RGB16});
+  g_game.TextureAllocator()->Load(
+    "fire", fire_a3i5_bin, fire_a3i5_bin_size, 
+    {TEXTURE_SIZE_32, TEXTURE_SIZE_32, GL_RGB32_A3});
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -155,12 +160,13 @@ void LoadPalettes() {
 
   // Load Texture Palettes here
   g_game.TexturePaletteAllocator()->Load(
+    "fire", fire_pal_bin, fire_pal_bin_size, {32});
+  g_game.TexturePaletteAllocator()->Load(
     "checkerboard", checkerboard_pal_bin, checkerboard_pal_bin_size, {16});
   g_game.TexturePaletteAllocator()->Load(
     "piki_leaf", piki_leaf_pal_bin, piki_leaf_pal_bin_size, {16});
   g_game.TexturePaletteAllocator()->Load(
     "cursor", cursor_pal_bin, cursor_pal_bin_size, {4});
-
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
 
@@ -232,12 +238,15 @@ Vec3 RandomVector() {
 
 void GameLoop() {
   Particle test_flower;
-  test_flower.texture = g_game.TextureAllocator()->Retrieve("flower");
+  test_flower.texture = g_game.TextureAllocator()->Retrieve("fire");
+  test_flower.palette = g_game.TexturePaletteAllocator()->Retrieve("fire");
   test_flower.position = Vec3{64_f, 10_f, -64_f};
   test_flower.lifespan = 128;
   test_flower.fade_rate = 1_f / 128_f;
 
+  int frame_counter = 0;
   for (;;) {
+    frame_counter++;
     touchPosition touchXY;
     touchRead(&touchXY);
 
@@ -246,8 +255,10 @@ void GameLoop() {
 
     RunLogic();
 
-    Particle* new_particle = SpawnParticle(test_flower);
-    new_particle->velocity = RandomVector() * 0.1_f;
+    //if ((frame_counter & 0x7) == 0) {
+      Particle* new_particle = SpawnParticle(test_flower);
+      new_particle->velocity = RandomVector() * 0.01_f + Vec3{0_f,0.01_f,0_f};
+    //}
 
 
     g_engine.Update();
