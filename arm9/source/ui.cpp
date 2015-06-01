@@ -173,21 +173,28 @@ void InitNavPad(UIState& ui) {
 
   // copy in the bubble font data, for number updating
   memcpy(&SPRITE_PALETTE_SUB[0], bubblefont_pal_bin, bubblefont_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("bubblefont", bubblefont_img_bin, bubblefont_img_bin_size, 16, 160);
+  ui.game->SpriteAllocator()->Load(
+    "bubblefont", bubblefont_img_bin, bubblefont_img_bin_size, {16, 160});
   
   // copy in the pikmin button data
   memcpy(&SPRITE_PALETTE_SUB[16], red_button_light_pal_bin, red_button_light_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("redbutton", red_button_light_img_bin, red_button_light_img_bin_size, 64, 64);
+  ui.game->SpriteAllocator()->Load(
+    "redbutton", red_button_light_img_bin, red_button_light_img_bin_size, {64, 64});
   memcpy(&SPRITE_PALETTE_SUB[32], yellow_button_lit_pal_bin, yellow_button_lit_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size, 64, 64);
+  ui.game->SpriteAllocator()->Load(
+    "yellowbutton", yellow_button_lit_img_bin, yellow_button_lit_img_bin_size, {64, 64});
   memcpy(&SPRITE_PALETTE_SUB[48], blue_button_lit_pal_bin, blue_button_lit_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size, 64, 64);
+  ui.game->SpriteAllocator()->Load(
+    "bluebutton", blue_button_lit_img_bin, blue_button_lit_img_bin_size, {64, 64});
 
   // setup the map icon data
   memcpy(&SPRITE_PALETTE_SUB[64], map_icons_pal_bin, map_icons_pal_bin_size);
-  ui.game->SpriteAllocator()->Load("red_dot", red_dot_img_bin, red_dot_img_bin_size, 8, 8);
-  ui.game->SpriteAllocator()->Load("yellow_dot", yellow_dot_img_bin, yellow_dot_img_bin_size, 8, 8);
-  ui.game->SpriteAllocator()->Load("blue_dot", blue_dot_img_bin, blue_dot_img_bin_size, 8, 8);
+  ui.game->SpriteAllocator()->Load(
+    "red_dot", red_dot_img_bin, red_dot_img_bin_size, {8, 8});
+  ui.game->SpriteAllocator()->Load(
+    "yellow_dot", yellow_dot_img_bin, yellow_dot_img_bin_size, {8, 8});
+  ui.game->SpriteAllocator()->Load(
+    "blue_dot", blue_dot_img_bin, blue_dot_img_bin_size, {8, 8});
 }
 
 // Initialize the console using the full version of the console init function so

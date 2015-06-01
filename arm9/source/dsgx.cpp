@@ -159,7 +159,7 @@ void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
   }
 }
 
-void Dsgx::ApplyTextures(VramAllocator* texture_allocator, VramAllocator* palette_allocator) {
+void Dsgx::ApplyTextures(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator) {
   // go through this object's textures and write in the correct offsets
   // into VRAM, based on where they got loaded
   auto destination = model_data_ + 1;

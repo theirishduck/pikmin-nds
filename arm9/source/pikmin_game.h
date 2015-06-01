@@ -24,9 +24,9 @@ class PikminGame {
   void RemoveObject(StateType* object);
 
   void Step();
-  VramAllocator* TextureAllocator();
-  VramAllocator* TexturePaletteAllocator();
-  VramAllocator* SpriteAllocator();
+  VramAllocator<Texture>* TextureAllocator();
+  VramAllocator<TexturePalette>* TexturePaletteAllocator();
+  VramAllocator<Sprite>* SpriteAllocator();
 
   //useful polling functions
   captain_ai::CaptainState* ActiveCaptain();
@@ -34,9 +34,9 @@ class PikminGame {
   pikmin_ai::PikminState* Pikmin();
 
  private:
-  VramAllocator texture_allocator_ = VramAllocator(VRAM_C, 128 * 1024);
-  VramAllocator texture_palette_allocator_ = VramAllocator(VRAM_G, 16 * 1024);
-  VramAllocator sprite_allocator_ = VramAllocator(SPRITE_GFX_SUB, 32 * 1024);
+  VramAllocator<Texture> texture_allocator_ = VramAllocator<Texture>(VRAM_C, 128 * 1024);
+  VramAllocator<TexturePalette> texture_palette_allocator_ = VramAllocator<TexturePalette>(VRAM_G, 16 * 1024);
+  VramAllocator<Sprite> sprite_allocator_ = VramAllocator<Sprite>(SPRITE_GFX_SUB, 32 * 1024);
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 

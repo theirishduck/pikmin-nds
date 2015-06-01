@@ -3,15 +3,10 @@
 
 using debug::nocashNumber;
 
-VramAllocator::VramAllocator(u16* base, u32 size) {
-  this->base_ = base;
-  this->end_ = base + size / sizeof(u16);
-  this->next_element_ = base;
-  nocashMessage("Constructor called with size: ");
-  nocashNumber(size);
-}
+/*
 
-VramAllocator::~VramAllocator() {
+VramAllocator::VramAllocator(u16* base, u32 size) {
+  
 }
 
 int texture_format_size(int pixel_size) {
@@ -24,40 +19,7 @@ int texture_format_size(int pixel_size) {
 }
 
 Texture VramAllocator::Load(std::string name, const u8* data, u32 size, int width, int height, int format) {
-  if (loaded_assets.count(name) > 0) {
-    nocashMessage("Already loaded!");
-    // this is already loaded! Just return a reference to the data
-    return loaded_assets[name];
-  }
-
-  if (next_element_ + size / sizeof(u16) > end_) {
-    nocashMessage("Not enough room for:");
-    nocashMessage(name.c_str());
-    nocashMessage("next element was:");
-    nocashNumber((int)next_element_);
-    nocashMessage("size was:");
-    nocashNumber((int)size);
-    nocashMessage("end was:");
-    nocashNumber((int)end_);
-    return Texture{}; // we don't have enough room for this object! and there was
-              // panic. much panic.
-  }
-
-  u16* destination = next_element_;
-  // copy the data into VRAM
-  dmaCopy(data, destination, size);
-
-  // offset the next element for the next call to Load
-  next_element_ += size / sizeof(u16);
-
-
-  loaded_assets[name] = Texture{destination, width, height, texture_format_size(width), texture_format_size(height), format};
-
-  nocashMessage("Loaded Texture: ");
-  nocashMessage(name.c_str());
-
-  // return the address we just copied data to, for immediate use
-  return loaded_assets[name];
+  
 }
 
 // Replaces a given asset with a modified version. Does NOT resize the heap;
@@ -91,3 +53,5 @@ u16* VramAllocator::Base() {
 void VramAllocator::Reset() {
   next_element_ = base_;
 }
+
+*/

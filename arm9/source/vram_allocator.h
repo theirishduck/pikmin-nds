@@ -5,34 +5,110 @@
 
 #include <map>
 #include <string>
+#include "debug.h"
 
 struct Texture {
-    u16* offset;
-    int width;
-    int height;
-    int format_width;
-    int format_height;
-    int format;
+  int format_width;
+  int format_height;
+  int format;
+  u16* offset;
 };
 
+struct TexturePalette {
+  int colors;
+  u16* offset;
+};
+
+struct Sprite {
+  int pixel_width;
+  int pixel_height;
+  u16* offset;
+};
+
+template <typename T>
 class VramAllocator {
-  public:
-    VramAllocator(u16* cpu_base, u32 size);
-    ~VramAllocator();
-
-    Texture Load(std::string name, const u8* data, u32 size, int width, int height, int format = 0);
-    Texture Replace(std::string name, const u8* data, u32 size);
-    Texture Retrieve(std::string name);
-    void Reset();
-
-    u16* Base();
   private:
     u16* base_;
     u16 texture_offset_base_;
     u16* next_element_;
     u16* end_;
 
-    std::map<std::string, Texture> loaded_assets;
+    std::map<std::string, T> loaded_assets;
+
+  public:
+    VramAllocator(u16* cpu_base, u32 size) {
+      this->base_ = cpu_base;
+      this->end_ = cpu_base + size / sizeof(u16);
+      this->next_element_ = cpu_base;
+      nocashMessage("Constructor called with size: ");
+      debug::nocashNumber(size);
+    }
+    ~VramAllocator() {}
+
+    T Load(std::string name, const u8* data, u32 size, T metadata) {
+      if (loaded_assets.count(name) > 0) {
+        nocashMessage("Already loaded!");
+        // this is already loaded! Just return a reference to the data
+        return loaded_assets[name];
+      }
+
+      if (next_element_ + size / sizeof(u16) > end_) {
+        nocashMessage("Not enough room for:");
+        nocashMessage(name.c_str());
+        nocashMessage("next element was:");
+        debug::nocashNumber((int)next_element_);
+        nocashMessage("size was:");
+        debug::nocashNumber((int)size);
+        nocashMessage("end was:");
+        debug::nocashNumber((int)end_);
+        return T{}; // we don't have enough room for this object! and there was
+                  // panic. much panic.
+      }
+
+      u16* destination = next_element_;
+      // copy the data into VRAM
+      dmaCopy(data, destination, size);
+
+      // offset the next element for the next call to Load
+      next_element_ += size / sizeof(u16);
+
+      loaded_assets[name] = metadata;
+      loaded_assets[name].offset = destination;
+
+      nocashMessage("Loaded Texture: ");
+      nocashMessage(name.c_str());
+
+      // return the address we just copied data to, for immediate use
+      return loaded_assets[name];
+    }
+
+    T Replace(std::string name, const u8* data, u32 size) {
+      if (loaded_assets.count(name) > 0) {
+        T destination = loaded_assets[name];
+        dmaCopy(data, destination.offset, size);
+        return loaded_assets[name];
+      } else {
+        nocashMessage("Couldn't replace; doesn't exist!");
+        nocashMessage(name.c_str());
+        return T{};
+      }
+    }
+    T Retrieve(std::string name) {
+      if (loaded_assets.count(name) > 0) {
+        return loaded_assets[name];
+      } else {
+        nocashMessage("Bad Retrieve!!");
+        nocashMessage(name.c_str());
+        return T{}; // bad things! panicing!
+      }
+    }
+    void Reset() {
+      next_element_ = base_;
+    }
+
+    u16* Base() {
+      return base_;
+    }
 };
 
 #endif

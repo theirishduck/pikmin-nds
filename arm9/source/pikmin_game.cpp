@@ -12,15 +12,15 @@ PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
 PikminGame::~PikminGame() {
 }
 
-VramAllocator* PikminGame::TextureAllocator() {
+VramAllocator<Texture>* PikminGame::TextureAllocator() {
   return &texture_allocator_;
 }
 
-VramAllocator* PikminGame::TexturePaletteAllocator() {
+VramAllocator<TexturePalette>* PikminGame::TexturePaletteAllocator() {
   return &texture_palette_allocator_;
 }
 
-VramAllocator* PikminGame::SpriteAllocator() {
+VramAllocator<Sprite>* PikminGame::SpriteAllocator() {
   return &sprite_allocator_;
 }
 

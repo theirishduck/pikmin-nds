@@ -10,7 +10,7 @@ namespace entities {
 
 class Level : public DrawableEntity {
   public:
-    Level(VramAllocator* texture_allocator, VramAllocator* palette_allocator);
+    Level(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator);
     ~Level();
 
     void Init() override;

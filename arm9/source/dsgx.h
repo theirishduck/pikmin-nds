@@ -47,7 +47,7 @@ class Dsgx {
   Animation* GetAnimation(std::string name);
   void ApplyAnimation(Animation* animation, u32 frame);
 
-  void ApplyTextures(VramAllocator* texture_allocator, VramAllocator* palette_allocator);
+  void ApplyTextures(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator);
 
 private:
   u32 ProcessChunk(u32* location);
