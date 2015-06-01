@@ -11,6 +11,10 @@ struct Texture {
   int format_width;
   int format_height;
   int format;
+  enum {
+    kDisplayed = 0,
+    kTransparent = 1
+  } transparency;
   u16* offset;
 };
 

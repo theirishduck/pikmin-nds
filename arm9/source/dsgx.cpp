@@ -170,27 +170,32 @@ void Dsgx::ApplyTextures(VramAllocator<Texture>* texture_allocator, VramAllocato
     location /= 8;
     for (u32 i = 0; i < texture->num_offsets; i++) {
       //set the texture offset
-      *(destination + texture->offsets[i]) = 
-        ((*(destination + texture->offsets[i])) & 0xFFFF0000) | (location & 0x0000FFFF);
+      u32 const kTextureOffsetMask = 0x0000FFFF;
+      destination[texture->offsets[i]] = 
+        (destination[texture->offsets[i]] & ~kTextureOffsetMask) | (location & kTextureOffsetMask);
       
       //set the format (warning: funky hex binary logic here)
-      *(destination + texture->offsets[i]) = 
-        ((*(destination + texture->offsets[i])) & 0xC3FFFFFF) | ((loaded_texture.format << 26) & 0x3C000000);
+      u32 const kTextureFormatMask = 0x3C000000;
+      destination[texture->offsets[i]] = 
+        (destination[texture->offsets[i]] & ~kTextureFormatMask) | 
+        ((loaded_texture.format << 26 | loaded_texture.transparency << 29) & kTextureFormatMask);
     }
     // If this is any texture format other than Direct Texture, then we need to
     // also write in the PALETTE BASE data; this is a little funky
-    if (loaded_texture.format != 7) {
+    if (loaded_texture.format != GL_RGBA) {
       auto loaded_palette = palette_allocator->Retrieve(texture->name);
       u32 palette_location = (u32)loaded_palette.offset - (u32)palette_allocator->Base();
       // if this is a 4bpp texture (format 2) we use 8-byte offsets
       // otherwise we use 16 byte offsets
-      if (loaded_texture.format == 2) {
+      if (loaded_texture.format == GL_RGB4) {
         palette_location /= 8;
       } else {
         palette_location /= 16;
       }
       for (u32 i = 0; i < texture->num_offsets; i++) {
-        *(destination + texture->offsets[i] + 2) = (palette_location & 0xFFF);
+        // The +2 skips command and parameters; PLTT_BASE is always stored
+        // immediately after TEXIMAGE_PARAM, and we don't use packed commands.
+        destination[texture->offsets[i] + 2] = palette_location;
       }
     }
   }

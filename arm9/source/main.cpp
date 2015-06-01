@@ -36,6 +36,8 @@
 #include "checkerboard_pal_bin.h"
 #include "piki_leaf_4bpp_bin.h"
 #include "piki_leaf_pal_bin.h"
+#include "cursor_2bpp_bin.h"
+#include "cursor_pal_bin.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
@@ -110,7 +112,7 @@ void LoadTextures() {
     {TEXTURE_SIZE_64, TEXTURE_SIZE_16, GL_RGBA});  
   g_game.TextureAllocator()->Load(
     "piki_leaf", piki_leaf_4bpp_bin, piki_leaf_4bpp_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB16 | 0x8});
+    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB16, Texture::kTransparent});
   g_game.TextureAllocator()->Load(
     "posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size, 
     {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
@@ -130,8 +132,8 @@ void LoadTextures() {
     "rocky", rocky_img_bin, rocky_img_bin_size, 
     {TEXTURE_SIZE_128, TEXTURE_SIZE_128, GL_RGBA});
   g_game.TextureAllocator()->Load(
-    "cursor", cursor_img_bin, cursor_img_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGBA});
+    "cursor", cursor_2bpp_bin, cursor_2bpp_bin_size, 
+    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB4, Texture::kTransparent});
   g_game.TextureAllocator()->Load(
     "bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size, 
     {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
@@ -156,6 +158,8 @@ void LoadPalettes() {
     "checkerboard", checkerboard_pal_bin, checkerboard_pal_bin_size, {16});
   g_game.TexturePaletteAllocator()->Load(
     "piki_leaf", piki_leaf_pal_bin, piki_leaf_pal_bin_size, {16});
+  g_game.TexturePaletteAllocator()->Load(
+    "cursor", cursor_pal_bin, cursor_pal_bin_size, {4});
 
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
