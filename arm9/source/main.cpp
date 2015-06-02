@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <dirent.h>
 
 #include <array>
 #include <functional>
+#include <set>
 
 #include <nds.h>
 #include <filesystem.h>
@@ -105,6 +107,95 @@ void InitMainScreen() {
       floattov10(0.32));
 }
 
+vector<string> FilesInDirectory(string path) {
+  auto dir = opendir(path.c_str());
+  vector<string> directories;
+  if (dir) {
+    while (auto file_entry = readdir(dir)) {
+      if (strcmp(".", file_entry->d_name) == 0 or strcmp("..", file_entry->d_name) == 0) {
+        continue;
+      }
+      if (file_entry->d_type == DT_DIR) {
+        continue;
+      }
+      directories.push_back(file_entry->d_name);
+    }
+  }
+  return directories;
+}
+
+string FileName(string full_filename) {
+  auto index = full_filename.rfind(".");
+  if (index != string::npos) {
+    return full_filename.substr(0, index);
+  } else {
+    return "";
+  }
+}
+
+string FileExtension(string filename) {
+  auto index = filename.rfind(".");
+  if (index != string::npos) {
+    return filename.substr(index + 1);
+  } else {
+    return "";
+  }
+}
+
+map<string, u32> texture_extension_formats = {
+  {"2bpp", GL_RGB4},
+  {"t2bpp", GL_RGB4},
+  {"4bpp", GL_RGB16},
+  {"t4bpp", GL_RGB16},
+  {"a3i5", GL_RGB32_A3},
+};
+
+set<string> texture_extension_is_transparent {
+  "t2bpp", 
+  "t4bpp",
+};
+
+void LoadTexturesFromNitroFS() {
+  auto texture_files = FilesInDirectory("/textures");
+  for (auto filename : texture_files) {
+    // Collect metadata about this file
+    auto extension = FileExtension(filename);
+    Texture metadata;
+    if (texture_extension_formats.count(extension) > 0) {
+      metadata.format = texture_extension_formats[extension];
+    } else {
+      nocashMessage(("Bad extension: " + extension).c_str());
+    }
+    if (texture_extension_is_transparent.count(extension) > 0) {
+      metadata.transparency = Texture::kTransparent;
+    } else {
+      metadata.transparency = Texture::kDisplayed;
+    }
+
+    // Load the file data into a temporary buffer
+    auto file = fopen(("/textures/" + filename).c_str(), "rb");
+    if (file) {
+      fseek(file, 0, SEEK_END);
+      auto size = ftell(file);
+      fseek(file, 0, SEEK_SET);
+
+      vector<char> buffer(size);
+      if (fread(buffer.data(), 1, size, file)) {
+        g_game.TextureAllocator()->Load(
+          FileName(filename), (u8*)buffer.data(), size, metadata);
+        nocashMessage(("NitroFS LOADED: " + FileName(filename)).c_str());
+        debug::nocashNumber(size);
+      } else {
+        nocashMessage("NitroFS Read FAILED for");
+        nocashMessage(filename.c_str());
+      }
+    } else {
+      nocashMessage("NitroFS Open FAILED for");
+      nocashMessage(filename.c_str());
+    }
+  }
+}
+
 void LoadTextures() {
   // VRAM is not memory mapped to the CPU when in texture mode, so all
   // modifications to textures must be done by changing the bank to a mode
@@ -115,9 +206,9 @@ void LoadTextures() {
   g_game.TextureAllocator()->Load(
     "piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size, 
     {TEXTURE_SIZE_64, TEXTURE_SIZE_16, GL_RGBA});  
-  g_game.TextureAllocator()->Load(
+  /*g_game.TextureAllocator()->Load(
     "piki_leaf", piki_leaf_4bpp_bin, piki_leaf_4bpp_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB16, Texture::kTransparent});
+    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB16, Texture::kTransparent});*/
   g_game.TextureAllocator()->Load(
     "posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size, 
     {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
@@ -136,9 +227,9 @@ void LoadTextures() {
   g_game.TextureAllocator()->Load(
     "rocky", rocky_img_bin, rocky_img_bin_size, 
     {TEXTURE_SIZE_128, TEXTURE_SIZE_128, GL_RGBA});
-  g_game.TextureAllocator()->Load(
+  /*g_game.TextureAllocator()->Load(
     "cursor", cursor_2bpp_bin, cursor_2bpp_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB4, Texture::kTransparent});
+    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB4, Texture::kTransparent});*/
   g_game.TextureAllocator()->Load(
     "bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size, 
     {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
@@ -149,30 +240,10 @@ void LoadTextures() {
     "redonion", redonion_img_bin, redonion_img_bin_size, 
     {TEXTURE_SIZE_8, TEXTURE_SIZE_32, GL_RGBA});
   /*g_game.TextureAllocator()->Load(
-    "checkerboard", checkerboard_4bpp_bin, checkerboard_4bpp_bin_size, 
-    {TEXTURE_SIZE_64, TEXTURE_SIZE_64, GL_RGB16});*/
-  g_game.TextureAllocator()->Load(
     "fire", fire_a3i5_bin, fire_a3i5_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_32, GL_RGB32_A3});
+    {TEXTURE_SIZE_32, TEXTURE_SIZE_32, GL_RGB32_A3});*/
 
-  // NitroFS Testing
-  auto file = fopen("checkerboard.4bpp", "rb");
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    auto size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    vector<char> buffer(size);
-    if (fread(buffer.data(), 1, size, file)) {
-      g_game.TextureAllocator()->Load(
-        "checkerboard", (u8*)buffer.data(), size, 
-        {TEXTURE_SIZE_64, TEXTURE_SIZE_64, GL_RGB16});
-    } else {
-      nocashMessage("NitroFS Read FAILED");
-    }
-  } else {
-    nocashMessage("NitroFS Open FAILED");
-  }
+  LoadTexturesFromNitroFS();
   
   vramSetBankC(VRAM_C_TEXTURE);
 }

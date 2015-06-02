@@ -68,8 +68,8 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         // TEXIMAGE_PARAM
         *((u32*)0x40004A8) = 
           ((((u32)particle.texture.offset) / 8) & 0xFFFF) |
-          (particle.texture.format_width << 20) | 
-          (particle.texture.format_height << 23) | 
+          (TEXTURE_SIZE_32 << 20) | 
+          (TEXTURE_SIZE_32 << 23) | 
           (particle.texture.format << 26) | 
           (particle.texture.transparency << 29);
 
@@ -91,11 +91,11 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         glColor(RGB15(31,31,31));
         glTexCoord2t16(0, 0);
         glVertex3v16(-1 << 12,  1 << 12, 0);
-        glTexCoord2t16((8 << particle.texture.format_width) << 4,  0);
+        glTexCoord2t16((32) << 4,  0);
         glVertex3v16( 1 << 12,  1 << 12, 0);
-        glTexCoord2t16((8 << particle.texture.format_width) << 4,  (8 << particle.texture.format_height) << 4);
+        glTexCoord2t16((32) << 4,  (32) << 4);
         glVertex3v16( 1 << 12, -1 << 12, 0);
-        glTexCoord2t16(0,  (8 << particle.texture.format_height) << 4);
+        glTexCoord2t16(0,  (32) << 4);
         glVertex3v16(-1 << 12, -1 << 12, 0);
         glEnd();
 
