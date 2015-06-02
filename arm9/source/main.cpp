@@ -61,7 +61,9 @@ using numeric_types::fixed;
 
 using debug::Topic;
 
-s32 const kTestPikmin{10};
+using namespace std;
+
+s32 const kTestPikmin{30};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
@@ -146,12 +148,31 @@ void LoadTextures() {
   g_game.TextureAllocator()->Load(
     "redonion", redonion_img_bin, redonion_img_bin_size, 
     {TEXTURE_SIZE_8, TEXTURE_SIZE_32, GL_RGBA});
-  g_game.TextureAllocator()->Load(
+  /*g_game.TextureAllocator()->Load(
     "checkerboard", checkerboard_4bpp_bin, checkerboard_4bpp_bin_size, 
-    {TEXTURE_SIZE_64, TEXTURE_SIZE_64, GL_RGB16});
+    {TEXTURE_SIZE_64, TEXTURE_SIZE_64, GL_RGB16});*/
   g_game.TextureAllocator()->Load(
     "fire", fire_a3i5_bin, fire_a3i5_bin_size, 
     {TEXTURE_SIZE_32, TEXTURE_SIZE_32, GL_RGB32_A3});
+
+  // NitroFS Testing
+  auto file = fopen("checkerboard.4bpp", "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    auto size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    vector<char> buffer(size);
+    if (fread(buffer.data(), 1, size, file)) {
+      g_game.TextureAllocator()->Load(
+        "checkerboard", (u8*)buffer.data(), size, 
+        {TEXTURE_SIZE_64, TEXTURE_SIZE_64, GL_RGB16});
+    } else {
+      nocashMessage("NitroFS Read FAILED");
+    }
+  } else {
+    nocashMessage("NitroFS Open FAILED");
+  }
   
   vramSetBankC(VRAM_C_TEXTURE);
 }
@@ -212,6 +233,13 @@ void InitCaptain() {
 }
 
 void Init() {
+  // filesystem testing stuff
+  if (nitroFSInit(NULL)) {
+    nocashMessage("Filesystem SUCCESS");
+  } else {
+    nocashMessage("Filesystem FAILURE");
+  }
+  
   InitMainScreen();
   InitSubScreen();
 
@@ -222,14 +250,6 @@ void Init() {
   SetupDemoStage();
   
   glPushMatrix();
-
-  // filesystem testing stuff
-  if (nitroFSInit(NULL)) {
-    nocashMessage("Filesystem SUCCESS");
-  } else {
-    nocashMessage("Filesystem FAILURE");
-  }
-
 }
 
 void RunLogic() {
