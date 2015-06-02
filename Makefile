@@ -10,6 +10,11 @@ include $(DEVKITARM)/ds_rules
 export TARGET		:=	pikmin-nds
 export TOPDIR		:=	$(CURDIR)
 
+NITRODATA	:=	nitrofiles
+
+ifneq ($(strip $(NITRODATA)),)
+	export NITRO_FILES	:=	$(CURDIR)/$(NITRODATA)
+endif
 
 .PHONY: arm7/$(TARGET).elf arm9/$(TARGET).elf
 
@@ -20,7 +25,7 @@ all: $(TARGET).nds
 
 #---------------------------------------------------------------------------------
 $(TARGET).nds	:	arm7/$(TARGET).elf arm9/$(TARGET).elf
-	$(DEVKITARM)/bin/ndstool	-c $(TARGET).nds -7 arm7/$(TARGET).elf -9 arm9/$(TARGET).elf
+	$(DEVKITARM)/bin/ndstool	-c $(TARGET).nds -7 arm7/$(TARGET).elf -9 arm9/$(TARGET).elf -d $(NITRO_FILES)
 
 #---------------------------------------------------------------------------------
 arm7/$(TARGET).elf:

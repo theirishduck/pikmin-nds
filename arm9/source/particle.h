@@ -23,5 +23,6 @@ struct Particle {
 void UpdateParticles();
 Particle* SpawnParticle(Particle& prototype);
 void DrawParticles(Vec3 camera_position, Vec3 target_position);
+int ActiveParticles();
 
 #endif

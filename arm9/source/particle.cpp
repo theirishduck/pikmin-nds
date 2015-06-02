@@ -119,3 +119,14 @@ Particle* SpawnParticle(Particle& prototype) {
   }
   return nullptr;
 }
+
+// Note: slow! for debugging only; don't rely on this for gameplay.
+int ActiveParticles() {
+  int active = 0;
+  for (int slot = 0; slot < 128; slot++) {
+    if (g_particles[slot].active) {
+      active++;
+    }
+  }
+  return active;
+}

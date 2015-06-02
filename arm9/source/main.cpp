@@ -4,6 +4,7 @@
 #include <functional>
 
 #include <nds.h>
+#include <filesystem.h>
 
 #include "multipass_engine.h"
 #include "pikmin_game.h"
@@ -221,6 +222,14 @@ void Init() {
   SetupDemoStage();
   
   glPushMatrix();
+
+  // filesystem testing stuff
+  if (nitroFSInit(NULL)) {
+    nocashMessage("Filesystem SUCCESS");
+  } else {
+    nocashMessage("Filesystem FAILURE");
+  }
+
 }
 
 void RunLogic() {
@@ -241,8 +250,8 @@ void GameLoop() {
   test_flower.texture = g_game.TextureAllocator()->Retrieve("fire");
   test_flower.palette = g_game.TexturePaletteAllocator()->Retrieve("fire");
   test_flower.position = Vec3{64_f, 10_f, -64_f};
-  test_flower.lifespan = 128;
-  test_flower.fade_rate = 1_f / 128_f;
+  test_flower.lifespan = 64;
+  test_flower.fade_rate = 1_f / 64_f;
 
   int frame_counter = 0;
   for (;;) {
@@ -255,10 +264,12 @@ void GameLoop() {
 
     RunLogic();
 
-    //if ((frame_counter & 0x7) == 0) {
+    if ((frame_counter & 0x7) == 0) {
       Particle* new_particle = SpawnParticle(test_flower);
-      new_particle->velocity = RandomVector() * 0.01_f + Vec3{0_f,0.01_f,0_f};
-    //}
+      new_particle->velocity = RandomVector() * 0.005_f + Vec3{0_f,0.02_f,0_f};
+    }
+
+    debug::DisplayValue("Particles: ", ActiveParticles());
 
 
     g_engine.Update();
