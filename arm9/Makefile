@@ -23,6 +23,8 @@ SOURCES		:=	gfx source $(NAMESPACE_SOURCES)
 INCLUDES	:=	include source build ..
 DATA		:= data
 FBX := art
+TEXTURES := $(CURDIR)/art/textures
+NITRODIR := $(CURDIR)/nitrofs
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -71,6 +73,7 @@ CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 FBXFILES	:=	$(foreach dir,$(FBX),$(notdir $(wildcard $(dir)/*.fbx)))
+TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
  
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -94,11 +97,13 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			-I$(CURDIR)/$(BUILD)
  
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=)))
  
 .PHONY: $(BUILD) clean
  
 #---------------------------------------------------------------------------------
-$(BUILD):
+$(BUILD): $(NITROFILES)
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
  
@@ -106,14 +111,58 @@ $(BUILD):
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) *.elf *.nds* *.bin  
+
+# We need one of these for every paletted format, largely because make doesn't
+# seem to support multiple wildcard fields, and I'm *far* too lazy to come up
+# with a clever hack. -zeta
+
+$(NITRODIR)/textures/%.2bpp : $(TEXTURES)/%.2bpp.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to 2bpp palette at $(@:.2bpp=.pal)
+	hy ../tools/dtex.hy $< to 2bpp at $@
+
+$(NITRODIR)/textures/%.t2bpp : $(TEXTURES)/%.t2bpp.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to 2bpp palette at $(@:.t2bpp=.pal)
+	hy ../tools/dtex.hy $< to 2bpp at $@
+
+$(NITRODIR)/textures/%.4bpp : $(TEXTURES)/%.4bpp.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to 4bpp palette at $(@:.4bpp=.pal)
+	hy ../tools/dtex.hy $< to 4bpp at $@
+
+$(NITRODIR)/textures/%.t4bpp : $(TEXTURES)/%.t4bpp.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to 4bpp palette at $(@:.t4bpp=.pal)
+	hy ../tools/dtex.hy $< to 4bpp at $@
+
+$(NITRODIR)/textures/%.8bpp : $(TEXTURES)/%.8bpp.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to 8bpp palette at $(@:.8bpp=.pal)
+	hy ../tools/dtex.hy $< to 8bpp at $@
+
+$(NITRODIR)/textures/%.t8bpp : $(TEXTURES)/%.t8bpp.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to 8bpp palette at $(@:.t8bpp=.pal)
+	hy ../tools/dtex.hy $< to 8bpp at $@
+
+$(NITRODIR)/textures/%.a3i5 : $(TEXTURES)/%.a3i5.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to a3i5 palette at $(@:.a3i5=.pal)
+	hy ../tools/dtex.hy $< to a3i5 at $@
+
+$(NITRODIR)/textures/%.a5i3 : $(TEXTURES)/%.a5i3.png
+	@mkdir -p $(NITRODIR)/textures
+	-hy ../tools/dtex.hy $< to a5i3 palette at $(@:.a5i3=.pal)
+	hy ../tools/dtex.hy $< to a5i3 at $@
  
 #---------------------------------------------------------------------------------
 else
- 
+
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(ARM9ELF)	:	$(OFILES)
+$(ARM9ELF) :	$(OFILES)
 	@echo linking $(notdir $@)
 	@$(LD)  $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
 
