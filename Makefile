@@ -10,7 +10,7 @@ include $(DEVKITARM)/ds_rules
 export TARGET		:=	pikmin-nds
 export TOPDIR		:=	$(CURDIR)
 
-NITRODATA	:=	nitrofiles
+NITRODATA	:=	arm9/nitrofs
 
 ifneq ($(strip $(NITRODATA)),)
 	export NITRO_FILES	:=	$(CURDIR)/$(NITRODATA)
