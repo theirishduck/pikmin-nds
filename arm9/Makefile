@@ -110,7 +110,7 @@ $(BUILD): $(NITROFILES)
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) *.elf *.nds* *.bin  
+	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR)
 
 # We need one of these for every paletted format, largely because make doesn't
 # seem to support multiple wildcard fields, and I'm *far* too lazy to come up
