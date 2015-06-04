@@ -124,7 +124,7 @@ vector<string> FilesInDirectory(string path) {
   return directories;
 }
 
-string FileName(string full_filename) {
+string BaseName(string full_filename) {
   auto index = full_filename.rfind(".");
   if (index != string::npos) {
     return full_filename.substr(0, index);
@@ -151,20 +151,46 @@ map<string, u32> texture_extension_formats = {
 };
 
 set<string> texture_extension_is_transparent {
-  "t2bpp", 
+  "t2bpp",
   "t4bpp",
 };
+template<typename T>
+void LoadFile(T* vram_allocator, typename T::Metadata metadata, string filename, string identifier) {
+  // Load the file data into a temporary buffer
+  auto file = fopen(("/textures/" + filename).c_str(), "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    auto const size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    vector<char> buffer(size);
+    if (fread(buffer.data(), 1, size, file)) {
+      vram_allocator->Load(
+        identifier, (u8*)buffer.data(), size, metadata);
+      nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
+      debug::nocashNumber(size);
+    } else {
+      nocashMessage("NitroFS Read FAILED for");
+      nocashMessage(filename.c_str());
+    }
+    fclose(file);
+  } else {
+    nocashMessage("NitroFS Open FAILED for");
+    nocashMessage(filename.c_str());
+  }  
+}
 
 void LoadTexturesFromNitroFS() {
   auto texture_files = FilesInDirectory("/textures");
-  for (auto filename : texture_files) {
+  for (string filename : texture_files) {
     // Collect metadata about this file
     auto extension = FileExtension(filename);
     Texture metadata;
     if (texture_extension_formats.count(extension) > 0) {
       metadata.format = texture_extension_formats[extension];
     } else {
-      nocashMessage(("Bad extension: " + extension).c_str());
+      nocashMessage(("Skipping extension: " + extension).c_str());
+      continue;
     }
     if (texture_extension_is_transparent.count(extension) > 0) {
       metadata.transparency = Texture::kTransparent;
@@ -173,26 +199,11 @@ void LoadTexturesFromNitroFS() {
     }
 
     // Load the file data into a temporary buffer
-    auto file = fopen(("/textures/" + filename).c_str(), "rb");
-    if (file) {
-      fseek(file, 0, SEEK_END);
-      auto size = ftell(file);
-      fseek(file, 0, SEEK_SET);
+    LoadFile(g_game.TextureAllocator(), metadata, filename, filename);
 
-      vector<char> buffer(size);
-      if (fread(buffer.data(), 1, size, file)) {
-        g_game.TextureAllocator()->Load(
-          FileName(filename), (u8*)buffer.data(), size, metadata);
-        nocashMessage(("NitroFS LOADED: " + FileName(filename)).c_str());
-        debug::nocashNumber(size);
-      } else {
-        nocashMessage("NitroFS Read FAILED for");
-        nocashMessage(filename.c_str());
-      }
-    } else {
-      nocashMessage("NitroFS Open FAILED for");
-      nocashMessage(filename.c_str());
-    }
+    // Attempt to find and load a matching palette file, if one exists
+    string const palette_filename = BaseName(filename) + ".pal";
+    LoadFile(g_game.TexturePaletteAllocator(), TexturePalette{}, palette_filename, filename);
   }
 }
 
@@ -202,64 +213,9 @@ void LoadTextures() {
   // where it is mapped to the CPU, performing the modifications, and
   // switching it back to texture mode.
   vramSetBankC(VRAM_C_LCD);
-
-  g_game.TextureAllocator()->Load(
-    "piki_eyes", piki_eyes_img_bin, piki_eyes_img_bin_size, 
-    {TEXTURE_SIZE_64, TEXTURE_SIZE_16, GL_RGBA});  
-  /*g_game.TextureAllocator()->Load(
-    "piki_leaf", piki_leaf_4bpp_bin, piki_leaf_4bpp_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB16, Texture::kTransparent});*/
-  g_game.TextureAllocator()->Load(
-    "posy-leaf1", posy_leaf1_img_bin, posy_leaf1_img_bin_size, 
-    {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "posy-leaf2", posy_leaf2_img_bin, posy_leaf2_img_bin_size, 
-    {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "posy-leaf3", posy_leaf3_img_bin, posy_leaf3_img_bin_size, 
-    {TEXTURE_SIZE_16, TEXTURE_SIZE_32, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "posy-petal", posy_petal_img_bin, posy_petal_img_bin_size, 
-    {TEXTURE_SIZE_8, TEXTURE_SIZE_16, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "numbers", numbers_img_bin, numbers_img_bin_size, 
-    {TEXTURE_SIZE_64, TEXTURE_SIZE_32, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "rocky", rocky_img_bin, rocky_img_bin_size, 
-    {TEXTURE_SIZE_128, TEXTURE_SIZE_128, GL_RGBA});
-  /*g_game.TextureAllocator()->Load(
-    "cursor", cursor_2bpp_bin, cursor_2bpp_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_64, GL_RGB4, Texture::kTransparent});*/
-  g_game.TextureAllocator()->Load(
-    "bad_whistle", bad_whistle_img_bin, bad_whistle_img_bin_size, 
-    {TEXTURE_SIZE_16, TEXTURE_SIZE_16, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "flower", flower_img_bin, flower_img_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_32, GL_RGBA});
-  g_game.TextureAllocator()->Load(
-    "redonion", redonion_img_bin, redonion_img_bin_size, 
-    {TEXTURE_SIZE_8, TEXTURE_SIZE_32, GL_RGBA});
-  /*g_game.TextureAllocator()->Load(
-    "fire", fire_a3i5_bin, fire_a3i5_bin_size, 
-    {TEXTURE_SIZE_32, TEXTURE_SIZE_32, GL_RGB32_A3});*/
-
-  LoadTexturesFromNitroFS();
-  
-  vramSetBankC(VRAM_C_TEXTURE);
-}
-
-void LoadPalettes() {
   vramSetBankG(VRAM_G_LCD);
-
-  // Load Texture Palettes here
-  g_game.TexturePaletteAllocator()->Load(
-    "fire", fire_pal_bin, fire_pal_bin_size, {32});
-  g_game.TexturePaletteAllocator()->Load(
-    "checkerboard", checkerboard_pal_bin, checkerboard_pal_bin_size, {16});
-  g_game.TexturePaletteAllocator()->Load(
-    "piki_leaf", piki_leaf_pal_bin, piki_leaf_pal_bin_size, {16});
-  g_game.TexturePaletteAllocator()->Load(
-    "cursor", cursor_pal_bin, cursor_pal_bin_size, {4});
+  LoadTexturesFromNitroFS();  
+  vramSetBankC(VRAM_C_TEXTURE);
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
 
@@ -315,7 +271,6 @@ void Init() {
   InitSubScreen();
 
   LoadTextures();
-  LoadPalettes();
   SetupDemoPikmin();
   InitCaptain();
   SetupDemoStage();
@@ -338,8 +293,8 @@ Vec3 RandomVector() {
 
 void GameLoop() {
   Particle test_flower;
-  test_flower.texture = g_game.TextureAllocator()->Retrieve("fire");
-  test_flower.palette = g_game.TexturePaletteAllocator()->Retrieve("fire");
+  test_flower.texture = g_game.TextureAllocator()->Retrieve("fire.a3i5");
+  test_flower.palette = g_game.TexturePaletteAllocator()->Retrieve("fire.a3i5");
   test_flower.position = Vec3{64_f, 10_f, -64_f};
   test_flower.lifespan = 64;
   test_flower.fade_rate = 1_f / 64_f;
