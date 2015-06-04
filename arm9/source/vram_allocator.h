@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <algorithm>
 #include "debug.h"
 
 struct Texture {
@@ -29,27 +30,31 @@ struct Sprite {
   u16* offset;
 };
 
-template <typename T>
+template<typename T>
 class VramAllocator {
   private:
     u16* base_;
     u16 texture_offset_base_;
     u16* next_element_;
     u16* end_;
+    u32 alignment_;
 
     std::map<std::string, T> loaded_assets;
 
   public:
-    VramAllocator(u16* cpu_base, u32 size) {
+    using Metadata = T;
+
+    VramAllocator(u16* cpu_base, u32 size, u32 alignment = 1) {
       this->base_ = cpu_base;
       this->end_ = cpu_base + size / sizeof(u16);
       this->next_element_ = cpu_base;
+      this->alignment_ = alignment;
       nocashMessage("Constructor called with size: ");
       debug::nocashNumber(size);
     }
     ~VramAllocator() {}
 
-    T Load(std::string name, const u8* data, u32 size, T metadata) {
+    Metadata Load(std::string name, const u8* data, u32 size, Metadata metadata) {
       if (loaded_assets.count(name) > 0) {
         nocashMessage("Already loaded!");
         // this is already loaded! Just return a reference to the data
@@ -74,13 +79,14 @@ class VramAllocator {
       dmaCopy(data, destination, size);
 
       // offset the next element for the next call to Load
-      next_element_ += size / sizeof(u16);
+      next_element_ += std::max(size / sizeof(u16), alignment_ / sizeof(u16));
 
       loaded_assets[name] = metadata;
       loaded_assets[name].offset = destination;
 
       nocashMessage("Loaded Texture: ");
       nocashMessage(name.c_str());
+      debug::nocashNumber(destination - base_);
 
       // return the address we just copied data to, for immediate use
       return loaded_assets[name];

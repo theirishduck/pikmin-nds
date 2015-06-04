@@ -76,10 +76,10 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         // PLTT_BASE
         if (particle.texture.format == GL_RGB4) {
           *((u32*)0x40004AC) = 
-            (u32)(particle.palette.offset - VRAM_G) / 8;
+            ((u32)particle.palette.offset - (u32)VRAM_G) / 8;
         } else {
           *((u32*)0x40004AC) = 
-            (u32)(particle.palette.offset - VRAM_G) / 16;
+            ((u32)particle.palette.offset - (u32)VRAM_G) / 16;
         }
 
         glPushMatrix();
