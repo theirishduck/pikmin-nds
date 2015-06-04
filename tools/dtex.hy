@@ -120,7 +120,8 @@ Options:
               list
               gather-subcomponents
               palette-converter)
-            (-> input-image .getdata image-converter)))))
+            (-> input-image .getdata image-converter)))
+        0))
     (catch [e NotImplementedError]
       (.write stderr "Requested conversion not yet implemented.\n")
       -1)
