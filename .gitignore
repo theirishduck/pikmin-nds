@@ -32,3 +32,4 @@ build
 local-bash.sh
 
 # NitroFS Files
+arm9/nitrofs/textures/

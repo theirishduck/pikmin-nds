@@ -20,30 +20,6 @@
 #include "ai/captain.h"
 #include "ai/onion.h"
 
-// Included to debug texture loading.
-#include "piki_eyes_img_bin.h"
-#include "piki_leaf_img_bin.h"
-#include "posy_leaf1_img_bin.h"
-#include "posy_leaf2_img_bin.h"
-#include "posy_leaf3_img_bin.h"
-#include "posy_petal_img_bin.h"
-#include "numbers_img_bin.h"
-#include "rocky_img_bin.h"
-#include "checkerboard_img_bin.h"
-#include "cursor_img_bin.h"
-#include "bad_whistle_img_bin.h"
-#include "flower_img_bin.h"
-#include "redonion_img_bin.h"
-
-#include "checkerboard_4bpp_bin.h"
-#include "checkerboard_pal_bin.h"
-#include "piki_leaf_4bpp_bin.h"
-#include "piki_leaf_pal_bin.h"
-#include "cursor_2bpp_bin.h"
-#include "cursor_pal_bin.h"
-#include "fire_a3i5_bin.h"
-#include "fire_pal_bin.h"
-
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
 
