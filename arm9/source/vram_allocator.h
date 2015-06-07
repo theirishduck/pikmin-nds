@@ -76,7 +76,9 @@ class VramAllocator {
 
       u16* destination = next_element_;
       // copy the data into VRAM
-      dmaCopy(data, destination, size);
+      for (unsigned int i = 0; i < size / sizeof(u16); i++) {
+        destination[i] = ((u16*)data)[i];
+      }
 
       // offset the next element for the next call to Load
       next_element_ += std::max(size / sizeof(u16), alignment_ / sizeof(u16));
