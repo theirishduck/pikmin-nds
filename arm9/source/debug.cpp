@@ -389,3 +389,44 @@ void debug::UpdateTopic() {
   }
   printf("\x1b[22;21H%10lu", g_timing_results[g_debug_current_topic].delta());
 }
+
+std::map<std::string, bool*> g_debugToggles {
+  {"Skip VBlank", &debug::g_skip_vblank},
+  {"Timing Colors", &debug::g_timing_colors},
+  {"Only Render First Pass", &debug::g_render_first_pass_only},
+  {"Debug Circles", &debug::g_physics_circles},
+};
+
+void debug::UpdateTogglesMode() {
+  printf("\x1b[2J");
+  printf("----------Debug Options---------\n");
+  int touch_offset = 16;
+  for (auto pair : g_debugToggles) {
+    std::string toggleName = pair.first;
+    bool* toggleActive = pair.second;
+    if (*toggleActive) {
+      printf("\x1b[39m");
+    } else {
+      printf("\x1b[30;1m");
+    }
+    printf("+------------------------------+");
+    printf("|                              |");
+    printf("| (%s) %*s |", (*toggleActive ? "*" : " "), 24, toggleName.c_str());
+    printf("|                              |");
+    printf("+------------------------------+");
+
+    // figure out if we need to toggle this frame
+    if (keysDown() & KEY_TOUCH) {
+      touchPosition touch;
+      touchRead(&touch);
+
+      if (touch.py > touch_offset and touch.py < touch_offset + 40) {
+        *toggleActive = !(*toggleActive);
+      }
+    }
+    touch_offset += 40;
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
+}

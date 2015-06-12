@@ -25,6 +25,7 @@ void _TimingColor(rgb color);
 void Update();
 void UpdateValuesMode();
 void UpdateTimingMode();
+void UpdateTogglesMode();
 
 void DisplayValue(const std::string &name, int value);
 void DisplayValue(const std::string &name, numeric_types::fixed value);

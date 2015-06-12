@@ -237,6 +237,10 @@ void UpdateDebugTimers(UIState& ui) {
   debug::UpdateTimingMode();
 }
 
+void UpdateDebugToggles(UIState& ui) {
+  debug::UpdateTogglesMode();
+}
+
 bool DebugButtonPressed(const UIState&  ui) {
   return keysDown() & KEY_SELECT;
 }
@@ -247,6 +251,7 @@ enum UINode {
   kNavPad,
   kDebugTiming,
   kDebugValues,
+  kDebugToggles,
 };
 }
 
@@ -263,8 +268,12 @@ Edge<UIState> edge_list[] {
   Edge<UIState>{kAlways, nullptr, UpdateDebugTimers, UINode::kDebugTiming}, //Loopback
 
   // Debug Values
-  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugToggles},
   Edge<UIState>{kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
+
+  // Debug Values
+  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
 
 };
 
@@ -273,6 +282,7 @@ Node node_list[] {
   {"NavPad", true, 1, 2},
   {"DebugTiming", true, 3, 4},
   {"DebugValues", true, 5, 6},
+  {"DebugToggles", true, 7, 8},
 };
 
 StateMachine<UIState> machine(node_list, edge_list);
