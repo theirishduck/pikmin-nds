@@ -4,6 +4,7 @@
 using pikmin_ai::PikminState;
 using captain_ai::CaptainState;
 using onion_ai::OnionState;
+using posy_ai::PosyState;
 
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   ui_.game = this;
@@ -31,6 +32,15 @@ DrawableEntity* PikminGame::allocate_entity() {
   entities_.push_back(new DrawableEntity());
   engine.AddEntity(entities_.back());
   return entities_.back();
+}
+
+template <>
+PosyState* PikminGame::SpawnObject<PosyState>() {
+  if (num_posies_ < 32) {
+    posies_[num_posies_] = InitObject<PosyState>();
+    return posies_[num_posies_++];
+  }
+  return nullptr;
 }
 
 template <>
@@ -119,6 +129,11 @@ void PikminGame::Step() {
   for (int o = 0; o < num_onions_; o++) {
     onion_ai::machine.RunLogic(*onions_[o]);
   }
+  
+  for (int p = 0; p < num_posies_; p++) {
+    posy_ai::machine.RunLogic(*posies_[p]);
+  }
+
   debug::EndTopic(debug::Topic::kUpdate);
 
   ui::machine.RunLogic(ui_);  

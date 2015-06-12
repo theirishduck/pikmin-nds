@@ -10,6 +10,8 @@ struct PosyState : ObjectState {
   int health{50};
 };
 
+extern StateMachine<PosyState> machine;
+
 }  // namespace posy_ai
 
 #endif

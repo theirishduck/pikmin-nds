@@ -13,7 +13,6 @@
 #include "particle.h"
 #include "debug.h"
 
-#include "entities/pellet_posy.h"
 #include "entities/level.h"
 
 #include "ai/pikmin.h"
@@ -23,7 +22,6 @@
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
 
-using entities::PelletPosy;
 using entities::Level;
 
 using pikmin_ai::PikminState;
@@ -32,6 +30,7 @@ using pikmin_ai::PikminType;
 using captain_ai::CaptainState;
 
 using onion_ai::OnionState;
+using posy_ai::PosyState;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -214,9 +213,9 @@ void SetupDemoPikmin() {
 
 void SetupDemoStage() {
   //spawn in test objects
-  PelletPosy* posy = new PelletPosy(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
+  /*PelletPosy* posy = new PelletPosy(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
   g_engine.AddEntity(posy);
-  posy->body()->position = {6.2_f, 0_f, -6.2_f};
+  posy->body()->position = {6.2_f, 0_f, -6.2_f};*/
 
   //load in the test level
   Level* sandbox = new Level(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
@@ -226,6 +225,9 @@ void SetupDemoStage() {
   //spawn in an onion!
   auto onion = g_game.SpawnObject<OnionState>();
   onion->entity->body()->position = Vec3{64_f, 0_f, -72_f};
+
+  auto posy = g_game.SpawnObject<PosyState>();
+  posy->entity->body()->position = Vec3{44_f, 0_f, -72_f};
 }
 
 void InitCaptain() {
