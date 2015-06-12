@@ -56,6 +56,8 @@ class MultipassEngine {
   void SetupDividingPlane();
   bool ValidateDividingPlane();
   void DrawPassList();
+  bool LastPass();
+  void DrawEffects();
 
   std::priority_queue<EntityContainer> draw_list_;
 
@@ -77,6 +79,9 @@ class MultipassEngine {
   physics::World world_;
 
   int frame_counter_{0};
+
+  bool effects_enabled{false};
+  bool effects_drawn{false};
 };
 
 #endif  // MULTIPASS_ENGINE_H

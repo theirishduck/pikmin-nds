@@ -24,6 +24,7 @@ using numeric_types::Brads;
 using debug::Topic;
 
 MultipassEngine::MultipassEngine() {
+  debug::AddToggle("Enable Effects Layer", &effects_enabled);
 }
 
 physics::World& MultipassEngine::World() {
@@ -187,6 +188,10 @@ void MultipassEngine::ClearDrawList() {
   }
 }
 
+bool MultipassEngine::LastPass() {
+  return draw_list_.empty() and (effects_drawn or !effects_enabled);
+}
+
 void MultipassEngine::SetVRAMforPass(int pass) {
   // VRAM banks A and B take turns being the display capture destination and the
   // texture used as the background for the next pass. The rear texture for the
@@ -208,7 +213,7 @@ void MultipassEngine::SetVRAMforPass(int pass) {
   // this pass is a complete frame, which is saved in VRAM bank D and then
   // displayed over the top of the next passes so that they aren't seen until
   // they are complete.
-  if (draw_list_.empty()) {
+  if (LastPass()) {
     vramSetBankD(VRAM_D_LCD);
     videoSetMode(MODE_0_3D);
     REG_DISPCAPCNT = DCAP_BANK(3) | DCAP_ENABLE | DCAP_SRC(1) | DCAP_SIZE(3);
@@ -293,6 +298,7 @@ void MultipassEngine::InitFrame() {
   overlap_list_.clear();
 
   current_pass_ = 0;
+  effects_drawn = false;
 
   // consoleClear();
   debug::EndTopic(Topic::kFrameInit);
@@ -454,37 +460,45 @@ void MultipassEngine::DrawPassList() {
   debug::EndTopic((Topic)((int)Topic::kPass1 + current_pass_));
 }
 
+void MultipassEngine::DrawEffects() {
+  ClipFriendlyPerspective(0.1_f, 768.0_f, FIELD_OF_VIEW);
+  glLoadIdentity();
+  camera_.ApplyTransform();
+  if (debug::g_physics_circles) {
+    world_.DebugCircles();
+  }  
+  effects_drawn = true;
+}
 
 void MultipassEngine::Draw() {
-  if (draw_list_.empty()) {
+  if (LastPass()) {
     InitFrame();
   }
 
-  unsigned int initial_length = draw_list_.size();
-  GatherPassList();
+  if (draw_list_.empty() and effects_enabled) {
+    DrawEffects();
+  } else {
+    unsigned int initial_length = draw_list_.size();
+    GatherPassList();
 
-  if (not ProgressMadeThisPass(initial_length)) {
-    return;
-  }
+    if (not ProgressMadeThisPass(initial_length)) {
+      return;
+    }
 
-  SetupDividingPlane();
+    SetupDividingPlane();
 
-  if (not ValidateDividingPlane()) {
-    return;
-  }
+    if (not ValidateDividingPlane()) {
+      return;
+    }
 
-  DrawPassList();
+    DrawPassList();
 
-  debug::StartTopic(Topic::kParticleDraw);
-  DrawParticles(camera_.Position(), camera_.Target());
-  debug::EndTopic(Topic::kParticleDraw);
+    debug::StartTopic(Topic::kParticleDraw);
+    DrawParticles(camera_.Position(), camera_.Target());
+    debug::EndTopic(Topic::kParticleDraw);
 
-  // Reset the polygon format after all that drawing
-  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
-
-
-  if (debug::g_physics_circles) {
-    world_.DebugCircles();
+    // Reset the polygon format after all that drawing
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
   }
 
   DrawClearPlane();

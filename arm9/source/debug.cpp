@@ -60,6 +60,7 @@ void debug::DrawCircle(Vec3 p, fixed radius, rgb color, u32 segments) {
 
   glPopMatrix(1);
   glEnd();
+  
 }
 
 void debug::DrawGroundPlane(int width, int segments, rgb color) {
@@ -409,10 +410,8 @@ void debug::UpdateTogglesMode() {
     } else {
       printf("\x1b[30;1m");
     }
-    printf("+------------------------------+");
-    printf("|                              |");
+    printf("+------------------------------+");    
     printf("| (%s) %*s |", (*toggleActive ? "*" : " "), 24, toggleName.c_str());
-    printf("|                              |");
     printf("+------------------------------+");
 
     // figure out if we need to toggle this frame
@@ -420,13 +419,17 @@ void debug::UpdateTogglesMode() {
       touchPosition touch;
       touchRead(&touch);
 
-      if (touch.py > touch_offset and touch.py < touch_offset + 40) {
+      if (touch.py > touch_offset and touch.py < touch_offset + 24) {
         *toggleActive = !(*toggleActive);
       }
     }
-    touch_offset += 40;
+    touch_offset += 24;
   }
 
   // Reset the colors when we're done
   printf("\x1b[39m");
+}
+
+void debug::AddToggle(std::string name, bool* toggle) {
+  g_debugToggles[name] = toggle;
 }

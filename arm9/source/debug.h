@@ -26,6 +26,7 @@ void Update();
 void UpdateValuesMode();
 void UpdateTimingMode();
 void UpdateTogglesMode();
+void AddToggle(std::string name, bool* toggle);
 
 void DisplayValue(const std::string &name, int value);
 void DisplayValue(const std::string &name, numeric_types::fixed value);
