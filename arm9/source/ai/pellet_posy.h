@@ -3,11 +3,13 @@
 
 #include "state_machine.h"
 #include "drawable_entity.h"
+#include "physics/body.h"
 
 namespace posy_ai {
 
 struct PosyState : ObjectState {
   int health{50};
+  physics::Body* detection;
 };
 
 extern StateMachine<PosyState> machine;

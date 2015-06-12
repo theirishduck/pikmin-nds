@@ -8,7 +8,7 @@ namespace physics {
 
 class World {
   public:
-    Body* AllocateBody(DrawableEntity* owner);
+    Body* AllocateBody(void* owner);
     void FreeBody(Body* body);
     void Update();
     void DebugCircles();

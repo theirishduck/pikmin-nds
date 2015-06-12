@@ -9,7 +9,7 @@ using physics::Body;
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
-Body* World::AllocateBody(DrawableEntity* owner) {
+Body* World::AllocateBody(void* owner) {
   // This is a fairly naive implementation.
   // TODO(Nick): See if there's a better way to do this? Alternately, just
   // remember not to spawn 73 things in a single frame.
