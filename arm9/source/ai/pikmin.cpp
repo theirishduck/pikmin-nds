@@ -210,7 +210,8 @@ void ChaseTarget(PikminState& pikmin) {
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  // NOT IMPLEMENTED!!
+  int* target_health = (int*)pikmin.chase_target->owner;
+  *target_health -= 5;
 }
 
 void JumpTowardTarget(PikminState& pikmin) {
@@ -274,23 +275,25 @@ Edge<PikminState> edge_list[] {
 
   //Targeting
   {kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
-  {kAlways, CantReachTarget, StopMoving, PikminNode::kIdle},
+  {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, nullptr, RunToTarget, PikminNode::kTargeting},  // loopback
 
   //Chasing (Attack, Work, Carry)
-  {kAlways, CantReachTarget, StopMoving, PikminNode::kIdle},
-  {kAlways, ChaseTargetInvalid, StopMoving, PikminNode::kIdle},
+  {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
+  {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
   {kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
 
   //Standing Attack
+  {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kFirstFrame, nullptr, Aim, PikminNode::kStandingAttack},
   {kLastFrame, nullptr, DealDamageToTarget, PikminNode::kJump},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
 
   //Jump
+  {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kFirstFrame, nullptr, JumpTowardTarget, PikminNode::kJump},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, Landed, StopMoving, PikminNode::kChasing},
@@ -309,8 +312,8 @@ Node node_list[] {
   {"Thrown", true, 8, 9, "Armature|Throw", 20},
   {"Targeting", true, 9, 12, "Armature|Run", 60},
   {"Chasing", true, 13, 17, "Armature|Run", 60},
-  {"StandingAttack", true, 18, 20, "Armature|StandingAttack", 40},
-  {"Jump", true, 21, 23, "Armature|Idle", 60},
+  {"StandingAttack", true, 18, 21, "Armature|StandingAttack", 40},
+  {"Jump", true, 22, 25, "Armature|Idle", 60},
 
 };
 

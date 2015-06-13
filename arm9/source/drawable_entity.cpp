@@ -26,6 +26,7 @@ DrawableEntity::DrawableEntity() {
 }
 
 DrawableEntity::~DrawableEntity() {
+  engine()->World().FreeBody(body_);
 }
 
 Vec3 DrawableEntity::position() {

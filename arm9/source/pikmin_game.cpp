@@ -43,6 +43,19 @@ PosyState* PikminGame::SpawnObject<PosyState>() {
   return nullptr;
 }
 
+template<>
+void PikminGame::RemoveObject<PosyState>(PosyState* object) {
+  // similar to cleanup object, again minus the state allocation
+  nocashMessage("Remove Posy Called");
+  object->active = false;
+  engine.RemoveEntity(object->entity);
+  nocashMessage("Remove Entity succeeded");
+  entities_.remove(object->entity);
+  nocashMessage("entities_.remove succeeded");
+  delete object->entity;
+  nocashMessage("delete object->entity succeeded!");
+}
+
 template <>
 OnionState* PikminGame::SpawnObject<OnionState>() {
   if (num_onions_ < 3) {
@@ -133,7 +146,12 @@ void PikminGame::Step() {
   }
   
   for (int p = 0; p < num_posies_; p++) {
-    posy_ai::machine.RunLogic(*posies_[p]);
+    if (posies_[p]->active) {
+      posy_ai::machine.RunLogic(*posies_[p]);
+      if (posies_[p]->dead) {
+        RemoveObject<PosyState>(posies_[p]);
+      }
+    }
   }
 
   debug::EndTopic(debug::Topic::kUpdate);

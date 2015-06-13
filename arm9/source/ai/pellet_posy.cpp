@@ -28,19 +28,57 @@ void InitAlways(PosyState& posy) {
   posy.detection->owner = posy.entity->body();
 
   posy.entity->body()->collision_group = ATTACK_GROUP;
+  posy.entity->body()->owner = &posy.health;
+}
+
+bool ZeroHealth(const PosyState& posy) {
+  return posy.health <= 0;
+}
+
+bool TookDamage(const PosyState& posy) {
+  return posy.health < posy.old_health;
+}
+
+void StoreCurrentHealth(PosyState& posy) {
+  posy.old_health = posy.health;
+}
+
+void GoodbyeCruelWorld(PosyState& posy) {
+  posy.entity->engine()->World().FreeBody(posy.detection);
+  posy.dead = true;
+}
+
+namespace PosyNode {
+enum PosyNode {
+  kInit = 0,
+  kIdle,
+  kHit,
+  kDeath,
+};
 }
 
 Edge<PosyState> edge_list[] {
   // Init
-  Edge<PosyState>{kAlways, nullptr, InitAlways, 1},
+  Edge<PosyState>{kAlways, nullptr, InitAlways, PosyNode::kIdle},
 
   // Idle
-  {kAlways, nullptr, nullptr, 1},  // Loopback
+  {kAlways, ZeroHealth, nullptr, PosyNode::kDeath},
+  {kAlways, TookDamage, nullptr, PosyNode::kHit},
+  {kAlways, nullptr, nullptr, PosyNode::kIdle},  // Loopback
+
+  // Hit
+  {kAlways, ZeroHealth, nullptr, PosyNode::kDeath},
+  {kLastFrame, nullptr, StoreCurrentHealth, PosyNode::kIdle},
+
+  // Death
+  {kLastFrame, nullptr, GoodbyeCruelWorld, PosyNode::kDeath},
 };
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 1, "Armature|Idle", 60},
+  {"Idle", true, 1, 3, "Armature|Idle", 60},
+  {"Hit", true, 4, 5, "Armature|Hit", 30},
+  {"Death", true, 6, 6, "Armature|Death", 42},
 };
 
 StateMachine<PosyState> machine(node_list, edge_list);
