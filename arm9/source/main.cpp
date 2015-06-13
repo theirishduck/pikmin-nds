@@ -40,7 +40,7 @@ using debug::Topic;
 
 using namespace std;
 
-s32 const kTestPikmin{30};
+s32 const kTestPikmin{1};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
@@ -196,7 +196,7 @@ void LoadTextures() {
 
 void SetupDemoPikmin() {
   for (s32 i = 0; i < kTestPikmin; i += 10) {
-    for (s32 j = 0; j < 10; j++) {
+    for (s32 j = 0; j < min(kTestPikmin, (s32)10); j++) {
       //*
       PikminState* pikmin = g_game.SpawnObject<PikminState>();
       //random colors!

@@ -31,6 +31,8 @@ struct PikminState : ObjectState {
   bool has_target{false};
   Vec2 target;
 
+  physics::Body* chase_target{nullptr};
+
   //cache values for not updating so often
   numeric_types::Brads target_facing_angle;
 };

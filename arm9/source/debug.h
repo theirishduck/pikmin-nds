@@ -31,6 +31,7 @@ void AddToggle(std::string name, bool* toggle);
 void DisplayValue(const std::string &name, int value);
 void DisplayValue(const std::string &name, numeric_types::fixed value);
 void DisplayValue(const std::string &name, Vec3 value);
+void DisplayValue(const std::string &name, const std::string value);
 
 enum Topic {
   kPhysics = 0,

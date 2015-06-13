@@ -57,9 +57,8 @@ struct Body {
   unsigned short affected_by_gravity : 1;
 
   CollisionResult FirstCollisionWith(u32 collision_mask);
-  private:
-    unsigned short active : 1;
-    Vec3 old_position;
+  unsigned short active : 1;
+  Vec3 old_position;
 };
 
 }  // namespace physics

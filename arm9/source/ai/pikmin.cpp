@@ -43,7 +43,7 @@ void InitAlways(PikminState& pikmin) {
   body->collides_with_bodies = 1;
   body->is_pikmin = 1;
   body->is_movable = 1;
-  body->sensor_groups = WHISTLE_GROUP;
+  body->sensor_groups = WHISTLE_GROUP | DETECT_GROUP | ATTACK_GROUP;
 
   pikmin.entity->important = false;
 }
@@ -106,17 +106,22 @@ bool Landed(const PikminState& pikmin) {
 const fixed kRunningSpeed = 20.0_f / 60_f;
 
 void FaceTarget(PikminState& pikmin) {
+  auto body = pikmin.entity->body();
+  Vec2 posXZ{body->position.x, body->position.z};
+  Vec2 random_offset = Vec2{
+    fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
+    fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
+  };
+  Vec2 new_velocity = (pikmin.target + random_offset - posXZ).Normalize() * kRunningSpeed;
+  body->velocity.x = new_velocity.x;
+  body->velocity.z = new_velocity.y;
+  pikmin.entity->RotateToXZDirection(new_velocity);
+}
+
+void RunToTarget(PikminState& pikmin) {
+  // Only update the angle every so often, as this is expensive!
   if ((pikmin.id + pikmin.entity->engine()->FrameCounter()) % 4 == 0) {
-    auto body = pikmin.entity->body();
-    Vec2 posXZ{body->position.x, body->position.z};
-    Vec2 random_offset = Vec2{
-      fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
-      fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
-    };
-    Vec2 new_velocity = (pikmin.target + random_offset - posXZ).Normalize() * kRunningSpeed;
-    body->velocity.x = new_velocity.x;
-    body->velocity.z = new_velocity.y;
-    pikmin.entity->RotateToXZDirection(new_velocity);
+    FaceTarget(pikmin);
   }
 }
 
@@ -184,6 +189,57 @@ void JoinSquad(PikminState& pikmin) {
   }
 }
 
+bool ChaseTargetInvalid(const PikminState& pikmin) {
+  if (!pikmin.chase_target or !pikmin.chase_target->active) {
+    return true;
+  }
+  // TODO: Expand on this a bit more. Identifiers / handles?
+  return false;
+}
+
+bool CollideWithAttackable(const PikminState& pikmin) {
+  if (pikmin.entity->body()->result_groups & ATTACK_GROUP) {
+    return true;
+  }
+  return false;
+}
+
+void ChaseTarget(PikminState& pikmin) {
+  pikmin.target = Vec2{pikmin.chase_target->position.x, pikmin.chase_target->position.z};
+  RunToTarget(pikmin);
+}
+
+void DealDamageToTarget(PikminState& pikmin) {
+  // NOT IMPLEMENTED!!
+}
+
+void JumpTowardTarget(PikminState& pikmin) {
+  // Face the target, then apply upwards velocity
+  FaceTarget(pikmin);
+  pikmin.entity->body()->velocity.y = 0.2_f;
+}
+
+bool CollideWithTarget(const PikminState& pikmin) {
+  if (pikmin.current_squad) {
+    return false;
+  }
+  if (pikmin.entity->body()->result_groups & DETECT_GROUP) {
+    return true;
+  }
+  return false;
+}
+
+void StoreTargetBody(PikminState& pikmin) {
+  auto target_circle = pikmin.entity->body()->FirstCollisionWith(DETECT_GROUP);
+  if (target_circle.body) {
+    pikmin.chase_target = (physics::Body*)target_circle.body->owner;
+  }
+}
+
+void Aim(PikminState& pikmin) {
+  FaceTarget(pikmin);
+  pikmin.entity->body()->velocity = Vec3{0_f,0_f,0_f};
+}
 
 namespace PikminNode {
 enum PikminNode {
@@ -192,6 +248,9 @@ enum PikminNode {
   kGrabbed,
   kThrown,
   kTargeting,
+  kChasing,
+  kStandingAttack,
+  kJump,
 };
 }
 
@@ -203,6 +262,7 @@ Edge<PikminState> edge_list[] {
   {kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
+  {kAlways, CollideWithTarget, StoreTargetBody, PikminNode::kChasing},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
   //Grabbed
@@ -216,16 +276,41 @@ Edge<PikminState> edge_list[] {
   {kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CantReachTarget, StopMoving, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
-  {kAlways, nullptr, FaceTarget, PikminNode::kTargeting},
+  {kAlways, nullptr, RunToTarget, PikminNode::kTargeting},  // loopback
+
+  //Chasing (Attack, Work, Carry)
+  {kAlways, CantReachTarget, StopMoving, PikminNode::kIdle},
+  {kAlways, ChaseTargetInvalid, StopMoving, PikminNode::kIdle},
+  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
+  {kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
+
+  //Standing Attack
+  {kFirstFrame, nullptr, Aim, PikminNode::kStandingAttack},
+  {kLastFrame, nullptr, DealDamageToTarget, PikminNode::kJump},
+  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+
+  //Jump
+  {kFirstFrame, nullptr, JumpTowardTarget, PikminNode::kJump},
+  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {kAlways, Landed, StopMoving, PikminNode::kChasing},
+  // note: no loopback, as we want motion to be physics driven here
+
+
+  //Latch
+  //TODO: This later
 
 };
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 4, "Armature|Idle", 60},
-  {"Grabbed", true, 5, 6, "Armature|Idle", 60},
-  {"Thrown", true, 7, 7, "Armature|Throw", 20},
-  {"Targeting", true, 8, 11, "Armature|Run", 60},
+  {"Idle", true, 1, 5, "Armature|Idle", 60},
+  {"Grabbed", true, 6, 7, "Armature|Idle", 60},
+  {"Thrown", true, 8, 9, "Armature|Throw", 20},
+  {"Targeting", true, 9, 12, "Armature|Run", 60},
+  {"Chasing", true, 13, 17, "Armature|Run", 60},
+  {"StandingAttack", true, 18, 20, "Armature|StandingAttack", 40},
+  {"Jump", true, 21, 23, "Armature|Idle", 60},
 
 };
 

@@ -53,6 +53,10 @@ class StateMachine {
     }
     ~StateMachine() {};
 
+    const char* NodeName(int node) {
+      return node_list[node].name;
+    }
+
     void RunLogic(T& state) {
       auto current_node = node_list[state.current_node];
       for (int i = current_node.begin_edge; i <= current_node.end_edge; i++) {
@@ -76,11 +80,15 @@ class StateMachine {
                 node_list[edge.destination].animation != current_node.animation) {
               state.entity->SetAnimation(node_list[edge.destination].animation);
             }
-            // now set our new destination, and reset our counters
-            state.current_node = edge.destination;
-            state.frames_at_this_node = 0;
 
-            
+            // Only reset our frames_at_this_node if the transition takes
+            // us to a *different* node; this prevents loopback transitions
+            // from resetting the counter to 0 every frame.
+            if (state.current_node != edge.destination) {
+              state.frames_at_this_node = -1; // this is incremented to 0 down there
+            }
+            // now set our new destination, and we're done
+            state.current_node = edge.destination;
 
             //finally, break out so we stop processing edges
             break;

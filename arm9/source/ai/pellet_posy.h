@@ -8,7 +8,7 @@
 namespace posy_ai {
 
 struct PosyState : ObjectState {
-  int health{50};
+  int health{500};
   physics::Body* detection;
 };
 

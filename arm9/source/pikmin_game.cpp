@@ -118,6 +118,8 @@ void PikminGame::Step() {
   while (i != pikmin_.end()) {
     if ((*i).active) {
       pikmin_ai::machine.RunLogic(*i);
+      debug::DisplayValue("NodeFrames", i->frames_at_this_node);
+      debug::DisplayValue("Node", pikmin_ai::machine.NodeName(i->current_node));
     }
     if (i->dead) {
       RemoveObject(i);
