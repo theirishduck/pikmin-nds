@@ -51,7 +51,7 @@ void BubbleNumber(int index, int x, int y, int value, int cells) {
 
       oamSetHidden(&oamSub, index, false);
       oamSetXY(&oamSub, index, x, y);
-      oamSetGfx(&oamSub, index, SpriteSize_16x16, SpriteColorFormat_16Color, 
+      oamSetGfx(&oamSub, index, SpriteSize_16x16, SpriteColorFormat_16Color,
           oamGetGfxPtr(&oamSub, 0 + digit * 4));
     } else {
       oamSetHidden(&oamSub, index, true);
@@ -85,15 +85,15 @@ void UpdateMapIcons(UIState& ui) {
         switch(pikmin[slot].type) {
           case PikminType::kNone:
           case PikminType::kRedPikmin:
-            oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color, 
+            oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color,
               red_dot);
             break;
           case PikminType::kYellowPikmin:
-          oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color, 
+          oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color,
             yellow_dot);
             break;
           case PikminType::kBluePikmin:
-            oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color, 
+            oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color,
               blue_dot);
             break;
         }
@@ -113,21 +113,21 @@ void UpdatePikminSelector(UIState& ui, int index) {
   oamSetHidden(&oamSub, index, false);
   oamSetXY(&oamSub, index, 0, 0);
   oamSetPalette(&oamSub, index, 1);
-  oamSetGfx(&oamSub, index, SpriteSize_64x64, SpriteColorFormat_16Color, 
+  oamSetGfx(&oamSub, index, SpriteSize_64x64, SpriteColorFormat_16Color,
       ui.game->SpriteAllocator()->Retrieve("redbutton").offset);
-  
+
   // Yellow pikmin
   oamSetHidden(&oamSub, index + 1, false);
   oamSetXY(&oamSub, index + 1, 0, 64);
   oamSetPalette(&oamSub, index + 1, 2);
-  oamSetGfx(&oamSub, index + 1, SpriteSize_64x64, SpriteColorFormat_16Color, 
+  oamSetGfx(&oamSub, index + 1, SpriteSize_64x64, SpriteColorFormat_16Color,
       ui.game->SpriteAllocator()->Retrieve("yellowbutton").offset);
 
   // Blue pikmin
   oamSetHidden(&oamSub, index + 2, false);
   oamSetXY(&oamSub, index + 2, 0, 128);
   oamSetPalette(&oamSub, index + 2, 3);
-  oamSetGfx(&oamSub, index + 2, SpriteSize_64x64, SpriteColorFormat_16Color, 
+  oamSetGfx(&oamSub, index + 2, SpriteSize_64x64, SpriteColorFormat_16Color,
       ui.game->SpriteAllocator()->Retrieve("bluebutton").offset);
 
   // Decide which version to display
@@ -162,20 +162,26 @@ void UpdatePikminSelector(UIState& ui, int index) {
     ui.game->SpriteAllocator()->Replace("bluebutton", blue_button_dark_img_bin, blue_button_dark_img_bin_size);
   }
 
+  memcpy(&SPRITE_PALETTE_SUB[0], bubblefont_pal_bin, bubblefont_pal_bin_size);
+  ui.game->SpriteAllocator()->Replace(
+    "bubblefont", bubblefont_img_bin, bubblefont_img_bin_size);
 }
 
 void InitNavPad(UIState& ui) {
   // Set up the video modes for the NavPad
+  videoSetModeSub(MODE_2_2D);
   vramSetBankH(VRAM_H_SUB_BG);
   vramSetBankI(VRAM_I_SUB_SPRITE);
-  videoSetModeSub(MODE_2_2D);
   oamInit(&oamSub, SpriteMapping_1D_32, false);
+
+  // Reset the sprite allocator
+  ui.game->SpriteAllocator()->Reset();
 
   // copy in the bubble font data, for number updating
   memcpy(&SPRITE_PALETTE_SUB[0], bubblefont_pal_bin, bubblefont_pal_bin_size);
   ui.game->SpriteAllocator()->Load(
     "bubblefont", bubblefont_img_bin, bubblefont_img_bin_size, {16, 160});
-  
+
   // copy in the pikmin button data
   memcpy(&SPRITE_PALETTE_SUB[16], red_button_light_pal_bin, red_button_light_pal_bin_size);
   ui.game->SpriteAllocator()->Load(
@@ -247,7 +253,8 @@ bool DebugButtonPressed(const UIState&  ui) {
 
 namespace UINode {
 enum UINode {
-  kInit = 0,
+  kSleep = 0,
+  kInit,
   kNavPad,
   kDebugTiming,
   kDebugValues,
@@ -256,6 +263,9 @@ enum UINode {
 }
 
 Edge<UIState> edge_list[] {
+  // Wait frame; -- this pretty much exists solely for DesMuME compatability.
+  Edge<UIState>{kAlways, nullptr, nullptr, UINode::kInit},
+
   // Init
   Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
 
@@ -278,11 +288,12 @@ Edge<UIState> edge_list[] {
 };
 
 Node node_list[] {
-  {"Init", true, 0, 0},
-  {"NavPad", true, 1, 2},
-  {"DebugTiming", true, 3, 4},
-  {"DebugValues", true, 5, 6},
-  {"DebugToggles", true, 7, 8},
+  {"Sleep", true, 0, 0},
+  {"Init", true, 1, 1},
+  {"NavPad", true, 2, 3},
+  {"DebugTiming", true, 4, 5},
+  {"DebugValues", true, 6, 7},
+  {"DebugToggles", true, 8, 9},
 };
 
 StateMachine<UIState> machine(node_list, edge_list);

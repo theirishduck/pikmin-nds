@@ -84,7 +84,7 @@ PikminState* PikminGame::SpawnObject<PikminState>() {
   pikmin_[slot].entity = allocate_entity();
   pikmin_[slot].game = this;
   const bool too_many_objects = pikmin_[slot].entity == nullptr;
-  if (too_many_objects) {    
+  if (too_many_objects) {
     return nullptr;
   }
   return &pikmin_[slot];
@@ -126,7 +126,7 @@ void PikminGame::Step() {
     captain_ai::machine.RunLogic(*captain_);
     squad_ai::machine.RunLogic((*captain_).squad);
   }
-  
+
   auto i = pikmin_.begin();
   while (i != pikmin_.end()) {
     if ((*i).active) {
@@ -144,7 +144,7 @@ void PikminGame::Step() {
   for (int o = 0; o < num_onions_; o++) {
     onion_ai::machine.RunLogic(*onions_[o]);
   }
-  
+
   for (int p = 0; p < num_posies_; p++) {
     if (posies_[p]->active) {
       posy_ai::machine.RunLogic(*posies_[p]);
@@ -155,8 +155,7 @@ void PikminGame::Step() {
   }
 
   debug::EndTopic(debug::Topic::kUpdate);
-
-  ui::machine.RunLogic(ui_);  
+  ui::machine.RunLogic(ui_);
 }
 
 CaptainState* PikminGame::ActiveCaptain() {
