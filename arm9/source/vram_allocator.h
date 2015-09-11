@@ -116,6 +116,7 @@ class VramAllocator {
     }
     void Reset() {
       next_element_ = base_;
+      loaded_assets.clear();
     }
 
     u16* Base() {
