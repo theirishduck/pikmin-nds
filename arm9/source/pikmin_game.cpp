@@ -184,4 +184,14 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
     pikmin->type = PikminType::kRedPikmin;
     return pikmin;
   }},
+  {"YellowPikmin", [](PikminGame* game) -> ObjectState* {
+    auto pikmin = game->SpawnObject<PikminState>();
+    pikmin->type = PikminType::kYellowPikmin;
+    return pikmin;
+  }},
+  {"BluePikmin", [](PikminGame* game) -> ObjectState* {
+    auto pikmin = game->SpawnObject<PikminState>();
+    pikmin->type = PikminType::kBluePikmin;
+    return pikmin;
+  }},
 };

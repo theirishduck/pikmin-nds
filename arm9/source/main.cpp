@@ -198,9 +198,10 @@ void SetupDemoPikmin() {
   for (s32 i = 0; i < kTestPikmin; i += 10) {
     for (s32 j = 0; j < min(kTestPikmin, (s32)10); j++) {
       //*
-      PikminState* pikmin = g_game.SpawnObject<PikminState>();
+      //PikminState* pikmin = g_game.SpawnObject<PikminState>();
+      auto pikmin = g_game.Spawn<PikminState>("YellowPikmin");
       //random colors!
-      pikmin->type = (PikminType)((rand() % 3) + 1);
+      //pikmin->type = (PikminType)((rand() % 3) + 1);
       //pikmin->type = PikminType::kRedPikmin;
 
       pikmin->entity->body()->position = {
