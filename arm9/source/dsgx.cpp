@@ -7,10 +7,18 @@
 
 using namespace std;
 namespace nt = numeric_types;
+using nt::literals::operator"" _f;
 
 constexpr u32 kChunkHeaderSizeWords{2};
 
-Dsgx::Dsgx(u32* data, const u32 length) {
+Dsgx::Dsgx(u32* data, const u32 length):
+    model_data_{nullptr},
+    bounding_center_{0_f, 0_f, 0_f},
+    bounding_radius_{0_f},
+    draw_cost_{0},
+    bones_{},
+    textures_{},
+    animations_{} {
   u32 seek = 0;
   // printf("length of Dsgx: %u\n", length);
   while (seek < (length >> 2)) {
@@ -171,13 +179,13 @@ void Dsgx::ApplyTextures(VramAllocator<Texture>* texture_allocator, VramAllocato
     for (u32 i = 0; i < texture->num_offsets; i++) {
       //set the texture offset
       u32 const kTextureOffsetMask = 0x0000FFFF;
-      destination[texture->offsets[i]] = 
+      destination[texture->offsets[i]] =
         (destination[texture->offsets[i]] & ~kTextureOffsetMask) | (location & kTextureOffsetMask);
-      
+
       //set the format (warning: funky hex binary logic here)
       u32 const kTextureFormatMask = 0x3C000000;
-      destination[texture->offsets[i]] = 
-        (destination[texture->offsets[i]] & ~kTextureFormatMask) | 
+      destination[texture->offsets[i]] =
+        (destination[texture->offsets[i]] & ~kTextureFormatMask) |
         ((loaded_texture.format << 26 | loaded_texture.transparency << 29) & kTextureFormatMask);
     }
     // If this is any texture format other than Direct Texture, then we need to

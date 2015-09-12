@@ -3,6 +3,8 @@
 #include <nds.h>
 #include <map>
 
+#include "pikmin_game.h"
+
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
@@ -60,7 +62,7 @@ void debug::DrawCircle(Vec3 p, fixed radius, rgb color, u32 segments) {
 
   glPopMatrix(1);
   glEnd();
-  
+
 }
 
 void debug::DrawGroundPlane(int width, int segments, rgb color) {
@@ -120,7 +122,7 @@ TimingResult g_timing_results[static_cast<int>(debug::Topic::kNumTopics)];
 
 std::map<debug::Topic, TopicInfo> g_topic_info{
   {debug::Topic::kUpdate, {
-    "Update", 
+    "Update",
     RGB8(255, 128, 0)}},
   {debug::Topic::kPhysics, {
     "Physics",
@@ -132,43 +134,43 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
     "PassInit",
     RGB8(255, 255, 0)}},
   {debug::Topic::kPass1, {
-    "Pass1",   
+    "Pass1",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass2, {
-    "Pass2",   
+    "Pass2",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass3, {
-    "Pass3",   
+    "Pass3",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass4, {
-    "Pass4",   
+    "Pass4",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass5, {
-    "Pass5",   
+    "Pass5",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass6, {
-    "Pass6",   
+    "Pass6",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass7, {
-    "Pass7",   
+    "Pass7",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass8, {
-    "Pass8",   
+    "Pass8",
     RGB8(0, 0, 255)}},
   {debug::Topic::kPass9, {
-    "Pass9",   
+    "Pass9",
     RGB8(0, 0, 255)}},
   {debug::Topic::kIdle, {
-    "Idle",   
+    "Idle",
     RGB8(48, 48, 48)}},
   {debug::Topic::kUi, {
-    "UI",   
+    "UI",
     RGB8(48, 48, 48)}},
   {debug::Topic::kParticleUpdate, {
-    "Particle.Update",   
+    "Particle.Update",
     RGB8(48, 48, 48)}},
   {debug::Topic::kParticleDraw, {
-    "Particle.Draw",   
+    "Particle.Draw",
     RGB8(48, 48, 48)}},
 };
 
@@ -178,7 +180,7 @@ void debug::UpdateTimingMode() {
   printf("-------------TIMING-------------");
 
   // For every topic, output the timing on its own line
-  for (int i = 0; i < static_cast<int>(debug::Topic::kNumTopics); i++) {  
+  for (int i = 0; i < static_cast<int>(debug::Topic::kNumTopics); i++) {
     if (g_timing_results[i].delta() > 0) {
       if (i & 0x1) {
         printf("\x1b[39m");
@@ -374,7 +376,7 @@ void debug::ClearTopic(Topic topic) {
 void debug::StartCpuTimer() {
   // This uses two timers for 32bit precision, so this call will consume
   // timers 0 and 1.
-  cpuStartTiming(0); 
+  cpuStartTiming(0);
 }
 
 int g_debug_current_topic = 0;
@@ -423,7 +425,7 @@ void debug::UpdateTogglesMode() {
     } else {
       printf("\x1b[30;1m");
     }
-    printf("+------------------------------+");    
+    printf("+------------------------------+");
     printf("| (%s) %*s |", (*toggleActive ? "*" : " "), 24, toggleName.c_str());
     printf("+------------------------------+");
 
@@ -445,4 +447,44 @@ void debug::UpdateTogglesMode() {
 
 void debug::AddToggle(std::string name, bool* toggle) {
   g_debugToggles[name] = toggle;
+}
+
+namespace {
+std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> g_spawn_names;
+PikminGame::SpawnMap::const_iterator g_current_spawner;
+}  // namespace
+
+void debug::InitializeSpawners() {
+  g_spawn_names = PikminGame::SpawnNames();
+  g_current_spawner = g_spawn_names.first;
+}
+
+void debug::UpdateSpawnerMode(PikminGame* game) {
+  printf("\x1b[2J");
+
+  printf("%s", g_current_spawner->first.c_str());
+
+  if (keysDown() & KEY_TOUCH) {
+    touchPosition touch;
+    touchRead(&touch);
+
+    if (touch.px > 192) {
+      g_current_spawner++;
+      if (g_current_spawner == g_spawn_names.second) {
+        g_current_spawner = g_spawn_names.first;
+      }
+    } else if (touch.px < 64) {
+      if (g_current_spawner == g_spawn_names.first) {
+        g_current_spawner = g_spawn_names.second;
+      }
+      g_current_spawner--;
+    } else {
+      //Spawn a thingy!!
+      ObjectState* object = game->Spawn(g_current_spawner->first);
+      object->entity->body()->position = game->ActiveCaptain()->cursor->body()->position;
+    }
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
 }

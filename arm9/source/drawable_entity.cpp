@@ -88,11 +88,11 @@ void DrawableEntity::SetCache() {
   //cached_matrix_[4] = 0;
   cached_matrix_[5] = inttof32(1);
   //cached_matrix_[6] = 0;
-  
+
   cached_matrix_[7] = sine;
   //cached_matrix_[8] = 0;
   cached_matrix_[9] = cosine;
-  
+
   cached_matrix_[10]  = cached_.position.x.data_;
   cached_matrix_[11] = cached_.position.y.data_;
   cached_matrix_[12] = cached_.position.z.data_;
@@ -153,6 +153,9 @@ void DrawableEntity::ApplyTransformation() {
 }
 
 void DrawableEntity::Draw() {
+  if (cached_.actor == nullptr) {
+    return;
+  }
   ApplyTransformation();
 
   // Apply animation.
@@ -162,6 +165,7 @@ void DrawableEntity::Draw() {
 
   // Draw the object using display lists.
   glCallList(cached_.actor->DrawList());
+
 }
 
 void DrawableEntity::Update() {
@@ -249,7 +253,7 @@ void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {
 }
 
 Brads DrawableEntity::AngleTo(const DrawableEntity* destination) {
-  auto difference = Vec2{destination->body_->position.x, destination->body_->position.z} - 
+  auto difference = Vec2{destination->body_->position.x, destination->body_->position.z} -
       Vec2{body_->position.x, body_->position.z};
   if (difference.Length2() > 0_f) {
     difference = difference.Normalize();

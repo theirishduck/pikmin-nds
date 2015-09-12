@@ -40,7 +40,7 @@ using debug::Topic;
 
 using namespace std;
 
-s32 const kTestPikmin{50};
+s32 const kTestPikmin{10};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
@@ -195,14 +195,11 @@ void LoadTextures() {
 }
 
 void SetupDemoPikmin() {
+  static std::string pikmin_names[] = {"Pikmin:Red", "Pikmin:Yellow", "Pikmin:Blue"};
   for (s32 i = 0; i < kTestPikmin; i += 10) {
     for (s32 j = 0; j < min(kTestPikmin, (s32)10); j++) {
-      //*
-      //PikminState* pikmin = g_game.SpawnObject<PikminState>();
-      auto pikmin = g_game.Spawn<PikminState>("YellowPikmin");
       //random colors!
-      //pikmin->type = (PikminType)((rand() % 3) + 1);
-      //pikmin->type = PikminType::kRedPikmin;
+      auto pikmin = g_game.Spawn<PikminState>(pikmin_names[rand() % 3]);
 
       pikmin->entity->body()->position = {
         fixed::FromInt(-10 + j * 1 + 64),
@@ -228,7 +225,7 @@ void SetupDemoStage() {
   onion->entity->body()->position = Vec3{64_f, 0_f, -72_f};
 
   //auto posy = g_game.SpawnObject<PosyState>();
-  auto posy = g_game.Spawn<PosyState>("PelletPosy");
+  auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
   posy->entity->body()->position = Vec3{44_f, 0_f, -72_f};
 }
 

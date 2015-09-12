@@ -178,20 +178,24 @@ PikminState* PikminGame::Pikmin() {
 }
 
 const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {
-  {"PelletPosy", [](PikminGame* game) -> ObjectState* {return game->SpawnObject<PosyState>();}},
-  {"RedPikmin", [](PikminGame* game) -> ObjectState* {
+  {"Enemy:PelletPosy", [](PikminGame* game) -> ObjectState* {return game->SpawnObject<PosyState>();}},
+  {"Pikmin:Red", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->SpawnObject<PikminState>();
     pikmin->type = PikminType::kRedPikmin;
     return pikmin;
   }},
-  {"YellowPikmin", [](PikminGame* game) -> ObjectState* {
+  {"Pikmin:Yellow", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->SpawnObject<PikminState>();
     pikmin->type = PikminType::kYellowPikmin;
     return pikmin;
   }},
-  {"BluePikmin", [](PikminGame* game) -> ObjectState* {
+  {"Pikmin:Blue", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->SpawnObject<PikminState>();
     pikmin->type = PikminType::kBluePikmin;
     return pikmin;
   }},
 };
+
+std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> PikminGame::SpawnNames() {
+  return std::make_pair(spawn_.begin(), spawn_.end());
+}

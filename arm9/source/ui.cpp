@@ -247,6 +247,14 @@ void UpdateDebugToggles(UIState& ui) {
   debug::UpdateTogglesMode();
 }
 
+void InitDebugSpawners(UIState& ui) {
+  debug::InitializeSpawners();
+}
+
+void UpdateDebugSpawners(UIState& ui) {
+  debug::UpdateSpawnerMode(ui.game);
+}
+
 bool DebugButtonPressed(const UIState&  ui) {
   return keysDown() & KEY_SELECT;
 }
@@ -259,6 +267,7 @@ enum UINode {
   kDebugTiming,
   kDebugValues,
   kDebugToggles,
+  kDebugSpawners,
 };
 }
 
@@ -282,8 +291,12 @@ Edge<UIState> edge_list[] {
   Edge<UIState>{kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
 
   // Debug Values
-  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, DebugButtonPressed, InitDebugSpawners, UINode::kDebugSpawners},
   Edge<UIState>{kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
+
+  // Spawn Objects
+  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
 
 };
 
@@ -294,6 +307,7 @@ Node node_list[] {
   {"DebugTiming", true, 4, 5},
   {"DebugValues", true, 6, 7},
   {"DebugToggles", true, 8, 9},
+  {"DebugSpawners", true, 10, 11},
 };
 
 StateMachine<UIState> machine(node_list, edge_list);

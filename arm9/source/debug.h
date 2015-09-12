@@ -8,6 +8,8 @@
 #include "numeric_types.h"
 #include <string>
 
+class PikminGame;
+
 namespace debug {
 
 extern bool g_timing_colors;
@@ -26,6 +28,8 @@ void Update();
 void UpdateValuesMode();
 void UpdateTimingMode();
 void UpdateTogglesMode();
+void InitializeSpawners();
+void UpdateSpawnerMode(PikminGame* game);
 void AddToggle(std::string name, bool* toggle);
 
 void DisplayValue(const std::string &name, int value);

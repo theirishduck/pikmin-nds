@@ -19,7 +19,7 @@ struct DrawState {
   numeric_types::fixed scale;
 
   // TODO(Nick) try making this reference an animation state instead.
-  Dsgx* actor;
+  Dsgx* actor{nullptr};
   Animation* animation{0};
   u32 animation_frame{0};
 };
@@ -72,8 +72,8 @@ class DrawableEntity {
   bool important{true};
 
  private:
-  DrawState current_;
-  DrawState cached_;
+  DrawState current_{};
+  DrawState cached_{};
 
   s32 cached_matrix_[13]; //one extra entry for size; for DMA transfers
 
