@@ -41,6 +41,7 @@ class DrawableEntity {
 
   Rotation rotation();
   void set_rotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z);
+  void set_rotation(Rotation rotation);
 
   numeric_types::fixed scale();
   void set_scale(numeric_types::fixed new_scale);

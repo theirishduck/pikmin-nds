@@ -47,6 +47,10 @@ void DrawableEntity::set_rotation(nt::Brads x, nt::Brads y, nt::Brads z) {
   current_.rotation.z = z;
 }
 
+void DrawableEntity::set_rotation(Rotation rotation) {
+  current_.rotation = rotation;
+}
+
 fixed DrawableEntity::scale() {
   return current_.scale;
 }
