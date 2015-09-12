@@ -2,6 +2,7 @@
 #include "debug.h"
 
 using pikmin_ai::PikminState;
+using pikmin_ai::PikminType;
 using captain_ai::CaptainState;
 using onion_ai::OnionState;
 using posy_ai::PosyState;
@@ -175,3 +176,12 @@ int PikminGame::PikminInField() {
 PikminState* PikminGame::Pikmin() {
   return &pikmin_[0];
 }
+
+const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {
+  {"PelletPosy", [](PikminGame* game) -> ObjectState* {return game->SpawnObject<PosyState>();}},
+  {"RedPikmin", [](PikminGame* game) -> ObjectState* {
+    auto pikmin = game->SpawnObject<PikminState>();
+    pikmin->type = PikminType::kRedPikmin;
+    return pikmin;
+  }},
+};

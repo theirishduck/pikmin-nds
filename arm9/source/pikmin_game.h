@@ -18,10 +18,10 @@ class PikminGame {
   PikminGame(MultipassEngine& engine);
   ~PikminGame();
 
-  template <typename StateType> 
+  template <typename StateType>
   StateType* SpawnObject();
 
-  template <typename StateType> 
+  template <typename StateType>
   void RemoveObject(StateType* object);
 
   void Step();
@@ -34,7 +34,14 @@ class PikminGame {
   int PikminInField();
   pikmin_ai::PikminState* Pikmin();
 
+  //name-based spawning, for level loading and happy debuggers
+  template<typename StateType = ObjectState>
+  StateType* Spawn(const std::string& name) {
+    return reinterpret_cast<StateType*>(spawn_.at(name)(this));
+  }
+
  private:
+  static const std::map<std::string, std::function<ObjectState*(PikminGame*)>> spawn_;
   VramAllocator<Texture> texture_allocator_ = VramAllocator<Texture>(VRAM_C, 128 * 1024);
   VramAllocator<TexturePalette> texture_palette_allocator_ = VramAllocator<TexturePalette>(VRAM_G, 16 * 1024, 16);
   VramAllocator<Sprite> sprite_allocator_ = VramAllocator<Sprite>(SPRITE_GFX_SUB, 32 * 1024);

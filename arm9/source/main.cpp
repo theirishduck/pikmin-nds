@@ -152,7 +152,7 @@ void LoadFile(T* vram_allocator, typename T::Metadata metadata, string filename,
   } else {
     nocashMessage("NitroFS Open FAILED for");
     nocashMessage(filename.c_str());
-  }  
+  }
 }
 
 void LoadTexturesFromNitroFS() {
@@ -189,7 +189,7 @@ void LoadTextures() {
   // switching it back to texture mode.
   vramSetBankC(VRAM_C_LCD);
   vramSetBankG(VRAM_G_LCD);
-  LoadTexturesFromNitroFS();  
+  LoadTexturesFromNitroFS();
   vramSetBankC(VRAM_C_TEXTURE);
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
@@ -226,7 +226,8 @@ void SetupDemoStage() {
   auto onion = g_game.SpawnObject<OnionState>();
   onion->entity->body()->position = Vec3{64_f, 0_f, -72_f};
 
-  auto posy = g_game.SpawnObject<PosyState>();
+  //auto posy = g_game.SpawnObject<PosyState>();
+  auto posy = g_game.Spawn<PosyState>("PelletPosy");
   posy->entity->body()->position = Vec3{44_f, 0_f, -72_f};
 }
 
@@ -244,7 +245,7 @@ void Init() {
   } else {
     nocashMessage("Filesystem FAILURE");
   }
-  
+
   InitMainScreen();
   InitSubScreen();
 
@@ -252,7 +253,7 @@ void Init() {
   SetupDemoPikmin();
   InitCaptain();
   SetupDemoStage();
-  
+
   glPushMatrix();
 }
 
@@ -263,8 +264,8 @@ void RunLogic() {
 //returns a random vector from -1 to 1 in all directions
 Vec3 RandomVector() {
   return Vec3{
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)), 
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)), 
+    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
+    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
   };
 }
