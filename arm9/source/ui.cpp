@@ -235,6 +235,18 @@ void UpdateNavPad(UIState& ui) {
   debug::EndTopic(debug::Topic::kUi);
 }
 
+void InitOnionUI(UIState& ui) {
+  // for now, use the debug screen for the onion
+  InitDebug(ui);
+
+  // Pause the main game
+  // TODO: THIS
+
+  
+}
+
+
+
 void UpdateDebugValues(UIState& ui) {
   debug::UpdateValuesMode();
 }

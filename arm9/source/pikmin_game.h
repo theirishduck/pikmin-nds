@@ -77,6 +77,7 @@ class PikminGame {
     StateType* state = new StateType();
     state->entity = allocate_entity();
     state->game = this;
+    state->entity->body()->owner = state;
     const bool too_many_objects = state->entity == nullptr;
     if (too_many_objects) {
       delete state;

@@ -5,6 +5,7 @@
 #include "multipass_engine.h"
 #include "pikmin_game.h"
 #include "trig.h"
+#include "ai/onion.h"
 
 // Model data
 //#include "olimar_dsgx.h"
@@ -60,6 +61,7 @@ void InitAlways(CaptainState& captain) {
   body->collides_with_bodies = 1;
   body->is_movable = 1;
   body->collision_group = PLAYER_GROUP | WHISTLE_GROUP;
+  body->sensor_groups = ONION_BEAM_GROUP;
   body->owner = &captain;
 
   //initialize our walking angle?
@@ -141,6 +143,18 @@ void MoveCaptain(CaptainState& captain) {
 
   // Move the whistle to where the cursor is
   HandleWhistle(captain);
+
+  // Handle collision with certain kinds of sensors
+  if (captain.entity->body()->result_groups & ONION_BEAM_GROUP) {
+    onion_ai::OnionState* current_onion =
+        (onion_ai::OnionState*)(captain.entity->body()->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
+    captain.active_onion = current_onion->pikmin_type;
+    debug::DisplayValue("Colliding with beam", 1);
+  } else {
+    captain.active_onion = pikmin_ai::PikminType::kNone;
+    debug::DisplayValue("Colliding with beam", 0);
+  }
+  debug::DisplayValue("Active Onion: ", (int)captain.active_onion);
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {

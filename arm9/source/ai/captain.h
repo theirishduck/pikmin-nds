@@ -15,6 +15,8 @@ struct CaptainState : ObjectState {
   DrawableEntity* whistle;
   int whistle_timer = 0;
   squad_ai::SquadState squad;
+
+  pikmin_ai::PikminType active_onion = pikmin_ai::PikminType::kNone;
 };
 
 extern StateMachine<CaptainState> machine;

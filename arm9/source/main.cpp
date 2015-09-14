@@ -223,6 +223,7 @@ void SetupDemoStage() {
   //spawn in an onion!
   auto onion = g_game.SpawnObject<OnionState>();
   onion->entity->body()->position = Vec3{64_f, 0_f, -72_f};
+  onion->pikmin_type = PikminType::kRedPikmin;
 
   //auto posy = g_game.SpawnObject<PosyState>();
   auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
