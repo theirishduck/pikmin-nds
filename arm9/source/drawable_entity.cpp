@@ -64,9 +64,9 @@ void DrawableEntity::RotateToXZDirection(Vec2 direction) {
   if (direction.Length() > 0_f) {
     direction = direction.Normalize();
     if (direction.y <= 0_f) {
-      set_rotation(0_brad, Brads::Raw(acosLerp(direction.x.data_)) + 90_brad, 0_brad);
+      set_rotation(0_brad, Brads::Raw(acosLerp(direction.x.data_)), 0_brad);
     } else {
-      set_rotation(0_brad, Brads::Raw(-acosLerp(direction.x.data_)) + 90_brad, 0_brad);
+      set_rotation(0_brad, Brads::Raw(-acosLerp(direction.x.data_)), 0_brad);
     }
   }
 }
