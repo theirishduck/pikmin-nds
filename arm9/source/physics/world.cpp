@@ -103,7 +103,7 @@ void World::ResolveCollision(Body& a, Body& b) {
       a_direction.x = 1.0_f;
       a_direction.z = 1.0_f;
     }
-    if (a.is_movable) {
+    if (a.is_movable and (!(b.is_pikmin) or a.is_pikmin)) {
 
       // multiply, so that we move exactly the distance required to undo the
       // overlap between these objects
@@ -118,9 +118,9 @@ void World::ResolveCollision(Body& a, Body& b) {
 
       a.position = a.position + a_direction;
     }
-    if (b.is_movable) {
+    if (b.is_movable and (!(a.is_pikmin) or b.is_pikmin)) {
       auto b_direction = (b.position - a.position);
-      
+
       // perform this resolution only on the XZ plane
       b_direction.y = 0_f;
 
@@ -134,7 +134,7 @@ void World::ResolveCollision(Body& a, Body& b) {
 
       b_direction *= offset;
       b_direction *= 1_f / distance;
-      
+
       b.position = b.position + b_direction;
     }
   }
@@ -180,9 +180,9 @@ void World::ProcessCollision() {
       if (a != b) {
         Body& B = bodies_[*b];
 
-        const bool a_senses_b = B.is_sensor and 
+        const bool a_senses_b = B.is_sensor and
             (B.collision_group & A.sensor_groups);
-        const bool b_senses_a = A.is_sensor and 
+        const bool b_senses_a = A.is_sensor and
             (A.collision_group & B.sensor_groups);
 
         const bool a_pushes_b = A.collides_with_bodies and not B.is_sensor;
@@ -208,13 +208,13 @@ void World::ProcessCollision() {
             }
           }
         }
-      }      
+      }
     }
   }
 
   //Repeat this with pikmin, our special case heros
   //Pikmin need to collide against all active bodies, but not with each other
-  
+
   //Also, pikmin are assumed to collide with both bodies and sensors, and are
   //always considered movable, so we can skip all of those checks.
   for (int p = 0; p < active_pikmin_; p++) {
@@ -235,14 +235,14 @@ void World::ProcessCollision() {
       }
     }
   }
-  
+
   // Special case: collide pikmin with each other, but only if they share a
   // heightmap position (later: or an adjacent location?)
   for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
     for (int p2 = p1 + 1; p2 < active_pikmin_; p2++) {
       Body& pikmin1 = bodies_[pikmin_[p1]];
       Body& pikmin2 = bodies_[pikmin_[p2]];
-      if ((int)pikmin1.position.x == (int)pikmin2.position.x and 
+      if ((int)pikmin1.position.x == (int)pikmin2.position.x and
           (int)pikmin1.position.z == (int)pikmin2.position.z) {
         if (BodiesOverlap(pikmin1, pikmin2)) {
           ResolveCollision(pikmin1, pikmin2);
@@ -268,7 +268,7 @@ void World::Update() {
 void World::DebugCircles() {
   for (int i = 0; i < active_bodies_; i++) {
     Body& body = bodies_[active_[i]];
-    
+
     //pick a color based on the state of this body
     rgb color = RGB5(31,31,31);
     int segments = 16;
@@ -282,7 +282,7 @@ void World::DebugCircles() {
     //pick a color based on the state of this body
     rgb color = RGB5(31,15,15);
     int segments = 6;
-    debug::DrawCircle(body.position, body.radius, color, segments); 
+    debug::DrawCircle(body.position, body.radius, color, segments);
   }
 }
 
@@ -345,7 +345,7 @@ void World::CollideBodyWithLevel(Body& body) {
     } else {
       // Simple case: just adjust their height so they don't sink through the
       // ground, and can walk up slopes and stuff.
-      body.position.y = current_level_height;  
+      body.position.y = current_level_height;
       // Reset velocity to 0; we hit the ground
       body.velocity.y = 0_f;
     }
@@ -353,4 +353,3 @@ void World::CollideBodyWithLevel(Body& body) {
     body.touching_ground = 0; //we're in the air
   }
 }
-
