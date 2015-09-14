@@ -2,6 +2,7 @@
 
 #include "dsgx.h"
 #include "pikmin_game.h"
+#include "ai/pikmin.h"
 
 // Model data
 #include "redonion_dsgx.h"
@@ -10,6 +11,8 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
+
+using pikmin_ai::PikminType;
 
 namespace onion_ai {
 
@@ -37,12 +40,47 @@ void InitAlways(OnionState& onion) {
   onion.entity->body()->collision_group = ONION_BEAM_GROUP;
 }
 
+void HandleWithdrawingPikmin(OnionState& onion) {
+  if (onion.withdraw_count > 0) {
+    // Spawn in a pikmin of the appropriate type!
+    auto pikmin = onion.game->SpawnObject<pikmin_ai::PikminState>();
+    if (pikmin!= nullptr) {
+      pikmin->type = onion.pikmin_type;
+
+      // Set the initial position to one of the sides
+      Vec3 onion_sides[] = {
+        {4.04651_f, 10.84748_f, -0.06924_f},
+        {-1.9633_f, 10.84748_f, 3.539_f},
+        {-1.9633_f, 10.84748_f, -3.539_f},
+      };
+
+      pikmin->entity->body()->position = onion.entity->body()->position +
+          onion_sides[rand() % 3];
+
+      // For now, go ahead and add this pikmin to the captain's squad
+      onion.game->ActiveCaptain()->squad.AddPikmin(pikmin);
+
+      if (onion.pikmin_type == PikminType::kRedPikmin) {
+        onion.game->CurrentSaveData()->red_pikmin--;
+      }
+      if (onion.pikmin_type == PikminType::kYellowPikmin) {
+        onion.game->CurrentSaveData()->yellow_pikmin--;
+      }
+      if (onion.pikmin_type == PikminType::kBluePikmin) {
+        onion.game->CurrentSaveData()->blue_pikmin--;
+      }
+    }
+
+    onion.withdraw_count--;
+  }
+}
+
 Edge<OnionState> edge_list[] {
   // Init
   Edge<OnionState>{kAlways, nullptr, InitAlways, 1},
 
   // Idle
-  {kAlways, nullptr, nullptr, 1},  // Loopback
+  {kAlways, nullptr, HandleWithdrawingPikmin, 1},  // Loopback
 };
 
 Node node_list[] {
