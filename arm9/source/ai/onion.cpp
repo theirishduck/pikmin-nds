@@ -6,6 +6,8 @@
 
 // Model data
 #include "redonion_dsgx.h"
+#include "yellowonion_dsgx.h"
+#include "blueonion_dsgx.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -17,10 +19,22 @@ using pikmin_ai::PikminType;
 namespace onion_ai {
 
 Dsgx redonion_actor((u32*)redonion_dsgx, redonion_dsgx_size);
+Dsgx yellowonion_actor((u32*)yellowonion_dsgx, yellowonion_dsgx_size);
+Dsgx blueonion_actor((u32*)blueonion_dsgx, blueonion_dsgx_size);
 
 void InitAlways(OnionState& onion) {
-  onion.entity->set_actor(&redonion_actor);
-  redonion_actor.ApplyTextures(onion.game->TextureAllocator(), onion.game->TexturePaletteAllocator());
+  if (onion.pikmin_type == PikminType::kRedPikmin) {
+    onion.entity->set_actor(&redonion_actor);
+    redonion_actor.ApplyTextures(onion.game->TextureAllocator(), onion.game->TexturePaletteAllocator());
+  }
+  if (onion.pikmin_type == PikminType::kYellowPikmin) {
+    onion.entity->set_actor(&yellowonion_actor);
+    yellowonion_actor.ApplyTextures(onion.game->TextureAllocator(), onion.game->TexturePaletteAllocator());
+  }
+  if (onion.pikmin_type == PikminType::kBluePikmin) {
+    onion.entity->set_actor(&blueonion_actor);
+    blueonion_actor.ApplyTextures(onion.game->TextureAllocator(), onion.game->TexturePaletteAllocator());
+  }
 
   // Setup collision for feet
   for (int i = 0; i < 3; i++) {

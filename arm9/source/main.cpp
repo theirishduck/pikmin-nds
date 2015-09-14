@@ -221,9 +221,19 @@ void SetupDemoStage() {
   g_engine.World().SetHeightmap(checkerboard_height_bin);
 
   //spawn in an onion!
-  auto onion = g_game.SpawnObject<OnionState>();
-  onion->entity->body()->position = Vec3{64_f, 0_f, -72_f};
-  onion->pikmin_type = PikminType::kRedPikmin;
+  auto red_onion = g_game.SpawnObject<OnionState>();
+  red_onion->entity->body()->position = Vec3{64_f, 0_f, -96_f};
+  red_onion->pikmin_type = PikminType::kRedPikmin;
+
+  //spawn in a yellow onion too!
+  auto yellow_onion = g_game.SpawnObject<OnionState>();
+  yellow_onion->entity->body()->position = Vec3{96_f, 0_f, -64_f};
+  yellow_onion->pikmin_type = PikminType::kYellowPikmin;
+
+  //spawn in a blue onion while we're at it
+  auto blue_onion = g_game.SpawnObject<OnionState>();
+  blue_onion->entity->body()->position = Vec3{64_f, 0_f, -32_f};
+  blue_onion->pikmin_type = PikminType::kBluePikmin;
 
   //auto posy = g_game.SpawnObject<PosyState>();
   auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
