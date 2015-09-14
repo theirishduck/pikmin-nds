@@ -148,17 +148,15 @@ void MoveCaptain(CaptainState& captain) {
   if (captain.entity->body()->result_groups & ONION_BEAM_GROUP) {
     onion_ai::OnionState* current_onion =
         (onion_ai::OnionState*)(captain.entity->body()->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
-    captain.active_onion = current_onion->pikmin_type;
-    debug::DisplayValue("Colliding with beam", 1);
+    captain.active_onion = current_onion;
   } else {
-    captain.active_onion = pikmin_ai::PikminType::kNone;
-    debug::DisplayValue("Colliding with beam", 0);
+    captain.active_onion = nullptr;
   }
-  debug::DisplayValue("Active Onion: ", (int)captain.active_onion);
+  debug::DisplayValue("Active Onion Type: ", (int)captain.active_onion->pikmin_type);
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {
-  if (keysDown() & KEY_A and captain.squad.squad_size > 0) {
+  if (keysDown() & KEY_A and captain.squad.squad_size > 0 and !(captain.active_onion)) {
     //todo: check for proximity? this will work for now I guess
     return true;
   }

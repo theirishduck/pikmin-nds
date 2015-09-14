@@ -235,6 +235,16 @@ void UpdateNavPad(UIState& ui) {
   debug::EndTopic(debug::Topic::kUi);
 }
 
+bool OpenOnionUI(const UIState& ui) {
+  if (keysDown() & KEY_A) {
+    auto captain = ui.game->ActiveCaptain();
+    if (captain->active_onion) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void InitOnionUI(UIState& ui) {
   // for now, use the debug screen for the onion
   InitDebug(ui);
@@ -242,10 +252,84 @@ void InitOnionUI(UIState& ui) {
   // Pause the main game
   // TODO: THIS
 
-  
+  ui.pikmin_delta = 0;
 }
 
+void UpdateOnionUI(UIState& ui) {
+  printf("\x1b[2J");
 
+  auto captain = ui.game->ActiveCaptain();
+  auto onion = captain->active_onion;
+  if (onion->pikmin_type == PikminType::kRedPikmin) {
+    printf("Red Pikmin: ");
+  }
+  if (onion->pikmin_type == PikminType::kYellowPikmin) {
+    printf("Yellow Pikmin: ");
+  }
+  if (onion->pikmin_type == PikminType::kBluePikmin) {
+    printf("Blue Pikmin: ");
+  }
+
+  printf("Onion UI\n\n");
+  int pikmin_in_onion = ui.game->CurrentSaveData()->PikminCount(onion->pikmin_type);
+  int pikmin_in_squad = captain->squad.PikminCount(onion->pikmin_type);
+
+  printf("Pikmin in Onion: %d\n", pikmin_in_onion - ui.pikmin_delta);
+  if (ui.pikmin_delta >= 0) {
+    printf("Withdrawing ");
+  } else {
+    printf("Depositing ");
+  }
+  printf("%d\n", abs(ui.pikmin_delta));
+  printf("Pikmin in Squad: %d\n", pikmin_in_squad + ui.pikmin_delta);
+
+  if (keysDown() & KEY_TOUCH) {
+    touchPosition touch;
+    touchRead(&touch);
+
+    if (touch.py < 64 and pikmin_in_squad + ui.pikmin_delta > 0) {
+      ui.pikmin_delta--;
+    }
+    if (touch.py > 128 and pikmin_in_onion - ui.pikmin_delta > 0 and ui.game->PikminInField() + ui.pikmin_delta <= 100) {
+      ui.pikmin_delta++;
+    }
+  }
+}
+
+bool CloseOnionUI(const UIState& ui) {
+  return (keysDown() & KEY_B);
+}
+
+void ApplyOnionDelta(UIState& ui) {
+  if (ui.pikmin_delta > 0) {
+    ui.game->ActiveCaptain()->active_onion->withdraw_count = ui.pikmin_delta;
+  }
+  if (ui.pikmin_delta < 0) {
+    //TODO: Handle this using pikmin states instead of removing them here
+    auto captain = ui.game->ActiveCaptain();
+    auto active_onion = captain->active_onion;
+    int squad_index = 0;
+    while (squad_index < captain->squad.squad_size and ui.pikmin_delta < 0) {
+      if (captain->squad.pikmin[squad_index] != nullptr and
+          captain->squad.pikmin[squad_index]->type == active_onion->pikmin_type) {
+        captain->squad.pikmin[squad_index]->dead = true; // Goodbye, pikmin!
+        captain->squad.RemovePikmin(captain->squad.pikmin[squad_index]);
+        if (active_onion->pikmin_type == PikminType::kRedPikmin) {
+          ui.game->CurrentSaveData()->red_pikmin++;
+        }
+        if (active_onion->pikmin_type == PikminType::kYellowPikmin) {
+          ui.game->CurrentSaveData()->yellow_pikmin++;
+        }
+        if (active_onion->pikmin_type == PikminType::kBluePikmin) {
+          ui.game->CurrentSaveData()->blue_pikmin++;
+        }
+        ui.pikmin_delta++;
+      } else {
+        squad_index++;
+      }
+    }
+  }
+}
 
 void UpdateDebugValues(UIState& ui) {
   debug::UpdateValuesMode();
@@ -276,6 +360,8 @@ enum UINode {
   kSleep = 0,
   kInit,
   kNavPad,
+  kOnionUI,
+  kOnionClosing,
   kDebugTiming,
   kDebugValues,
   kDebugToggles,
@@ -292,7 +378,15 @@ Edge<UIState> edge_list[] {
 
   // NavPad
   Edge<UIState>{kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
+  Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
   Edge<UIState>{kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
+
+  // Onion UI
+  Edge<UIState>{kAlways, CloseOnionUI, ApplyOnionDelta, UINode::kOnionClosing},
+  Edge<UIState>{kAlways, nullptr, UpdateOnionUI, UINode::kOnionUI},
+
+  // Onion Closing
+  Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
 
   // Debug Timings
   Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugValues},
@@ -315,11 +409,13 @@ Edge<UIState> edge_list[] {
 Node node_list[] {
   {"Sleep", true, 0, 0},
   {"Init", true, 1, 1},
-  {"NavPad", true, 2, 3},
-  {"DebugTiming", true, 4, 5},
-  {"DebugValues", true, 6, 7},
-  {"DebugToggles", true, 8, 9},
-  {"DebugSpawners", true, 10, 11},
+  {"NavPad", true, 2, 4},
+  {"OnionUI", true, 5, 6},
+  {"OnionClosing", true, 7, 7},
+  {"DebugTiming", true, 8, 9},
+  {"DebugValues", true, 10, 11},
+  {"DebugToggles", true, 12, 13},
+  {"DebugSpawners", true, 14, 15},
 };
 
 StateMachine<UIState> machine(node_list, edge_list);

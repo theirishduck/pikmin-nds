@@ -4,6 +4,7 @@
 #include "state_machine.h"
 #include "drawable_entity.h"
 #include "pikmin.h"
+#include "onion.h"
 #include "squad.h"
 
 namespace captain_ai {
@@ -16,7 +17,7 @@ struct CaptainState : ObjectState {
   int whistle_timer = 0;
   squad_ai::SquadState squad;
 
-  pikmin_ai::PikminType active_onion = pikmin_ai::PikminType::kNone;
+  onion_ai::OnionState* active_onion = nullptr;
 };
 
 extern StateMachine<CaptainState> machine;

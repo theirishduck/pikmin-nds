@@ -40,7 +40,7 @@ void SquadState::RemovePikmin(PikminState* old_pikmin) {
   //sanity check; does this pikmin actually exist in this squad?
   if (100 <= slot) {
     return;
-  }  
+  }
   old_pikmin->current_squad = nullptr;
   pikmin[slot] = nullptr;
 
@@ -87,6 +87,16 @@ void SquadState::SortPikmin(PikminType pikmin_type) {
     }
     pass++;
   }
+}
+
+int SquadState::PikminCount(PikminType pikmin_type) {
+  int count = 0;
+  for (int i = 0; i < 100; i++) {
+    if (pikmin[i]->type == pikmin_type) {
+      count++;
+    }
+  }
+  return count;
 }
 
 void InitAlways(SquadState& squad) {
@@ -255,7 +265,7 @@ Edge<SquadState> edge_list[] {
   Edge<SquadState>{kAlways, nullptr, InitAlways, 1},
 
   // Test / Follow Captain thing
-  Edge<SquadState>{kAlways, nullptr, UpdateCircleShape, 1},  
+  Edge<SquadState>{kAlways, nullptr, UpdateCircleShape, 1},
 };
 
 Node node_list[] {

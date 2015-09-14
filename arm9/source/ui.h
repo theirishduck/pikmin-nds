@@ -6,7 +6,7 @@
 namespace ui {
 
 struct UIState : ObjectState {
-  
+  int pikmin_delta;
 };
 
 extern StateMachine<UIState> machine;

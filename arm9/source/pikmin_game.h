@@ -13,6 +13,14 @@
 #include "debug.h"
 #include "vram_allocator.h"
 
+struct PikminSave {
+  int red_pikmin = 50;
+  int yellow_pikmin = 50;
+  int blue_pikmin = 50;
+
+  int PikminCount(pikmin_ai::PikminType type);
+};
+
 class PikminGame {
  public:
   using SpawnMap = std::map<std::string, std::function<ObjectState*(PikminGame*)>>;
@@ -36,6 +44,8 @@ class PikminGame {
   int PikminInField();
   pikmin_ai::PikminState* Pikmin();
 
+  PikminSave* CurrentSaveData();
+
   //name-based spawning, for level loading and happy debuggers
   template<typename StateType = ObjectState>
   StateType* Spawn(const std::string& name) {
@@ -45,6 +55,7 @@ class PikminGame {
   static std::pair<SpawnMap::const_iterator, SpawnMap::const_iterator> SpawnNames();
 
  private:
+  PikminSave current_save_data_;
   static const SpawnMap spawn_;
   VramAllocator<Texture> texture_allocator_ = VramAllocator<Texture>(VRAM_C, 128 * 1024);
   VramAllocator<TexturePalette> texture_palette_allocator_ = VramAllocator<TexturePalette>(VRAM_G, 16 * 1024, 16);

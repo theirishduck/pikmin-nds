@@ -7,6 +7,11 @@ using captain_ai::CaptainState;
 using onion_ai::OnionState;
 using posy_ai::PosyState;
 
+int PikminSave::PikminCount(PikminType type) {
+  // Note to self: *Probably* shouldn't do it this way
+  return ((int*)this)[(int)type - 1];
+}
+
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   ui_.game = this;
 }
@@ -94,10 +99,15 @@ PikminState* PikminGame::SpawnObject<PikminState>() {
 template<>
 void PikminGame::RemoveObject<PikminState>(PikminState* object) {
   // similar to cleanup object, again minus the state allocation
+  nocashMessage("Remove Pikmin Called");
   pikmin_[object->id].active = false;
+  nocashMessage("Set Pikmin Inactive Succeeded");
   engine.RemoveEntity(object->entity);
+  nocashMessage("Removed Pikmin from Engine!");
   entities_.remove(object->entity);
+  nocashMessage("Removed Pikmin from Entities list!");
   delete object->entity;
+  nocashMessage("Deleted Entity successfully!");
 }
 
 template <>
@@ -129,17 +139,14 @@ void PikminGame::Step() {
     squad_ai::machine.RunLogic((*captain_).squad);
   }
 
-  auto i = pikmin_.begin();
-  while (i != pikmin_.end()) {
+  for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
     if ((*i).active) {
       pikmin_ai::machine.RunLogic(*i);
       debug::DisplayValue("NodeFrames", i->frames_at_this_node);
       debug::DisplayValue("Node", pikmin_ai::machine.NodeName(i->current_node));
-    }
-    if (i->dead) {
-      RemoveObject(i);
-    } else {
-      i++;
+      if (i->dead) {
+        RemoveObject(i);
+      }
     }
   }
 
@@ -171,6 +178,10 @@ int PikminGame::PikminInField() {
     }
   }
   return count;
+}
+
+PikminSave* PikminGame::CurrentSaveData() {
+  return &current_save_data_;
 }
 
 PikminState* PikminGame::Pikmin() {

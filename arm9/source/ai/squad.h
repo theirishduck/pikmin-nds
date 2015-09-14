@@ -25,6 +25,7 @@ struct SquadState : ObjectState {
   void AddPikmin(pikmin_ai::PikminState* pikmin);
   void RemovePikmin(pikmin_ai::PikminState* pikmin);
   void SortPikmin(pikmin_ai::PikminType pikmin_type);
+  int PikminCount(pikmin_ai::PikminType pikmin_type);
   pikmin_ai::PikminState* NextPikmin();
 };
 
