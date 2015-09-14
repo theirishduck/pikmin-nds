@@ -122,6 +122,7 @@ void PikminGame::RemoveObject<CaptainState>(CaptainState* object) {
 }
 
 void PikminGame::Step() {
+  ui::machine.RunLogic(ui_);
   debug::StartTopic(debug::Topic::kUpdate);
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
@@ -156,7 +157,6 @@ void PikminGame::Step() {
   }
 
   debug::EndTopic(debug::Topic::kUpdate);
-  ui::machine.RunLogic(ui_);
 }
 
 CaptainState* PikminGame::ActiveCaptain() {

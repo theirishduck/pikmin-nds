@@ -54,6 +54,8 @@
 #define WHISTLE_GROUP (0x1 << 2)
 #define ATTACK_GROUP (0x1 << 3)
 #define DETECT_GROUP (0x1 << 4)
+#define ONION_FEET_GROUP (0x1 << 5)
+#define ONION_BEAM_GROUP (0x1 << 6)
 
 // Camera distance and height constants (play with these if you adjust the FOV)
 #define CAMERA_LOW_HEIGHT 0.5_f

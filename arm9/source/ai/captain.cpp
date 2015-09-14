@@ -58,6 +58,7 @@ void InitAlways(CaptainState& captain) {
   body->radius = 1.5_f;
 
   body->collides_with_bodies = 1;
+  body->is_movable = 1;
   body->collision_group = PLAYER_GROUP | WHISTLE_GROUP;
   body->owner = &captain;
 
