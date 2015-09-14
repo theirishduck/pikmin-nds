@@ -20,14 +20,14 @@ Camera::Camera() {
 }
 
 Brads AngleBetween(const Vec3 source_position, const Vec3 destination_position) {
-  auto difference = Vec2{destination_position.x, destination_position.z} - 
+  auto difference = Vec2{destination_position.x, destination_position.z} -
       Vec2{source_position.x, source_position.z};
   if (difference.Length2() > 0_f) {
     difference = difference.Normalize();
     if (difference.y <= 0_f) {
-      return Brads::Raw(acosLerp(difference.x.data_)) + 90_brad;
+      return Brads::Raw(acosLerp(difference.x.data_));
     }
-    return Brads::Raw(-acosLerp(difference.x.data_)) + 90_brad;
+    return Brads::Raw(-acosLerp(difference.x.data_));
   }
   return 0_brad;
 }
@@ -52,9 +52,9 @@ void Camera::Update() {
     if (keysDown() & KEY_L) {
       // Move the camera directly behind the target entity, based on their
       // current rotation.
-      
+
       //target_state_.angle = captain_to_follow_->entity->rotation().y - 90_brad;
-      target_state_.angle = captain_to_follow_->entity->AngleTo(captain_to_follow_->cursor) - 90_brad;
+      target_state_.angle = captain_to_follow_->entity->AngleTo(captain_to_follow_->cursor);
     }
     if (keysHeld() & KEY_L) {
       // Adjust the rotation based on the new position of the entity, to
@@ -82,7 +82,7 @@ void Camera::Update() {
 
   // Take the weighted average for position and target to take a smooth
   // transition between the old value and the new one.
-  
+
   current_state_.target = current_state_.target * 0.875_f
       + target_state_.target * 0.125_f;
 
@@ -93,7 +93,7 @@ void Camera::Update() {
       + target_state_.distance * 0.125_f;
 
   // For the angle, we need to do fancy delta clamping
-  auto delta = target_state_.angle - current_state_.angle;  
+  auto delta = target_state_.angle - current_state_.angle;
   Brads max_jump = 1_brad;
 
   // clamp the delta so that it is within -180, 180

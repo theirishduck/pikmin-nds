@@ -262,9 +262,9 @@ Brads DrawableEntity::AngleTo(const DrawableEntity* destination) {
   if (difference.Length2() > 0_f) {
     difference = difference.Normalize();
     if (difference.y <= 0_f) {
-      return Brads::Raw(acosLerp(difference.x.data_)) + 90_brad;
+      return Brads::Raw(acosLerp(difference.x.data_));
     }
-    return Brads::Raw(-acosLerp(difference.x.data_)) + 90_brad;
+    return Brads::Raw(-acosLerp(difference.x.data_));
   }
   return 0_brad;
 }

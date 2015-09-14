@@ -194,6 +194,7 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
     pikmin->type = PikminType::kBluePikmin;
     return pikmin;
   }},
+  {"Onion:Red", [](PikminGame* game) -> ObjectState* {return game->SpawnObject<OnionState>();}},
 };
 
 std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> PikminGame::SpawnNames() {

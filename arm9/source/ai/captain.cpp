@@ -62,7 +62,7 @@ void InitAlways(CaptainState& captain) {
   body->owner = &captain;
 
   //initialize our walking angle?
-  captain.current_angle = 270_brad;
+  captain.current_angle = 0_brad;
 
   //Initialize the cursor
   captain.cursor->set_actor(&cursor_actor);
@@ -83,9 +83,9 @@ void InitAlways(CaptainState& captain) {
 }
 
 bool DpadActive(const CaptainState& captain) {
-  return (keysHeld() & KEY_RIGHT) or 
-         (keysHeld() & KEY_LEFT) or 
-         (keysHeld() & KEY_UP) or 
+  return (keysHeld() & KEY_RIGHT) or
+         (keysHeld() & KEY_LEFT) or
+         (keysHeld() & KEY_UP) or
          (keysHeld() & KEY_DOWN);
 }
 
@@ -111,7 +111,7 @@ void MoveCaptain(CaptainState& captain) {
   auto engine = captain.entity->engine();
   Brads dpad_angle = engine->CameraAngle() + engine->DPadDirection() - 90_brad;
   captain.current_angle = dpad_angle;
-  captain.entity->RotateToFace(captain.current_angle + 90_brad, 10_brad);
+  captain.entity->RotateToFace(captain.current_angle, 10_brad);
 
   // Apply velocity in the direction of the current angle.
   auto body = captain.entity->body();
@@ -136,7 +136,7 @@ void MoveCaptain(CaptainState& captain) {
   }
 
   // Rotate the cursor so that it faces away from the captain
-  captain.cursor->RotateToFace(captain.entity->AngleTo(captain.cursor) - 90_brad);
+  captain.cursor->RotateToFace(captain.entity->AngleTo(captain.cursor));
 
   // Move the whistle to where the cursor is
   HandleWhistle(captain);
@@ -178,7 +178,7 @@ void ThrowPikmin(CaptainState& captain) {
   }
 
   fixed pikmin_travel_time = pikmin_y_velocity * 2_f / GRAVITY_CONSTANT;
-  Vec3 distance_to_cursor = captain.cursor->body()->position - 
+  Vec3 distance_to_cursor = captain.cursor->body()->position -
       captain.entity->body()->position;
 
   fixed pikmin_x_velocity = distance_to_cursor.x / pikmin_travel_time;
