@@ -7,6 +7,8 @@ namespace ui {
 
 struct UIState : ObjectState {
   int pikmin_delta;
+  int key_timer = 0;
+  int touch_timer = 0;
 };
 
 extern StateMachine<UIState> machine;

@@ -255,6 +255,19 @@ void InitOnionUI(UIState& ui) {
   ui.pikmin_delta = 0;
 }
 
+bool key_repeat_active(int frame_timer) {
+  const int repeat_delay = 16;
+  const int key_delay = 1;
+
+  if (frame_timer == 0) {
+    return true;
+  }
+  if (frame_timer > repeat_delay and frame_timer % key_delay == 0) {
+    return true;
+  }
+  return false;
+}
+
 void UpdateOnionUI(UIState& ui) {
   printf("\x1b[2J");
 
@@ -283,16 +296,35 @@ void UpdateOnionUI(UIState& ui) {
   printf("%d\n", abs(ui.pikmin_delta));
   printf("Pikmin in Squad: %d\n", pikmin_in_squad + ui.pikmin_delta);
 
-  if (keysDown() & KEY_TOUCH) {
-    touchPosition touch;
-    touchRead(&touch);
+  if (keysHeld() & (KEY_DOWN | KEY_UP)) {
+    if (key_repeat_active(ui.key_timer)) {
+      if ((keysHeld() & KEY_UP) and pikmin_in_squad + ui.pikmin_delta > 0) {
+        ui.pikmin_delta--;
+      }
+      if ((keysHeld() & KEY_DOWN) and pikmin_in_onion - ui.pikmin_delta > 0 and ui.game->PikminInField() + ui.pikmin_delta <= 100) {
+        ui.pikmin_delta++;
+      }
+    }
+    ui.key_timer++;
+  } else {
+    ui.key_timer = 0;
+  }
 
-    if (touch.py < 64 and pikmin_in_squad + ui.pikmin_delta > 0) {
-      ui.pikmin_delta--;
+  if ((keysHeld() & KEY_TOUCH)) {
+    if (key_repeat_active(ui.touch_timer)) {
+      touchPosition touch;
+      touchRead(&touch);
+
+      if (touch.py < 64 and pikmin_in_squad + ui.pikmin_delta > 0) {
+        ui.pikmin_delta--;
+      }
+      if (touch.py > 128 and pikmin_in_onion - ui.pikmin_delta > 0 and ui.game->PikminInField() + ui.pikmin_delta <= 100) {
+        ui.pikmin_delta++;
+      }
     }
-    if (touch.py > 128 and pikmin_in_onion - ui.pikmin_delta > 0 and ui.game->PikminInField() + ui.pikmin_delta <= 100) {
-      ui.pikmin_delta++;
-    }
+    ui.touch_timer++;
+  } else {
+    ui.touch_timer = 0;
   }
 }
 
@@ -337,7 +369,7 @@ void PauseGame(UIState& ui) {
   ui.game->PauseGame();
   // Todo: something fancier later
   InitDebug(ui);
-  printf("\n\n\n\n");
+  printf("\n\n\n\n\n\n\n\n\n\n\n");
   printf("          -- PAUSED --");
 }
 
