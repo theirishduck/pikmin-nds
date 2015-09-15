@@ -3,6 +3,7 @@
 #include "numeric_types.h"
 #include "vector.h"
 #include "body.h"
+#include "debug.h"
 
 using physics::World;
 using physics::Body;
@@ -65,6 +66,7 @@ void World::RebuildIndex() {
 }
 
 bool World::BodiesOverlap(Body& a, Body& b) {
+  bodies_overlap_debug++;
   //Check to see if the circles overlap on the XZ plane
   Vec2 axz = Vec2{a.position.x, a.position.z};
   Vec2 bxz = Vec2{b.position.x, b.position.z};
@@ -217,6 +219,7 @@ void World::ProcessCollision() {
 
   //Also, pikmin are assumed to collide with both bodies and sensors, and are
   //always considered movable, so we can skip all of those checks.
+  int pikmin_collided = 0;
   for (int p = 0; p < active_pikmin_; p++) {
     Body& P = bodies_[pikmin_[p]];
     for (int a = 0; a < active_bodies_; a++) {
@@ -224,6 +227,7 @@ void World::ProcessCollision() {
       if ((A.is_sensor and (A.collision_group & P.sensor_groups)) or
           (not A.is_sensor)) {
         if (BodiesOverlap(A, P)) {
+          pikmin_collided++;
           ResolveCollision(A, P);
           if (A.collision_group & P.sensor_groups) {
             P.result_groups = P.result_groups | A.collision_group;
@@ -235,9 +239,11 @@ void World::ProcessCollision() {
       }
     }
   }
+  debug::DisplayValue("Pikmin vs. Objects: ", pikmin_collided);
 
   // Special case: collide pikmin with each other, but only if they share a
   // heightmap position (later: or an adjacent location?)
+  pikmin_collided = 0;
   for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
     for (int p2 = p1 + 1; p2 < active_pikmin_; p2++) {
       Body& pikmin1 = bodies_[pikmin_[p1]];
@@ -246,14 +252,17 @@ void World::ProcessCollision() {
           (int)pikmin1.position.z == (int)pikmin2.position.z) {
         if (BodiesOverlap(pikmin1, pikmin2)) {
           ResolveCollision(pikmin1, pikmin2);
+          pikmin_collided++;
         }
       }
     }
   }
+  debug::DisplayValue("Pikmin vs. Pikmin: ", pikmin_collided);
 
 }
 
 void World::Update() {
+  bodies_overlap_debug = 0;
   if (rebuild_index_) {
     RebuildIndex();
   }
@@ -262,6 +271,7 @@ void World::Update() {
   CollideBodiesWithLevel();
 
   iteration++;
+  debug::DisplayValue("BodiesOverlap Calls: ", bodies_overlap_debug);
 }
 
 #include "debug.h"

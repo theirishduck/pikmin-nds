@@ -40,7 +40,7 @@ using debug::Topic;
 
 using namespace std;
 
-s32 const kTestPikmin{30};
+s32 const kTestPikmin{100};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
@@ -234,6 +234,7 @@ void SetupDemoStage() {
   auto blue_onion = g_game.SpawnObject<OnionState>();
   blue_onion->entity->body()->position = Vec3{64_f, 0_f, -32_f};
   blue_onion->pikmin_type = PikminType::kBluePikmin;
+
 
   //auto posy = g_game.SpawnObject<PosyState>();
   auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");

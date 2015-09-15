@@ -91,7 +91,7 @@ void SquadState::SortPikmin(PikminType pikmin_type) {
 
 int SquadState::PikminCount(PikminType pikmin_type) {
   int count = 0;
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < squad_size; i++) {
     if (pikmin[i]->type == pikmin_type) {
       count++;
     }
