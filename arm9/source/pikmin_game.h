@@ -28,6 +28,12 @@ class PikminGame {
   PikminGame(MultipassEngine& engine);
   ~PikminGame();
 
+  // Note: While paused, only the UI thread will run. All other logic
+  // will cease; the game field should freeze entirely.
+  void PauseGame();
+  void UnpauseGame();
+  bool IsPaused();
+
   template <typename StateType>
   StateType* SpawnObject();
 
@@ -55,6 +61,7 @@ class PikminGame {
   static std::pair<SpawnMap::const_iterator, SpawnMap::const_iterator> SpawnNames();
 
  private:
+  bool paused_ = false;
   PikminSave current_save_data_;
   static const SpawnMap spawn_;
   VramAllocator<Texture> texture_allocator_ = VramAllocator<Texture>(VRAM_C, 128 * 1024);

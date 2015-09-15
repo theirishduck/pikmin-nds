@@ -131,8 +131,27 @@ void PikminGame::RemoveObject<CaptainState>(CaptainState* object) {
   CleanupObject(object);
 }
 
+void PikminGame::PauseGame() {
+  paused_ = true;
+  engine.PauseEngine();
+}
+
+void PikminGame::UnpauseGame() {
+  paused_ = false;
+  engine.UnpauseEngine();
+}
+
+bool PikminGame::IsPaused() {
+  return paused_;
+}
+
 void PikminGame::Step() {
   ui::machine.RunLogic(ui_);
+
+  if (paused_) {
+    return;
+  }
+
   debug::StartTopic(debug::Topic::kUpdate);
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);

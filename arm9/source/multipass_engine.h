@@ -39,8 +39,12 @@ class MultipassEngine {
   Camera* camera();
 
   int FrameCounter();
+  void PauseEngine();
+  void UnpauseEngine();
+  bool IsPaused();
 
  private:
+  bool paused_ = false;
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 

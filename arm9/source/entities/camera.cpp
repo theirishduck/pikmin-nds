@@ -6,6 +6,7 @@
 #include <nds.h>
 
 #include "ai/captain.h"
+#include "pikmin_game.h"
 #include "debug.h"
 
 using namespace std;
@@ -33,6 +34,9 @@ Brads AngleBetween(const Vec3 source_position, const Vec3 destination_position) 
 }
 
 void Camera::Update() {
+  if (target_->game->IsPaused()) {
+    return;
+  }
   if (keysDown() & KEY_R) {
     if (keysHeld() & KEY_L) {
       target_state_.distance += CAMERA_STEP;

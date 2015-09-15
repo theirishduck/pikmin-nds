@@ -35,6 +35,20 @@ Camera* MultipassEngine::camera() {
   return &camera_;
 }
 
+void MultipassEngine::PauseEngine() {
+  paused_ = true;
+  setBrightness(1, -10);
+}
+
+void MultipassEngine::UnpauseEngine() {
+  paused_ = false;
+  setBrightness(1, 0);
+}
+
+bool MultipassEngine::IsPaused() {
+  return paused_;
+}
+
 void MultipassEngine::AddEntity(DrawableEntity* entity) {
   entities_.push_back(entity);
   entity->set_engine(this);
@@ -46,7 +60,11 @@ void MultipassEngine::RemoveEntity(DrawableEntity* entity) {
 }
 
 void MultipassEngine::Update() {
-  scanKeys();  
+  scanKeys();
+
+  if (paused_) {
+    return;
+  }
 
   for (auto entity : entities_) {
     entity->Update();
@@ -221,6 +239,7 @@ void MultipassEngine::SetVRAMforPass(int pass) {
     vramSetBankD(VRAM_D_MAIN_BG_0x06000000);
     videoSetMode(MODE_3_3D);
     bgInit(3, BgType_Bmp16, BgSize_B16_256x256, 0, 0);
+
     bgSetPriority(3, 0);
     bgSetPriority(0, 3);
   }
@@ -292,7 +311,7 @@ void MultipassEngine::InitFrame() {
   // passes and the state of these changing in the middle of a frame can cause
   // tearing.
   camera_.SetCache();
-  GatherDrawList(); 
+  GatherDrawList();
 
   // Ensure the overlap list is empty.
   overlap_list_.clear();
@@ -445,7 +464,7 @@ bool MultipassEngine::ValidateDividingPlane() {
 void MultipassEngine::DrawPassList() {
   // Draw the entities for the pass.
   debug::StartTopic((Topic)((int)Topic::kPass1 + current_pass_));
-  
+
   for (auto& container : pass_list_) {
     glPushMatrix();
     container.entity->Draw();
@@ -466,7 +485,7 @@ void MultipassEngine::DrawEffects() {
   camera_.ApplyTransform();
   if (debug::g_physics_circles) {
     world_.DebugCircles();
-  }  
+  }
   effects_drawn = true;
 }
 
@@ -526,4 +545,3 @@ void MultipassEngine::Draw() {
   }
   debug::EndTopic(Topic::kIdle);
 }
-

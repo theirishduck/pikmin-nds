@@ -250,7 +250,7 @@ void InitOnionUI(UIState& ui) {
   InitDebug(ui);
 
   // Pause the main game
-  // TODO: THIS
+  ui.game->PauseGame();
 
   ui.pikmin_delta = 0;
 }
@@ -301,6 +301,8 @@ bool CloseOnionUI(const UIState& ui) {
 }
 
 void ApplyOnionDelta(UIState& ui) {
+  ui.game->UnpauseGame();
+
   if (ui.pikmin_delta > 0) {
     ui.game->ActiveCaptain()->active_onion->withdraw_count = ui.pikmin_delta;
   }
