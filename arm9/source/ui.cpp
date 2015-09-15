@@ -333,6 +333,23 @@ void ApplyOnionDelta(UIState& ui) {
   }
 }
 
+void PauseGame(UIState& ui) {
+  ui.game->PauseGame();
+  // Todo: something fancier later
+  InitDebug(ui);
+  printf("\n\n\n\n");
+  printf("          -- PAUSED --");
+}
+
+void UnpauseGame(UIState& ui) {
+  ui.game->UnpauseGame();
+  InitNavPad(ui);
+}
+
+bool PauseButtonPressed(const UIState& ui) {
+  return (keysDown() & KEY_START);
+}
+
 void UpdateDebugValues(UIState& ui) {
   debug::UpdateValuesMode();
 }
@@ -368,6 +385,7 @@ enum UINode {
   kDebugValues,
   kDebugToggles,
   kDebugSpawners,
+  kPauseScreen,
 };
 }
 
@@ -381,6 +399,7 @@ Edge<UIState> edge_list[] {
   // NavPad
   Edge<UIState>{kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
   Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
+  Edge<UIState>{kAlways, PauseButtonPressed, PauseGame, UINode::kPauseScreen},
   Edge<UIState>{kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
 
   // Onion UI
@@ -406,18 +425,21 @@ Edge<UIState> edge_list[] {
   Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
   Edge<UIState>{kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
 
+  // Pause Screen
+  Edge<UIState>{kAlways, PauseButtonPressed, UnpauseGame, UINode::kNavPad},
 };
 
 Node node_list[] {
   {"Sleep", true, 0, 0},
   {"Init", true, 1, 1},
-  {"NavPad", true, 2, 4},
-  {"OnionUI", true, 5, 6},
-  {"OnionClosing", true, 7, 7},
-  {"DebugTiming", true, 8, 9},
-  {"DebugValues", true, 10, 11},
-  {"DebugToggles", true, 12, 13},
-  {"DebugSpawners", true, 14, 15},
+  {"NavPad", true, 2, 5},
+  {"OnionUI", true, 6, 7},
+  {"OnionClosing", true, 8, 8},
+  {"DebugTiming", true, 9, 10},
+  {"DebugValues", true, 11, 12},
+  {"DebugToggles", true, 13, 14},
+  {"DebugSpawners", true, 15, 16},
+  {"PauseScreen", true, 17, 17},
 };
 
 StateMachine<UIState> machine(node_list, edge_list);
