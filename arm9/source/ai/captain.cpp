@@ -315,63 +315,75 @@ enum CaptainNode {
 };
 }
 
-Edge<CaptainState> edge_list[] {
-  // Init
+Edge<CaptainState> init[] {
   Edge<CaptainState>{kAlways, nullptr, InitAlways, CaptainNode::kIdle},
+  END_OF_EDGES(CaptainState)
+};
 
-  // Idle
+Edge<CaptainState> idle[] {
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrab},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kRun},
   {kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kIdle},
   {kAlways, nullptr, IdleAlways, CaptainNode::kIdle},  // Loopback
+  END_OF_EDGES(CaptainState)
+};
 
-  // Run
+Edge<CaptainState> running[] {
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrabRun},
   {kAlways, DpadInactive, StopCaptain, CaptainNode::kIdle},
   {kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kRun},
   {kAlways, nullptr, MoveCaptain, CaptainNode::kRun},  // Loopback
+  END_OF_EDGES(CaptainState)
+};
 
-  // Grab
+Edge<CaptainState> grab[] {
   {kAlways, ActionReleased, ThrowPikmin, CaptainNode::kThrow},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kGrabRun},
   {kAlways, RedButtonPressed, SwitchTo<PikminType::kRedPikmin>, CaptainNode::kGrab},
   {kAlways, YellowButtonPressed, SwitchTo<PikminType::kYellowPikmin>, CaptainNode::kGrab},
   {kAlways, BlueButtonPressed, SwitchTo<PikminType::kBluePikmin>, CaptainNode::kGrab},
   {kAlways, nullptr, IdleAlways, CaptainNode::kGrab},  // Loopback
+  END_OF_EDGES(CaptainState)
+};
 
-  // GrabRun
+Edge<CaptainState> grab_run[] {
   {kAlways, ActionReleased, ThrowPikmin, CaptainNode::kThrowRun},
   {kAlways, DpadInactive, StopCaptain, CaptainNode::kGrab},
   {kAlways, RedButtonPressed, SwitchTo<PikminType::kRedPikmin>, CaptainNode::kGrabRun},
   {kAlways, YellowButtonPressed, SwitchTo<PikminType::kYellowPikmin>, CaptainNode::kGrabRun},
   {kAlways, BlueButtonPressed, SwitchTo<PikminType::kBluePikmin>, CaptainNode::kGrabRun},
   {kAlways, nullptr, MoveCaptain, CaptainNode::kGrabRun},  // Loopback
+  END_OF_EDGES(CaptainState)
+};
 
-  // Throw
+Edge<CaptainState> throw_pikmin[] {
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrab},
   {kAlways, DpadActive, MoveCaptain, CaptainNode::kThrowRun},
   {kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kIdle},
   {kLastFrame, nullptr, IdleAlways, CaptainNode::kIdle},
   {kAlways, nullptr, IdleAlways, CaptainNode::kThrow},  // Loopback
+  END_OF_EDGES(CaptainState)
+};
 
-  // ThrowRun
+Edge<CaptainState> throw_pikmin_while_running[] {
   {kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrabRun},
   {kAlways, DpadInactive, StopCaptain, CaptainNode::kThrow},
   {kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kRun},
   {kLastFrame, nullptr, MoveCaptain, CaptainNode::kRun},
   {kAlways, nullptr, MoveCaptain, CaptainNode::kThrowRun},  // Loopback
+  END_OF_EDGES(CaptainState)
 };
 
-Node node_list[] {
-  {"Init", true, 0, 0},
-  {"Idle", true, 1, 4, "Armature|Idle1", 15},
-  {"Run", true, 5, 8, "Armature|Run", 30},
-  {"Grab", true, 9, 14, "Armature|Idle1", 15},
-  {"GrabRun", true, 15, 20, "Armature|Run", 30},
-  {"Throw", true, 21, 25, "Armature|Idle1", 5},
-  {"ThrowRun", true, 26, 30, "Armature|Run", 5},
+Node<CaptainState> node_list[] {
+  {"Init", true, init},
+  {"Idle", true, idle, "Armature|Idle1", 15},
+  {"Run", true, running, "Armature|Run", 30},
+  {"Grab", true, grab, "Armature|Idle1", 15},
+  {"GrabRun", true, grab_run, "Armature|Run", 30},
+  {"Throw", true, throw_pikmin, "Armature|Idle1", 5},
+  {"ThrowRun", true, throw_pikmin_while_running, "Armature|Run", 5},
 };
 
-StateMachine<CaptainState> machine(node_list, edge_list);
+StateMachine<CaptainState> machine(node_list);
 
 }

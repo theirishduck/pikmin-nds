@@ -421,59 +421,77 @@ enum UINode {
 };
 }
 
-Edge<UIState> edge_list[] {
-  // Wait frame; -- this pretty much exists solely for DesMuME compatability.
+Edge<UIState> wait_frame[] = {
   Edge<UIState>{kAlways, nullptr, nullptr, UINode::kInit},
+  END_OF_EDGES(UIState)
+};
 
-  // Init
+Edge<UIState> init[] = {
   Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
+  END_OF_EDGES(UIState)
+};
 
-  // NavPad
+Edge<UIState> nav_pad[] = {
   Edge<UIState>{kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
   Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
   Edge<UIState>{kAlways, PauseButtonPressed, PauseGame, UINode::kPauseScreen},
   Edge<UIState>{kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
+  END_OF_EDGES(UIState)
+};
 
-  // Onion UI
+Edge<UIState> onion_ui[] = {
   Edge<UIState>{kAlways, CloseOnionUI, ApplyOnionDelta, UINode::kOnionClosing},
   Edge<UIState>{kAlways, nullptr, UpdateOnionUI, UINode::kOnionUI},
+  END_OF_EDGES(UIState)
+};
 
-  // Onion Closing
+Edge<UIState> closing_onion_ui[] = {
   Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
+  END_OF_EDGES(UIState)
+};
 
-  // Debug Timings
+Edge<UIState> debug_timings[] = {
   Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugValues},
   Edge<UIState>{kAlways, nullptr, UpdateDebugTimers, UINode::kDebugTiming}, //Loopback
+  END_OF_EDGES(UIState)
+};
 
-  // Debug Values
+Edge<UIState> debug_values[] = {
   Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugToggles},
   Edge<UIState>{kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
+  END_OF_EDGES(UIState)
+};
 
-  // Debug Values
+Edge<UIState> debug_toggles[] = {
   Edge<UIState>{kAlways, DebugButtonPressed, InitDebugSpawners, UINode::kDebugSpawners},
   Edge<UIState>{kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
+  END_OF_EDGES(UIState)
+};
 
-  // Spawn Objects
+Edge<UIState> debug_spawners[] = {
   Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
   Edge<UIState>{kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
+  END_OF_EDGES(UIState)
+};
 
-  // Pause Screen
+Edge<UIState> pause_screen[] = {
   Edge<UIState>{kAlways, PauseButtonPressed, UnpauseGame, UINode::kNavPad},
+  END_OF_EDGES(UIState)
 };
 
-Node node_list[] {
-  {"Sleep", true, 0, 0},
-  {"Init", true, 1, 1},
-  {"NavPad", true, 2, 5},
-  {"OnionUI", true, 6, 7},
-  {"OnionClosing", true, 8, 8},
-  {"DebugTiming", true, 9, 10},
-  {"DebugValues", true, 11, 12},
-  {"DebugToggles", true, 13, 14},
-  {"DebugSpawners", true, 15, 16},
-  {"PauseScreen", true, 17, 17},
+Node<UIState> node_list[] {
+  {"Sleep", true, wait_frame},
+  {"Init", true, init},
+  {"NavPad", true, nav_pad},
+  {"OnionUI", true, onion_ui},
+  {"OnionClosing", true, closing_onion_ui},
+  {"DebugTiming", true, debug_timings},
+  {"DebugValues", true, debug_values},
+  {"DebugToggles", true, debug_toggles},
+  {"DebugSpawners", true, debug_spawners},
+  {"PauseScreen", true, pause_screen},
 };
 
-StateMachine<UIState> machine(node_list, edge_list);
+StateMachine<UIState> machine(node_list);
 
 }  // namespace ui

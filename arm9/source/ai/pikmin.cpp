@@ -310,10 +310,13 @@ void HopOffFoot(PikminState& pikmin) {
   pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
 }
 
-Edge<PikminState> edge_list[] {
+Edge<PikminState> init[] {
   // Init
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> idle[] {
   // Idle
   {kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
   {kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
@@ -321,70 +324,91 @@ Edge<PikminState> edge_list[] {
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, CollideWithTarget, StoreTargetBody, PikminNode::kChasing},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> grabbed[] {
   // Grabbed
   {kAlways, LeftParent, nullptr, PikminNode::kThrown},
   {kAlways, nullptr, FollowParent, PikminNode::kGrabbed},  // Loopback
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> thrown[] {
   // Thrown
   {kAlways, Landed, StopMoving, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> targeting[] {
   // Targeting
   {kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
   {kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, nullptr, RunToTarget, PikminNode::kTargeting},  // loopback
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> chasing[] {
   // Chasing (Attack, Work, Carry)
   {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
   {kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> standing_attack[] {
   // Standing Attack
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kFirstFrame, nullptr, Aim, PikminNode::kStandingAttack},
   {kLastFrame, nullptr, DealDamageToTarget, PikminNode::kJump},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> jumping[] {
   // Jump
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kFirstFrame, nullptr, JumpTowardTarget, PikminNode::kJump},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, Landed, StopMoving, PikminNode::kChasing},
   // note: no loopback, as we want motion to be physics driven here
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> climbing_into_onion[] {
   // ClimbIntoOnion
   {kLastFrame, nullptr, EnterOnion, PikminNode::kClimbIntoOnion},
   // Note: while this is technically a loopback, the EnterOnion function
   // marks the pikmin as dead, removing it from the game. Thus, this state
   // runs to completion just once.
+  END_OF_EDGES(PikminState)
+};
 
+Edge<PikminState> sliding_down_from_onion[] {
   // SlideDownFromOnion
   {kAlways, CollidedWithWhistle, WhistleOffOnion, PikminNode::kIdle},
   {kLastFrame, nullptr, HopOffFoot, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
 
-  //Latch
-  //TODO: This later
+Node<PikminState> node_list[] {
+  {"Init", true, init},
+  {"Idle", true, idle, "Armature|Idle", 30},
+  {"Grabbed", true, grabbed, "Armature|Idle", 30},
+  {"Thrown", true, thrown, "Armature|Throw", 10},
+  {"Targeting", true, targeting, "Armature|Run", 30},
+  {"Chasing", true, chasing, "Armature|Run", 30},
+  {"StandingAttack", true, standing_attack, "Armature|StandingAttack", 20},
+  {"Jump", true, jumping, "Armature|Idle", 30},
+  {"ClimbIntoOnion", true, climbing_into_onion, "Armature|Climb", 60},
+  {"SlideDownFromOnion", true, sliding_down_from_onion, "Armature|Climb", 30},
 
 };
 
-Node node_list[] {
-  {"Init", true, 0, 0},
-  {"Idle", true, 1, 6, "Armature|Idle", 30},
-  {"Grabbed", true, 7, 8, "Armature|Idle", 30},
-  {"Thrown", true, 9, 9, "Armature|Throw", 10},
-  {"Targeting", true, 10, 14, "Armature|Run", 30},
-  {"Chasing", true, 15, 19, "Armature|Run", 30},
-  {"StandingAttack", true, 20, 23, "Armature|StandingAttack", 20},
-  {"Jump", true, 24, 27, "Armature|Idle", 30},
-  {"ClimbIntoOnion", true, 28, 28, "Armature|Climb", 60},
-  {"SlideDownFromOnion", true, 29, 30, "Armature|Climb", 30},
-
-};
-
-StateMachine<PikminState> machine(node_list, edge_list);
+StateMachine<PikminState> machine(node_list);
 
 } // namespace pikmin_ai

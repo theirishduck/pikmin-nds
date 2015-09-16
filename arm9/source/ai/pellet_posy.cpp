@@ -57,30 +57,40 @@ enum PosyNode {
 };
 }
 
-Edge<PosyState> edge_list[] {
+Edge<PosyState> init[] {
   // Init
   Edge<PosyState>{kAlways, nullptr, InitAlways, PosyNode::kIdle},
+  END_OF_EDGES(PosyState)
+};
 
+Edge<PosyState> idle[] {
   // Idle
   {kAlways, ZeroHealth, nullptr, PosyNode::kDeath},
   {kAlways, TookDamage, nullptr, PosyNode::kHit},
   {kAlways, nullptr, nullptr, PosyNode::kIdle},  // Loopback
+  END_OF_EDGES(PosyState)
+};
 
+Edge<PosyState> hit[] {
   // Hit
   {kAlways, ZeroHealth, nullptr, PosyNode::kDeath},
   {kLastFrame, nullptr, StoreCurrentHealth, PosyNode::kIdle},
+  END_OF_EDGES(PosyState)
+};
 
+Edge<PosyState> death[] {
   // Death
   {kLastFrame, nullptr, GoodbyeCruelWorld, PosyNode::kDeath},
+  END_OF_EDGES(PosyState)
 };
 
-Node node_list[] {
-  {"Init", true, 0, 0},
-  {"Idle", true, 1, 3, "Armature|Idle", 30},
-  {"Hit", true, 4, 5, "Armature|Hit", 15},
-  {"Death", true, 6, 6, "Armature|Death", 21},
+Node<PosyState> node_list[] {
+  {"Init", true, init},
+  {"Idle", true, idle, "Armature|Idle", 30},
+  {"Hit", true, hit, "Armature|Hit", 15},
+  {"Death", true, death, "Armature|Death", 21},
 };
 
-StateMachine<PosyState> machine(node_list, edge_list);
+StateMachine<PosyState> machine(node_list);
 
 }  // namespace posy_ai

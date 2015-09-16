@@ -260,19 +260,21 @@ void UpdateCircleShape(SquadState& squad) {
   }
 }
 
-Edge<SquadState> edge_list[] {
-  // Init
+Edge<SquadState> init[] {
   Edge<SquadState>{kAlways, nullptr, InitAlways, 1},
+  END_OF_EDGES(SquadState)
+};
 
-  // Test / Follow Captain thing
+Edge<SquadState> circle_following_captain[] {
   Edge<SquadState>{kAlways, nullptr, UpdateCircleShape, 1},
+  END_OF_EDGES(SquadState)
 };
 
-Node node_list[] {
-  {"Init", true, 0, 0},
-  {"UpdateAlways", true, 1, 1},
+Node<SquadState> node_list[] {
+  {"Init", true, init},
+  {"UpdateAlways", true, circle_following_captain},
 };
 
-StateMachine<SquadState> machine(node_list, edge_list);
+StateMachine<SquadState> machine(node_list);
 
 } // namespace squad_ai

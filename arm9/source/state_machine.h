@@ -25,15 +25,7 @@ enum Trigger {
   kGuardOnly, // same as always? state logic is run per-frame
   kFirstFrame, //ie, framecount for the state == 0
   kLastFrame, //framecount for the state == duration - 1
-};
-
-struct Node {
-  const char* name;
-  bool can_rest;
-  int begin_edge;
-  int end_edge;
-  const char* animation;
-  int duration;
+  kEndOfList,
 };
 
 template<typename T>
@@ -44,11 +36,21 @@ struct Edge {
   int destination;
 };
 
+#define END_OF_EDGES(Type) Edge<Type>{kEndOfList, nullptr, nullptr, 0},
+
+template<typename T>
+struct Node {
+  const char* name;
+  bool can_rest;
+  Edge<T>* edge_list;
+  const char* animation;
+  int duration;
+};
+
 template <typename T>
 class StateMachine {
   public:
-    StateMachine(Node* node_list, Edge<T>* edge_list) {
-      this->edge_list = edge_list;
+    StateMachine(Node<T>* node_list) {
       this->node_list = node_list;
     }
     ~StateMachine() {};
@@ -59,8 +61,8 @@ class StateMachine {
 
     void RunLogic(T& state) {
       auto current_node = node_list[state.current_node];
-      for (int i = current_node.begin_edge; i <= current_node.end_edge; i++) {
-        auto edge = edge_list[i];
+      for (auto i = current_node.edge_list; i->trigger != kEndOfList; i++) {
+        auto edge = *i;
         // Make sure we pass this edge's trigger condition
         if (edge.trigger == kAlways or edge.trigger == kGuardOnly or
             (edge.trigger == kFirstFrame and state.frames_at_this_node == 0) or
@@ -102,8 +104,7 @@ class StateMachine {
     }
 
   private:
-    Edge<T>* edge_list;
-    Node* node_list;
+    Node<T>* node_list;
 
 };
 

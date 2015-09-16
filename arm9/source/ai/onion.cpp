@@ -105,19 +105,21 @@ void HandleWithdrawingPikmin(OnionState& onion) {
   }
 }
 
-Edge<OnionState> edge_list[] {
-  // Init
+Edge<OnionState> init[] {
   Edge<OnionState>{kAlways, nullptr, InitAlways, 1},
+  END_OF_EDGES(OnionState)
+};
 
-  // Idle
+Edge<OnionState> idle[] {
   {kAlways, nullptr, HandleWithdrawingPikmin, 1},  // Loopback
+  END_OF_EDGES(OnionState)
 };
 
-Node node_list[] {
-  {"Init", true, 0, 0},
-  {"Idle", true, 1, 1},
+Node<OnionState> node_list[] {
+  {"Init", true, init},
+  {"Idle", true, idle},
 };
 
-StateMachine<OnionState> machine(node_list, edge_list);
+StateMachine<OnionState> machine(node_list);
 
 }  // namespace onion_ai
