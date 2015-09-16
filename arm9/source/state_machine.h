@@ -68,13 +68,6 @@ class StateMachine {
           // If this edge has a guard function, only continue if the guard
           // passes its condition. If not, always continue.
           if (edge.guard == nullptr or edge.guard(state)) {
-            // update our animation if needed; ie, the new state has animation
-            // set, and it's not the animation we're already playing
-            if (node_list[edge.destination].animation != nullptr and
-                node_list[edge.destination].animation != current_node.animation) {
-              state.entity->SetAnimation(node_list[edge.destination].animation);
-            }
-
             // Only reset our frames_at_this_node if the transition takes
             // us to a *different* node; this prevents loopback transitions
             // from resetting the counter to 0 every frame.
@@ -88,6 +81,13 @@ class StateMachine {
             // the ability to override any of the above logic if needed.
             if (edge.action != nullptr) {
               edge.action(state);
+            }
+
+            // update our animation if needed; ie, the new state has animation
+            // set, and it's not the animation we're already playing
+            if (node_list[state.current_node].animation != nullptr and
+                node_list[state.current_node].animation != current_node.animation) {
+              state.entity->SetAnimation(node_list[state.current_node].animation);
             }
 
             //finally, break out so we stop processing edges
