@@ -54,6 +54,10 @@ struct Vector3 {
     return *this;
   }
 
+  bool operator==(const Vector3& other) {
+    return (x == other.x and y == other.y and z == other.z);
+  }
+
   // Warning: Only correct for 1.19.12 fixed specialization.
   Fixed<T, F> Length() const {
     s32 root = sqrtf32((x * x + y * y + z * z).data_);

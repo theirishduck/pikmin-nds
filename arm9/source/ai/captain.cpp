@@ -152,7 +152,7 @@ void MoveCaptain(CaptainState& captain) {
   } else {
     captain.active_onion = nullptr;
   }
-  debug::DisplayValue("Active Onion Type: ", (int)captain.active_onion->pikmin_type);
+  debug::DisplayValue("Pos: ", captain.entity->body()->position);
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {

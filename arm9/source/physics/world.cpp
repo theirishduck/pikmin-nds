@@ -10,6 +10,17 @@ using physics::Body;
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
+World::World() {
+  quadtree = new QuadTree(
+    Vec2{0_f, -128_f},
+    Vec2{128_f, 0_f}
+  );
+}
+
+World::~World() {
+  delete quadtree;
+}
+
 Body* World::AllocateBody(void* owner) {
   // This is a fairly naive implementation.
   // TODO(Nick): See if there's a better way to do this? Alternately, just
@@ -28,6 +39,8 @@ Body* World::AllocateBody(void* owner) {
       bodies_[i].touching_ground = 0;
       //bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
+
+      quadtree->AddObject(&bodies_[i]);
       return &bodies_[i];
     }
   }
@@ -66,6 +79,9 @@ void World::RebuildIndex() {
 }
 
 bool World::BodiesOverlap(Body& a, Body& b) {
+  if (&a == &b) {
+    return false; // Don't collide with yourself.
+  }
   bodies_overlap_debug++;
   //Check to see if the circles overlap on the XZ plane
   Vec2 axz = Vec2{a.position.x, a.position.z};
@@ -77,6 +93,7 @@ bool World::BodiesOverlap(Body& a, Body& b) {
     //Check to see if their Y values are overlapping also
     if (a.position.y + a.height >= b.position.y) {
       if (b.position.y + b.height >= a.position.y) {
+        collisions_this_frame++;
         return true;
       }
     }
@@ -109,7 +126,7 @@ void World::ResolveCollision(Body& a, Body& b) {
 
       // multiply, so that we move exactly the distance required to undo the
       // overlap between these objects
-      //a_direction = a_direction.Normalize();
+      // a_direction = a_direction.Normalize();
       auto offset = (a.radius + b.radius) - distance;
       if (offset > (b.radius / 8_f)) {
         offset = b.radius / 8_f;
@@ -119,6 +136,7 @@ void World::ResolveCollision(Body& a, Body& b) {
       a_direction *= 1_f / distance;
 
       a.position = a.position + a_direction;
+      UpdateBodyInTree(a);
     }
     if (b.is_movable and (!(a.is_pikmin) or b.is_pikmin)) {
       auto b_direction = (b.position - a.position);
@@ -138,6 +156,7 @@ void World::ResolveCollision(Body& a, Body& b) {
       b_direction *= 1_f / distance;
 
       b.position = b.position + b_direction;
+      UpdateBodyInTree(b);
     }
   }
 }
@@ -145,6 +164,7 @@ void World::ResolveCollision(Body& a, Body& b) {
 void World::PrepareBody(Body& body) {
   //set the old position (used later for comparison)
   body.old_position = body.position;
+  body.old_radius = body.radius;
 
   //clear sensor results for this run
   body.result_groups = 0;
@@ -161,56 +181,94 @@ void World::MoveBody(Body& body) {
   }
 }
 
+void World::UpdateBodyInTree(Body& body) {
+  if (body.position == body.old_position and
+      body.radius == body.old_radius) {
+    return;
+  }
+  body.current_tree->UpdateObject(&body);
+}
+
 void World::MoveBodies() {
   for (int i = 0; i < active_bodies_; i++) {
     // First, make sure this is an active body
     PrepareBody(bodies_[active_[i]]);
     MoveBody(bodies_[active_[i]]);
+    UpdateBodyInTree(bodies_[active_[i]]);
   }
   for (int i = 0; i < active_pikmin_; i++) {
     // First, make sure this is an active body
     PrepareBody(bodies_[pikmin_[i]]);
     MoveBody(bodies_[pikmin_[i]]);
+    UpdateBodyInTree(bodies_[pikmin_[i]]);
   }
 }
 
-void World::ProcessCollision() {
-  int* active_end = active_ + active_bodies_;
-  for (int* a = active_; a < active_end; a++) {
-    Body& A = bodies_[*a];
-    for (int* b = a + 1; b < active_end; b++) {
-      if (a != b) {
-        Body& B = bodies_[*b];
+void World::CollideObjectWithObject(Body& A, Body& B) {
+  const bool a_senses_b = B.is_sensor and
+      (B.collision_group & A.sensor_groups);
+  const bool b_senses_a = A.is_sensor and
+      (A.collision_group & B.sensor_groups);
 
-        const bool a_senses_b = B.is_sensor and
-            (B.collision_group & A.sensor_groups);
-        const bool b_senses_a = A.is_sensor and
-            (A.collision_group & B.sensor_groups);
+  const bool a_pushes_b = A.collides_with_bodies and not B.is_sensor;
+  const bool b_pushes_a = B.collides_with_bodies and not A.is_sensor;
 
-        const bool a_pushes_b = A.collides_with_bodies and not B.is_sensor;
-        const bool b_pushes_a = B.collides_with_bodies and not A.is_sensor;
+  if (a_senses_b or b_senses_a or a_pushes_b or b_pushes_a) {
+    if (BodiesOverlap(A, B)) {
+      ResolveCollision(A, B);
 
-        if (a_senses_b or b_senses_a or a_pushes_b or b_pushes_a) {
-          if (BodiesOverlap(A, B)) {
-            ResolveCollision(A, B);
-
-            //if A is a sensor that B cares about
-            if (A.collision_group & B.sensor_groups) {
-              B.result_groups = B.result_groups | A.collision_group;
-              if (B.num_results < 8) {
-                B.collision_results[B.num_results++] = {&A, A.collision_group};
-              }
-            }
-            //if B is a sensor that A cares about
-            if (B.collision_group & A.sensor_groups) {
-              A.result_groups = A.result_groups | B.collision_group;
-              if (A.num_results < 8) {
-                A.collision_results[A.num_results++] = {&B, B.collision_group};
-              }
-            }
-          }
+      //if A is a sensor that B cares about
+      if (A.collision_group & B.sensor_groups) {
+        B.result_groups = B.result_groups | A.collision_group;
+        if (B.num_results < 8) {
+          B.collision_results[B.num_results++] = {&A, A.collision_group};
         }
       }
+      //if B is a sensor that A cares about
+      if (B.collision_group & A.sensor_groups) {
+        A.result_groups = A.result_groups | B.collision_group;
+        if (A.num_results < 8) {
+          A.collision_results[A.num_results++] = {&B, B.collision_group};
+        }
+      }
+    }
+  }
+}
+
+void World::CollidePikminWithObject(Body& P, Body& A) {
+  if ((A.is_sensor and (A.collision_group & P.sensor_groups)) or
+      (not A.is_sensor)) {
+    if (BodiesOverlap(A, P)) {
+      ResolveCollision(A, P);
+      if (A.collision_group & P.sensor_groups) {
+        P.result_groups = P.result_groups | A.collision_group;
+        if (P.num_results < 8) {
+          P.collision_results[P.num_results++] = {&A, A.collision_group};
+        }
+      }
+    }
+  }
+}
+
+void World::CollidePikminWithPikmin(Body& pikmin1, Body& pikmin2) {
+  //if ((int)pikmin1.position.x == (int)pikmin2.position.x and
+  //    (int)pikmin1.position.z == (int)pikmin2.position.z) {
+  if (BodiesOverlap(pikmin1, pikmin2)) {
+    ResolveCollision(pikmin1, pikmin2);
+  }
+  //}
+}
+
+void World::ProcessCollision() {
+  for (int a = 0; a < active_bodies_; a++) {
+    Body& A = bodies_[a];
+    QuadTree* active_quadtree = A.current_tree;
+    while (active_quadtree) {
+      auto objects = active_quadtree->Objects();
+      for (auto b = objects.begin(); b < objects.end(); b++) {
+        CollideObjectWithObject(A, **b);
+      }
+      active_quadtree = active_quadtree->Parent();
     }
   }
 
@@ -219,50 +277,48 @@ void World::ProcessCollision() {
 
   //Also, pikmin are assumed to collide with both bodies and sensors, and are
   //always considered movable, so we can skip all of those checks.
+  /*
   int pikmin_collided = 0;
   for (int p = 0; p < active_pikmin_; p++) {
     Body& P = bodies_[pikmin_[p]];
-    for (int a = 0; a < active_bodies_; a++) {
-      Body& A = bodies_[active_[a]];
-      if ((A.is_sensor and (A.collision_group & P.sensor_groups)) or
-          (not A.is_sensor)) {
-        if (BodiesOverlap(A, P)) {
-          pikmin_collided++;
-          ResolveCollision(A, P);
-          if (A.collision_group & P.sensor_groups) {
-            P.result_groups = P.result_groups | A.collision_group;
-            if (P.num_results < 8) {
-              P.collision_results[P.num_results++] = {&A, A.collision_group};
-            }
-          }
-        }
+    QuadTree* active_quadtree = P.current_tree;
+    while (active_quadtree) {
+      auto objects = active_quadtree->Objects();
+      for (auto a = objects.begin(); a < objects.end(); a++) {
+        pikmin_collided++;
+        CollideObjectWithObject(P, **a);
       }
+      active_quadtree = active_quadtree->Parent();
     }
   }
   debug::DisplayValue("Pikmin vs. Objects: ", pikmin_collided);
+  */
 
   // Special case: collide pikmin with each other, but only if they share a
   // heightmap position (later: or an adjacent location?)
+
+  /*
   pikmin_collided = 0;
   for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
-    for (int p2 = p1 + 1; p2 < active_pikmin_; p2++) {
-      Body& pikmin1 = bodies_[pikmin_[p1]];
-      Body& pikmin2 = bodies_[pikmin_[p2]];
-      if ((int)pikmin1.position.x == (int)pikmin2.position.x and
-          (int)pikmin1.position.z == (int)pikmin2.position.z) {
-        if (BodiesOverlap(pikmin1, pikmin2)) {
-          ResolveCollision(pikmin1, pikmin2);
-          pikmin_collided++;
-        }
+    Body& pikmin1 = bodies_[pikmin_[p1]];
+    QuadTree* active_quadtree = pikmin1.current_tree;
+    while (active_quadtree) {
+      auto objects = active_quadtree->Objects();
+      for (auto pikmin2 = objects.begin(); pikmin2 < objects.end(); pikmin2++) {
+        pikmin_collided++;
+        CollideObjectWithObject(pikmin1, **pikmin2);
       }
+      active_quadtree = active_quadtree->Parent();
     }
   }
   debug::DisplayValue("Pikmin vs. Pikmin: ", pikmin_collided);
+  */
 
 }
 
 void World::Update() {
   bodies_overlap_debug = 0;
+  collisions_this_frame = 0;
   if (rebuild_index_) {
     RebuildIndex();
   }
@@ -272,6 +328,7 @@ void World::Update() {
 
   iteration++;
   debug::DisplayValue("BodiesOverlap Calls: ", bodies_overlap_debug);
+  debug::DisplayValue("Total Collisions: ", collisions_this_frame);
 }
 
 #include "debug.h"
@@ -294,6 +351,10 @@ void World::DebugCircles() {
     int segments = 6;
     debug::DrawCircle(body.position, body.radius, color, segments);
   }
+
+  // Also draw the quad tree
+  quadtree->DebugDraw();
+  debug::DisplayValue("Tree Objects: ", quadtree->ObjectCount());
 }
 
 void World::CollideBodiesWithLevel() {

@@ -19,6 +19,27 @@ void debug::nocashNumber(int num) {
   nocashMessage(buffer);
 }
 
+void debug::DrawLine(Vec2 p1, Vec2 p2, rgb color) {
+  DrawLine(Vec3{p1.x, 0_f, p1.y}, Vec3{p2.x, 0_f, p2.y}, color);
+}
+
+void debug::DrawLine(Vec3 p1, Vec3 p2, rgb color) {
+  glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
+  glTexParameter(0, 0); //disable textures
+  glBegin(GL_TRIANGLE);
+  glColor(color);
+  glPushMatrix();
+  glTranslatef32(p1.x.data_, p1.y.data_ + (1 << 11), p1.z.data_);
+  glVertex3v16(0, 0, 0);
+  glPopMatrix(1);
+  glPushMatrix();
+  glTranslatef32(p2.x.data_, p2.y.data_ + (1 << 11), p2.z.data_);
+  glVertex3v16(0, 0, 0);
+  glVertex3v16(0, 0, 0);
+  glPopMatrix(1);
+  glEnd();
+}
+
 void debug::DrawCrosshair(Vec3 p, rgb color) {
   glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE);
   glTexParameter(0, 0); //disable textures

@@ -3,6 +3,7 @@
 
 #include "body.h"
 #include "project_settings.h"
+#include "quadtree.h"
 
 namespace physics {
 
@@ -14,6 +15,8 @@ class World {
     void DebugCircles();
 
     void SetHeightmap(const u8* raw_heightmap_data);
+    World();
+    ~World();
   private:
     bool BodiesOverlap(physics::Body& A, physics::Body& b);
     void ResolveCollision(physics::Body& A, physics::Body& B);
@@ -26,6 +29,10 @@ class World {
     void Sleep(physics::Body* body);
     void CollideBodyWithLevel(physics::Body& body);
     void CollideBodiesWithLevel();
+    void CollideObjectWithObject(physics::Body& A, physics::Body& B);
+    void CollidePikminWithObject(physics::Body& P, physics::Body& A);
+    void CollidePikminWithPikmin(physics::Body& pikmin1, physics::Body& pikmin2);
+    void UpdateBodyInTree(physics::Body& body);
 
     numeric_types::fixed HeightFromMap(const Vec3& position);
 
@@ -43,6 +50,9 @@ class World {
 
     int iteration = 0;
     int bodies_overlap_debug = 0;
+    int collisions_this_frame;
+
+    QuadTree* quadtree;
 };
 
 }  // namespace physics

@@ -40,7 +40,7 @@ using debug::Topic;
 
 using namespace std;
 
-s32 const kTestPikmin{100};
+s32 const kTestPikmin{0};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);

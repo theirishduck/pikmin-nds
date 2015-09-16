@@ -4,6 +4,8 @@
 #include "numeric_types.h"
 #include "vector.h"
 
+class QuadTree;
+
 class DrawableEntity;
 
 namespace physics {
@@ -23,6 +25,8 @@ struct Body {
   Vec3 acceleration;
 
   Vec2 xz_position;
+
+  QuadTree* current_tree{nullptr};
 
   //all bodies are cylinders, so they have a radius and a height. Their base
   //starts at position.y, so their highest point is at position.y + height.
@@ -59,6 +63,7 @@ struct Body {
   CollisionResult FirstCollisionWith(u32 collision_mask);
   unsigned short active : 1;
   Vec3 old_position;
+  numeric_types::Fixed<s32,12> old_radius;
 };
 
 }  // namespace physics
