@@ -315,6 +315,7 @@ Edge<PikminState> edge_list[] {
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
 
   // Idle
+  {kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
   {kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
@@ -372,15 +373,15 @@ Edge<PikminState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 5, "Armature|Idle", 30},
-  {"Grabbed", true, 6, 7, "Armature|Idle", 30},
-  {"Thrown", true, 8, 8, "Armature|Throw", 10},
-  {"Targeting", true, 9, 13, "Armature|Run", 30},
-  {"Chasing", true, 14, 18, "Armature|Run", 30},
-  {"StandingAttack", true, 19, 22, "Armature|StandingAttack", 20},
-  {"Jump", true, 23, 26, "Armature|Idle", 30},
-  {"ClimbIntoOnion", true, 27, 27, "Armature|Climb", 60},
-  {"SlideDownFromOnion", true, 28, 29, "Armature|Climb", 30},
+  {"Idle", true, 1, 6, "Armature|Idle", 30},
+  {"Grabbed", true, 7, 8, "Armature|Idle", 30},
+  {"Thrown", true, 9, 9, "Armature|Throw", 10},
+  {"Targeting", true, 10, 14, "Armature|Run", 30},
+  {"Chasing", true, 15, 19, "Armature|Run", 30},
+  {"StandingAttack", true, 20, 23, "Armature|StandingAttack", 20},
+  {"Jump", true, 24, 27, "Armature|Idle", 30},
+  {"ClimbIntoOnion", true, 28, 28, "Armature|Climb", 60},
+  {"SlideDownFromOnion", true, 29, 30, "Armature|Climb", 30},
 
 };
 
