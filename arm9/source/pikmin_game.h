@@ -48,6 +48,7 @@ class PikminGame {
   //useful polling functions
   captain_ai::CaptainState* ActiveCaptain();
   int PikminInField();
+  int TotalPikmin();
   pikmin_ai::PikminState* Pikmin();
 
   PikminSave* CurrentSaveData();

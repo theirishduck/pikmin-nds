@@ -12,6 +12,15 @@ int PikminSave::PikminCount(PikminType type) {
   return ((int*)this)[(int)type - 1];
 }
 
+int PikminGame::TotalPikmin() {
+  int total =
+    current_save_data_.PikminCount(PikminType::kRedPikmin) +
+    current_save_data_.PikminCount(PikminType::kYellowPikmin) +
+    current_save_data_.PikminCount(PikminType::kBluePikmin) +
+    PikminInField();
+  return total;
+}
+
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   ui_.game = this;
 }

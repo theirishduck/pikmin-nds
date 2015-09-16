@@ -229,7 +229,7 @@ void UpdateNavPad(UIState& ui) {
   // Update pikmin counts
   BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
-  BubbleNumber(106, 158, 168, ui.game->PikminInField(), 3);
+  BubbleNumber(106, 158, 168, ui.game->TotalPikmin(), 3);
   UpdatePikminSelector(ui, 109);
   UpdateMapIcons(ui);
   debug::EndTopic(debug::Topic::kUi);
