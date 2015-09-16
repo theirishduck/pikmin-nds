@@ -100,9 +100,14 @@ bool QuadTree::AddObject(Body* object) {
     }
   }
   if (!parent_ or ObjectFitsInside(object)) {
-    if (objects_.size() < max_objects_ or max_depth_ <= 0) {
-      objects_.push_back(object);
-      object->current_tree = this;
+    if (OwnObjectCount() < max_objects_ or max_depth_ <= 0) {
+      if (object->is_pikmin) {
+        pikmin_.push_back(object);
+        object->current_tree = this;
+      } else {
+        objects_.push_back(object);
+        object->current_tree = this;
+      }
       return true; // It fits! I sits.
     }
     if (!has_children_) {
@@ -114,8 +119,13 @@ bool QuadTree::AddObject(Body* object) {
       return true;
     }
     // Add this object to ourselves, and set up references accordingly
-    objects_.push_back(object);
-    object->current_tree = this;
+    if (object->is_pikmin) {
+      pikmin_.push_back(object);
+      object->current_tree = this;
+    } else {
+      objects_.push_back(object);
+      object->current_tree = this;
+    }
     return true;
   }
   return false;
@@ -149,9 +159,14 @@ void QuadTree::UpdateObject(Body* object) {
   if (has_children_) {
     // See if this object now fits into any of our children.
     if (AddObjectToChildren(object)) {
+      // Remove it from Objects / Pikmin, if present
       auto index = std::find(objects_.begin(), objects_.end(), object);
       if (index != objects_.end()) {
         objects_.erase(index);
+      }
+      auto p_index = std::find(pikmin_.begin(), pikmin_.end(), object);
+      if (p_index != pikmin_.end()) {
+        pikmin_.erase(p_index);
       }
       return;
     }
@@ -159,21 +174,36 @@ void QuadTree::UpdateObject(Body* object) {
 }
 
 bool QuadTree::RemoveObject(Body* object) {
+  // Are we in the objects list?
   auto index = std::find(objects_.begin(), objects_.end(), object);
   if (index != objects_.end()) {
     object->current_tree = nullptr;
     objects_.erase(index);
-    if (objects_.size() < max_objects_ and ChildObjectCount() == 0) {
+    if (OwnObjectCount() < max_objects_ and ChildObjectCount() == 0) {
       // We can safely despawn our children
       DestroyChildren();
     }
     return true;
   }
+
+  // What about the pikmin list?
+  auto p_index = std::find(pikmin_.begin(), pikmin_.end(), object);
+  if (p_index != pikmin_.end()) {
+    object->current_tree = nullptr;
+    pikmin_.erase(p_index);
+    if (OwnObjectCount() < max_objects_ and ChildObjectCount() == 0) {
+      // We can safely despawn our children
+      DestroyChildren();
+    }
+    return true;
+  }
+
+  // OK, how about any of our children? No?
   if (has_children_) {
     for (int x = 0; x < 2; x++) {
       for (int y = 0; y < 2; y++) {
         if (children_[x][y]->RemoveObject(object)) {
-          if (objects_.size() < max_objects_ and ChildObjectCount() == 0) {
+          if (OwnObjectCount() < max_objects_ and ChildObjectCount() == 0) {
             // We can safely despawn our children
             DestroyChildren();
           }
@@ -185,7 +215,7 @@ bool QuadTree::RemoveObject(Body* object) {
   return false;
 }
 
-int QuadTree::ChildObjectCount() {
+unsigned QuadTree::ChildObjectCount() {
   if (!has_children_) {
     return 0;
   }
@@ -198,12 +228,20 @@ int QuadTree::ChildObjectCount() {
   return count;
 }
 
-int QuadTree::ObjectCount() {
-  return ChildObjectCount() + objects_.size();
+unsigned int QuadTree::ObjectCount() {
+  return ChildObjectCount() + OwnObjectCount();
 }
 
-std::vector<Body*> QuadTree::Objects() {
+unsigned int QuadTree::OwnObjectCount() {
+  return pikmin_.size() + objects_.size();
+}
+
+std::vector<Body*>& QuadTree::Objects() {
   return objects_;
+}
+
+std::vector<Body*>& QuadTree::Pikmin() {
+  return pikmin_;
 }
 
 QuadTree* QuadTree::Parent() {

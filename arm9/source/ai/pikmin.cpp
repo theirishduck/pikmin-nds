@@ -38,7 +38,7 @@ void InitAlways(PikminState& pikmin) {
 
   auto body = pikmin.entity->body();
   body->height = 6_f;
-  body->radius = 1.5_f;
+  body->radius = 0.5_f;
 
   body->collides_with_bodies = 1;
   body->is_pikmin = 1;
@@ -81,7 +81,7 @@ void StoreParentLocation(PikminState& pikmin) {
 
 void FollowParent(PikminState& pikmin) {
   if (pikmin.parent) {
-    pikmin.entity->body()->position = pikmin.parent->body()->position 
+    pikmin.entity->body()->position = pikmin.parent->body()->position
         + pikmin.child_offset;
   }
 }
@@ -148,7 +148,7 @@ bool TargetReached(const PikminState& pikmin) {
   //don't do this every frame, for intentional inaccuracy
   if ((pikmin.id + pikmin.entity->engine()->FrameCounter()) % 16 == 0) {
     auto position = pikmin.entity->body()->position;
-    return (pikmin.target - Vec2{position.x, position.z}).Length2() < 
+    return (pikmin.target - Vec2{position.x, position.z}).Length2() <
         kTargetThreshold * kTargetThreshold;
   }
   return false;
@@ -166,7 +166,7 @@ bool TooFarFromTarget(const PikminState& pikmin) {
 
   //Are we too far away from our squad's set position?
   auto position = pikmin.entity->body()->position;
-  return (pikmin.target - Vec2{position.x, position.z}).Length2() > 
+  return (pikmin.target - Vec2{position.x, position.z}).Length2() >
       kTargetThreshold * kTargetThreshold;
 }
 

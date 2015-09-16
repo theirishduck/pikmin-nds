@@ -3,7 +3,8 @@
 
 #include "body.h"
 #include "project_settings.h"
-#include "quadtree.h"
+
+class QuadTree;
 
 namespace physics {
 

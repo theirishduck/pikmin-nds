@@ -4,6 +4,7 @@
 #include "vector.h"
 #include "body.h"
 #include "debug.h"
+#include "quadtree.h"
 
 using physics::World;
 using physics::Body;
@@ -51,6 +52,7 @@ void World::FreeBody(Body* body) {
   body->owner = nullptr;
   body->active = 0;
   rebuild_index_ = true;
+  quadtree->RemoveObject(body);
 }
 
 void World::Wake(Body* body) {
@@ -251,17 +253,17 @@ void World::CollidePikminWithObject(Body& P, Body& A) {
 }
 
 void World::CollidePikminWithPikmin(Body& pikmin1, Body& pikmin2) {
-  //if ((int)pikmin1.position.x == (int)pikmin2.position.x and
-  //    (int)pikmin1.position.z == (int)pikmin2.position.z) {
-  if (BodiesOverlap(pikmin1, pikmin2)) {
-    ResolveCollision(pikmin1, pikmin2);
+  if ((int)pikmin1.position.x == (int)pikmin2.position.x and
+      (int)pikmin1.position.z == (int)pikmin2.position.z) {
+    if (BodiesOverlap(pikmin1, pikmin2)) {
+      ResolveCollision(pikmin1, pikmin2);
+    }
   }
-  //}
 }
 
 void World::ProcessCollision() {
   for (int a = 0; a < active_bodies_; a++) {
-    Body& A = bodies_[a];
+    Body& A = bodies_[active_[a]];
     QuadTree* active_quadtree = A.current_tree;
     while (active_quadtree) {
       auto objects = active_quadtree->Objects();
@@ -274,6 +276,30 @@ void World::ProcessCollision() {
 
   //Repeat this with pikmin, our special case heros
   //Pikmin need to collide against all active bodies, but not with each other
+
+  for (int p = 0; p < active_pikmin_; p++) {
+    Body& P = bodies_[pikmin_[p]];
+    QuadTree* active_quadtree = P.current_tree;
+    while (active_quadtree) {
+      auto objects = active_quadtree->Objects();
+      for (auto b = objects.begin(); b < objects.end(); b++) {
+        CollidePikminWithObject(P, **b);
+      }
+      active_quadtree = active_quadtree->Parent();
+    }
+  }
+
+  for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
+    Body& P1 = bodies_[pikmin_[p1]];
+    QuadTree* active_quadtree = P1.current_tree;
+    while (active_quadtree) {
+      auto objects = active_quadtree->Pikmin();
+      for (auto p2 = objects.begin(); p2 < objects.end(); p2++) {
+        CollidePikminWithPikmin(P1, **p2);
+      }
+      active_quadtree = active_quadtree->Parent();
+    }
+  }
 
   //Also, pikmin are assumed to collide with both bodies and sensors, and are
   //always considered movable, so we can skip all of those checks.

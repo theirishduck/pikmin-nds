@@ -192,7 +192,7 @@ void UpdateCircleShape(SquadState& squad) {
 
   // calculate the rotation for the squad
   if (squad.captain->held_pikmin) {
-    squad.current_rotation = squad.captain->entity->AngleTo(squad.captain->cursor);
+    squad.current_rotation = squad.captain->entity->AngleTo(squad.captain->cursor) + 90_brad;
     squad.position = squad.captain->entity->body()->position;
     // move the squad slightly behind olimar
     Vec2 delta = {0_f, 3_f};
