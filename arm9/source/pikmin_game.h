@@ -14,9 +14,9 @@
 #include "vram_allocator.h"
 
 struct PikminSave {
-  int red_pikmin = 50;
-  int yellow_pikmin = 50;
-  int blue_pikmin = 50;
+  int red_pikmin = 100;
+  int yellow_pikmin = 100;
+  int blue_pikmin = 100;
 
   int PikminCount(pikmin_ai::PikminType type);
 };
