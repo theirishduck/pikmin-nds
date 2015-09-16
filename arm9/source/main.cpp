@@ -222,7 +222,7 @@ void SetupDemoStage() {
 
   //spawn in an onion!
   auto red_onion = g_game.SpawnObject<OnionState>();
-  red_onion->entity->body()->position = Vec3{64_f, 0_f, -96_f};
+  red_onion->entity->body()->position = Vec3{64_f, 0_f, -32_f};
   red_onion->pikmin_type = PikminType::kRedPikmin;
 
   //spawn in a yellow onion too!
@@ -232,7 +232,7 @@ void SetupDemoStage() {
 
   //spawn in a blue onion while we're at it
   auto blue_onion = g_game.SpawnObject<OnionState>();
-  blue_onion->entity->body()->position = Vec3{64_f, 0_f, -32_f};
+  blue_onion->entity->body()->position = Vec3{64_f, 0_f, -96_f};
   blue_onion->pikmin_type = PikminType::kBluePikmin;
 
 
