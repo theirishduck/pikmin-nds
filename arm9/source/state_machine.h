@@ -68,12 +68,6 @@ class StateMachine {
           // If this edge has a guard function, only continue if the guard
           // passes its condition. If not, always continue.
           if (edge.guard == nullptr or edge.guard(state)) {
-            // this edge will now be traversed! First, if the edge has an
-            // action, run it (this logic typically sets up the next state)
-            if (edge.action != nullptr) {
-              edge.action(state);
-            }
-
             // update our animation if needed; ie, the new state has animation
             // set, and it's not the animation we're already playing
             if (node_list[edge.destination].animation != nullptr and
@@ -87,8 +81,14 @@ class StateMachine {
             if (state.current_node != edge.destination) {
               state.frames_at_this_node = -1; // this is incremented to 0 down there
             }
-            // now set our new destination, and we're done
+            // now set our new destination
             state.current_node = edge.destination;
+
+            // Run the action for this state, if any. This runs last, so it has
+            // the ability to override any of the above logic if needed.
+            if (edge.action != nullptr) {
+              edge.action(state);
+            }
 
             //finally, break out so we stop processing edges
             break;
@@ -101,7 +101,7 @@ class StateMachine {
       state.frames_at_this_node++;
     }
 
-  private: 
+  private:
     Edge<T>* edge_list;
     Node* node_list;
 
