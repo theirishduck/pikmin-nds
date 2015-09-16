@@ -50,6 +50,8 @@ void InitAlways(PikminState& pikmin) {
   body->sensor_groups = WHISTLE_GROUP | DETECT_GROUP | ATTACK_GROUP;
 
   pikmin.entity->important = false;
+
+  pikmin.current_node = pikmin.starting_state;
 }
 
 void IdleAlways(PikminState& pikmin) {
@@ -257,7 +259,7 @@ bool CollideWithOnionFoot(const PikminState& pikmin) {
 void StartClimbingOnion(PikminState& pikmin) {
   // Grab the onion / foot that we're targeting
   auto onion_foot = pikmin.entity->body()->FirstCollisionWith(ONION_FEET_GROUP);
-  fixed travel_frames = 90_f;
+  fixed travel_frames = 60_f;
   if (onion_foot.body) {
     auto onion = (onion_ai::OnionState*)onion_foot.body->owner;
     auto pikmin_body = pikmin.entity->body();
@@ -295,18 +297,15 @@ void EnterOnion(PikminState& pikmin) {
   }
 }
 
-namespace PikminNode {
-enum PikminNode {
-  kInit = 0,
-  kIdle,
-  kGrabbed,
-  kThrown,
-  kTargeting,
-  kChasing,
-  kStandingAttack,
-  kJump,
-  kClimbIntoOnion,
-};
+void WhistleOffOnion(PikminState& pikmin) {
+  pikmin.entity->body()->affected_by_gravity = true;
+}
+
+void HopOffFoot(PikminState& pikmin) {
+  pikmin.entity->body()->affected_by_gravity = true;
+  pikmin.entity->body()->velocity.y = 1.0_f;
+
+  pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
 }
 
 Edge<PikminState> edge_list[] {
@@ -360,6 +359,9 @@ Edge<PikminState> edge_list[] {
   // marks the pikmin as dead, removing it from the game. Thus, this state
   // runs to completion just once.
 
+  // SlideDownFromOnion
+  {kAlways, CollidedWithWhistle, WhistleOffOnion, PikminNode::kIdle},
+  {kLastFrame, nullptr, HopOffFoot, PikminNode::kIdle},
 
   //Latch
   //TODO: This later
@@ -375,7 +377,8 @@ Node node_list[] {
   {"Chasing", true, 14, 18, "Armature|Run", 30},
   {"StandingAttack", true, 19, 22, "Armature|StandingAttack", 20},
   {"Jump", true, 23, 26, "Armature|Idle", 30},
-  {"ClimbIntoOnion", true, 27, 27, "Armature|Climb", 90},
+  {"ClimbIntoOnion", true, 27, 27, "Armature|Climb", 60},
+  {"SlideDownFromOnion", true, 28, 29, "Armature|Climb", 30},
 
 };
 

@@ -87,7 +87,7 @@ void InitAlways(CaptainState& captain) {
   whistle_actor.ApplyTextures(captain.game->TextureAllocator(), captain.game->TexturePaletteAllocator());
   auto whistle_body = captain.whistle->body();
 
-  whistle_body->height = 10.0_f;
+  whistle_body->height = 20.0_f;
   whistle_body->is_sensor = 1;
   whistle_body->owner = &captain;
 }

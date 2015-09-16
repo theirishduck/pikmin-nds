@@ -71,9 +71,6 @@ void HandleWithdrawingPikmin(OnionState& onion) {
       pikmin->entity->body()->position = onion.entity->body()->position +
           onion_sides[rand() % 3];
 
-      // For now, go ahead and add this pikmin to the captain's squad
-      onion.game->ActiveCaptain()->squad.AddPikmin(pikmin);
-
       if (onion.pikmin_type == PikminType::kRedPikmin) {
         onion.game->CurrentSaveData()->red_pikmin--;
       }
@@ -83,6 +80,25 @@ void HandleWithdrawingPikmin(OnionState& onion) {
       if (onion.pikmin_type == PikminType::kBluePikmin) {
         onion.game->CurrentSaveData()->blue_pikmin--;
       }
+
+      // Setup some animation data on the pikmin, so it can slide away from
+      // the onion toward one of the feet
+      fixed travel_frames = 30_f;
+      pikmin->entity->body()->affected_by_gravity = false;
+      pikmin->starting_state = pikmin_ai::PikminNode::kSlideDownFromOnion;
+      pikmin->entity->RotateToFace(onion.entity);
+      auto pikmin_body = pikmin->entity->body();
+      auto onion_position = onion.entity->body()->position;
+      Vec2 slide_xz = (
+          Vec2{onion_position.x, onion_position.z} -
+          Vec2{pikmin_body->position.x, pikmin_body->position.z}
+        ).Normalize();
+      slide_xz = slide_xz * -9.2_f;
+      pikmin->entity->body()->velocity = Vec3{
+        slide_xz.x / travel_frames,
+        -9.1_f / travel_frames,
+        slide_xz.y / travel_frames
+      };
     }
 
     onion.withdraw_count--;

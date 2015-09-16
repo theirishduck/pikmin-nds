@@ -17,6 +17,21 @@ enum class PikminType {
   kBluePikmin,
 };
 
+namespace PikminNode {
+enum PikminNode {
+  kInit = 0,
+  kIdle,
+  kGrabbed,
+  kThrown,
+  kTargeting,
+  kChasing,
+  kStandingAttack,
+  kJump,
+  kClimbIntoOnion,
+  kSlideDownFromOnion,
+};
+}
+
 struct PikminState : ObjectState {
   PikminType type = PikminType::kRedPikmin;
   int id = 0;
@@ -35,6 +50,8 @@ struct PikminState : ObjectState {
 
   //cache values for not updating so often
   numeric_types::Brads target_facing_angle;
+
+  int starting_state{PikminNode::kIdle};
 };
 
 extern StateMachine<PikminState> machine;
