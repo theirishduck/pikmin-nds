@@ -76,9 +76,9 @@ Edge<PosyState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 3, "Armature|Idle", 60},
-  {"Hit", true, 4, 5, "Armature|Hit", 30},
-  {"Death", true, 6, 6, "Armature|Death", 42},
+  {"Idle", true, 1, 3, "Armature|Idle", 30},
+  {"Hit", true, 4, 5, "Armature|Hit", 15},
+  {"Death", true, 6, 6, "Armature|Death", 21},
 };
 
 StateMachine<PosyState> machine(node_list, edge_list);

@@ -45,7 +45,7 @@
 
 // How fast objects accelerate towards the ground, per frame
 #ifndef GRAVITY_CONSTANT
-#define GRAVITY_CONSTANT (1.75_f / 60_f)
+#define GRAVITY_CONSTANT (4.5_f / 30_f)
 #endif
 
 // Collision groups for the physics engine

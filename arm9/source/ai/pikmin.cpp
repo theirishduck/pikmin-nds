@@ -15,6 +15,9 @@ using numeric_types::fixed;
 
 namespace pikmin_ai {
 
+const fixed kRunSpeed = 40.0_f / 60_f;
+const fixed kTargetThreshold = 2.0_f;
+
 Dsgx red_pikmin_actor((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
 Dsgx yellow_pikmin_actor((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
 Dsgx blue_pikmin_actor((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
@@ -103,8 +106,6 @@ bool Landed(const PikminState& pikmin) {
   return pikmin.entity->body()->touching_ground;
 }
 
-const fixed kRunningSpeed = 20.0_f / 60_f;
-
 void FaceTarget(PikminState& pikmin) {
   auto body = pikmin.entity->body();
   Vec2 posXZ{body->position.x, body->position.z};
@@ -112,7 +113,12 @@ void FaceTarget(PikminState& pikmin) {
     fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
     fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
   };
-  Vec2 new_velocity = (pikmin.target + random_offset - posXZ).Normalize() * kRunningSpeed;
+  Vec2 new_direction = (pikmin.target + random_offset - posXZ).Normalize();
+  fixed movement_speed = ((pikmin.target + random_offset - posXZ).Length() / 4_f);
+  if (movement_speed > kRunSpeed) {
+    movement_speed = kRunSpeed;
+  }
+  Vec2 new_velocity = new_direction * movement_speed;
   body->velocity.x = new_velocity.x;
   body->velocity.z = new_velocity.y;
   pikmin.entity->RotateToXZDirection(new_velocity);
@@ -141,8 +147,6 @@ void ChooseRandomTarget(PikminState& pikmin) {
   new_target.y += fixed::FromInt((rand() % 30) - 15);
   pikmin.target = new_target;
 }
-
-const fixed kTargetThreshold = 2.0_f;
 
 bool TargetReached(const PikminState& pikmin) {
   //don't do this every frame, for intentional inaccuracy
@@ -217,7 +221,7 @@ void DealDamageToTarget(PikminState& pikmin) {
 void JumpTowardTarget(PikminState& pikmin) {
   // Face the target, then apply upwards velocity
   FaceTarget(pikmin);
-  pikmin.entity->body()->velocity.y = 0.2_f;
+  pikmin.entity->body()->velocity.y = 0.4_f;
 }
 
 bool CollideWithTarget(const PikminState& pikmin) {
@@ -307,13 +311,13 @@ Edge<PikminState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 5, "Armature|Idle", 60},
-  {"Grabbed", true, 6, 7, "Armature|Idle", 60},
-  {"Thrown", true, 8, 9, "Armature|Throw", 20},
-  {"Targeting", true, 9, 12, "Armature|Run", 60},
-  {"Chasing", true, 13, 17, "Armature|Run", 60},
-  {"StandingAttack", true, 18, 21, "Armature|StandingAttack", 40},
-  {"Jump", true, 22, 25, "Armature|Idle", 60},
+  {"Idle", true, 1, 5, "Armature|Idle", 30},
+  {"Grabbed", true, 6, 7, "Armature|Idle", 30},
+  {"Thrown", true, 8, 9, "Armature|Throw", 10},
+  {"Targeting", true, 9, 12, "Armature|Run", 30},
+  {"Chasing", true, 13, 17, "Armature|Run", 30},
+  {"StandingAttack", true, 18, 21, "Armature|StandingAttack", 20},
+  {"Jump", true, 22, 25, "Armature|Idle", 30},
 
 };
 

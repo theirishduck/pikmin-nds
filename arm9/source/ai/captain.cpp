@@ -23,7 +23,14 @@ using pikmin_ai::PikminType;
 
 namespace captain_ai {
 
-//Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
+// Useful Constants
+const fixed kRunSpeed = 0.8_f;
+const fixed kCursorMaxDistance = 14_f;
+const fixed kCursorSpeedMultiplier = 3_f;
+const fixed kPikminThrowHeight = 1.6_f;
+const fixed kYellowPikminThrowHeight = 2.0_f;
+
+// Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
 Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
 Dsgx cursor_actor((u32*)cursor_dsgx, cursor_dsgx_size);
 Dsgx whistle_actor((u32*)whistle_dsgx, whistle_dsgx_size);
@@ -97,7 +104,8 @@ bool DpadInactive(const CaptainState& captain) {
 }
 
 void StopCaptain(CaptainState& captain) {
-  //reset velocity in XZ to 0, so we stop moving
+  // reset velocity in XZ to 0, so we stop moving
+  // (but ignore Y so that we keep falling)
   auto body = captain.entity->body();
   body->velocity.x = 0_f;
   body->velocity.z = 0_f;
@@ -120,19 +128,20 @@ void MoveCaptain(CaptainState& captain) {
   auto body = captain.entity->body();
   body->velocity.x = trig::CosLerp(captain.current_angle);
   body->velocity.z = -trig::SinLerp(captain.current_angle);
-  body->velocity.x *= 0.4_f;
-  body->velocity.z *= 0.4_f;
+  body->velocity.x *= kRunSpeed;
+  body->velocity.z *= kRunSpeed;
 
+  // Move the cursor in the same direction, at a faster rate
   auto cursor_body = captain.cursor->body();
-  cursor_body->velocity.x = body->velocity.x * 3_f;
-  cursor_body->velocity.z = body->velocity.z * 3_f;
+  cursor_body->velocity.x = body->velocity.x * kCursorSpeedMultiplier;
+  cursor_body->velocity.z = body->velocity.z * kCursorSpeedMultiplier;
 
   // Clamp the cursor to a certain distance from the captain
   Vec2 captain_xz = Vec2{body->position.x, body->position.z};
   Vec2 cursor_xz = Vec2{cursor_body->position.x, cursor_body->position.z};
   fixed distance = (cursor_xz - captain_xz).Length();
-  if (distance > 14_f) {
-    cursor_xz = (cursor_xz - captain_xz).Normalize() * 14_f;
+  if (distance > kCursorMaxDistance) {
+    cursor_xz = (cursor_xz - captain_xz).Normalize() * kCursorMaxDistance;
     cursor_xz += captain_xz;
     cursor_body->position.x = cursor_xz.x;
     cursor_body->position.z = cursor_xz.y;
@@ -185,9 +194,9 @@ void GrabPikmin(CaptainState& captain) {
 void ThrowPikmin(CaptainState& captain) {
   captain.squad.RemovePikmin(captain.held_pikmin);
 
-  fixed pikmin_y_velocity = 0.8_f;
+  fixed pikmin_y_velocity = kPikminThrowHeight;
   if (captain.held_pikmin->type == PikminType::kYellowPikmin) {
-    pikmin_y_velocity = 1.0_f;
+    pikmin_y_velocity = kYellowPikminThrowHeight;
   }
 
   fixed pikmin_travel_time = pikmin_y_velocity * 2_f / GRAVITY_CONSTANT;
@@ -354,12 +363,12 @@ Edge<CaptainState> edge_list[] {
 
 Node node_list[] {
   {"Init", true, 0, 0},
-  {"Idle", true, 1, 4, "Armature|Idle1", 30},
-  {"Run", true, 5, 8, "Armature|Run", 60},
-  {"Grab", true, 9, 14, "Armature|Idle1", 30},
-  {"GrabRun", true, 15, 20, "Armature|Run", 60},
-  {"Throw", true, 21, 25, "Armature|Idle1", 10},
-  {"ThrowRun", true, 26, 30, "Armature|Run", 10},
+  {"Idle", true, 1, 4, "Armature|Idle1", 15},
+  {"Run", true, 5, 8, "Armature|Run", 30},
+  {"Grab", true, 9, 14, "Armature|Idle1", 15},
+  {"GrabRun", true, 15, 20, "Armature|Run", 30},
+  {"Throw", true, 21, 25, "Armature|Idle1", 5},
+  {"ThrowRun", true, 26, 30, "Armature|Run", 5},
 };
 
 StateMachine<CaptainState> machine(node_list, edge_list);

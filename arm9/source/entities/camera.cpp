@@ -90,11 +90,11 @@ void Camera::Update() {
   current_state_.target = current_state_.target * 0.875_f
       + target_state_.target * 0.125_f;
 
-  current_state_.height = current_state_.height * 0.875_f
-      + target_state_.height * 0.125_f;
+  current_state_.height = current_state_.height * 0.75_f
+      + target_state_.height * 0.25_f;
 
-  current_state_.distance = current_state_.distance * 0.875_f
-      + target_state_.distance * 0.125_f;
+  current_state_.distance = current_state_.distance * 0.75_f
+      + target_state_.distance * 0.25_f;
 
   // For the angle, we need to do fancy delta clamping
   auto delta = target_state_.angle - current_state_.angle;
@@ -110,10 +110,10 @@ void Camera::Update() {
 
   // if the delta is greater than the rate, limit it for slow turning
   if (delta > max_jump) {
-    delta = delta / 8_f;
+    delta = delta / 4_f;
   }
   if (delta < -max_jump) {
-    delta = delta / 8_f;
+    delta = delta / 4_f;
   }
 
   current_state_.angle += delta;
