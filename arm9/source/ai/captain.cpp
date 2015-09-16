@@ -29,6 +29,7 @@ const fixed kCursorMaxDistance = 14_f;
 const fixed kCursorSpeedMultiplier = 3_f;
 const fixed kPikminThrowHeight = 1.6_f;
 const fixed kYellowPikminThrowHeight = 2.0_f;
+const int kWhistleExpandFrames = 8;
 
 // Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
 Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
@@ -40,7 +41,7 @@ void HandleWhistle(CaptainState& captain) {
 
   // Do a bit of cheating and handle the whistle here for now
   if (keysHeld() & KEY_B) {
-    if (captain.whistle_timer < 16) {
+    if (captain.whistle_timer < 8) {
       captain.whistle_timer++;
       //turn the whistle on
       captain.whistle->body()->collision_group = WHISTLE_GROUP;
@@ -51,8 +52,8 @@ void HandleWhistle(CaptainState& captain) {
     captain.whistle->body()->collision_group = 0;
   }
 
-  captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / 16_f;
-  captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / 16_f);
+  captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
+  captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames));
   captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 3_brad, 0_brad);
 }
 

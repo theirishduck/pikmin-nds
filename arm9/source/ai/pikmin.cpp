@@ -299,6 +299,8 @@ void EnterOnion(PikminState& pikmin) {
 
 void WhistleOffOnion(PikminState& pikmin) {
   pikmin.entity->body()->affected_by_gravity = true;
+  pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
+  pikmin.entity->body()->velocity.y = 0.5_f;
 }
 
 void HopOffFoot(PikminState& pikmin) {
