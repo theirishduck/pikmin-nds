@@ -41,7 +41,8 @@ void DisplayValue(const std::string &name, const std::string value);
 
 enum Topic {
   kPhysics = 0,
-  kUpdate,
+  kAI,
+  kEntityUpdate,
   kFrameInit,
   kPassInit,
   kPass1,

@@ -297,8 +297,6 @@ void GameLoop() {
     //start debug timings for this loop
     debug::StartCpuTimer();
 
-    RunLogic();
-
     if ((frame_counter & 0x7) == 0) {
       Particle* new_particle = SpawnParticle(test_flower);
       new_particle->velocity = RandomVector() * 0.005_f + Vec3{0_f,0.02_f,0_f};
@@ -306,8 +304,11 @@ void GameLoop() {
 
     debug::DisplayValue("Particles: ", ActiveParticles());
 
-
-    g_engine.Update();
+    if (frame_counter % 2 == 0) {
+      RunLogic();
+    } else {
+      g_engine.Update();
+    }
     g_engine.Draw();
 
     oamUpdate(&oamSub);

@@ -142,9 +142,12 @@ struct TopicInfo {
 TimingResult g_timing_results[static_cast<int>(debug::Topic::kNumTopics)];
 
 std::map<debug::Topic, TopicInfo> g_topic_info{
-  {debug::Topic::kUpdate, {
-    "Update",
+  {debug::Topic::kAI, {
+    "AI",
     RGB8(255, 128, 0)}},
+  {debug::Topic::kEntityUpdate, {
+      "EntityUpdate",
+      RGB8(255, 128, 0)}},
   {debug::Topic::kPhysics, {
     "Physics",
     RGB8(255, 64, 255)}},

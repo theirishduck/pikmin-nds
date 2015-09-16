@@ -66,9 +66,11 @@ void MultipassEngine::Update() {
     return;
   }
 
+  debug::StartTopic(Topic::kEntityUpdate);
   for (auto entity : entities_) {
     entity->Update();
   }
+  debug::EndTopic(Topic::kEntityUpdate);
 
   debug::StartTopic(Topic::kPhysics);
   world_.Update();

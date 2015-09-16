@@ -152,7 +152,7 @@ void PikminGame::Step() {
     return;
   }
 
-  debug::StartTopic(debug::Topic::kUpdate);
+  debug::StartTopic(debug::Topic::kAI);
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
     squad_ai::machine.RunLogic((*captain_).squad);
@@ -182,7 +182,7 @@ void PikminGame::Step() {
     }
   }
 
-  debug::EndTopic(debug::Topic::kUpdate);
+  debug::EndTopic(debug::Topic::kAI);
 }
 
 CaptainState* PikminGame::ActiveCaptain() {
