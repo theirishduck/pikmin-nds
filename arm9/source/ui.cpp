@@ -101,7 +101,7 @@ void UpdateMapIcons(UIState& ui) {
         oamSetHidden(&oamSub, slot, true);
       }
     } else {
-      oamSetHidden(&oamSub, slot, false);
+      oamSetHidden(&oamSub, slot, true);
     }
   }
 }
@@ -346,17 +346,17 @@ void ApplyOnionDelta(UIState& ui) {
     while (squad_index < captain->squad.squad_size and ui.pikmin_delta < 0) {
       if (captain->squad.pikmin[squad_index] != nullptr and
           captain->squad.pikmin[squad_index]->type == active_onion->pikmin_type) {
-        captain->squad.pikmin[squad_index]->dead = true; // Goodbye, pikmin!
-        captain->squad.RemovePikmin(captain->squad.pikmin[squad_index]);
-        if (active_onion->pikmin_type == PikminType::kRedPikmin) {
-          ui.game->CurrentSaveData()->red_pikmin++;
-        }
-        if (active_onion->pikmin_type == PikminType::kYellowPikmin) {
-          ui.game->CurrentSaveData()->yellow_pikmin++;
-        }
-        if (active_onion->pikmin_type == PikminType::kBluePikmin) {
-          ui.game->CurrentSaveData()->blue_pikmin++;
-        }
+        auto pikmin = captain->squad.pikmin[squad_index];
+        // Have this pikmin randomly target one of the onion's feet, and
+        // set its collision group accordingly
+        pikmin->entity->body()->sensor_groups = ONION_FEET_GROUP;
+        Vec3 onion_foot_position = captain->active_onion->feet[rand() % 3]->position;
+        pikmin->target = Vec2{onion_foot_position.x, onion_foot_position.z};
+        pikmin->has_target = true;
+
+        // Remove the pikmin from the captain's squad
+        captain->squad.RemovePikmin(pikmin);
+
         ui.pikmin_delta++;
       } else {
         squad_index++;

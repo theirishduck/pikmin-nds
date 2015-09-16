@@ -1,5 +1,6 @@
 #include "pikmin.h"
 #include "captain.h"
+#include "onion.h"
 #include "pikmin_game.h"
 
 #include "dsgx.h"
@@ -246,6 +247,54 @@ void Aim(PikminState& pikmin) {
   pikmin.entity->body()->velocity = Vec3{0_f,0_f,0_f};
 }
 
+bool CollideWithOnionFoot(const PikminState& pikmin) {
+  if (pikmin.entity->body()->result_groups & ONION_FEET_GROUP) {
+    return true;
+  }
+  return false;
+}
+
+void StartClimbingOnion(PikminState& pikmin) {
+  // Grab the onion / foot that we're targeting
+  auto onion_foot = pikmin.entity->body()->FirstCollisionWith(ONION_FEET_GROUP);
+  fixed travel_frames = 90_f;
+  if (onion_foot.body) {
+    auto onion = (onion_ai::OnionState*)onion_foot.body->owner;
+    auto pikmin_body = pikmin.entity->body();
+    pikmin_body->position = onion_foot.body->position;
+    pikmin_body->affected_by_gravity = false;
+    pikmin_body->collision_group = 0;
+    pikmin_body->sensor_groups = 0;
+    pikmin_body->is_movable = 0;
+
+    pikmin.entity->RotateToFace(onion->entity);
+    auto onion_position = onion->entity->body()->position;
+    Vec2 climb_xz = (
+        Vec2{onion_position.x, onion_position.z} -
+        Vec2{pikmin_body->position.x, pikmin_body->position.z}
+      ).Normalize();
+    climb_xz = climb_xz * 9.2_f;
+    pikmin.entity->body()->velocity = Vec3{
+      climb_xz.x / travel_frames,
+      9.1_f / travel_frames,
+      climb_xz.y / travel_frames
+    };
+  }
+}
+
+void EnterOnion(PikminState& pikmin) {
+  pikmin.dead = true; // Goodbye, pikmin!
+  if (pikmin.type == PikminType::kRedPikmin) {
+    pikmin.game->CurrentSaveData()->red_pikmin++;
+  }
+  if (pikmin.type == PikminType::kYellowPikmin) {
+    pikmin.game->CurrentSaveData()->yellow_pikmin++;
+  }
+  if (pikmin.type == PikminType::kBluePikmin) {
+    pikmin.game->CurrentSaveData()->blue_pikmin++;
+  }
+}
+
 namespace PikminNode {
 enum PikminNode {
   kInit = 0,
@@ -256,52 +305,60 @@ enum PikminNode {
   kChasing,
   kStandingAttack,
   kJump,
+  kClimbIntoOnion,
 };
 }
 
 Edge<PikminState> edge_list[] {
-  //Init
+  // Init
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
 
-  //Idle
+  // Idle
   {kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, CollideWithTarget, StoreTargetBody, PikminNode::kChasing},
   {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
 
-  //Grabbed
+  // Grabbed
   {kAlways, LeftParent, nullptr, PikminNode::kThrown},
   {kAlways, nullptr, FollowParent, PikminNode::kGrabbed},  // Loopback
 
-  //Thrown
+  // Thrown
   {kAlways, Landed, StopMoving, PikminNode::kIdle},
 
-  //Targeting
+  // Targeting
+  {kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
   {kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
   {kAlways, nullptr, RunToTarget, PikminNode::kTargeting},  // loopback
 
-  //Chasing (Attack, Work, Carry)
+  // Chasing (Attack, Work, Carry)
   {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
   {kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
 
-  //Standing Attack
+  // Standing Attack
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kFirstFrame, nullptr, Aim, PikminNode::kStandingAttack},
   {kLastFrame, nullptr, DealDamageToTarget, PikminNode::kJump},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
 
-  //Jump
+  // Jump
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kFirstFrame, nullptr, JumpTowardTarget, PikminNode::kJump},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, Landed, StopMoving, PikminNode::kChasing},
   // note: no loopback, as we want motion to be physics driven here
+
+  // ClimbIntoOnion
+  {kLastFrame, nullptr, EnterOnion, PikminNode::kClimbIntoOnion},
+  // Note: while this is technically a loopback, the EnterOnion function
+  // marks the pikmin as dead, removing it from the game. Thus, this state
+  // runs to completion just once.
 
 
   //Latch
@@ -313,11 +370,12 @@ Node node_list[] {
   {"Init", true, 0, 0},
   {"Idle", true, 1, 5, "Armature|Idle", 30},
   {"Grabbed", true, 6, 7, "Armature|Idle", 30},
-  {"Thrown", true, 8, 9, "Armature|Throw", 10},
-  {"Targeting", true, 9, 12, "Armature|Run", 30},
-  {"Chasing", true, 13, 17, "Armature|Run", 30},
-  {"StandingAttack", true, 18, 21, "Armature|StandingAttack", 20},
-  {"Jump", true, 22, 25, "Armature|Idle", 30},
+  {"Thrown", true, 8, 8, "Armature|Throw", 10},
+  {"Targeting", true, 9, 13, "Armature|Run", 30},
+  {"Chasing", true, 14, 18, "Armature|Run", 30},
+  {"StandingAttack", true, 19, 22, "Armature|StandingAttack", 20},
+  {"Jump", true, 23, 26, "Armature|Idle", 30},
+  {"ClimbIntoOnion", true, 27, 27, "Armature|Climb", 90},
 
 };
 
