@@ -87,8 +87,8 @@ void Camera::Update() {
   // Take the weighted average for position and target to take a smooth
   // transition between the old value and the new one.
 
-  current_state_.target = current_state_.target * 0.875_f
-      + target_state_.target * 0.125_f;
+  current_state_.target = current_state_.target * 0.75_f
+      + target_state_.target * 0.25_f;
 
   current_state_.height = current_state_.height * 0.75_f
       + target_state_.height * 0.25_f;
