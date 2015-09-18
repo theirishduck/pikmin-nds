@@ -197,7 +197,7 @@ void JoinSquad(PikminState& pikmin) {
 }
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
-  if (!pikmin.chase_target or !pikmin.chase_target->active) {
+  if (!pikmin.chase_target or !pikmin.chase_target->active or !pikmin.chase_target->owner) {
     return true;
   }
   // TODO: Expand on this a bit more. Identifiers / handles?
@@ -218,7 +218,9 @@ void ChaseTarget(PikminState& pikmin) {
 
 void DealDamageToTarget(PikminState& pikmin) {
   int* target_health = (int*)pikmin.chase_target->owner;
-  *target_health -= 5;
+  if (target_health) {
+    *target_health -= 5;
+  }
 }
 
 void JumpTowardTarget(PikminState& pikmin) {

@@ -10,27 +10,24 @@
 
 #include "multipass_engine.h"
 #include "pikmin_game.h"
-#include "particle.h"
 #include "debug.h"
 
 #include "entities/level.h"
-
-#include "ai/pikmin.h"
 #include "ai/captain.h"
 #include "ai/onion.h"
+#include "ai/fire_spout.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
 
 using entities::Level;
 
-using pikmin_ai::PikminState;
-using pikmin_ai::PikminType;
-
 using captain_ai::CaptainState;
 
 using onion_ai::OnionState;
 using posy_ai::PosyState;
+using pikmin_ai::PikminType;
+using fire_spout_ai::FireSpoutState;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -39,8 +36,6 @@ using numeric_types::fixed;
 using debug::Topic;
 
 using namespace std;
-
-s32 const kTestPikmin{0};
 
 MultipassEngine g_engine;
 PikminGame g_game(g_engine);
@@ -194,27 +189,7 @@ void LoadTextures() {
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
 
-void SetupDemoPikmin() {
-  static std::string pikmin_names[] = {"Pikmin:Red", "Pikmin:Yellow", "Pikmin:Blue"};
-  for (s32 i = 0; i < kTestPikmin; i += 10) {
-    for (s32 j = 0; j < min(kTestPikmin, (s32)10); j++) {
-      //random colors!
-      auto pikmin = g_game.Spawn<PikminState>(pikmin_names[rand() % 3]);
-
-      pikmin->entity->body()->position = {
-        fixed::FromInt(-10 + j * 1 + 64),
-        0_f,
-        fixed::FromInt(-1 - (i * -0.2) - 64)};
-    }
-  }
-}
-
 void SetupDemoStage() {
-  //spawn in test objects
-  /*PelletPosy* posy = new PelletPosy(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
-  g_engine.AddEntity(posy);
-  posy->body()->position = {6.2_f, 0_f, -6.2_f};*/
-
   //load in the test level
   Level* sandbox = new Level(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
   g_engine.AddEntity(sandbox);
@@ -239,6 +214,9 @@ void SetupDemoStage() {
   //auto posy = g_game.SpawnObject<PosyState>();
   auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
   posy->entity->body()->position = Vec3{44_f, 0_f, -72_f};
+
+  auto fire_spout = g_game.Spawn<FireSpoutState>("Hazard:FireSpout");
+  fire_spout->entity->body()->position = Vec3{64_f, 0_f, -64_f};
 }
 
 void InitCaptain() {
@@ -260,7 +238,6 @@ void Init() {
   InitSubScreen();
 
   LoadTextures();
-  SetupDemoPikmin();
   InitCaptain();
   SetupDemoStage();
 
@@ -281,13 +258,6 @@ Vec3 RandomVector() {
 }
 
 void GameLoop() {
-  Particle test_flower;
-  test_flower.texture = g_game.TextureAllocator()->Retrieve("fire.a3i5");
-  test_flower.palette = g_game.TexturePaletteAllocator()->Retrieve("fire.a3i5");
-  test_flower.position = Vec3{64_f, 10_f, -64_f};
-  test_flower.lifespan = 64;
-  test_flower.fade_rate = 1_f / 64_f;
-
   int frame_counter = 0;
   for (;;) {
     frame_counter++;
@@ -296,13 +266,6 @@ void GameLoop() {
 
     //start debug timings for this loop
     debug::StartCpuTimer();
-
-    if ((frame_counter & 0x7) == 0) {
-      Particle* new_particle = SpawnParticle(test_flower);
-      new_particle->velocity = RandomVector() * 0.005_f + Vec3{0_f,0.02_f,0_f};
-    }
-
-    debug::DisplayValue("Particles: ", ActiveParticles());
 
     if (frame_counter % 2 == 0) {
       RunLogic();

@@ -20,6 +20,7 @@ void UpdateParticles() {
         particle.position += particle.velocity;
         particle.velocity += particle.acceleration;
         particle.alpha = particle.alpha - particle.fade_rate;
+        particle.scale = particle.scale + particle.scale_rate;
       }
     }
   }
@@ -30,7 +31,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
   // end up being shared among all particles)
   Brads x_angle;
   Brads y_angle;
-  auto difference_xz = Vec2{camera_position.x, camera_position.z} - 
+  auto difference_xz = Vec2{camera_position.x, camera_position.z} -
       Vec2{target_position.x, target_position.z};
   if (difference_xz.Length2() > 0_f) {
     // Rotate about the Y axis to face the camera
@@ -59,26 +60,25 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         alpha = 31;
       }
       if (alpha > 1) {
-        //glPolyFmt(POLY_ALPHA(alpha) | POLY_CULL_BACK);
         glPolyFmt(POLY_ALPHA(alpha) | POLY_ID(slot) | POLY_CULL_BACK);
         // Note: The OpenGL functions depend on internal state, and using them
         // here would cause a lot of overhead, so we're writing to the
         // registers manually.
         glBegin(GL_QUAD);
         // TEXIMAGE_PARAM
-        *((u32*)0x40004A8) = 
+        *((u32*)0x40004A8) =
           ((((u32)particle.texture.offset) / 8) & 0xFFFF) |
-          (TEXTURE_SIZE_32 << 20) | 
-          (TEXTURE_SIZE_32 << 23) | 
-          (particle.texture.format << 26) | 
+          (TEXTURE_SIZE_32 << 20) |
+          (TEXTURE_SIZE_32 << 23) |
+          (particle.texture.format << 26) |
           (particle.texture.transparency << 29);
 
         // PLTT_BASE
         if (particle.texture.format == GL_RGB4) {
-          *((u32*)0x40004AC) = 
+          *((u32*)0x40004AC) =
             ((u32)particle.palette.offset - (u32)VRAM_G) / 8;
         } else {
-          *((u32*)0x40004AC) = 
+          *((u32*)0x40004AC) =
             ((u32)particle.palette.offset - (u32)VRAM_G) / 16;
         }
 
@@ -87,6 +87,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
           particle.position.z.data_);
         glRotateYi(y_angle.data_);
         glRotateXi(x_angle.data_);
+        glScalef32(particle.scale.data_, particle.scale.data_, particle.scale.data_);
 
         glColor(RGB15(31,31,31));
         glTexCoord2t16(0, 0);

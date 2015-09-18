@@ -7,6 +7,7 @@
 #include "ai/captain.h"
 #include "ai/onion.h"
 #include "ai/pellet_posy.h"
+#include "ai/fire_spout.h"
 #include "ui.h"
 #include <list>
 
@@ -76,6 +77,8 @@ class PikminGame {
   int num_onions_{0};
   std::array<posy_ai::PosyState*, 32> posies_;
   int num_posies_{0};
+  std::array<fire_spout_ai::FireSpoutState*, 32> fire_spouts_;
+  int num_fire_spouts_{0};
 
   captain_ai::CaptainState* captain_;
   ui::UIState ui_;

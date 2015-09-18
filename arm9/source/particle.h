@@ -18,6 +18,9 @@ struct Particle {
 
   numeric_types::fixed alpha{numeric_types::fixed::FromInt(1)};
   numeric_types::fixed fade_rate;
+
+  numeric_types::fixed scale{numeric_types::fixed::FromInt(1)};
+  numeric_types::fixed scale_rate;
 };
 
 void UpdateParticles();

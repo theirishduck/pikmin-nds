@@ -6,6 +6,7 @@ using pikmin_ai::PikminType;
 using captain_ai::CaptainState;
 using onion_ai::OnionState;
 using posy_ai::PosyState;
+using fire_spout_ai::FireSpoutState;
 
 int PikminSave::PikminCount(PikminType type) {
   // Note to self: *Probably* shouldn't do it this way
@@ -60,15 +61,27 @@ PosyState* PikminGame::SpawnObject<PosyState>() {
 
 template<>
 void PikminGame::RemoveObject<PosyState>(PosyState* object) {
-  // similar to cleanup object, again minus the state allocation
-  nocashMessage("Remove Posy Called");
   object->active = false;
   engine.RemoveEntity(object->entity);
-  nocashMessage("Remove Entity succeeded");
   entities_.remove(object->entity);
-  nocashMessage("entities_.remove succeeded");
   delete object->entity;
-  nocashMessage("delete object->entity succeeded!");
+}
+
+template <>
+FireSpoutState* PikminGame::SpawnObject<FireSpoutState>() {
+  if (num_fire_spouts_ < 32) {
+    fire_spouts_[num_fire_spouts_] = InitObject<FireSpoutState>();
+    return fire_spouts_[num_fire_spouts_++];
+  }
+  return nullptr;
+}
+
+template<>
+void PikminGame::RemoveObject<FireSpoutState>(FireSpoutState* object) {
+  object->active = false;
+  engine.RemoveEntity(object->entity);
+  entities_.remove(object->entity);
+  delete object->entity;
 }
 
 template <>
@@ -191,6 +204,15 @@ void PikminGame::Step() {
     }
   }
 
+  for (int f = 0; f < num_fire_spouts_; f++) {
+    if (fire_spouts_[f]->active) {
+      fire_spout_ai::machine.RunLogic(*fire_spouts_[f]);
+      if (fire_spouts_[f]->dead) {
+        RemoveObject<FireSpoutState>(fire_spouts_[f]);
+      }
+    }
+  }
+
   debug::EndTopic(debug::Topic::kAI);
 }
 
@@ -217,7 +239,9 @@ PikminState* PikminGame::Pikmin() {
 }
 
 const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {
-  {"Enemy:PelletPosy", [](PikminGame* game) -> ObjectState* {return game->SpawnObject<PosyState>();}},
+  {"Enemy:PelletPosy", [](PikminGame* game) -> ObjectState* {
+    return game->SpawnObject<PosyState>();
+  }},
   {"Pikmin:Red", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->SpawnObject<PikminState>();
     pikmin->type = PikminType::kRedPikmin;
@@ -247,6 +271,9 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
     auto onion = game->SpawnObject<OnionState>();
     onion->pikmin_type = PikminType::kBluePikmin;
     return onion;
+  }},
+  {"Hazard:FireSpout", [](PikminGame* game) -> ObjectState* {
+    return game->SpawnObject<FireSpoutState>();
   }},
 };
 
