@@ -12,7 +12,10 @@ RUN apt-get update && \
   cmake \
   curl \
   git \
+  libfreetype6 \
   libssl-dev  \
+  libxi6 \
+  libxxf86vm1 \
   zlib1g-dev && \
   rm -rf /var/lib/apt/lists/*
 
@@ -94,6 +97,18 @@ RUN cd /home \
   && python setup.py install \
   && cd /home \
   && rm -rf assimp
+
+# Install Blender, so that it can perform object exports
+# directly as part of the build
+
+RUN curl -O http://download.blender.org/release/Blender2.74/blender-2.74-linux-glibc211-x86_64.tar.bz2 && \
+  tar xf blender-2.74-linux-glibc211-x86_64.tar.bz2 && \
+  mv blender-2.74-linux-glibc211-x86_64 /opt/ && \
+  rm blender-2.74-linux-glibc211-x86_64.tar.bz2 && \
+  echo '/opt/blender-2.74-linux-glibc211-x86_64/lib' > /etc/ld.so.conf.d/blender.conf && \
+  ldconfig
+
+ENV PATH $PATH:/opt/blender-2.74-linux-glibc211-x86_64
 
 # Clone in the dsgx-converter project
 RUN mkdir /opt/dsgx-converter \
