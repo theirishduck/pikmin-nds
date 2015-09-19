@@ -268,6 +268,23 @@ bool key_repeat_active(int frame_timer) {
   return false;
 }
 
+void PauseGame(UIState& ui) {
+  ui.game->PauseGame();
+  // Todo: something fancier later
+  InitDebug(ui);
+  printf("\n\n\n\n\n\n\n\n\n\n\n");
+  printf("          -- PAUSED --");
+}
+
+void UnpauseGame(UIState& ui) {
+  ui.game->UnpauseGame();
+  InitNavPad(ui);
+}
+
+bool PauseButtonPressed(const UIState& ui) {
+  return (keysDown() & KEY_START);
+}
+
 void UpdateOnionUI(UIState& ui) {
   printf("\x1b[2J");
 
@@ -329,12 +346,14 @@ void UpdateOnionUI(UIState& ui) {
 }
 
 bool CloseOnionUI(const UIState& ui) {
+  return (keysDown() & KEY_A);
+}
+
+bool CancelOnionUI(const UIState& ui) {
   return (keysDown() & KEY_B);
 }
 
 void ApplyOnionDelta(UIState& ui) {
-  ui.game->UnpauseGame();
-
   if (ui.pikmin_delta > 0) {
     ui.game->ActiveCaptain()->active_onion->withdraw_count = ui.pikmin_delta;
   }
@@ -363,23 +382,8 @@ void ApplyOnionDelta(UIState& ui) {
       }
     }
   }
-}
 
-void PauseGame(UIState& ui) {
-  ui.game->PauseGame();
-  // Todo: something fancier later
-  InitDebug(ui);
-  printf("\n\n\n\n\n\n\n\n\n\n\n");
-  printf("          -- PAUSED --");
-}
-
-void UnpauseGame(UIState& ui) {
-  ui.game->UnpauseGame();
-  InitNavPad(ui);
-}
-
-bool PauseButtonPressed(const UIState& ui) {
-  return (keysDown() & KEY_START);
+  UnpauseGame(ui);
 }
 
 void UpdateDebugValues(UIState& ui) {
@@ -441,6 +445,7 @@ Edge<UIState> nav_pad[] = {
 
 Edge<UIState> onion_ui[] = {
   Edge<UIState>{kAlways, CloseOnionUI, ApplyOnionDelta, UINode::kOnionClosing},
+  Edge<UIState>{kAlways, CancelOnionUI, UnpauseGame, UINode::kOnionClosing},
   Edge<UIState>{kAlways, nullptr, UpdateOnionUI, UINode::kOnionUI},
   END_OF_EDGES(UIState)
 };
