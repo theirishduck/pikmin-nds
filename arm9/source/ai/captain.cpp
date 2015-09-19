@@ -123,7 +123,7 @@ void MoveCaptain(CaptainState& captain) {
   auto engine = captain.entity->engine();
   Brads dpad_angle = engine->CameraAngle() + engine->DPadDirection() - 90_brad;
   captain.current_angle = dpad_angle;
-  captain.entity->RotateToFace(captain.current_angle, 10_brad);
+  captain.entity->RotateToFace(captain.current_angle, 20_brad);
 
   // Apply velocity in the direction of the current angle.
   auto body = captain.entity->body();
