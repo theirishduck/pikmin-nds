@@ -318,7 +318,7 @@ void UpdateOnionUI(UIState& ui) {
       if ((keysHeld() & KEY_UP) and pikmin_in_squad + ui.pikmin_delta > 0) {
         ui.pikmin_delta--;
       }
-      if ((keysHeld() & KEY_DOWN) and pikmin_in_onion - ui.pikmin_delta > 0 and ui.game->PikminInField() + ui.pikmin_delta <= 100) {
+      if ((keysHeld() & KEY_DOWN) and pikmin_in_onion - ui.pikmin_delta > 0 and ui.game->PikminInField() + ui.pikmin_delta < 100) {
         ui.pikmin_delta++;
       }
     }
