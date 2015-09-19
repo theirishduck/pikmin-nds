@@ -22,7 +22,7 @@ void InitAlways(FireSpoutState& fire_spout) {
   fire_spout_actor.ApplyTextures(fire_spout.game->TextureAllocator(), fire_spout.game->TexturePaletteAllocator());
 
   // Set our initial timer to something appropriate
-  fire_spout.flame_timer = (rand() % 16) + 112;
+  fire_spout.flame_timer = (rand() % 128);
 
   // Setup our static physics properties
   fire_spout.entity->body()->collision_group = ATTACK_GROUP;
@@ -72,21 +72,20 @@ Vec3 FireSpread() {
 }
 
 void SpawnFireParticle(FireSpoutState& fire_spout) {
-  if ((fire_spout.frames_at_this_node & 0x3) == 0 or
-      (fire_spout.frames_at_this_node & 0x3) == 1) {
+  if ((fire_spout.frames_at_this_node & 0x1) == 0) {
     Particle fire_particle;
     fire_particle.texture = fire_spout.game->TextureAllocator()->Retrieve("fire.a3i5");
     fire_particle.palette = fire_spout.game->TexturePaletteAllocator()->Retrieve("fire.a3i5");
     fire_particle.position = fire_spout.entity->body()->position;
-    fire_particle.position.y += 2_f;
-    fire_particle.lifespan = 32;
+    fire_particle.position.y += 0.5_f;
+    fire_particle.lifespan = 16;
     fire_particle.fade_rate = 1_f / 32_f;
-    fire_particle.scale = 2_f;
-    fire_particle.scale_rate = 0.02_f;
+    fire_particle.scale = 2.0_f;
+    fire_particle.scale_rate = 0.08_f;
 
     Particle* new_particle = SpawnParticle(fire_particle);
-    new_particle->velocity = FireSpread() * 0.04_f;
-    new_particle->velocity.y += 0.1_f;
+    new_particle->velocity = FireSpread() * 0.06_f;
+    new_particle->velocity.y += 0.5_f;
     new_particle->acceleration = Vec3{0_f,0.005_f,0_f};
   }
 }
