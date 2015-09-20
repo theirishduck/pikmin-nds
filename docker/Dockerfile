@@ -100,13 +100,19 @@ RUN cd /home \
 
 # Install Blender, so that it can perform object exports
 # directly as part of the build
-
 RUN curl -O http://download.blender.org/release/Blender2.74/blender-2.74-linux-glibc211-x86_64.tar.bz2 && \
   tar xf blender-2.74-linux-glibc211-x86_64.tar.bz2 && \
   mv blender-2.74-linux-glibc211-x86_64 /opt/ && \
   rm blender-2.74-linux-glibc211-x86_64.tar.bz2 && \
   echo '/opt/blender-2.74-linux-glibc211-x86_64/lib' > /etc/ld.so.conf.d/blender.conf && \
   ldconfig
+
+# Patch the FBX exporter for Blender so it doesn't print out
+# tons of false positive error messages.
+# From https://developer.blender.org/rBA94abe3b97f5c0b1afaa084dc8918464d27689b88
+ADD dupli_error.patch /dupli_error.patch
+RUN patch -d /opt/blender-2.74-linux-glibc211-x86_64/2.74/scripts/addons/io_scene_fbx < /dupli_error.patch && \
+  rm /dupli_error.patch
 
 ENV PATH $PATH:/opt/blender-2.74-linux-glibc211-x86_64
 
