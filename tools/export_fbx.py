@@ -37,7 +37,6 @@ def adjust_argv(args):
     return args[args.index('--') + 1:] if '--' in args else []
 
 def parse_args(raw_args):
-    print (raw_args)
     if '--help' in raw_args:
         print_usage(sys.stdout, 0)
 
