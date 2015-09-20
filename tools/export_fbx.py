@@ -34,11 +34,10 @@ def main():
     export_fbx(args['<blend_file>'], output_filename, select=args['--select'])
 
 def adjust_argv(args):
-    if '--' not in args:
-        return []
     return args[args.index('--') + 1:] if '--' in args else []
 
 def parse_args(raw_args):
+    print (raw_args)
     if '--help' in raw_args:
         print_usage(sys.stdout, 0)
 
