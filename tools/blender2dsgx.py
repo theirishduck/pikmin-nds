@@ -70,8 +70,9 @@ def import_blendfile(filename):
         sys.exit(PROCESSING_ERROR)
 
     for blend_object in bpy.data.objects:
-        if blend_object.type == "MESH":
-            import_mesh(output_model, blend_object.name, blend_object.data)
+        if blend_object.hide_render == False:
+            if blend_object.type == "MESH":
+                import_mesh(output_model, blend_object.name, blend_object.data)
 
     for material in bpy.data.materials:
         print("Adding material: ", material.name)
