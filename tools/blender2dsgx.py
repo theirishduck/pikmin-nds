@@ -23,7 +23,7 @@ from model import dsgx, model
 from docopt import docopt
 import euclid3 as euclid
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
 
 try:
@@ -71,30 +71,43 @@ def import_blendfile(filename):
 
     for blend_object in bpy.data.objects:
         if blend_object.type == "MESH":
-            print("Processing mesh: ", blend_object.name)
-            output_model.addMesh(blend_object.name)
-            output_mesh = output_model.ActiveMesh()
-            blender_mesh = blend_object.data
-            for vertex in blender_mesh.vertices:
-                output_mesh.addVertex(euclid.Vector3(
-                    vertex.co.x,
-                    vertex.co.z,
-                    vertex.co.y * -1
-                ))
-            for polygon in blender_mesh.polygons:
-                uvlist = None
-                # Here we need to specify normals per-polygon, as opposed
-                # to per-vertex.
-                normals = [
-                    blender_mesh.vertices[polygon.vertices[0]].normal,
-                    blender_mesh.vertices[polygon.vertices[1]].normal,
-                    blender_mesh.vertices[polygon.vertices[2]].normal
-                ]
-                material = None
-                # material = bpy.data.materials[polygon.material_index].name
-                output_mesh.addPolygon(polygon.vertices, uvlist, normals, material)
+            import_mesh(output_model, blend_object.name, blend_object.data)
+
+    for material in bpy.data.materials:
+        print("Adding material: ", material.name)
+        scene_ambient = [0.25, 0.25, 0.25]
+        ambient = [
+            material.ambient * scene_ambient[0],
+            material.ambient * scene_ambient[1],
+            material.ambient * scene_ambient[2]
+        ]
+        output_model.addMaterial(material.name, ambient, material.specular_color,
+            material.diffuse_color)
 
     return output_model
+
+def import_mesh(output_model, mesh_name, blender_mesh):
+    print("Processing mesh: ", mesh_name)
+    output_model.addMesh(mesh_name)
+    output_mesh = output_model.ActiveMesh()
+    for vertex in blender_mesh.vertices:
+        output_mesh.addVertex(euclid.Vector3(
+            vertex.co.x,
+            vertex.co.z,
+            vertex.co.y * -1
+        ))
+    for polygon in blender_mesh.polygons:
+        uvlist = None
+        # Here we need to specify normals per-polygon, as opposed
+        # to per-vertex.
+        normals = [
+            blender_mesh.vertices[polygon.vertices[0]].normal,
+            blender_mesh.vertices[polygon.vertices[1]].normal,
+            blender_mesh.vertices[polygon.vertices[2]].normal
+        ]
+        # material = None
+        material = blender_mesh.materials[polygon.material_index].name
+        output_mesh.addPolygon(polygon.vertices, uvlist, normals, material)
 
 def export_dsgx(model, output_filename, vtx10):
     print("EXPORT BLENDFILE HERE")
