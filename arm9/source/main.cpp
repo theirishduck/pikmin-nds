@@ -20,6 +20,10 @@
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
 
+// Test Static Objects
+#include "lighting_test_candy_dsgx.h"
+Dsgx lighting_test_candy((u32*)lighting_test_candy_dsgx, lighting_test_candy_dsgx_size);
+
 using entities::Level;
 
 using captain_ai::CaptainState;
@@ -64,17 +68,24 @@ void InitSubScreen() {
 void InitMainScreen() {
   videoSetMode(MODE_0_3D);
   glInit();
-  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE);
+  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE | GL_TOON_HIGHLIGHT);
 
   glClearColor(4, 4, 4, 31);
   glClearDepth(0x7FFF);
   glViewport(0, 0, 255, 191);
 
+  Vec3 light0_direction = Vec3{4_f, -2.2_f, -6.7_f}.Normalize() * 0.99_f;
+
   // Setup default lights; these will be overridden in the main engine.
-  glLight(0, RGB15(31, 31, 31), floattov10(-0.40), floattov10(0.32),
-      floattov10(0.27));
-  glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(0.32),
-      floattov10(0.32));
+  glLight(0, RGB15(31, 31, 31),
+    floattov10((float)light0_direction.x),
+    floattov10((float)light0_direction.y),
+    floattov10((float)light0_direction.z));
+  /*glLight(1, RGB15(31, 31, 31), floattov10(0.32), floattov10(-0.32),
+      floattov10(-0.32));*/
+
+    //ds uses a table for shinyness..this generates a half-ass one
+  	glMaterialShinyness();
 }
 
 vector<string> FilesInDirectory(string path) {
@@ -216,6 +227,10 @@ void SetupDemoStage() {
 
   auto fire_spout = g_game.Spawn<FireSpoutState>("Hazard:FireSpout");
   fire_spout->entity->body()->position = Vec3{64_f, 0_f, -64_f};
+
+  auto test_candy = g_game.Spawn("Static");
+  test_candy->entity->set_actor(&lighting_test_candy);
+  test_candy->entity->body()->position = Vec3{64_f, 0_f, -64_f};
 }
 
 void InitCaptain() {

@@ -7,6 +7,7 @@ using captain_ai::CaptainState;
 using onion_ai::OnionState;
 using posy_ai::PosyState;
 using fire_spout_ai::FireSpoutState;
+using static_ai::StaticState;
 
 int PikminSave::PikminCount(PikminType type) {
   // Note to self: *Probably* shouldn't do it this way
@@ -62,6 +63,22 @@ PosyState* PikminGame::SpawnObject<PosyState>() {
 template<>
 void PikminGame::RemoveObject<PosyState>(PosyState* object) {
   object->active = false;
+  engine.RemoveEntity(object->entity);
+  entities_.remove(object->entity);
+  delete object->entity;
+}
+
+template <>
+StaticState* PikminGame::SpawnObject<StaticState>() {
+  if (num_statics_ < 32) {
+    statics_[num_statics_] = InitObject<StaticState>();
+    return statics_[num_statics_++];
+  }
+  return nullptr;
+}
+
+template<>
+void PikminGame::RemoveObject<StaticState>(StaticState* object) {
   engine.RemoveEntity(object->entity);
   entities_.remove(object->entity);
   delete object->entity;
@@ -274,6 +291,9 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
   }},
   {"Hazard:FireSpout", [](PikminGame* game) -> ObjectState* {
     return game->SpawnObject<FireSpoutState>();
+  }},
+  {"Static", [](PikminGame* game) -> ObjectState* {
+    return game->SpawnObject<StaticState>();
   }},
 };
 

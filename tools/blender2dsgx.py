@@ -93,7 +93,7 @@ def import_blendfile(filename):
 
 def import_material(output_model, material_name, blender_material):
     print("Adding material: ", material_name)
-    scene_ambient = [0.25, 0.25, 0.25]
+    scene_ambient = bpy.data.worlds[0].ambient_color
     ambient = [
         blender_material.ambient * scene_ambient[0],
         blender_material.ambient * scene_ambient[1],
@@ -101,6 +101,7 @@ def import_material(output_model, material_name, blender_material):
     ]
     diffuse = blender_material.diffuse_color * blender_material.diffuse_intensity
     specular = blender_material.specular_color * blender_material.specular_intensity
+    emit = blender_material.diffuse_color * blender_material.emit
 
     texture = None
     texture_width = 0
@@ -114,7 +115,7 @@ def import_material(output_model, material_name, blender_material):
             texture_width = blender_texture.image.size[0]
             texture_height = blender_texture.image.size[1]
 
-    output_model.addMaterial(material_name, ambient, specular, diffuse,
+    output_model.addMaterial(material_name, ambient, specular, diffuse, emit,
             texture, texture_width, texture_height)
 
 def import_mesh(output_model, mesh_name, blender_object):
@@ -136,7 +137,7 @@ def import_mesh(output_model, mesh_name, blender_object):
             uvlist = [uv_data[polygon.loop_start + i].uv for i in range(0, polygon.loop_total)]
         # Here we need to specify normals per-polygon, as opposed
         # to per-vertex.
-        normals = [blender_mesh.vertices[vertex].normal for vertex in polygon.vertices]
+        normals = [blender_mesh.vertices[vertex].normal.normalized() * 0.1 for vertex in polygon.vertices]
         material = blender_mesh.materials[polygon.material_index].name
         output_mesh.addPolygon(polygon.vertices, uvlist, normals, material)
 
