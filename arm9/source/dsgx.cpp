@@ -12,18 +12,20 @@ using nt::literals::operator"" _f;
 constexpr u32 kChunkHeaderSizeWords{2};
 
 Dsgx::Dsgx(u32* data, const u32 length):
-    model_data_{nullptr},
-    bounding_center_{0_f, 0_f, 0_f},
-    bounding_radius_{0_f},
-    draw_cost_{0},
-    bones_{},
-    textures_{},
+    meshes_{},
     animations_{} {
   u32 seek = 0;
   // printf("length of Dsgx: %u\n", length);
   while (seek < (length >> 2)) {
     int const chunk_size = ProcessChunk(&data[seek]);
     seek += chunk_size;
+  }
+
+  // Print out a crapton of debug info
+  nocashMessage("==DSGX Data== ");
+  debug::nocashValue("Number of meshes", meshes_.size());
+  for (auto mesh : meshes_) {
+    debug::nocashValue("-- Mesh: " + mesh.first, " --");
   }
 }
 
@@ -50,29 +52,43 @@ u32 Dsgx::ProcessChunk(u32* location) {
   if (strncmp(header, "TXTR", 4) == 0) {
     TextureChunk(data);
   }
+
   // Return the size of this chunk so the reader can skip to the next chunk.
   return chunk_length + kChunkHeaderSizeWords;
 }
 
 void Dsgx::DsgxChunk(u32* data) {
-  model_data_ = data;
+  char* mesh_name = (char*)data;
+  meshes_.emplace(mesh_name, Mesh());
+  data += 8;  // Skip past the name
+  meshes_[mesh_name].model_data = data;
 }
 
-void Dsgx::BoundingSphereChunk(void* data) {
-  bounding_center_.x.data_ = reinterpret_cast<s32*>(data)[0];
-  bounding_center_.y.data_ = reinterpret_cast<s32*>(data)[1];
-  bounding_center_.z.data_ = reinterpret_cast<s32*>(data)[2];
-  bounding_radius_.data_   = reinterpret_cast<s32*>(data)[3];
+void Dsgx::BoundingSphereChunk(u32* data) {
+  char* mesh_name = (char*)data;
+  meshes_.emplace(mesh_name, Mesh());
+  data += 8;  // Skip past the name
+
+  meshes_[mesh_name].bounding_center.x.data_ = reinterpret_cast<s32*>(data)[0];
+  meshes_[mesh_name].bounding_center.y.data_ = reinterpret_cast<s32*>(data)[1];
+  meshes_[mesh_name].bounding_center.z.data_ = reinterpret_cast<s32*>(data)[2];
+  meshes_[mesh_name].bounding_radius.data_   = reinterpret_cast<s32*>(data)[3];
 }
 
 void Dsgx::CostChunk(u32* data) {
-  draw_cost_ = data[0];
+  char* mesh_name = (char*)data;
+  meshes_.emplace(mesh_name, Mesh());
+  data += 8;  // Skip past the name
+
+  meshes_[mesh_name].draw_cost = data[0];
 }
 
 void Dsgx::BoneChunk(u32* data) {
+  char* mesh_name = (char*)data;
+  meshes_.emplace(mesh_name, Mesh());
+  data += 8;  // Skip past the name
+
   u32 num_bones = *data;
-  // printf("Num bones: %u\n", num_bones);
-  // while(true){}
   data++;
   for (u32 i = 0; i < num_bones; i++) {
     Bone bone;
@@ -82,14 +98,14 @@ void Dsgx::BoneChunk(u32* data) {
     bone.num_offsets = *data;
     data++;
 
-    // printf("bone offsets: %u\n", bone.num_offsets);
+    nocashMessage(bone.name);
+    debug::nocashNumber(bone.num_offsets);
 
     bone.offsets = data;
     data += bone.num_offsets;
 
-    bones_.push_back(bone);
+    meshes_[mesh_name].bones.push_back(bone);
   }
-  // while(true){}
 }
 
 // BANI is short for Baked ANImation.
@@ -106,6 +122,10 @@ void Dsgx::BaniChunk(u32* data) {
 }
 
 void Dsgx::TextureChunk(u32* data) {
+  char* mesh_name = (char*)data;
+  meshes_.emplace(mesh_name, Mesh());
+  data += 8;  // Skip past the name
+
   u32 num_textures = *data;
   data++;
   nocashMessage("Loading Textures...");
@@ -121,30 +141,21 @@ void Dsgx::TextureChunk(u32* data) {
     texture.offsets = data;
     data += texture.num_offsets;
 
-    textures_.push_back(texture);
+    meshes_[mesh_name].textures.push_back(texture);
 
     nocashMessage(texture.name);
   }
 }
 
-u32* Dsgx::DrawList() {
-  return model_data_;
+Mesh* Dsgx::MeshByName(const char* mesh_name) {
+  if (meshes_.count(mesh_name) > 0) {
+    return &meshes_[mesh_name];
+  }
+  return nullptr;
 }
 
-Vec3& Dsgx::Center() {
-  return bounding_center_;
-}
-
-void Dsgx::SetCenter(Vec3 center) {
-  bounding_center_ = center;
-}
-
-nt::Fixed<s32, 12> Dsgx::Radius() {
-  return bounding_radius_;
-}
-
-u32 Dsgx::DrawCost() {
-  return draw_cost_;
+Mesh* Dsgx::DefaultMesh() {
+  return &meshes_.begin()->second;
 }
 
 Animation* Dsgx::GetAnimation(string name) {
@@ -156,10 +167,10 @@ Animation* Dsgx::GetAnimation(string name) {
   return &animations_[name];
 }
 
-void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
-  auto destination = model_data_ + 1;
-  m4x4 const* current_matrix = animation->transforms + bones_.size() * frame;
-  for (auto bone = bones_.begin(); bone != bones_.end(); bone++) {
+void Dsgx::ApplyAnimation(Animation* animation, u32 frame, Mesh* mesh) {
+  auto destination = mesh->model_data + 1;
+  m4x4 const* current_matrix = animation->transforms + mesh->bones.size() * frame;
+  for (auto bone = mesh->bones.begin(); bone != mesh->bones.end(); bone++) {
     for (u32 i = 0; i < bone->num_offsets; i++) {
       *((m4x4*)(destination + bone->offsets[i])) = *current_matrix;
     }
@@ -168,42 +179,45 @@ void Dsgx::ApplyAnimation(Animation* animation, u32 frame) {
 }
 
 void Dsgx::ApplyTextures(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator) {
-  // go through this object's textures and write in the correct offsets
-  // into VRAM, based on where they got loaded
-  auto destination = model_data_ + 1;
-  for (auto texture = textures_.begin(); texture != textures_.end(); texture++) {
-    auto loaded_texture = texture_allocator->Retrieve(texture->name);
-    // First, write the offset to actual TEXEL data; we always need to do this
-    u32 location = (u32)loaded_texture.offset;
-    location /= 8;
-    for (u32 i = 0; i < texture->num_offsets; i++) {
-      //set the texture offset
-      u32 const kTextureOffsetMask = 0x0000FFFF;
-      destination[texture->offsets[i]] =
-        (destination[texture->offsets[i]] & ~kTextureOffsetMask) | (location & kTextureOffsetMask);
-
-      //set the format (warning: funky hex binary logic here)
-      u32 const kTextureFormatMask = 0x3C000000;
-      destination[texture->offsets[i]] =
-        (destination[texture->offsets[i]] & ~kTextureFormatMask) |
-        ((loaded_texture.format << 26 | loaded_texture.transparency << 29) & kTextureFormatMask);
-    }
-    // If this is any texture format other than Direct Texture, then we need to
-    // also write in the PALETTE BASE data; this is a little funky
-    if (loaded_texture.format != GL_RGBA) {
-      auto loaded_palette = palette_allocator->Retrieve(texture->name);
-      u32 palette_location = (u32)loaded_palette.offset - (u32)palette_allocator->Base();
-      // if this is a 4bpp texture (format 2) we use 8-byte offsets
-      // otherwise we use 16 byte offsets
-      if (loaded_texture.format == GL_RGB4) {
-        palette_location /= 8;
-      } else {
-        palette_location /= 16;
-      }
+  for (auto& m : meshes_) {
+    Mesh* mesh = &m.second;
+    // go through this object's textures and write in the correct offsets
+    // into VRAM, based on where they got loaded
+    auto destination = mesh->model_data + 1;
+    for (auto texture = mesh->textures.begin(); texture != mesh->textures.end(); texture++) {
+      auto loaded_texture = texture_allocator->Retrieve(texture->name);
+      // First, write the offset to actual TEXEL data; we always need to do this
+      u32 location = (u32)loaded_texture.offset;
+      location /= 8;
       for (u32 i = 0; i < texture->num_offsets; i++) {
-        // The +2 skips command and parameters; PLTT_BASE is always stored
-        // immediately after TEXIMAGE_PARAM, and we don't use packed commands.
-        destination[texture->offsets[i] + 2] = palette_location;
+        //set the texture offset
+        u32 const kTextureOffsetMask = 0x0000FFFF;
+        destination[texture->offsets[i]] =
+          (destination[texture->offsets[i]] & ~kTextureOffsetMask) | (location & kTextureOffsetMask);
+
+        //set the format (warning: funky hex binary logic here)
+        u32 const kTextureFormatMask = 0x3C000000;
+        destination[texture->offsets[i]] =
+          (destination[texture->offsets[i]] & ~kTextureFormatMask) |
+          ((loaded_texture.format << 26 | loaded_texture.transparency << 29) & kTextureFormatMask);
+      }
+      // If this is any texture format other than Direct Texture, then we need to
+      // also write in the PALETTE BASE data; this is a little funky
+      if (loaded_texture.format != GL_RGBA) {
+        auto loaded_palette = palette_allocator->Retrieve(texture->name);
+        u32 palette_location = (u32)loaded_palette.offset - (u32)palette_allocator->Base();
+        // if this is a 4bpp texture (format 2) we use 8-byte offsets
+        // otherwise we use 16 byte offsets
+        if (loaded_texture.format == GL_RGB4) {
+          palette_location /= 8;
+        } else {
+          palette_location /= 16;
+        }
+        for (u32 i = 0; i < texture->num_offsets; i++) {
+          // The +2 skips command and parameters; PLTT_BASE is always stored
+          // immediately after TEXIMAGE_PARAM, and we don't use packed commands.
+          destination[texture->offsets[i] + 2] = palette_location;
+        }
       }
     }
   }

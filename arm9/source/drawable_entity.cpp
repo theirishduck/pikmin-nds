@@ -104,10 +104,19 @@ void DrawableEntity::SetCache() {
 
 void DrawableEntity::set_actor(Dsgx* actor) {
   current_.actor = actor;
+  current_.current_mesh = actor->DefaultMesh();
 }
 
 Dsgx* DrawableEntity::actor() {
   return current_.actor;
+}
+
+void DrawableEntity::set_mesh(const char* mesh_name) {
+  current_.current_mesh = current_.actor->MeshByName(mesh_name);
+}
+
+Mesh* DrawableEntity::mesh() {
+  return current_.current_mesh;
 }
 
 void DrawableEntity::set_engine(MultipassEngine* engine) {
@@ -157,18 +166,18 @@ void DrawableEntity::ApplyTransformation() {
 }
 
 void DrawableEntity::Draw() {
-  if (cached_.actor == nullptr) {
+  if (cached_.actor == nullptr or cached_.current_mesh == nullptr) {
     return;
   }
   ApplyTransformation();
 
   // Apply animation.
   if (cached_.animation) {
-    cached_.actor->ApplyAnimation(cached_.animation, cached_.animation_frame);
+    cached_.actor->ApplyAnimation(cached_.animation, cached_.animation_frame, cached_.current_mesh);
   }
 
   // Draw the object using display lists.
-  glCallList(cached_.actor->DrawList());
+  glCallList(cached_.current_mesh->model_data);
 
 }
 
@@ -190,7 +199,8 @@ bool DrawableEntity::InsideViewFrustrum() {
   // Determine if this object is in the view frustrum using a BOX_TEST
   glPushMatrix();
   ApplyTransformation();
-  glScalef32(cached_.actor->Radius().data_, cached_.actor->Radius().data_, cached_.actor->Radius().data_);
+  auto radius = cached_.current_mesh->bounding_radius;
+  glScalef32(radius.data_, radius.data_, radius.data_);
 
   bool result = BoxTest(
       (-1_f).data_,
@@ -212,7 +222,7 @@ numeric_types::fixed DrawableEntity::GetRealModelZ() {
   ApplyTransformation();
 
   // Perform a hardware position test on the center of the model.
-  Vec3& center = cached_.actor->Center();
+  Vec3& center = cached_.current_mesh->bounding_center;
   PosTest(center.x.data_, center.y.data_, center.z.data_);
   numeric_types::fixed result;
   result.data_ = PosTestZresult();

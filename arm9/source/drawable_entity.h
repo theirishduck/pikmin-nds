@@ -20,6 +20,7 @@ struct DrawState {
 
   // TODO(Nick) try making this reference an animation state instead.
   Dsgx* actor{nullptr};
+  Mesh* current_mesh;
   Animation* animation{0};
   u32 animation_frame{0};
 };
@@ -55,6 +56,8 @@ class DrawableEntity {
 
   void set_actor(Dsgx* actor);
   Dsgx* actor();
+  void set_mesh(const char* mesh_name);
+  Mesh* mesh();
 
   physics::Body* body();
 

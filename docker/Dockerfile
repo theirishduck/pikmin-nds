@@ -7,7 +7,7 @@ FROM cromo/devkitarm
 
 # Install tools we'll use for the python build
 RUN apt-get update && \
-  apt-get -y install \ 
+  apt-get -y install \
   build-essential \
   cmake \
   curl \
@@ -120,7 +120,7 @@ ENV PATH $PATH:/opt/blender-2.74-linux-glibc211-x86_64
 RUN mkdir /opt/dsgx-converter \
   && git clone --depth=1 https://github.com/zeta0134/dsgx-converter.git /opt/dsgx-converter \
   && cd /opt/dsgx-converter \
-  && git reset --hard 6884d351ce23f0776cef54dc093bf2883319dde0 \
+  && git reset --hard 88c8dfb61328a00e253df466356fd9c69baad4d1 \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
 

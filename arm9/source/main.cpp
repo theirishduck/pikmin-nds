@@ -210,7 +210,6 @@ void SetupDemoStage() {
   blue_onion->entity->body()->position = Vec3{64_f, 0_f, -96_f};
   blue_onion->pikmin_type = PikminType::kBluePikmin;
 
-
   //auto posy = g_game.SpawnObject<PosyState>();
   auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
   posy->entity->body()->position = Vec3{44_f, 0_f, -72_f};
@@ -223,7 +222,6 @@ void InitCaptain() {
   CaptainState* captain = g_game.SpawnObject<CaptainState>();
   g_engine.camera()->FollowCaptain(captain);
   captain->entity->body()->position = Vec3{64_f,0_f,-62_f};
-
 }
 
 void Init() {

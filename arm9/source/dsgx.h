@@ -28,6 +28,18 @@ struct TextureParam {
   u32* offsets;
 };
 
+struct Mesh {
+  template <typename FixedT, int FixedF>
+  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+  u32* model_data{nullptr};
+  Vec3 bounding_center;
+  Fixed<s32, 12> bounding_radius;
+  u32 draw_cost{0};
+
+  std::vector<Bone> bones;
+  std::vector<TextureParam> textures;
+};
+
 // Represents the contents of a .dsgx file.
 // Dsgx parses .dsgx contents and provides accessors for its content.
 class Dsgx {
@@ -37,36 +49,24 @@ class Dsgx {
 
   Dsgx(u32* data, const u32 length);
 
-  u32* DrawList();
-  Vec3& Center();
-  void SetCenter(Vec3 center);
-  Fixed<s32, 12> Radius();
-
-  u32 DrawCost();
+  Mesh* MeshByName(const char* mesh_name);
+  Mesh* DefaultMesh();
 
   Animation* GetAnimation(std::string name);
-  void ApplyAnimation(Animation* animation, u32 frame);
+  void ApplyAnimation(Animation* animation, u32 frame, Mesh* mesh);
 
   void ApplyTextures(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator);
 
 private:
   u32 ProcessChunk(u32* location);
   void DsgxChunk(u32* data);
-  void BoundingSphereChunk(void* data);
+  void BoundingSphereChunk(u32* data);
   void CostChunk(u32* data);
   void BoneChunk(u32* data);
   void BaniChunk(u32* data);
   void TextureChunk(u32* data);
 
-  u32* model_data_;
-
-  Vec3 bounding_center_;
-  Fixed<s32, 12> bounding_radius_;
-
-  u32 draw_cost_;
-
-  std::vector<Bone> bones_;
-  std::vector<TextureParam> textures_;
+  std::map<std::string, Mesh> meshes_;
   std::map<std::string, Animation> animations_;
 };
 

@@ -14,7 +14,6 @@
 
 #include "particle.h"
 
-using namespace std;
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
@@ -187,8 +186,8 @@ void MultipassEngine::GatherDrawList() {
       container.entity = entity;
       fixed object_z = entity->GetRealModelZ();
       if (entity->important) {
-        container.far_z  = object_z + state.actor->Radius();
-        container.near_z = object_z - state.actor->Radius();
+        container.far_z  = object_z + state.current_mesh->bounding_radius;
+        container.near_z = object_z - state.current_mesh->bounding_radius;
       } else {
         container.far_z  = object_z;
         container.near_z = object_z;
@@ -337,7 +336,7 @@ void MultipassEngine::GatherPassList() {
   // int overlaps_count = overlap_list_.size();
   for (auto entity : overlap_list_) {
     pass_list_.push_back(entity);
-    polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
+    polycount += pass_list_.back().entity->GetCachedState().current_mesh->draw_cost;
   }
   if (polycount >= MAX_POLYGONS_PER_PASS) {
     // attempt to recover here; *drop* the overlap list, and rebuild it only
@@ -349,7 +348,7 @@ void MultipassEngine::GatherPassList() {
     for (auto entity : overlap_list_) {
       if (entity.entity->important) {
         pass_list_.push_back(entity);
-        polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
+        polycount += pass_list_.back().entity->GetCachedState().current_mesh->draw_cost;
       }
     }
   }
@@ -362,7 +361,7 @@ void MultipassEngine::GatherPassList() {
   // quota is hit, whichever comes first.
   while (not draw_list_.empty() and polycount < MAX_POLYGONS_PER_PASS and objects_this_pass < MAX_OBJECTS_PER_PASS) {
     pass_list_.push_back(draw_list_.top());
-    polycount += pass_list_.back().entity->GetCachedState().actor->DrawCost();
+    polycount += pass_list_.back().entity->GetCachedState().current_mesh->draw_cost;
     draw_list_.pop();
     objects_this_pass++;
   }

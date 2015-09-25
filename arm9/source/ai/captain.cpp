@@ -8,7 +8,6 @@
 #include "ai/onion.h"
 
 // Model data
-//#include "olimar_dsgx.h"
 #include "olimar_low_poly_dsgx.h"
 #include "cursor_dsgx.h"
 #include "whistle_dsgx.h"
@@ -60,6 +59,7 @@ void HandleWhistle(CaptainState& captain) {
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
   captain.entity->set_actor(&olimar_low_poly_actor);
+  captain.entity->set_mesh("LowPolyOlimar");
 
   //setup physics parameters for collision
   auto body = captain.entity->body();

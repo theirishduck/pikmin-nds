@@ -5,9 +5,7 @@
 
 #include "dsgx.h"
 #include "multipass_engine.h"
-#include "red_pikmin_dsgx.h"
-#include "yellow_pikmin_dsgx.h"
-#include "blue_pikmin_dsgx.h"
+#include "pikmin_dsgx.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -19,24 +17,25 @@ namespace pikmin_ai {
 const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
-Dsgx red_pikmin_actor((u32*)red_pikmin_dsgx, red_pikmin_dsgx_size);
-Dsgx yellow_pikmin_actor((u32*)yellow_pikmin_dsgx, yellow_pikmin_dsgx_size);
-Dsgx blue_pikmin_actor((u32*)blue_pikmin_dsgx, blue_pikmin_dsgx_size);
+Dsgx pikmin_actor((u32*)pikmin_dsgx, pikmin_dsgx_size);
 
 void InitAlways(PikminState& pikmin) {
   switch (pikmin.type) {
     case PikminType::kNone:
     case PikminType::kRedPikmin:
-      pikmin.entity->set_actor(&red_pikmin_actor);
-      red_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
+      pikmin.entity->set_actor(&pikmin_actor);
+      pikmin.entity->set_mesh("red_pikmin");
+      pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
     case PikminType::kYellowPikmin:
-      pikmin.entity->set_actor(&yellow_pikmin_actor);
-      yellow_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
+      pikmin.entity->set_actor(&pikmin_actor);
+      pikmin.entity->set_mesh("yellow_pikmin");
+      pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
     case PikminType::kBluePikmin:
-      pikmin.entity->set_actor(&blue_pikmin_actor);
-      blue_pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
+      pikmin.entity->set_actor(&pikmin_actor);
+      pikmin.entity->set_mesh("blue_pikmin");
+      pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
   }
 

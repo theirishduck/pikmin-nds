@@ -23,7 +23,7 @@ from model import dsgx, model
 from docopt import docopt
 import euclid3 as euclid
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
 try:
@@ -65,6 +65,7 @@ def display_model_info(model):
 def import_blendfile(filename):
     print("IMPORT BLENDFILE HERE")
     output_model = model.Model()
+    output_model.global_matrix = blend_matrix_to_euclid(blender_conversion_matrix())
 
     try:
         bpy.ops.wm.open_mainfile(filepath=filename)
@@ -126,7 +127,7 @@ def import_mesh(output_model, mesh_name, blender_object):
             uvlist = [uv_data[polygon.loop_start + i].uv for i in range(0, polygon.loop_total)]
         # Here we need to specify normals per-polygon, as opposed
         # to per-vertex.
-        normals = [blender_mesh.vertices[vertex] for vertex in polygon.vertices]
+        normals = [blender_mesh.vertices[vertex].normal for vertex in polygon.vertices]
         material = blender_mesh.materials[polygon.material_index].name
         output_mesh.addPolygon(polygon.vertices, uvlist, normals, material)
 
@@ -148,7 +149,9 @@ def import_animations(output_model):
         print("More than one armature! This is unsupported; bailing.")
         return
 
-    armature = bpy.data.objects[bpy.data.armatures[0].name]
+    # Note: I HATE that this is hardcoded here, but I can't find another way
+    # to do this. Future self, save me!
+    armature = bpy.data.objects["Armature"]
     actions = bpy.data.actions
 
     print("Importing animations...")
@@ -167,7 +170,8 @@ def import_animations(output_model):
                 for posebone in armature.pose.bones:
                     bind_pose = posebone.bone.matrix_local
                     object_space_transform = posebone.matrix
-                    final_transform = blender_conversion_matrix() * object_space_transform * bind_pose.inverted()
+                    # final_transform = blender_conversion_matrix() * object_space_transform * bind_pose.inverted()
+                    final_transform = object_space_transform * bind_pose.inverted()
                     nodes[posebone.bone.name].append(blend_matrix_to_euclid(final_transform))
 
             output_model.createAnimation("Armature|" + action.name)
