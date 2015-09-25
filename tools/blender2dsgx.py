@@ -22,7 +22,7 @@ sys.path.append("/usr/local/lib/python3.3/site-packages")
 from model import dsgx, model
 from docopt import docopt
 import euclid3 as euclid
-import logging
+import logging, traceback
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
@@ -37,14 +37,20 @@ except ImportError:
 import mathutils
 
 def main():
-    arguments = docopt(__doc__, version="0.1", argv=adjust_argv(sys.argv))
+    try:
+        arguments = docopt(__doc__, version="0.1", argv=adjust_argv(sys.argv))
 
-    output_filename = (arguments['--output'] if arguments['--output'] else
-        replace_extension(arguments['<blend_file>'], '.dsgx'))
+        output_filename = (arguments['--output'] if arguments['--output'] else
+            replace_extension(arguments['<blend_file>'], '.dsgx'))
 
-    blender_model = import_blendfile(arguments['<blend_file>'])
-    display_model_info(blender_model)
-    export_dsgx(blender_model, output_filename, False)
+        blender_model = import_blendfile(arguments['<blend_file>'])
+        display_model_info(blender_model)
+        export_dsgx(blender_model, output_filename, False)
+    except Exception as e:
+        log.error("Something bad happened!")
+        traceback.print_exc()
+        sys.exit(-1)
+
 
 def adjust_argv(args):
     return args[args.index('--') + 1:] if '--' in args else []
@@ -70,6 +76,7 @@ def import_blendfile(filename):
     try:
         bpy.ops.wm.open_mainfile(filepath=filename)
     except RuntimeError as error:
+        log.error("Couldn't open " + filename + ", bailing.")
         sys.exit(PROCESSING_ERROR)
 
     for blend_object in bpy.data.objects:
@@ -92,6 +99,8 @@ def import_material(output_model, material_name, blender_material):
         blender_material.ambient * scene_ambient[1],
         blender_material.ambient * scene_ambient[2]
     ]
+    diffuse = blender_material.diffuse_color * blender_material.diffuse_intensity
+    specular = blender_material.specular_color * blender_material.specular_intensity
 
     texture = None
     texture_width = 0
@@ -105,8 +114,8 @@ def import_material(output_model, material_name, blender_material):
             texture_width = blender_texture.image.size[0]
             texture_height = blender_texture.image.size[1]
 
-    output_model.addMaterial(material_name, ambient, blender_material.specular_color,
-        blender_material.diffuse_color, texture, texture_width, texture_height)
+    output_model.addMaterial(material_name, ambient, specular, diffuse,
+            texture, texture_width, texture_height)
 
 def import_mesh(output_model, mesh_name, blender_object):
     blender_mesh = blender_object.data
