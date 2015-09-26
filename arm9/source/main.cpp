@@ -87,14 +87,6 @@ void InitMainScreen() {
     floattov10((float)light1_direction.x),
     floattov10((float)light1_direction.y),
     floattov10((float)light1_direction.z));
-  glLight(2, RGB15(31, 31, 31),
-    floattov10((float)light0_direction.x),
-    floattov10((float)light0_direction.y),
-    floattov10((float)light0_direction.z));
-  glLight(3, RGB15(31, 31, 31),
-    floattov10((float)light1_direction.x),
-    floattov10((float)light1_direction.y),
-    floattov10((float)light1_direction.z));
 }
 
 vector<string> FilesInDirectory(string path) {
