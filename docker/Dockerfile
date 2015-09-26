@@ -16,56 +16,19 @@ RUN apt-get update && \
   libssl-dev  \
   libxi6 \
   libxxf86vm1 \
+  python3 \
+  python3-pip \
   zlib1g-dev && \
   rm -rf /var/lib/apt/lists/*
 
-# remove several traces of debian python
-RUN apt-get purge -y python.*
-
-# http://bugs.python.org/issue19846
-# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
-ENV LANG C.UTF-8
-
-ENV PYTHON_VERSION 3.3.6
-
-# gpg: key 36580288: public key "Georg Brandl (Python release signing key) <georg@python.org>" imported
-RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 26DEA9D4613391EF3E25C9FF0A5B101836580288
-
-RUN set -x \
-  && mkdir -p /usr/src/python \
-  && curl -SL "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tar.xz" -o python.tar.xz \
-  && curl -SL "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tar.xz.asc" -o python.tar.xz.asc \
-  && gpg --verify python.tar.xz.asc \
-  && tar -xJC /usr/src/python --strip-components=1 -f python.tar.xz \
-  && rm python.tar.xz* \
-  && cd /usr/src/python \
-  && ./configure --enable-shared --enable-unicode=ucs4 \
-  && make -j$(nproc) \
-  && make install \
-  && ldconfig \
-  && curl -SL 'https://bootstrap.pypa.io/get-pip.py' | python3 \
-  && find /usr/local \
-    \( -type d -a -name test -o -name tests \) \
-    -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-    -exec rm -rf '{}' + \
-  && rm -rf /usr/src/python
-
-# make some useful symlinks that are expected to exist
-RUN cd /usr/local/bin \
-  && ln -s idle3 idle \
-  && ln -s pydoc3 pydoc \
-  && ln -s python3 python \
-  && ln -s python-config3 python-config
-
-# ----------------------------------------------------------------
-# End section Python 3.3
-# ----------------------------------------------------------------
-
 # Install the libraries that the dsgx-converter relies on
-RUN pip install docopt \
-  && pip install euclid3 \
-  && pip install numpy \
-  && pip install Pillow
+# This also sets up Hy, a lisp that runs on Python. This is used for the texture
+# conversion tool.
+RUN pip-3.2 install docopt \
+  && pip-3.2 install euclid3 \
+  && pip-3.2 install numpy \
+  && pip-3.2 install Pillow \
+  && pip-3.2 install hy
 
 # Install Blender, so that it can perform object exports
 # directly as part of the build
@@ -85,9 +48,5 @@ RUN mkdir /opt/dsgx-converter \
   && git reset --hard 54dbb5f6d716b55d533e4ea4aa1a37e303cdc94c \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
-
-# This sets up Hy, a lisp that runs on Python. This is used for the texture
-# conversion tool.
-RUN pip install hy
 
 CMD make

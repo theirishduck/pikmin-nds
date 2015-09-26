@@ -16,13 +16,16 @@ Options:
                          ".blend" suffix replaced by ".dsgx".
 """
 
-import sys, os
+import sys, os, logging, traceback
 sys.path.append("/opt/dsgx-converter")
-sys.path.append("/usr/local/lib/python3.3/site-packages")
-from model import dsgx, model
-from docopt import docopt
-import euclid3 as euclid
-import logging, traceback
+sys.path.append("/usr/local/lib/python3.2/dist-packages")
+try:
+    from model import dsgx, model
+    from docopt import docopt
+    import euclid3 as euclid
+except Exception as e:
+    traceback.print_exc()
+    sys.exit(-1)
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
