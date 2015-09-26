@@ -8,9 +8,12 @@
 #include "ai/onion.h"
 
 // Model data
-#include "olimar_low_poly_dsgx.h"
-#include "cursor_dsgx.h"
-#include "whistle_dsgx.h"
+extern const u8 olimar_low_poly_dsgx[];
+extern const u32 olimar_low_poly_dsgx_size;
+extern const u8 cursor_dsgx[];
+extern const u32 cursor_dsgx_size;
+extern const u8 whistle_dsgx[];
+extern const u32 whistle_dsgx_size;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

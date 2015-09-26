@@ -5,7 +5,8 @@
 #include "particle.h"
 
 // Model data
-#include "fire_spout_dsgx.h"
+extern const u8 fire_spout_dsgx[];
+extern const u32 fire_spout_dsgx_size;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

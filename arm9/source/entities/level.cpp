@@ -3,8 +3,10 @@
 #include "dsgx.h"
 
 //Model Data
-#include "sandbox_test_dsgx.h"
-#include "checker_test_dsgx.h"
+extern const u8 sandbox_test_dsgx[];
+extern const u32 sandbox_test_dsgx_size;
+extern const u8 checker_test_dsgx[];
+extern const u32 checker_test_dsgx_size;
 
 using entities::Level;
 

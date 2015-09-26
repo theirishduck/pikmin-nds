@@ -5,7 +5,9 @@
 #include "ai/pikmin.h"
 
 // Model data
-#include "onion_dsgx.h"
+// #include "onion_dsgx.h"
+extern const u8 onion_dsgx[];
+extern const u32 onion_dsgx_size;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

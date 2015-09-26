@@ -4,7 +4,8 @@
 #include "pikmin_game.h"
 
 // Model data
-#include "pellet_posy_dsgx.h"
+extern const u8 pellet_posy_dsgx[];
+extern const u32 pellet_posy_dsgx_size;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

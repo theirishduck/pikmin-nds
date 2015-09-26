@@ -5,7 +5,9 @@
 
 #include "dsgx.h"
 #include "multipass_engine.h"
-#include "pikmin_dsgx.h"
+
+extern const u8 pikmin_dsgx[];
+extern const u32 pikmin_dsgx_size;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

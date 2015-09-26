@@ -21,7 +21,8 @@
 #include "checkerboard_height_bin.h"
 
 // Test Static Objects
-#include "lighting_test_candy_dsgx.h"
+extern const u8 lighting_test_candy_dsgx[];
+extern const u32 lighting_test_candy_dsgx_size;
 Dsgx lighting_test_candy((u32*)lighting_test_candy_dsgx, lighting_test_candy_dsgx_size);
 
 using entities::Level;
