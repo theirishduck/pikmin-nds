@@ -59,7 +59,7 @@ void HandleWhistle(CaptainState& captain) {
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
   captain.entity->set_actor(&olimar_low_poly_actor);
-  captain.entity->set_mesh("LowPolyOlimar");
+  captain.entity->set_mesh("Olimar");
 
   //setup physics parameters for collision
   auto body = captain.entity->body();
