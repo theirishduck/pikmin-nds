@@ -4,7 +4,6 @@
 #include "vector.h"
 #include "body.h"
 #include "debug.h"
-#include "quadtree.h"
 
 using physics::World;
 using physics::Body;
@@ -12,14 +11,9 @@ using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
 World::World() {
-  quadtree = new QuadTree(
-    Vec2{0_f, -128_f},
-    Vec2{128_f, 0_f}
-  );
 }
 
 World::~World() {
-  delete quadtree;
 }
 
 Body* World::AllocateBody(void* owner) {
@@ -41,7 +35,6 @@ Body* World::AllocateBody(void* owner) {
       //bodies_[i].radius2 = radius * radius;
       rebuild_index_ = true;
 
-      quadtree->AddObject(&bodies_[i]);
       return &bodies_[i];
     }
   }
@@ -52,7 +45,6 @@ void World::FreeBody(Body* body) {
   body->owner = nullptr;
   body->active = 0;
   rebuild_index_ = true;
-  quadtree->RemoveObject(body);
 }
 
 void World::Wake(Body* body) {
@@ -138,7 +130,6 @@ void World::ResolveCollision(Body& a, Body& b) {
       a_direction *= 1_f / distance;
 
       a.position = a.position + a_direction;
-      UpdateBodyInTree(a);
     }
     if (b.is_movable and (!(a.is_pikmin) or b.is_pikmin)) {
       auto b_direction = (b.position - a.position);
@@ -158,7 +149,6 @@ void World::ResolveCollision(Body& a, Body& b) {
       b_direction *= 1_f / distance;
 
       b.position = b.position + b_direction;
-      UpdateBodyInTree(b);
     }
   }
 }
@@ -183,26 +173,16 @@ void World::MoveBody(Body& body) {
   }
 }
 
-void World::UpdateBodyInTree(Body& body) {
-  if (body.position == body.old_position and
-      body.radius == body.old_radius) {
-    return;
-  }
-  body.current_tree->UpdateObject(&body);
-}
-
 void World::MoveBodies() {
   for (int i = 0; i < active_bodies_; i++) {
     // First, make sure this is an active body
     PrepareBody(bodies_[active_[i]]);
     MoveBody(bodies_[active_[i]]);
-    UpdateBodyInTree(bodies_[active_[i]]);
   }
   for (int i = 0; i < active_pikmin_; i++) {
     // First, make sure this is an active body
     PrepareBody(bodies_[pikmin_[i]]);
     MoveBody(bodies_[pikmin_[i]]);
-    UpdateBodyInTree(bodies_[pikmin_[i]]);
   }
 }
 
@@ -262,84 +242,37 @@ void World::CollidePikminWithPikmin(Body& pikmin1, Body& pikmin2) {
 }
 
 void World::ProcessCollision() {
+
   for (int a = 0; a < active_bodies_; a++) {
     Body& A = bodies_[active_[a]];
-    QuadTree* active_quadtree = A.current_tree;
-    while (active_quadtree) {
-      auto objects = active_quadtree->Objects();
-      for (auto b = objects.begin(); b < objects.end(); b++) {
-        CollideObjectWithObject(A, **b);
-      }
-      active_quadtree = active_quadtree->Parent();
+    for (int b = a + 1; b < active_bodies_; b++) {
+      Body& B = bodies_[active_[b]];
+      CollideObjectWithObject(A, B);
     }
   }
 
-  //Repeat this with pikmin, our special case heros
-  //Pikmin need to collide against all active bodies, but not with each other
+  // Repeat this with pikmin, our special case heros
+  // Pikmin need to collide against all active bodies, but not with each other*
+  //   *except sometimes
 
   for (int p = 0; p < active_pikmin_; p++) {
     Body& P = bodies_[pikmin_[p]];
-    QuadTree* active_quadtree = P.current_tree;
-    while (active_quadtree) {
-      auto objects = active_quadtree->Objects();
-      for (auto b = objects.begin(); b < objects.end(); b++) {
-        CollidePikminWithObject(P, **b);
-      }
-      active_quadtree = active_quadtree->Parent();
+    for (int a = 0; a < active_bodies_; a++) {
+      Body& A = bodies_[active_[a]];
+      CollidePikminWithObject(P, A);
     }
   }
+
+  // Finally, collide 1/8 of the pikmin against the rest of the group.
+  // (This really doesn't need to be terribly accurate.)
 
   for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
     Body& P1 = bodies_[pikmin_[p1]];
-    QuadTree* active_quadtree = P1.current_tree;
-    while (active_quadtree) {
-      auto objects = active_quadtree->Pikmin();
-      for (auto p2 = objects.begin(); p2 < objects.end(); p2++) {
-        CollidePikminWithPikmin(P1, **p2);
-      }
-      active_quadtree = active_quadtree->Parent();
+    for (int p2 = 0; p2 < active_pikmin_; p2++) {
+      Body& P2 = bodies_[pikmin_[p2]];
+      CollidePikminWithPikmin(P1, P2);
     }
   }
-
-  //Also, pikmin are assumed to collide with both bodies and sensors, and are
-  //always considered movable, so we can skip all of those checks.
-  /*
-  int pikmin_collided = 0;
-  for (int p = 0; p < active_pikmin_; p++) {
-    Body& P = bodies_[pikmin_[p]];
-    QuadTree* active_quadtree = P.current_tree;
-    while (active_quadtree) {
-      auto objects = active_quadtree->Objects();
-      for (auto a = objects.begin(); a < objects.end(); a++) {
-        pikmin_collided++;
-        CollideObjectWithObject(P, **a);
-      }
-      active_quadtree = active_quadtree->Parent();
-    }
-  }
-  debug::DisplayValue("Pikmin vs. Objects: ", pikmin_collided);
-  */
-
-  // Special case: collide pikmin with each other, but only if they share a
-  // heightmap position (later: or an adjacent location?)
-
-  /*
-  pikmin_collided = 0;
-  for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
-    Body& pikmin1 = bodies_[pikmin_[p1]];
-    QuadTree* active_quadtree = pikmin1.current_tree;
-    while (active_quadtree) {
-      auto objects = active_quadtree->Objects();
-      for (auto pikmin2 = objects.begin(); pikmin2 < objects.end(); pikmin2++) {
-        pikmin_collided++;
-        CollideObjectWithObject(pikmin1, **pikmin2);
-      }
-      active_quadtree = active_quadtree->Parent();
-    }
-  }
-  debug::DisplayValue("Pikmin vs. Pikmin: ", pikmin_collided);
-  */
-
 }
 
 void World::Update() {
@@ -377,10 +310,6 @@ void World::DebugCircles() {
     int segments = 6;
     debug::DrawCircle(body.position, body.radius, color, segments);
   }
-
-  // Also draw the quad tree
-  quadtree->DebugDraw();
-  debug::DisplayValue("Tree Objects: ", quadtree->ObjectCount());
 }
 
 void World::CollideBodiesWithLevel() {

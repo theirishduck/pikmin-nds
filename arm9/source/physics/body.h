@@ -3,8 +3,7 @@
 
 #include "numeric_types.h"
 #include "vector.h"
-
-class QuadTree;
+#include <array>
 
 class DrawableEntity;
 
@@ -17,6 +16,11 @@ struct CollisionResult {
   u32 collision_group;
 };
 
+struct Neighbor {
+  Body* body;
+  numeric_types::Fixed<s32,12> distance_squared;
+};
+
 struct Body {
   friend class World;
   //movement information
@@ -25,8 +29,6 @@ struct Body {
   Vec3 acceleration;
 
   Vec2 xz_position;
-
-  QuadTree* current_tree{nullptr};
 
   //all bodies are cylinders, so they have a radius and a height. Their base
   //starts at position.y, so their highest point is at position.y + height.
@@ -64,6 +66,8 @@ struct Body {
   unsigned short active : 1;
   Vec3 old_position;
   numeric_types::Fixed<s32,12> old_radius;
+
+  std::array<Neighbor, 8> neighbors;
 };
 
 }  // namespace physics
