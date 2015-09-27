@@ -140,7 +140,7 @@ def import_mesh(output_model, mesh_name, blender_object):
             uvlist = [uv_data[polygon.loop_start + i].uv for i in range(0, polygon.loop_total)]
         # Here we need to specify normals per-polygon, as opposed
         # to per-vertex.
-        normals = [blender_mesh.vertices[vertex].normal.normalized() * 0.99 for vertex in polygon.vertices]
+        normals = [blender_mesh.vertices[vertex].normal.normalized() * 0.95 for vertex in polygon.vertices]
         material = blender_mesh.materials[polygon.material_index].name
         output_mesh.addPolygon(polygon.vertices, uvlist, normals, material)
 

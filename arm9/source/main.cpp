@@ -75,18 +75,37 @@ void InitMainScreen() {
   glClearDepth(0x7FFF);
   glViewport(0, 0, 255, 191);
 
-  Vec3 light0_direction = Vec3{4_f, -2.2_f, -6.7_f}.Normalize() * 0.99_f;
-  Vec3 light1_direction = Vec3{-4_f, -1.2_f, -6.7_f}.Normalize() * 0.99_f;
+  Vec3 light0_direction = Vec3{1_f, -1_f, -1_f}.Normalize() * 0.99_f;
+  Vec3 light1_direction = Vec3{-1_f, -1_f, -1_f}.Normalize() * 0.99_f;
 
   // Setup default lights; these will be overridden in the main engine.
+  //*
   glLight(0, RGB15(31, 31, 31),
     floattov10((float)light0_direction.x),
     floattov10((float)light0_direction.y),
     floattov10((float)light0_direction.z));
+  //*/
+  //*
   glLight(1, RGB15(31, 31, 31),
     floattov10((float)light1_direction.x),
     floattov10((float)light1_direction.y),
     floattov10((float)light1_direction.z));
+  //*/
+  //*
+  glLight(2, RGB15(0, 0, 0),
+    floattov10((float)light1_direction.x),
+    floattov10((float)light1_direction.y),
+    floattov10((float)light1_direction.z));
+  //*/
+  //*
+  glLight(3, RGB15(0, 0, 0),
+      floattov10((float)light1_direction.x),
+      floattov10((float)light1_direction.y),
+      floattov10((float)light1_direction.z));
+  //*/
+
+  //ds uses a table for shinyness..this generates a half-ass one
+	glMaterialShinyness();
 }
 
 vector<string> FilesInDirectory(string path) {
