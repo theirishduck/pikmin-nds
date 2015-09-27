@@ -45,7 +45,7 @@ ENV PATH $PATH:/opt/blender-2.74-linux-glibc211-x86_64
 RUN mkdir /opt/dsgx-converter \
   && git clone https://github.com/zeta0134/dsgx-converter.git /opt/dsgx-converter \
   && cd /opt/dsgx-converter \
-  && git reset --hard e9f00ce3167c0f262f756b0b80e9f042394ba56b \
+  && git reset --hard c1eff78a52adb635003441bb783bb6a72d7399d8 \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
 

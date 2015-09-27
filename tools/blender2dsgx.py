@@ -142,7 +142,8 @@ def import_mesh(output_model, mesh_name, blender_object):
         # to per-vertex.
         normals = [blender_mesh.vertices[vertex].normal.normalized() * 0.95 for vertex in polygon.vertices]
         material = blender_mesh.materials[polygon.material_index].name
-        output_mesh.addPolygon(polygon.vertices, uvlist, normals, material)
+        smooth_shading = polygon.use_smooth;
+        output_mesh.addPolygon(polygon.vertices, uvlist, normals, material, smooth_shading)
 
 def blender_conversion_matrix():
     m = mathutils.Matrix().to_4x4()
