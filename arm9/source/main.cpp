@@ -20,11 +20,6 @@
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
 
-// Test Static Objects
-extern const u8 lighting_test_candy_dsgx[];
-extern const u32 lighting_test_candy_dsgx_size;
-Dsgx lighting_test_candy((u32*)lighting_test_candy_dsgx, lighting_test_candy_dsgx_size);
-
 using entities::Level;
 
 using captain_ai::CaptainState;
@@ -91,13 +86,13 @@ void InitMainScreen() {
     floattov10((float)light1_direction.y),
     floattov10((float)light1_direction.z));
   //*/
-  //*
+  /*
   glLight(2, RGB15(0, 0, 0),
     floattov10((float)light1_direction.x),
     floattov10((float)light1_direction.y),
     floattov10((float)light1_direction.z));
   //*/
-  //*
+  /*
   glLight(3, RGB15(0, 0, 0),
       floattov10((float)light1_direction.x),
       floattov10((float)light1_direction.y),
@@ -247,10 +242,6 @@ void SetupDemoStage() {
 
   auto fire_spout = g_game.Spawn<FireSpoutState>("Hazard:FireSpout");
   fire_spout->entity->body()->position = Vec3{64_f, 0_f, -64_f};
-
-  auto test_candy = g_game.Spawn("Static");
-  test_candy->entity->set_actor(&lighting_test_candy);
-  test_candy->entity->body()->position = Vec3{64_f, 0_f, -64_f};
 }
 
 void InitCaptain() {
