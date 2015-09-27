@@ -43,7 +43,7 @@ void InitAlways(PikminState& pikmin) {
 
   auto body = pikmin.entity->body();
   body->height = 6_f;
-  body->radius = 0.5_f;
+  body->radius = 1.0_f;
 
   body->collides_with_bodies = 1;
   body->is_pikmin = 1;

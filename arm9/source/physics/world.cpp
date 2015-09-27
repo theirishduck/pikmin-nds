@@ -244,7 +244,7 @@ void World::CollidePikminWithPikmin(Body& pikmin1, Body& pikmin2) {
 void World::AddNeighborToObject(Body& object, Body& new_neighbor) {
   // calculate the distance *squared* between this object and the current
   // candidate for neighbor status
-  fixed distance = (object.position - new_neighbor.position).Length();
+  fixed distance = (object.position - new_neighbor.position).Length2();
   // Adjust for the radius on both sides (we want the distance between the
   // nearest potential edge collision)
   //distance -= (object.radius + new_neighbor.radius);
