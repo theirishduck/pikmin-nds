@@ -60,7 +60,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         alpha = 31;
       }
       if (alpha > 1) {
-        glPolyFmt(POLY_ALPHA(alpha) | POLY_ID(slot) | POLY_CULL_BACK);
+        glPolyFmt(POLY_ALPHA(alpha) | POLY_ID((slot & 0x1F) | 0x20) | POLY_CULL_BACK);
         // Note: The OpenGL functions depend on internal state, and using them
         // here would cause a lot of overhead, so we're writing to the
         // registers manually.
