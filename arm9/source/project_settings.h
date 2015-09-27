@@ -43,6 +43,13 @@
 #define MAX_PHYSICS_BODIES 256
 #endif
 
+// Number of physics neighbors to consider. Increasing this gives more accuracy
+// when many objects are near each other, but decreases performance heavily.
+// Shoot for something low but reasonable here.
+#ifndef MAX_PHYSICS_NEIGHBORS
+#define MAX_PHYSICS_NEIGHBORS 4
+#endif
+
 // How fast objects accelerate towards the ground, per frame
 #ifndef GRAVITY_CONSTANT
 #define GRAVITY_CONSTANT (4.5_f / 30_f)

@@ -241,13 +241,75 @@ void World::CollidePikminWithPikmin(Body& pikmin1, Body& pikmin2) {
   }
 }
 
+void World::AddNeighborToObject(Body& object, Body& new_neighbor) {
+  // calculate the distance *squared* between this object and the current
+  // candidate for neighbor status
+  fixed distance = (object.position - new_neighbor.position).Length();
+  // Adjust for the radius on both sides (we want the distance between the
+  // nearest potential edge collision)
+  //distance -= (object.radius + new_neighbor.radius);
+  // Loop through the list of neighbors and find the farthest away object
+  // that this object is closer than (if any). If we find an inactive slot,
+  // we bail early; it wins.
+  fixed biggest_valid_distance = -1000_f;
+  int farthest_index = -1;
+  for (int i = 0; i < MAX_PHYSICS_NEIGHBORS; i++) {
+    if (&new_neighbor == object.neighbors[i].body) {
+      // Update this distance and STOP.
+      object.neighbors[i].distance = distance;
+      return;
+    } else {
+      if (object.neighbors[i].body == nullptr or
+          object.neighbors[i].body->active == 0) {
+        farthest_index = i;
+        biggest_valid_distance = 1000_f;
+
+      }
+      if (object.neighbors[i].distance > distance and
+          object.neighbors[i].distance > biggest_valid_distance) {
+          farthest_index = i;
+          biggest_valid_distance = distance;
+      }
+    }
+  }
+  if (farthest_index > -1) {
+    object.neighbors[farthest_index].body = &new_neighbor;
+    object.neighbors[farthest_index].distance = distance;
+  }
+}
+
+void World::UpdateNeighbors() {
+  // It's a bit weird that we do this check first, non? But it handles the
+  // case where bodies were deleted, moving the pointer off the end of the list.
+  if (current_neighbor_ >= active_bodies_) {
+    current_neighbor_ = 0;
+  }
+
+  Body& new_neighbor = bodies_[active_[current_neighbor_]];
+  for (int a = 0; a < active_bodies_; a++) {
+    Body& current_object = bodies_[active_[a]];
+    if (&new_neighbor != &current_object) {
+      AddNeighborToObject(current_object, new_neighbor);
+    }
+  }
+
+  for (int p = 0; p < active_pikmin_; p++) {
+    Body& current_object = bodies_[pikmin_[p]];
+    AddNeighborToObject(current_object, new_neighbor);
+  }
+  current_neighbor_++;
+}
+
 void World::ProcessCollision() {
+  UpdateNeighbors();
 
   for (int a = 0; a < active_bodies_; a++) {
     Body& A = bodies_[active_[a]];
-    for (int b = a + 1; b < active_bodies_; b++) {
-      Body& B = bodies_[active_[b]];
-      CollideObjectWithObject(A, B);
+    for (int b = 0; b < MAX_PHYSICS_NEIGHBORS; b++) {
+      Body* B = A.neighbors[b].body;
+      if (B and B->active) {
+        CollideObjectWithObject(A, *B);
+      }
     }
   }
 
@@ -257,9 +319,11 @@ void World::ProcessCollision() {
 
   for (int p = 0; p < active_pikmin_; p++) {
     Body& P = bodies_[pikmin_[p]];
-    for (int a = 0; a < active_bodies_; a++) {
-      Body& A = bodies_[active_[a]];
-      CollidePikminWithObject(P, A);
+    for (int a = 0; a < MAX_PHYSICS_NEIGHBORS; a++) {
+      Body* A = P.neighbors[a].body;;
+      if (A and A->active) {
+        CollidePikminWithObject(P, *A);
+      }
     }
   }
 
@@ -309,6 +373,15 @@ void World::DebugCircles() {
     rgb color = RGB5(31,15,15);
     int segments = 6;
     debug::DrawCircle(body.position, body.radius, color, segments);
+  }
+
+  // Draw relationships from the current neighbor
+  Body& A = bodies_[active_[current_neighbor_]];
+  for (int i = 0; i < MAX_PHYSICS_NEIGHBORS; i++) {
+    Body* B = A.neighbors[i].body;
+    if (B and B->active) {
+        debug::DrawLine(A.position, B->position, RGB5(0, 31, 0));
+    }
   }
 }
 

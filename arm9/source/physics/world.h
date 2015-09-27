@@ -31,6 +31,8 @@ class World {
     void CollideObjectWithObject(physics::Body& A, physics::Body& B);
     void CollidePikminWithObject(physics::Body& P, physics::Body& A);
     void CollidePikminWithPikmin(physics::Body& pikmin1, physics::Body& pikmin2);
+    void UpdateNeighbors();
+    void AddNeighborToObject(Body& object, Body& new_neighbor);
 
     numeric_types::fixed HeightFromMap(const Vec3& position);
 
@@ -49,6 +51,8 @@ class World {
     int iteration = 0;
     int bodies_overlap_debug = 0;
     int collisions_this_frame;
+
+    int current_neighbor_ = 0;
 };
 
 }  // namespace physics

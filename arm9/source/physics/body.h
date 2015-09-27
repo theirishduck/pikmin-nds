@@ -1,6 +1,7 @@
 #ifndef PHYSICS_BODY_H
 #define PHYSICS_BODY_H
 
+#include "project_settings.h"
 #include "numeric_types.h"
 #include "vector.h"
 #include <array>
@@ -17,8 +18,8 @@ struct CollisionResult {
 };
 
 struct Neighbor {
-  Body* body;
-  numeric_types::Fixed<s32,12> distance_squared;
+  Body* body{nullptr};
+  numeric_types::Fixed<s32,12> distance;
 };
 
 struct Body {
@@ -67,7 +68,7 @@ struct Body {
   Vec3 old_position;
   numeric_types::Fixed<s32,12> old_radius;
 
-  std::array<Neighbor, 8> neighbors;
+  std::array<Neighbor, MAX_PHYSICS_NEIGHBORS> neighbors;
 };
 
 }  // namespace physics
