@@ -1,5 +1,11 @@
 #include "pikmin_game.h"
 #include "debug.h"
+#include "dsgx.h"
+
+//TODO: Move this out of here and make a mesh manager!
+extern const u8 pellet_dsgx[];
+extern const u32 pellet_dsgx_size;
+Dsgx pellet_actor((u32*)pellet_dsgx, pellet_dsgx_size);
 
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
@@ -8,6 +14,12 @@ using onion_ai::OnionState;
 using posy_ai::PosyState;
 using fire_spout_ai::FireSpoutState;
 using static_ai::StaticState;
+using treasure_ai::TreasureState;
+
+using numeric_types::literals::operator"" _f;
+using numeric_types::literals::operator"" _brad;
+using numeric_types::Brads;
+using numeric_types::fixed;
 
 int PikminSave::PikminCount(PikminType type) {
   // Note to self: *Probably* shouldn't do it this way
@@ -70,7 +82,7 @@ void PikminGame::RemoveObject<PosyState>(PosyState* object) {
 
 template <>
 StaticState* PikminGame::SpawnObject<StaticState>() {
-  if (num_statics_ < 32) {
+  if (num_statics_ < 128) {
     statics_[num_statics_] = InitObject<StaticState>();
     return statics_[num_statics_++];
   }
@@ -79,6 +91,22 @@ StaticState* PikminGame::SpawnObject<StaticState>() {
 
 template<>
 void PikminGame::RemoveObject<StaticState>(StaticState* object) {
+  engine.RemoveEntity(object->entity);
+  entities_.remove(object->entity);
+  delete object->entity;
+}
+
+template <>
+TreasureState* PikminGame::SpawnObject<TreasureState>() {
+  if (num_treasures_ < 128) {
+    treasures_[num_treasures_] = InitObject<TreasureState>();
+    return treasures_[num_treasures_++];
+  }
+  return nullptr;
+}
+
+template<>
+void PikminGame::RemoveObject<TreasureState>(TreasureState* object) {
   engine.RemoveEntity(object->entity);
   entities_.remove(object->entity);
   delete object->entity;
@@ -230,6 +258,15 @@ void PikminGame::Step() {
     }
   }
 
+  for (int t = 0; t < num_treasures_; t++) {
+    if (treasures_[t]->active) {
+      treasure_ai::machine.RunLogic(*treasures_[t]);
+      if (treasures_[t]->dead) {
+        RemoveObject<TreasureState>(treasures_[t]);
+      }
+    }
+  }
+
   debug::EndTopic(debug::Topic::kAI);
 }
 
@@ -294,6 +331,13 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
   }},
   {"Static", [](PikminGame* game) -> ObjectState* {
     return game->SpawnObject<StaticState>();
+  }},
+  {"Corpse:Pellet", [](PikminGame* game) -> TreasureState* {
+    auto treasure = game->SpawnObject<TreasureState>();
+    treasure->entity->set_actor(&pellet_actor);
+    pellet_actor.ApplyTextures(treasure->game->TextureAllocator(), treasure->game->TexturePaletteAllocator());
+    treasure->entity->body()->radius = 5_f;
+    return treasure;
   }},
 };
 

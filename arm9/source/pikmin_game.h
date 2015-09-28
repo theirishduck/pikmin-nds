@@ -3,12 +3,13 @@
 
 #include "multipass_engine.h"
 #include "drawable_entity.h"
-#include "ai/pikmin.h"
 #include "ai/captain.h"
-#include "ai/onion.h"
-#include "ai/pellet_posy.h"
 #include "ai/fire_spout.h"
+#include "ai/onion.h"
+#include "ai/pikmin.h"
+#include "ai/pellet_posy.h"
 #include "ai/static.h"
+#include "ai/treasure.h"
 #include "ui.h"
 #include <list>
 
@@ -82,6 +83,8 @@ class PikminGame {
   int num_fire_spouts_{0};
   std::array<static_ai::StaticState*, 128> statics_;
   int num_statics_{0};
+  std::array<treasure_ai::TreasureState*, 128> treasures_;
+  int num_treasures_{0};
 
   captain_ai::CaptainState* captain_;
   ui::UIState ui_;

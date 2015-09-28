@@ -2,6 +2,7 @@
 
 #include "dsgx.h"
 #include "pikmin_game.h"
+#include "treasure.h"
 
 // Model data
 extern const u8 pellet_posy_dsgx[];
@@ -47,6 +48,10 @@ void StoreCurrentHealth(PosyState& posy) {
 void GoodbyeCruelWorld(PosyState& posy) {
   posy.entity->engine()->World().FreeBody(posy.detection);
   posy.dead = true;
+
+  // Spawn in the pellet
+  auto pellet = posy.game->Spawn<treasure_ai::TreasureState>("Corpse:Pellet");
+  pellet->entity->body()->position = posy.entity->body()->position;
 }
 
 namespace PosyNode {
