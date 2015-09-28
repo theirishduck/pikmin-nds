@@ -19,4 +19,4 @@ Node<StaticState> node_list[] {
 
 StateMachine<StaticState> machine(node_list);
 
-}  // namespace fire_spout_ai
+}  // namespace static_ai

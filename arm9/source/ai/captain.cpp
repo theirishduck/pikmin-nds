@@ -389,4 +389,4 @@ Node<CaptainState> node_list[] {
 
 StateMachine<CaptainState> machine(node_list);
 
-}
+}  // namespace captain_ai
