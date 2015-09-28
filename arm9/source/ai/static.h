@@ -11,6 +11,6 @@ struct StaticState : ObjectState {
 
 extern StateMachine<StaticState> machine;
 
-}  // namespace onion_ai
+}  // namespace static_ai
 
 #endif

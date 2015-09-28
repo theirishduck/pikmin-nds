@@ -16,6 +16,6 @@ struct FireSpoutState : ObjectState {
 
 extern StateMachine<FireSpoutState> machine;
 
-}  // namespace onion_ai
+}  // namespace fire_spout_ai
 
 #endif
