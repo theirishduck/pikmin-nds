@@ -1,6 +1,7 @@
 #include "pikmin.h"
 #include "captain.h"
 #include "onion.h"
+#include "treasure.h"
 #include "pikmin_game.h"
 
 #include "dsgx.h"
@@ -14,12 +15,19 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
 
+using treasure_ai::TreasureState;
+
 namespace pikmin_ai {
 
 const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
 Dsgx pikmin_actor((u32*)pikmin_dsgx, pikmin_dsgx_size);
+
+TreasureState* GetActiveTreasure(const PikminState& pikmin) {
+  TreasureState* treasure = (TreasureState*) pikmin.chase_target->owner;
+  return treasure;
+}
 
 void InitAlways(PikminState& pikmin) {
   switch (pikmin.type) {
@@ -48,7 +56,7 @@ void InitAlways(PikminState& pikmin) {
   body->collides_with_bodies = 1;
   body->is_pikmin = 1;
   body->is_movable = 1;
-  body->sensor_groups = WHISTLE_GROUP | DETECT_GROUP | ATTACK_GROUP;
+  body->sensor_groups = WHISTLE_GROUP | DETECT_GROUP | ATTACK_GROUP | TREASURE_GROUP;
 
   pikmin.entity->important = false;
 
@@ -198,10 +206,20 @@ void JoinSquad(PikminState& pikmin) {
 }
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
+  // Some unspeakable horror caused our target to vanish or otherwise change
   if (!pikmin.chase_target or !pikmin.chase_target->active or !pikmin.chase_target->owner) {
     return true;
   }
+
+  // Treasure has no more room for us... :(
+  if (pikmin.chase_target->collision_group & TREASURE_GROUP) {
+    auto treasure = GetActiveTreasure(pikmin);
+    if (!(treasure->RoomForMorePikmin())) {
+      return true;
+    }
+  }
   // TODO: Expand on this a bit more. Identifiers / handles?
+
   return false;
 }
 
@@ -318,6 +336,54 @@ void HopOffFoot(PikminState& pikmin) {
   pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
 }
 
+bool CollideWithValidTreasure(const PikminState& pikmin) {
+  if (pikmin.entity->body()->result_groups & TREASURE_GROUP) {
+    auto treasure_result = pikmin.entity->body()->FirstCollisionWith(TREASURE_GROUP);
+    if (treasure_result.body != nullptr) {
+      auto treasure = (TreasureState*)treasure_result.body->owner;
+      if (treasure->RoomForMorePikmin()) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+void AddToTreasure(PikminState& pikmin) {
+  auto treasure = GetActiveTreasure(pikmin);
+  treasure->AddPikmin(&pikmin);
+  StopMoving(pikmin);
+}
+
+void RemoveFromTreasure(PikminState& pikmin) {
+  auto treasure = GetActiveTreasure(pikmin);
+  treasure->RemovePikmin(&pikmin);
+}
+
+void WhistleOffTreasure(PikminState& pikmin) {
+  auto treasure = GetActiveTreasure(pikmin);
+  treasure->RemovePikmin(&pikmin);
+  JoinSquad(pikmin);
+}
+
+bool TreasureMoving(const PikminState& pikmin) {
+  auto treasure = GetActiveTreasure(pikmin);
+  return treasure->Moving();
+}
+
+bool TreasureInvalid(const PikminState& pikmin) {
+  auto treasure = GetActiveTreasure(pikmin);
+  if (treasure == nullptr) {
+    return true;
+  }
+  return false;
+}
+
+bool TreasureStopped(const PikminState& pikmin) {
+  return !TreasureMoving(pikmin);
+}
+
+
 Edge<PikminState> init[] {
   // Init
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
@@ -364,6 +430,7 @@ Edge<PikminState> chasing[] {
   {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   {kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
+  {kAlways, CollideWithValidTreasure, AddToTreasure, PikminNode::kLiftTreasure},
   {kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
   END_OF_EDGES(PikminState)
 };
@@ -403,6 +470,20 @@ Edge<PikminState> sliding_down_from_onion[] {
   END_OF_EDGES(PikminState)
 };
 
+Edge<PikminState> lift_treasure[] {
+  {kAlways, CollidedWithWhistle, WhistleOffTreasure, PikminNode::kIdle},
+  {kAlways, TreasureMoving, nullptr, PikminNode::kCarryTreasure},
+  {kAlways, TreasureInvalid, RemoveFromTreasure, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
+
+Edge<PikminState> carry_treasure[] {
+  {kAlways, CollidedWithWhistle, WhistleOffTreasure, PikminNode::kIdle},
+  {kAlways, TreasureStopped, nullptr, PikminNode::kLiftTreasure},
+  {kAlways, TreasureInvalid, RemoveFromTreasure, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
+
 Node<PikminState> node_list[] {
   {"Init", true, init},
   {"Idle", true, idle, "Armature|Idle", 30},
@@ -414,7 +495,8 @@ Node<PikminState> node_list[] {
   {"Jump", true, jumping, "Armature|Idle", 30},
   {"ClimbIntoOnion", true, climbing_into_onion, "Armature|Climb", 60},
   {"SlideDownFromOnion", true, sliding_down_from_onion, "Armature|Climb", 30},
-
+  {"LiftTreasure", true, lift_treasure, "Armature|Lift", 123},
+  {"CarryTreasure", true, carry_treasure, "Armature|Carry", 72},
 };
 
 StateMachine<PikminState> machine(node_list);

@@ -3,6 +3,8 @@
 
 #include "state_machine.h"
 #include "drawable_entity.h"
+#include "physics/body.h"
+#include "pikmin.h"
 
 namespace treasure_ai {
 
@@ -20,7 +22,16 @@ struct TreasureState : ObjectState {
   DestinationType destination{DestinationType::kNone};
   int lift_timer{0};
   bool is_corpse{true}; // Corpses go to onions, treasures go to the ship
-  bool active;
+  bool active{true};
+
+  physics::Body* detection;
+  pikmin_ai::PikminState* active_pikmin[100];
+  int num_active_pikmin{0};
+
+  bool AddPikmin(pikmin_ai::PikminState* pikmin);
+  void RemovePikmin(pikmin_ai::PikminState* pikmin);
+  bool RoomForMorePikmin();
+  bool Moving();
 };
 
 extern StateMachine<TreasureState> machine;

@@ -274,6 +274,15 @@ CaptainState* PikminGame::ActiveCaptain() {
   return captain_;
 }
 
+OnionState* PikminGame::Onion(PikminType type) {
+  for (int i = 0; i < num_onions_; i++) {
+    if (onions_[i]->pikmin_type == type) {
+      return onions_[i];
+    }
+  }
+  return nullptr;
+}
+
 int PikminGame::PikminInField() {
   int count = 0;
   for (int slot = 0; slot < 100; slot++) {
@@ -336,7 +345,7 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
     auto treasure = game->SpawnObject<TreasureState>();
     treasure->entity->set_actor(&pellet_actor);
     pellet_actor.ApplyTextures(treasure->game->TextureAllocator(), treasure->game->TexturePaletteAllocator());
-    treasure->entity->body()->radius = 5_f;
+    treasure->entity->body()->radius = 2_f;
     return treasure;
   }},
 };

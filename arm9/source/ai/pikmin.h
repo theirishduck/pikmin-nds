@@ -29,6 +29,8 @@ enum PikminNode {
   kJump,
   kClimbIntoOnion,
   kSlideDownFromOnion,
+  kLiftTreasure,
+  kCarryTreasure
 };
 }
 
@@ -38,7 +40,7 @@ struct PikminState : ObjectState {
   bool active; // Used by the allocator to flag unused slots
   squad_ai::SquadState* current_squad{nullptr};
 
-  //parent: used for being thrown and chewed
+  //parent: used for being thrown (and later chewed?)
   DrawableEntity* parent{nullptr};
   Vec3 parent_initial_location;
   Vec3 child_offset;

@@ -47,7 +47,7 @@
 // when many objects are near each other, but decreases performance heavily.
 // Shoot for something low but reasonable here.
 #ifndef MAX_PHYSICS_NEIGHBORS
-#define MAX_PHYSICS_NEIGHBORS 4
+#define MAX_PHYSICS_NEIGHBORS 6
 #endif
 
 // How fast objects accelerate towards the ground, per frame
@@ -66,6 +66,7 @@
 #define FIRE_HAZARD_GROUP (0x1 << 7)
 #define WATER_HAZARD_GROUP (0x1 << 8)
 #define ELECTRIC_HAZARD_GROUP (0x1 << 9)
+#define TREASURE_GROUP (0x1 << 10)
 
 // Camera distance and height constants (play with these if you adjust the FOV)
 #define CAMERA_LOW_HEIGHT 0.5_f

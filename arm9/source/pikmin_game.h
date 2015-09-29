@@ -56,6 +56,8 @@ class PikminGame {
 
   PikminSave* CurrentSaveData();
 
+  onion_ai::OnionState* Onion(pikmin_ai::PikminType type);
+
   //name-based spawning, for level loading and happy debuggers
   template<typename StateType = ObjectState>
   StateType* Spawn(const std::string& name) {
@@ -104,13 +106,13 @@ class PikminGame {
   StateType* InitObject() {
     StateType* state = new StateType();
     state->entity = allocate_entity();
-    state->game = this;
-    state->entity->body()->owner = state;
     const bool too_many_objects = state->entity == nullptr;
     if (too_many_objects) {
       delete state;
       return nullptr;
     }
+    state->game = this;
+    state->entity->body()->owner = state;
     return state;
   }
 };
