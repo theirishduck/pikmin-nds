@@ -54,6 +54,11 @@ void GoodbyeCruelWorld(PosyState& posy) {
   pellet->entity->body()->position = posy.entity->body()->position;
 }
 
+void MarkAsDead(PosyState& posy) {
+  posy.entity->body()->owner = nullptr;
+  posy.detection->owner = nullptr;
+}
+
 namespace PosyNode {
 enum PosyNode {
   kInit = 0,
@@ -71,7 +76,7 @@ Edge<PosyState> init[] {
 
 Edge<PosyState> idle[] {
   // Idle
-  {kAlways, ZeroHealth, nullptr, PosyNode::kDeath},
+  {kAlways, ZeroHealth, MarkAsDead, PosyNode::kDeath},
   {kAlways, TookDamage, nullptr, PosyNode::kHit},
   {kAlways, nullptr, nullptr, PosyNode::kIdle},  // Loopback
   END_OF_EDGES(PosyState)
@@ -79,7 +84,7 @@ Edge<PosyState> idle[] {
 
 Edge<PosyState> hit[] {
   // Hit
-  {kAlways, ZeroHealth, nullptr, PosyNode::kDeath},
+  {kAlways, ZeroHealth, MarkAsDead, PosyNode::kDeath},
   {kLastFrame, nullptr, StoreCurrentHealth, PosyNode::kIdle},
   END_OF_EDGES(PosyState)
 };

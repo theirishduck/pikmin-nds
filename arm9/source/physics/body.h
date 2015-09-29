@@ -19,22 +19,37 @@ struct CollisionResult {
 
 struct Neighbor {
   Body* body{nullptr};
-  numeric_types::Fixed<s32,12> distance;
+  numeric_types::Fixed<s32,12> distance = numeric_types::Fixed<s32,12>::FromInt(0);
 };
 
 struct Body {
   friend class World;
   //movement information
-  Vec3 position;
-  Vec3 velocity;
-  Vec3 acceleration;
+  Vec3 position = Vec3{
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0)
+  };
+  Vec3 velocity = Vec3{
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0)
+  };;
+  Vec3 acceleration = Vec3{
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0)
+  };;
 
-  Vec2 xz_position;
+  Vec2 xz_position = Vec2{
+    numeric_types::Fixed<s32,12>::FromInt(0),
+    numeric_types::Fixed<s32,12>::FromInt(0)
+  };;
 
   //all bodies are cylinders, so they have a radius and a height. Their base
   //starts at position.y, so their highest point is at position.y + height.
-  numeric_types::Fixed<s32,12> height;
-  numeric_types::Fixed<s32,12> radius;
+  numeric_types::Fixed<s32,12> height = numeric_types::Fixed<s32,12>::FromInt(1);
+  numeric_types::Fixed<s32,12> radius = numeric_types::Fixed<s32,12>::FromInt(1);
   //numeric_types::Fixed<s32,12> radius2;
 
   //used to store arbitrary information. Flexible, dangerous; be careful.

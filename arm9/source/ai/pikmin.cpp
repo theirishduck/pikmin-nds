@@ -235,7 +235,12 @@ bool CollideWithTarget(const PikminState& pikmin) {
     return false;
   }
   if (pikmin.entity->body()->result_groups & DETECT_GROUP) {
-    return true;
+    auto target_circle = pikmin.entity->body()->FirstCollisionWith(DETECT_GROUP);
+    if (target_circle.body) {
+      if (target_circle.body->owner) {
+        return true;
+      }
+    }
   }
   return false;
 }

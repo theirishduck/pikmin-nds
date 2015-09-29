@@ -8,5 +8,5 @@ physics::CollisionResult Body::FirstCollisionWith(u32 collision_mask) {
       return collision_results[i];
     }
   }
-  return {0,0};
+  return CollisionResult();
 }

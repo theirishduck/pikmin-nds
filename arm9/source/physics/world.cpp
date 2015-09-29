@@ -18,23 +18,26 @@ World::~World() {
 
 Body* World::AllocateBody(void* owner) {
   // This is a fairly naive implementation.
-  // TODO(Nick): See if there's a better way to do this? Alternately, just
-  // remember not to spawn 73 things in a single frame.
 
   // Note: A return value of 0 (Null) indicates failure.
   for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
-    if (bodies_[i].owner == nullptr) {
-      bodies_[i].owner = owner;
-      bodies_[i].active = 1;
-      bodies_[i].height = 1_f;
-      bodies_[i].radius = 1_f;
-      bodies_[i].collides_with_level = 1;
-      bodies_[i].affected_by_gravity = 1;
-      bodies_[i].ignores_walls = 0;
-      bodies_[i].touching_ground = 0;
-      //bodies_[i].radius2 = radius * radius;
-      rebuild_index_ = true;
+    if (bodies_[i].active == 0) {
+      Body default_zeroed = {};
+      bodies_[i] = default_zeroed;
 
+      bodies_[i].touching_ground = 0;
+      bodies_[i].is_sensor = 0;
+      bodies_[i].collides_with_bodies = 1;
+      bodies_[i].collides_with_level = 1;
+      bodies_[i].ignores_walls = 0;
+      bodies_[i].is_movable = 0;
+      bodies_[i].is_pikmin = 0;
+      bodies_[i].affected_by_gravity = 1;
+      bodies_[i].active = 1;
+
+      bodies_[i].owner = owner;
+
+      rebuild_index_ = true;
       return &bodies_[i];
     }
   }
