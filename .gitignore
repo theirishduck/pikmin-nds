@@ -33,6 +33,7 @@ local-bash.sh
 
 # NitroFS Files
 arm9/nitrofs/textures/
+arm9/nitrofs/actors/
 
 # Sublime Text .dmp files (upon crashes)
 *.dmp

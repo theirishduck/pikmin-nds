@@ -34,7 +34,7 @@ const fixed kYellowPikminThrowHeight = 2.0_f;
 const int kWhistleExpandFrames = 8;
 
 // Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
-Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
+// Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
 Dsgx cursor_actor((u32*)cursor_dsgx, cursor_dsgx_size);
 Dsgx whistle_actor((u32*)whistle_dsgx, whistle_dsgx_size);
 
@@ -61,7 +61,9 @@ void HandleWhistle(CaptainState& captain) {
 
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
-  captain.entity->set_actor(&olimar_low_poly_actor);
+  //captain.entity->set_actor(&olimar_low_poly_actor);
+  //captain.game->ActorAllocator()->Load("olimar_low_poly", olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
+  captain.entity->set_actor(captain.game->ActorAllocator()->Retrieve("olimar_low_poly"));
   captain.entity->set_mesh("Olimar");
 
   //setup physics parameters for collision

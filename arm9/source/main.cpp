@@ -151,7 +151,7 @@ set<string> texture_extension_is_transparent {
   "t4bpp",
 };
 template<typename T>
-void LoadFile(T* vram_allocator, typename T::Metadata metadata, string filename, string identifier) {
+void LoadFileWithMetadata(T* vram_allocator, typename T::Metadata metadata, string filename, string identifier) {
   // Load the file data into a temporary buffer
   auto file = fopen(("/textures/" + filename).c_str(), "rb");
   if (file) {
@@ -163,6 +163,31 @@ void LoadFile(T* vram_allocator, typename T::Metadata metadata, string filename,
     if (fread(buffer.data(), 1, size, file)) {
       vram_allocator->Load(
         identifier, (u8*)buffer.data(), size, metadata);
+      nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
+      debug::nocashNumber(size);
+    } else {
+      nocashMessage("NitroFS Read FAILED for");
+      nocashMessage(filename.c_str());
+    }
+    fclose(file);
+  } else {
+    nocashMessage("NitroFS Open FAILED for");
+    nocashMessage(filename.c_str());
+  }
+}
+
+void LoadDsgxFile(DsgxAllocator* dsgx_allocator, string filename, string identifier) {
+  // Load the file data into a temporary buffer
+  auto file = fopen(("/actors/" + filename).c_str(), "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    auto const size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    vector<char> buffer(size);
+    if (fread(buffer.data(), 1, size, file)) {
+      dsgx_allocator->Load(
+        identifier, (u8*)buffer.data(), size);
       nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
       debug::nocashNumber(size);
     } else {
@@ -195,11 +220,25 @@ void LoadTexturesFromNitroFS() {
     }
 
     // Load the file data into a temporary buffer
-    LoadFile(g_game.TextureAllocator(), metadata, filename, filename);
+    LoadFileWithMetadata(g_game.TextureAllocator(), metadata, filename, filename);
 
     // Attempt to find and load a matching palette file, if one exists
     string const palette_filename = BaseName(filename) + ".pal";
-    LoadFile(g_game.TexturePaletteAllocator(), TexturePalette{}, palette_filename, filename);
+    LoadFileWithMetadata(g_game.TexturePaletteAllocator(), TexturePalette{}, palette_filename, filename);
+  }
+}
+
+void LoadActors() {
+  auto texture_files = FilesInDirectory("/actors");
+  for (string filename : texture_files) {
+    auto extension = FileExtension(filename);
+    if (extension == "dsgx") {
+      // load and parse the DSGX data
+      LoadDsgxFile(g_game.ActorAllocator(), filename, BaseName(filename));
+      // apply texture offsets from our previously loaded textures and palettes
+      Dsgx* actor = g_game.ActorAllocator()->Retrieve(BaseName(filename));
+      actor->ApplyTextures(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
+    }
   }
 }
 
@@ -262,6 +301,7 @@ void Init() {
   InitSubScreen();
 
   LoadTextures();
+  LoadActors();
   InitCaptain();
   SetupDemoStage();
 

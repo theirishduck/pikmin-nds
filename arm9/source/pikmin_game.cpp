@@ -54,6 +54,10 @@ VramAllocator<Sprite>* PikminGame::SpriteAllocator() {
   return &sprite_allocator_;
 }
 
+DsgxAllocator* PikminGame::ActorAllocator() {
+  return &dsgx_allocator_;
+}
+
 DrawableEntity* PikminGame::allocate_entity() {
   if (entities_.size() >= kMaxEntities) {
     return nullptr;

@@ -15,6 +15,7 @@
 
 #include "debug.h"
 #include "vram_allocator.h"
+#include "dsgx_allocator.h"
 
 struct PikminSave {
   int red_pikmin = 100;
@@ -47,6 +48,7 @@ class PikminGame {
   VramAllocator<Texture>* TextureAllocator();
   VramAllocator<TexturePalette>* TexturePaletteAllocator();
   VramAllocator<Sprite>* SpriteAllocator();
+  DsgxAllocator* ActorAllocator();
 
   //useful polling functions
   captain_ai::CaptainState* ActiveCaptain();
@@ -73,6 +75,7 @@ class PikminGame {
   VramAllocator<Texture> texture_allocator_ = VramAllocator<Texture>(VRAM_C, 128 * 1024);
   VramAllocator<TexturePalette> texture_palette_allocator_ = VramAllocator<TexturePalette>(VRAM_G, 16 * 1024, 16);
   VramAllocator<Sprite> sprite_allocator_ = VramAllocator<Sprite>(SPRITE_GFX_SUB, 32 * 1024);
+  DsgxAllocator dsgx_allocator_;
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
