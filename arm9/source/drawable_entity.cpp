@@ -184,7 +184,7 @@ void DrawableEntity::Draw() {
 void DrawableEntity::Update() {
   // Update the animation if one is playing.
   if (current_.animation) {
-    current_.animation_frame+=2;
+    current_.animation_frame++;
     // Wrap around to the beginning of the animation.
     if (current_.animation_frame >= current_.animation->length) {
       current_.animation_frame = 0;

@@ -16,7 +16,7 @@ Options:
                          ".blend" suffix replaced by ".dsgx".
 """
 
-import sys, os, logging, traceback
+import sys, os, logging, traceback, math
 sys.path.append("/opt/dsgx-converter")
 sys.path.append("/usr/local/lib/python3.2/dist-packages")
 try:
@@ -179,7 +179,9 @@ def import_animations(output_model):
             # in the armature
             nodes = {bone.name: [] for bone in armature.data.bones}
 
-            for frame in range(int(action.frame_range[0]), int(action.frame_range[1])):
+            # Note: step is 2, because blender defaults to 60 FPS, and we want
+            # to export at 30 FPS.
+            for frame in range(int(action.frame_range[0]), int(action.frame_range[1]), 2):
                 bpy.data.scenes[0].frame_set(frame)
                 for posebone in armature.pose.bones:
                     bind_pose = posebone.bone.matrix_local
@@ -190,7 +192,7 @@ def import_animations(output_model):
 
             output_model.createAnimation("Armature|" + action.name)
             animation = output_model.getAnimation("Armature|" + action.name)
-            animation.length = int(action.frame_range[1] - action.frame_range[0])
+            animation.length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
             for key, node in nodes.items():
                 animation.addNode(key, node)
             print("Created animation ", action.name, " with ", animation.length, " frames.")
