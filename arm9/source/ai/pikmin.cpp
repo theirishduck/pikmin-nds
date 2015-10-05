@@ -7,9 +7,6 @@
 #include "dsgx.h"
 #include "multipass_engine.h"
 
-extern const u8 pikmin_dsgx[];
-extern const u32 pikmin_dsgx_size;
-
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -22,8 +19,6 @@ namespace pikmin_ai {
 const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
-Dsgx pikmin_actor((u32*)pikmin_dsgx, pikmin_dsgx_size);
-
 TreasureState* GetActiveTreasure(const PikminState& pikmin) {
   TreasureState* treasure = (TreasureState*) pikmin.chase_target->owner;
   return treasure;
@@ -33,19 +28,16 @@ void InitAlways(PikminState& pikmin) {
   switch (pikmin.type) {
     case PikminType::kNone:
     case PikminType::kRedPikmin:
-      pikmin.entity->set_actor(&pikmin_actor);
+      pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
       pikmin.entity->set_mesh("red_pikmin");
-      pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
     case PikminType::kYellowPikmin:
-      pikmin.entity->set_actor(&pikmin_actor);
+      pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
       pikmin.entity->set_mesh("yellow_pikmin");
-      pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
     case PikminType::kBluePikmin:
-      pikmin.entity->set_actor(&pikmin_actor);
+      pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
       pikmin.entity->set_mesh("blue_pikmin");
-      pikmin_actor.ApplyTextures(pikmin.game->TextureAllocator(), pikmin.game->TexturePaletteAllocator());
       break;
   }
 

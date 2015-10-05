@@ -4,10 +4,6 @@
 #include "pikmin_game.h"
 #include "particle.h"
 
-// Model data
-extern const u8 fire_spout_dsgx[];
-extern const u32 fire_spout_dsgx_size;
-
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -15,12 +11,9 @@ using numeric_types::fixed;
 
 namespace fire_spout_ai {
 
-Dsgx fire_spout_actor((u32*)fire_spout_dsgx, fire_spout_dsgx_size);
-
 void InitAlways(FireSpoutState& fire_spout) {
   // Initialize our model
-  fire_spout.entity->set_actor(&fire_spout_actor);
-  fire_spout_actor.ApplyTextures(fire_spout.game->TextureAllocator(), fire_spout.game->TexturePaletteAllocator());
+  fire_spout.entity->set_actor(fire_spout.game->ActorAllocator()->Retrieve("fire_spout"));
 
   // Set our initial timer to something appropriate
   fire_spout.flame_timer = (rand() % 128);

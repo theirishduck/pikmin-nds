@@ -257,6 +257,7 @@ void LoadTextures() {
 void SetupDemoStage() {
   //load in the test level
   Level* sandbox = new Level(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
+  sandbox->set_actor(g_game.ActorAllocator()->Retrieve("checker_test"));
   g_engine.AddEntity(sandbox);
   g_engine.World().SetHeightmap(checkerboard_height_bin);
 

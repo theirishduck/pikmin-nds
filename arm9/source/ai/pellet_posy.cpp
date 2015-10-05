@@ -4,10 +4,6 @@
 #include "pikmin_game.h"
 #include "treasure.h"
 
-// Model data
-extern const u8 pellet_posy_dsgx[];
-extern const u32 pellet_posy_dsgx_size;
-
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -15,11 +11,8 @@ using numeric_types::fixed;
 
 namespace posy_ai {
 
-Dsgx posy_actor((u32*)pellet_posy_dsgx, pellet_posy_dsgx_size);
-
 void InitAlways(PosyState& posy) {
-  posy.entity->set_actor(&posy_actor);
-  posy_actor.ApplyTextures(posy.game->TextureAllocator(), posy.game->TexturePaletteAllocator());
+  posy.entity->set_actor(posy.game->ActorAllocator()->Retrieve("pellet_posy"));
 
   posy.detection = posy.entity->engine()->World().AllocateBody(&posy);
   posy.detection->position = posy.entity->body()->position;

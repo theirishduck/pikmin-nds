@@ -2,11 +2,6 @@
 #include "debug.h"
 #include "dsgx.h"
 
-//TODO: Move this out of here and make a mesh manager!
-extern const u8 pellet_dsgx[];
-extern const u32 pellet_dsgx_size;
-Dsgx pellet_actor((u32*)pellet_dsgx, pellet_dsgx_size);
-
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
 using captain_ai::CaptainState;
@@ -347,8 +342,7 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
   }},
   {"Corpse:Pellet", [](PikminGame* game) -> TreasureState* {
     auto treasure = game->SpawnObject<TreasureState>();
-    treasure->entity->set_actor(&pellet_actor);
-    pellet_actor.ApplyTextures(treasure->game->TextureAllocator(), treasure->game->TexturePaletteAllocator());
+    treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));    
     treasure->entity->body()->radius = 2_f;
     return treasure;
   }},

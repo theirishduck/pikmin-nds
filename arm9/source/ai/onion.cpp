@@ -4,11 +4,6 @@
 #include "pikmin_game.h"
 #include "ai/pikmin.h"
 
-// Model data
-// #include "onion_dsgx.h"
-extern const u8 onion_dsgx[];
-extern const u32 onion_dsgx_size;
-
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -18,11 +13,8 @@ using pikmin_ai::PikminType;
 
 namespace onion_ai {
 
-Dsgx onion_actor((u32*)onion_dsgx, onion_dsgx_size);
-
 void InitAlways(OnionState& onion) {
-  onion.entity->set_actor(&onion_actor);
-  onion_actor.ApplyTextures(onion.game->TextureAllocator(), onion.game->TexturePaletteAllocator());
+  onion.entity->set_actor(onion.game->ActorAllocator()->Retrieve("onion"));
   if (onion.pikmin_type == PikminType::kRedPikmin) {
     onion.entity->set_mesh("RedOnion");
   }

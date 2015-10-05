@@ -7,14 +7,6 @@
 #include "trig.h"
 #include "ai/onion.h"
 
-// Model data
-extern const u8 olimar_low_poly_dsgx[];
-extern const u32 olimar_low_poly_dsgx_size;
-extern const u8 cursor_dsgx[];
-extern const u32 cursor_dsgx_size;
-extern const u8 whistle_dsgx[];
-extern const u32 whistle_dsgx_size;
-
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
@@ -32,11 +24,6 @@ const fixed kCursorSpeedMultiplier = 3_f;
 const fixed kPikminThrowHeight = 1.6_f;
 const fixed kYellowPikminThrowHeight = 2.0_f;
 const int kWhistleExpandFrames = 8;
-
-// Dsgx olimar_actor((u32*)olimar_dsgx, olimar_dsgx_size);
-// Dsgx olimar_low_poly_actor((u32*)olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
-Dsgx cursor_actor((u32*)cursor_dsgx, cursor_dsgx_size);
-Dsgx whistle_actor((u32*)whistle_dsgx, whistle_dsgx_size);
 
 void HandleWhistle(CaptainState& captain) {
   captain.whistle->body()->position = captain.cursor->body()->position;
@@ -61,8 +48,6 @@ void HandleWhistle(CaptainState& captain) {
 
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
-  //captain.entity->set_actor(&olimar_low_poly_actor);
-  //captain.game->ActorAllocator()->Load("olimar_low_poly", olimar_low_poly_dsgx, olimar_low_poly_dsgx_size);
   captain.entity->set_actor(captain.game->ActorAllocator()->Retrieve("olimar_low_poly"));
   captain.entity->set_mesh("Olimar");
 
@@ -81,16 +66,14 @@ void InitAlways(CaptainState& captain) {
   captain.current_angle = 0_brad;
 
   //Initialize the cursor
-  captain.cursor->set_actor(&cursor_actor);
-  cursor_actor.ApplyTextures(captain.game->TextureAllocator(), captain.game->TexturePaletteAllocator());
+  captain.cursor->set_actor(captain.game->ActorAllocator()->Retrieve("cursor"));
   captain.cursor->body()->ignores_walls = 1;
   captain.cursor->body()->position = body->position
       + Vec3{0_f,0_f,5_f};
   captain.cursor->body()->is_sensor = 1;
 
   //Initialize the whistle
-  captain.whistle->set_actor(&whistle_actor);
-  whistle_actor.ApplyTextures(captain.game->TextureAllocator(), captain.game->TexturePaletteAllocator());
+  captain.whistle->set_actor(captain.game->ActorAllocator()->Retrieve("whistle"));
   auto whistle_body = captain.whistle->body();
 
   whistle_body->height = 20.0_f;

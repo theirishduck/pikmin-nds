@@ -89,8 +89,8 @@ else
 endif
 #---------------------------------------------------------------------------------
 
-export OFILES	:=	$(addsuffix .o,$(BINFILES)) $(BLENDFILES:.blend=.dsgx.o) \
-					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
+export OFILES	:=	$(addsuffix .o,$(BINFILES)) $(CPPFILES:.cpp=.o) \
+									$(CFILES:.c=.o) $(SFILES:.s=.o)
 
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
@@ -98,7 +98,8 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=)))
+export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
+				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES:.blend=.dsgx))) \
 
 .PHONY: $(BUILD) clean
 
@@ -111,6 +112,11 @@ $(BUILD): $(NITROFILES)
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR)
+
+$(NITRODIR)/actors/%.dsgx : $(BLEND)/%.blend
+	@mkdir -p $(NITRODIR)/actors
+	@echo $(notdir $<)
+	python3 ../tools/blender2dsgx.py --output $@ $<
 
 # We need one of these for every paletted format, largely because make doesn't
 # seem to support multiple wildcard fields, and I'm *far* too lazy to come up
@@ -178,11 +184,6 @@ $(ARM9ELF) :	$(OFILES)
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	@$(bin2o)
-
-%.dsgx	:	%.blend
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	python3 ../../tools/blender2dsgx.py --output $@ $< 
 
 -include $(DEPSDIR)/*.d
 
