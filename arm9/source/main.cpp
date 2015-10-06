@@ -16,6 +16,7 @@
 #include "ai/captain.h"
 #include "ai/onion.h"
 #include "ai/fire_spout.h"
+#include "ai/treasure.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
@@ -28,6 +29,7 @@ using onion_ai::OnionState;
 using posy_ai::PosyState;
 using pikmin_ai::PikminType;
 using fire_spout_ai::FireSpoutState;
+using treasure_ai::TreasureState;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -263,31 +265,34 @@ void SetupDemoStage() {
 
   //spawn in an onion!
   auto red_onion = g_game.SpawnObject<OnionState>();
-  red_onion->entity->body()->position = Vec3{64_f, 0_f, -32_f};
+  red_onion->set_position(Vec3{64_f, 0_f, -32_f});
   red_onion->pikmin_type = PikminType::kRedPikmin;
 
   //spawn in a yellow onion too!
   auto yellow_onion = g_game.SpawnObject<OnionState>();
-  yellow_onion->entity->body()->position = Vec3{96_f, 0_f, -64_f};
+  yellow_onion->set_position(Vec3{96_f, 0_f, -64_f});
   yellow_onion->pikmin_type = PikminType::kYellowPikmin;
 
   //spawn in a blue onion while we're at it
   auto blue_onion = g_game.SpawnObject<OnionState>();
-  blue_onion->entity->body()->position = Vec3{64_f, 0_f, -96_f};
+  blue_onion->set_position(Vec3{64_f, 0_f, -96_f});
   blue_onion->pikmin_type = PikminType::kBluePikmin;
 
   //auto posy = g_game.SpawnObject<PosyState>();
   auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
-  posy->entity->body()->position = Vec3{44_f, 0_f, -72_f};
+  posy->set_position(Vec3{44_f, 0_f, -72_f});
 
   auto fire_spout = g_game.Spawn<FireSpoutState>("Hazard:FireSpout");
-  fire_spout->entity->body()->position = Vec3{64_f, 0_f, -64_f};
+  fire_spout->set_position(Vec3{64_f, 0_f, -64_f});
+
+  auto pellet = g_game.Spawn<TreasureState>("Corpse:Pellet");
+  pellet->set_position(Vec3{54_f, 0_f, -64_f});
 }
 
 void InitCaptain() {
   CaptainState* captain = g_game.SpawnObject<CaptainState>();
   g_engine.camera()->FollowCaptain(captain);
-  captain->entity->body()->position = Vec3{64_f,0_f,-62_f};
+  captain->set_position(Vec3{64_f,0_f,-62_f});
 }
 
 void Init() {

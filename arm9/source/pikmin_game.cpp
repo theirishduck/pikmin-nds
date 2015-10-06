@@ -21,6 +21,11 @@ int PikminSave::PikminCount(PikminType type) {
   return ((int*)this)[(int)type - 1];
 }
 
+void PikminSave::AddPikmin(PikminType type, int num_pikmin) {
+  // Note to self: here too. Seriously. Shame on you.
+  ((int*)this)[(int)type - 1] += num_pikmin;
+}
+
 int PikminGame::TotalPikmin() {
   int total =
     current_save_data_.PikminCount(PikminType::kRedPikmin) +
@@ -109,6 +114,7 @@ void PikminGame::RemoveObject<TreasureState>(TreasureState* object) {
   engine.RemoveEntity(object->entity);
   entities_.remove(object->entity);
   delete object->entity;
+  object->active = false;
 }
 
 template <>
@@ -342,8 +348,8 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
   }},
   {"Corpse:Pellet", [](PikminGame* game) -> TreasureState* {
     auto treasure = game->SpawnObject<TreasureState>();
-    treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));    
-    treasure->entity->body()->radius = 2_f;
+    treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
+    treasure->entity->body_handle().body->radius = 2_f;
     return treasure;
   }},
 };

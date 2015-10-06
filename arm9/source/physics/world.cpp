@@ -7,6 +7,7 @@
 
 using physics::World;
 using physics::Body;
+using physics::BodyHandle;
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
@@ -16,7 +17,7 @@ World::World() {
 World::~World() {
 }
 
-Body* World::AllocateBody(void* owner) {
+BodyHandle World::AllocateBody(void* owner) {
   // This is a fairly naive implementation.
 
   // Note: A return value of 0 (Null) indicates failure.
@@ -36,18 +37,26 @@ Body* World::AllocateBody(void* owner) {
       bodies_[i].active = 1;
 
       bodies_[i].owner = owner;
+      bodies_[i].generation = current_generation_;
 
       rebuild_index_ = true;
-      return &bodies_[i];
+      BodyHandle handle;
+      handle.body = &bodies_[i];
+      handle.generation = current_generation_;
+      return handle;
     }
   }
-  return nullptr;
+  BodyHandle handle;
+  handle.body = nullptr;
+  handle.generation = -1;
+  return handle;
 }
 
 void World::FreeBody(Body* body) {
   body->owner = nullptr;
   body->active = 0;
   rebuild_index_ = true;
+  current_generation_++;
 }
 
 void World::Wake(Body* body) {

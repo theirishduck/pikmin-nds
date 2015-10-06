@@ -8,7 +8,7 @@ namespace physics {
 
 class World {
   public:
-    Body* AllocateBody(void* owner);
+    BodyHandle AllocateBody(void* owner);
     void FreeBody(Body* body);
     void Update();
     void DebugCircles();
@@ -53,6 +53,8 @@ class World {
     int collisions_this_frame;
 
     int current_neighbor_ = 0;
+
+    int current_generation_ = 0;
 };
 
 }  // namespace physics

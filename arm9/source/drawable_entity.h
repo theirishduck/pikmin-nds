@@ -37,14 +37,14 @@ class DrawableEntity {
   DrawState& GetCachedState();
   void SetCache();
 
-  Vec3 position();
+  Vec3 position() const;
   void set_position(Vec3);
 
-  Rotation rotation();
+  Rotation rotation() const;
   void set_rotation(numeric_types::Brads x, numeric_types::Brads y, numeric_types::Brads z);
   void set_rotation(Rotation rotation);
 
-  numeric_types::fixed scale();
+  numeric_types::fixed scale() const;
   void set_scale(numeric_types::fixed new_scale);
 
   void RotateToXZDirection(Vec2 direction);
@@ -59,7 +59,7 @@ class DrawableEntity {
   void set_mesh(const char* mesh_name);
   Mesh* mesh();
 
-  physics::Body* body();
+  physics::BodyHandle body_handle();
 
   void set_engine(MultipassEngine* engine);
   MultipassEngine* engine();
@@ -83,7 +83,7 @@ class DrawableEntity {
 
   MultipassEngine* engine_{nullptr};
  protected:
-  physics::Body* body_{nullptr};
+  physics::BodyHandle body_;
 };
 
 #endif  // DRAWABLE_ENTITY_H

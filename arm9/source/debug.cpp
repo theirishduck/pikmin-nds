@@ -505,7 +505,7 @@ void debug::UpdateSpawnerMode(PikminGame* game) {
     } else {
       //Spawn a thingy!!
       ObjectState* object = game->Spawn(g_current_spawner->first);
-      object->entity->body()->position = game->ActiveCaptain()->cursor->body()->position;
+      object->set_position(game->ActiveCaptain()->cursor->position());
       object->entity->set_rotation(game->ActiveCaptain()->cursor->rotation());
     }
   }

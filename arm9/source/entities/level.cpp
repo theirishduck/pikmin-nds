@@ -17,6 +17,6 @@ Level::~Level() {
 
 void Level::Init() {
   DrawableEntity::Init();
-  body_->collides_with_level = 0;
-  body_->affected_by_gravity = 0;
+  body_.body->collides_with_level = 0;
+  body_.body->affected_by_gravity = 0;
 }

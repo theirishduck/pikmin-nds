@@ -80,10 +80,18 @@ struct Body {
 
   CollisionResult FirstCollisionWith(u32 collision_mask);
   unsigned short active : 1;
+  unsigned short generation;
   Vec3 old_position;
   numeric_types::Fixed<s32,12> old_radius;
 
   std::array<Neighbor, MAX_PHYSICS_NEIGHBORS> neighbors;
+};
+
+struct BodyHandle {
+  Body* body{nullptr};
+  int generation{0};
+
+  bool is_valid();
 };
 
 }  // namespace physics

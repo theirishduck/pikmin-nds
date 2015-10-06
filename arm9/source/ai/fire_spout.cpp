@@ -19,25 +19,25 @@ void InitAlways(FireSpoutState& fire_spout) {
   fire_spout.flame_timer = (rand() % 128);
 
   // Setup our static physics properties
-  fire_spout.entity->body()->collision_group = ATTACK_GROUP;
-  fire_spout.entity->body()->owner = &fire_spout.health;
+  fire_spout.entity->body_handle().body->collision_group = ATTACK_GROUP;
+  fire_spout.entity->body_handle().body->owner = &fire_spout.health;
 
-  fire_spout.detection = fire_spout.entity->engine()->World().AllocateBody(&fire_spout);
-  fire_spout.detection->position = fire_spout.entity->body()->position;
+  fire_spout.detection = fire_spout.entity->engine()->World().AllocateBody(&fire_spout).body;
+  fire_spout.detection->position = fire_spout.position();
   fire_spout.detection->radius = 10_f;
   fire_spout.detection->height = 5_f;
   fire_spout.detection->is_sensor = true;
   fire_spout.detection->collision_group = DETECT_GROUP;
-  fire_spout.detection->owner = fire_spout.entity->body();
+  fire_spout.detection->owner = fire_spout.entity->body_handle().body;
 }
 
 void FlameOn(FireSpoutState& fire_spout) {
   // Spawn in a physics entity for the fire hazard
-  fire_spout.flame_sensor = fire_spout.entity->engine()->World().AllocateBody(&fire_spout);
+  fire_spout.flame_sensor = fire_spout.entity->engine()->World().AllocateBody(&fire_spout).body;
   fire_spout.flame_sensor->radius = 2.0_f;
   fire_spout.flame_sensor->is_sensor = true;
   fire_spout.flame_sensor->collision_group = FIRE_HAZARD_GROUP;
-  fire_spout.flame_sensor->position = fire_spout.entity->body()->position;
+  fire_spout.flame_sensor->position = fire_spout.position();
 
   fire_spout.flame_timer = (rand() % 16) + 112;
 }
@@ -70,7 +70,7 @@ void SpawnFireParticle(FireSpoutState& fire_spout) {
     Particle fire_particle;
     fire_particle.texture = fire_spout.game->TextureAllocator()->Retrieve("fire.a3i5");
     fire_particle.palette = fire_spout.game->TexturePaletteAllocator()->Retrieve("fire.a3i5");
-    fire_particle.position = fire_spout.entity->body()->position;
+    fire_particle.position = fire_spout.position();
     fire_particle.position.y += 0.5_f;
     fire_particle.lifespan = 16;
     fire_particle.fade_rate = 1_f / 32_f;
@@ -99,7 +99,7 @@ void KillSelf(FireSpoutState& fire_spout) {
   // Clear out all of our collision data, so the pikmin stop attacking us
   fire_spout.entity->engine()->World().FreeBody(fire_spout.detection);
   fire_spout.detection = nullptr;
-  fire_spout.entity->body()->owner = nullptr;
+  fire_spout.entity->body_handle().body->owner = nullptr;
 }
 
 Edge<FireSpoutState> init[] {

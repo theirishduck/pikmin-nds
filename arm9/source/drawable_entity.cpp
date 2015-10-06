@@ -26,10 +26,10 @@ DrawableEntity::DrawableEntity() {
 }
 
 DrawableEntity::~DrawableEntity() {
-  engine()->World().FreeBody(body_);
+  engine()->World().FreeBody(body_.body);
 }
 
-Vec3 DrawableEntity::position() {
+Vec3 DrawableEntity::position() const {
   return current_.position;
 }
 
@@ -37,7 +37,7 @@ void DrawableEntity::set_position(Vec3 pos) {
   current_.position = pos;
 }
 
-Rotation DrawableEntity::rotation() {
+Rotation DrawableEntity::rotation() const {
   return current_.rotation;
 }
 
@@ -51,7 +51,7 @@ void DrawableEntity::set_rotation(Rotation rotation) {
   current_.rotation = rotation;
 }
 
-fixed DrawableEntity::scale() {
+fixed DrawableEntity::scale() const {
   return current_.scale;
 }
 
@@ -192,7 +192,9 @@ void DrawableEntity::Update() {
   }
 
   //set the current position to our body's physics position
-  set_position(body_->position);
+  if (body_.is_valid()) {
+    set_position(body_.body->position);
+  }
 }
 
 bool DrawableEntity::InsideViewFrustrum() {
@@ -240,7 +242,7 @@ void DrawableEntity::Init() {
   body_ = engine()->World().AllocateBody(this);
 }
 
-physics::Body* DrawableEntity::body() {
+physics::BodyHandle DrawableEntity::body_handle() {
   return body_;
 }
 
@@ -267,8 +269,8 @@ void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {
 }
 
 Brads DrawableEntity::AngleTo(const DrawableEntity* destination) {
-  auto difference = Vec2{destination->body_->position.x, destination->body_->position.z} -
-      Vec2{body_->position.x, body_->position.z};
+  auto difference = Vec2{destination->position().x, destination->position().z} -
+      Vec2{position().x, position().z};
   if (difference.Length2() > 0_f) {
     difference = difference.Normalize();
     if (difference.y <= 0_f) {

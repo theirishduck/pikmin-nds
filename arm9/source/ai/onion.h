@@ -10,7 +10,9 @@ namespace onion_ai {
 struct OnionState : ObjectState {
   physics::Body* feet[3];
   pikmin_ai::PikminType pikmin_type = pikmin_ai::PikminType::kRedPikmin;
-  int withdraw_count = 0;
+  int withdraw_count{0};
+  int seeds_count{0};
+  int old_seeds_count_{0};
 };
 
 extern StateMachine<OnionState> machine;

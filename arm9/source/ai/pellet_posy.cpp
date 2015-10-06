@@ -14,16 +14,16 @@ namespace posy_ai {
 void InitAlways(PosyState& posy) {
   posy.entity->set_actor(posy.game->ActorAllocator()->Retrieve("pellet_posy"));
 
-  posy.detection = posy.entity->engine()->World().AllocateBody(&posy);
-  posy.detection->position = posy.entity->body()->position;
+  posy.detection = posy.entity->engine()->World().AllocateBody(&posy).body;
+  posy.detection->position = posy.position();
   posy.detection->radius = 10_f;
   posy.detection->height = 5_f;
   posy.detection->is_sensor = true;
   posy.detection->collision_group = DETECT_GROUP;
-  posy.detection->owner = posy.entity->body();
+  posy.detection->owner = posy.entity->body_handle().body;
 
-  posy.entity->body()->collision_group = ATTACK_GROUP;
-  posy.entity->body()->owner = &posy.health;
+  posy.entity->body_handle().body->collision_group = ATTACK_GROUP;
+  posy.entity->body_handle().body->owner = &posy.health;
 }
 
 bool ZeroHealth(const PosyState& posy) {
@@ -44,11 +44,11 @@ void GoodbyeCruelWorld(PosyState& posy) {
 
   // Spawn in the pellet
   auto pellet = posy.game->Spawn<treasure_ai::TreasureState>("Corpse:Pellet");
-  pellet->entity->body()->position = posy.entity->body()->position;
+  pellet->set_position(posy.position());
 }
 
 void MarkAsDead(PosyState& posy) {
-  posy.entity->body()->owner = nullptr;
+  posy.entity->body_handle().body->owner = nullptr;
   posy.detection->owner = nullptr;
 }
 

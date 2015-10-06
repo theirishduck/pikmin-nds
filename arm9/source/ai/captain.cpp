@@ -26,22 +26,22 @@ const fixed kYellowPikminThrowHeight = 2.0_f;
 const int kWhistleExpandFrames = 8;
 
 void HandleWhistle(CaptainState& captain) {
-  captain.whistle->body()->position = captain.cursor->body()->position;
+  captain.whistle->body_handle().body->position = captain.cursor->body_handle().body->position;
 
   // Do a bit of cheating and handle the whistle here for now
   if (keysHeld() & KEY_B) {
     if (captain.whistle_timer < 8) {
       captain.whistle_timer++;
       //turn the whistle on
-      captain.whistle->body()->collision_group = WHISTLE_GROUP;
+      captain.whistle->body_handle().body->collision_group = WHISTLE_GROUP;
     }
   } else if (captain.whistle_timer > 0) {
     captain.whistle_timer--;
     //turn the whistle back off
-    captain.whistle->body()->collision_group = 0;
+    captain.whistle->body_handle().body->collision_group = 0;
   }
 
-  captain.whistle->body()->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
+  captain.whistle->body_handle().body->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
   captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames));
   captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 3_brad, 0_brad);
 }
@@ -52,7 +52,7 @@ void InitAlways(CaptainState& captain) {
   captain.entity->set_mesh("Olimar");
 
   //setup physics parameters for collision
-  auto body = captain.entity->body();
+  auto body = captain.entity->body_handle().body;
   body->height = 6_f;
   body->radius = 1.5_f;
 
@@ -67,14 +67,14 @@ void InitAlways(CaptainState& captain) {
 
   //Initialize the cursor
   captain.cursor->set_actor(captain.game->ActorAllocator()->Retrieve("cursor"));
-  captain.cursor->body()->ignores_walls = 1;
-  captain.cursor->body()->position = body->position
+  captain.cursor->body_handle().body->ignores_walls = 1;
+  captain.cursor->body_handle().body->position = body->position
       + Vec3{0_f,0_f,5_f};
-  captain.cursor->body()->is_sensor = 1;
+  captain.cursor->body_handle().body->is_sensor = 1;
 
   //Initialize the whistle
   captain.whistle->set_actor(captain.game->ActorAllocator()->Retrieve("whistle"));
-  auto whistle_body = captain.whistle->body();
+  auto whistle_body = captain.whistle->body_handle().body;
 
   whistle_body->height = 20.0_f;
   whistle_body->is_sensor = 1;
@@ -95,10 +95,10 @@ bool DpadInactive(const CaptainState& captain) {
 void StopCaptain(CaptainState& captain) {
   // reset velocity in XZ to 0, so we stop moving
   // (but ignore Y so that we keep falling)
-  auto body = captain.entity->body();
+  auto body = captain.entity->body_handle().body;
   body->velocity.x = 0_f;
   body->velocity.z = 0_f;
-  auto cursor_body = captain.cursor->body();
+  auto cursor_body = captain.cursor->body_handle().body;
   cursor_body->velocity.x = 0_f;
   cursor_body->velocity.z = 0_f;
 }
@@ -114,14 +114,14 @@ void MoveCaptain(CaptainState& captain) {
   captain.entity->RotateToFace(captain.current_angle, 20_brad);
 
   // Apply velocity in the direction of the current angle.
-  auto body = captain.entity->body();
+  auto body = captain.entity->body_handle().body;
   body->velocity.x = trig::CosLerp(captain.current_angle);
   body->velocity.z = -trig::SinLerp(captain.current_angle);
   body->velocity.x *= kRunSpeed;
   body->velocity.z *= kRunSpeed;
 
   // Move the cursor in the same direction, at a faster rate
-  auto cursor_body = captain.cursor->body();
+  auto cursor_body = captain.cursor->body_handle().body;
   cursor_body->velocity.x = body->velocity.x * kCursorSpeedMultiplier;
   cursor_body->velocity.z = body->velocity.z * kCursorSpeedMultiplier;
 
@@ -143,14 +143,14 @@ void MoveCaptain(CaptainState& captain) {
   HandleWhistle(captain);
 
   // Handle collision with certain kinds of sensors
-  if (captain.entity->body()->result_groups & ONION_BEAM_GROUP) {
+  if (captain.entity->body_handle().body->result_groups & ONION_BEAM_GROUP) {
     onion_ai::OnionState* current_onion =
-        (onion_ai::OnionState*)(captain.entity->body()->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
+        (onion_ai::OnionState*)(captain.entity->body_handle().body->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
     captain.active_onion = current_onion;
   } else {
     captain.active_onion = nullptr;
   }
-  debug::DisplayValue("Pos: ", captain.entity->body()->position);
+  debug::DisplayValue("Pos: ", captain.position());
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {
@@ -171,11 +171,11 @@ void GrabPikmin(CaptainState& captain) {
   PikminState* pikmin = captain.squad.pikmin[0];
 
   //Move the pikmin to olimar's hand
-  auto pikmin_body = pikmin->entity->body();
-  pikmin_body->position = captain.entity->body()->position;
-  pikmin_body->position.x += trig::CosLerp(captain.current_angle);
-  pikmin_body->position.y += 0.5_f;
-  pikmin_body->position.z += -trig::SinLerp(captain.current_angle);
+  pikmin->set_position(captain.position() + Vec3{
+    trig::CosLerp(captain.current_angle),
+    0.5_f,
+    -trig::SinLerp(captain.current_angle)
+  });
   pikmin->parent = captain.entity;
   captain.held_pikmin = pikmin;
 }
@@ -189,18 +189,18 @@ void ThrowPikmin(CaptainState& captain) {
   }
 
   fixed pikmin_travel_time = pikmin_y_velocity * 2_f / GRAVITY_CONSTANT;
-  Vec3 distance_to_cursor = captain.cursor->body()->position -
-      captain.entity->body()->position;
+  Vec3 distance_to_cursor = captain.cursor->body_handle().body->position -
+      captain.position();
 
   fixed pikmin_x_velocity = distance_to_cursor.x / pikmin_travel_time;
   fixed pikmin_z_velocity = distance_to_cursor.z / pikmin_travel_time;
 
   // Add in the captain's velocity; this is an intended gameplay mechanic
-  pikmin_x_velocity += captain.entity->body()->velocity.x;
-  pikmin_z_velocity += captain.entity->body()->velocity.z;
+  pikmin_x_velocity += captain.velocity().x;
+  pikmin_z_velocity += captain.velocity().z;
 
-  captain.held_pikmin->entity->body()->velocity = Vec3{
-      pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity};
+  captain.held_pikmin->set_velocity(Vec3{
+      pikmin_x_velocity, pikmin_y_velocity, pikmin_z_velocity});
   captain.held_pikmin->parent = nullptr;
 
   captain.held_pikmin->entity->RotateToFace(captain.cursor);
@@ -264,8 +264,8 @@ bool DismissPressedWithSquad(const CaptainState& captain) {
 
 void DismissSquad(CaptainState& captain) {
   Vec2 captain_positon = {
-    captain.entity->body()->position.x,
-    captain.entity->body()->position.z
+    captain.position().x,
+    captain.position().z
   };
 
   Vec2 red_position = Vec2{9_f, 3_f}.Rotate(captain.entity->rotation().y)

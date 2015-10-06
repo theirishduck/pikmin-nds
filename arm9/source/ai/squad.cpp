@@ -108,11 +108,11 @@ const fixed kSquadSpacing = 2.0_f;
 
 void UpdateTestSquare(SquadState& squad) {
   // move ourselves close to the captain
-  auto distance = (squad.captain->entity->body()->position - squad.position).Length();
+  auto distance = (squad.captain->position() - squad.position).Length();
   if (distance > kMaxDistanceFromCaptain) {
-    auto direction = squad.captain->entity->body()->position - squad.position;
+    auto direction = squad.captain->position() - squad.position;
     direction = direction.Normalize() * kMaxDistanceFromCaptain;
-    squad.position = squad.captain->entity->body()->position - direction;
+    squad.position = squad.captain->position() - direction;
   }
 
   // easy pie! update all the pikmin targets in this squad
@@ -137,11 +137,11 @@ void UpdateTriangleShape(SquadState& squad) {
   }
 
   // move ourselves close to the captain
-  auto distance = (squad.captain->entity->body()->position - squad.position).Length();
+  auto distance = (squad.captain->position() - squad.position).Length();
   if (distance > 3.0_f) {
-    auto direction = squad.captain->entity->body()->position - squad.position;
+    auto direction = squad.captain->position() - squad.position;
     direction = direction.Normalize() * 3.0_f;
-    squad.position = squad.captain->entity->body()->position - direction;
+    squad.position = squad.captain->position() - direction;
   }
 
   // loop through all the slots and assign a target position for each pikmin
@@ -193,7 +193,7 @@ void UpdateCircleShape(SquadState& squad) {
   // calculate the rotation for the squad
   if (squad.captain->held_pikmin) {
     squad.current_rotation = squad.captain->entity->AngleTo(squad.captain->cursor) + 90_brad;
-    squad.position = squad.captain->entity->body()->position;
+    squad.position = squad.captain->position();
     // move the squad slightly behind olimar
     Vec2 delta = {0_f, 3_f};
     delta = delta.Rotate(squad.current_rotation);
@@ -206,7 +206,7 @@ void UpdateCircleShape(SquadState& squad) {
     Vec2 squad_center = {0_f, squad_radius};
     squad_center = squad_center.Rotate(squad.current_rotation);
     squad_center += Vec2{squad.position.x, squad.position.z};
-    Vec2 captain_position = {squad.captain->entity->body()->position.x, squad.captain->entity->body()->position.z};
+    Vec2 captain_position = {squad.captain->position().x, squad.captain->position().z};
     auto distance = (captain_position - squad_center).Length();
     if (distance > squad_radius + 3_f) {
       //zap to the captain!

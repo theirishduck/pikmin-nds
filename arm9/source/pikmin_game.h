@@ -23,6 +23,7 @@ struct PikminSave {
   int blue_pikmin = 100;
 
   int PikminCount(pikmin_ai::PikminType type);
+  void AddPikmin(pikmin_ai::PikminType type, int num_pikmin);
 };
 
 class PikminGame {
@@ -115,7 +116,7 @@ class PikminGame {
       return nullptr;
     }
     state->game = this;
-    state->entity->body()->owner = state;
+    state->entity->body_handle().body->owner = state;
     return state;
   }
 };

@@ -10,3 +10,10 @@ physics::CollisionResult Body::FirstCollisionWith(u32 collision_mask) {
   }
   return CollisionResult();
 }
+
+bool physics::BodyHandle::is_valid() {
+  if (!body or !body->active or body->generation != this->generation) {
+    return false;
+  }
+  return true;
+}

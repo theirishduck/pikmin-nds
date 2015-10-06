@@ -68,11 +68,11 @@ void UpdateMapIcons(UIState& ui) {
   auto blue_dot = ui.game->SpriteAllocator()->Retrieve("blue_dot").offset;
 
   auto pikmin = ui.game->Pikmin();
-  auto olimar_position = ui.game->ActiveCaptain()->entity->body()->position;
+  auto olimar_position = ui.game->ActiveCaptain()->position();
   for (int slot = 0; slot < 100; slot++) {
     if (pikmin[slot].active) {
       // calculate the on-screen position of these pikmin
-      auto position = pikmin[slot].entity->body()->position;
+      auto position = pikmin[slot].position();
       int x = (int)(position.x - olimar_position.x) * 2 + 128;
       int y = (int)(position.z - olimar_position.z) * 2 + 96;
 
@@ -368,7 +368,7 @@ void ApplyOnionDelta(UIState& ui) {
         auto pikmin = captain->squad.pikmin[squad_index];
         // Have this pikmin randomly target one of the onion's feet, and
         // set its collision group accordingly
-        pikmin->entity->body()->sensor_groups = ONION_FEET_GROUP;
+        pikmin->entity->body_handle().body->sensor_groups = ONION_FEET_GROUP;
         Vec3 onion_foot_position = captain->active_onion->feet[rand() % 3]->position;
         pikmin->target = Vec2{onion_foot_position.x, onion_foot_position.z};
         pikmin->has_target = true;
