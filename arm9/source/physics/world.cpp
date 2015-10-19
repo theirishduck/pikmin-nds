@@ -272,7 +272,7 @@ void World::AddNeighborToObject(Body& object, Body& new_neighbor) {
   fixed biggest_valid_distance = -1000_f;
   int farthest_index = -1;
   for (int i = 0; i < MAX_PHYSICS_NEIGHBORS; i++) {
-    if (object.neighbors[i].handle.is_valid()) {
+    if (object.neighbors[i].handle.IsValid()) {
       auto current_body = object.neighbors[i].handle.body;
       // If this object already exists in the list
       if (&new_neighbor == current_body) {
@@ -330,7 +330,7 @@ void World::ProcessCollision() {
     Body& A = bodies_[active_[a]];
     for (int b = 0; b < MAX_PHYSICS_NEIGHBORS; b++) {
       BodyHandle B = A.neighbors[b].handle;
-      if (B.is_valid()) {
+      if (B.IsValid()) {
         CollideObjectWithObject(A, *(B.body));
       }
     }
@@ -347,7 +347,7 @@ void World::ProcessCollision() {
     Body& P = bodies_[pikmin_[p]];
     for (int a = 0; a < MAX_PHYSICS_NEIGHBORS; a++) {
       BodyHandle A = P.neighbors[a].handle;;
-      if (A.is_valid()) {
+      if (A.IsValid()) {
         CollidePikminWithObject(P, *(A.body));
       }
     }
@@ -408,7 +408,7 @@ void World::DebugCircles() {
   Body& A = bodies_[active_[current_neighbor_]];
   for (int i = 0; i < MAX_PHYSICS_NEIGHBORS; i++) {
     BodyHandle B = A.neighbors[i].handle;
-    if (B.is_valid()) {
+    if (B.IsValid()) {
         debug::DrawLine(A.position, B.body->position, RGB5(0, 31, 0));
     }
   }

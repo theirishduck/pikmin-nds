@@ -11,7 +11,7 @@ physics::CollisionResult Body::FirstCollisionWith(u32 collision_mask) {
   return CollisionResult();
 }
 
-bool physics::BodyHandle::is_valid() const {
+bool physics::BodyHandle::IsValid() const {
   if (!body->active or body->generation != this->generation) {
     return false;
   }

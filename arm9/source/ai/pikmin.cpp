@@ -20,7 +20,7 @@ const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
 TreasureState* GetActiveTreasure(const PikminState& pikmin) {
-  if (pikmin.chase_target.is_valid()) {
+  if (pikmin.chase_target.IsValid()) {
     TreasureState* treasure = (TreasureState*) pikmin.chase_target.body->owner;
     return treasure;
   }
@@ -199,7 +199,7 @@ void JoinSquad(PikminState& pikmin) {
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
   // Some unspeakable horror caused our target to vanish or otherwise change
-  if (!pikmin.chase_target.is_valid() or !pikmin.chase_target.body->owner) {
+  if (!pikmin.chase_target.IsValid() or !pikmin.chase_target.body->owner) {
     return true;
   }
 
@@ -222,14 +222,14 @@ bool CollideWithAttackable(const PikminState& pikmin) {
 }
 
 void ChaseTarget(PikminState& pikmin) {
-  if (pikmin.chase_target.is_valid()) {
+  if (pikmin.chase_target.IsValid()) {
     pikmin.target = Vec2{pikmin.chase_target.body->position.x, pikmin.chase_target.body->position.z};
     RunToTarget(pikmin);
   }
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  if (pikmin.chase_target.is_valid() and pikmin.chase_target.body->owner != nullptr) {
+  if (pikmin.chase_target.IsValid() and pikmin.chase_target.body->owner != nullptr) {
     int* target_health = (int*)pikmin.chase_target.body->owner;
     if (target_health) {
       *target_health -= 5;

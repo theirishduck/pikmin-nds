@@ -16,7 +16,7 @@ struct BodyHandle {
   Body* body{nullptr};
   int generation{0};
 
-  bool is_valid() const;
+  bool IsValid() const;
 };
 
 struct CollisionResult {

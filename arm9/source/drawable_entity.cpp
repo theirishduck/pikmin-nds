@@ -192,7 +192,7 @@ void DrawableEntity::Update() {
   }
 
   //set the current position to our body's physics position
-  if (body_.is_valid()) {
+  if (body_.IsValid()) {
     set_position(body_.body->position);
   }
 }
