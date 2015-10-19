@@ -260,7 +260,7 @@ bool CollideWithTarget(const PikminState& pikmin) {
 
 void StoreTargetBody(PikminState& pikmin) {
   auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
-  if (target_circle.body) {
+  if (target_circle.body and target_circle.body->owner) {
     pikmin.chase_target = ((physics::Body*)target_circle.body->owner)->GetHandle();
   }
 }

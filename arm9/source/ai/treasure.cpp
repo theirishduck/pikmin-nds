@@ -22,6 +22,10 @@ bool TreasureState::AddPikmin(PikminState* pikmin) {
         active_pikmin[i] = pikmin;
         num_active_pikmin++;
         lift_timer = 0;
+        if (!RoomForMorePikmin()) {
+          // Disable the detection radius so pikmin stop attempting to chase us
+          this->detection->owner = nullptr;
+        }
         return true;
       }
     }
@@ -35,6 +39,7 @@ void TreasureState::RemovePikmin(PikminState* pikmin) {
       active_pikmin[i] = nullptr;
       num_active_pikmin--;
       lift_timer = 0;
+      this->detection->owner = this->body;
       return;
     }
   }
