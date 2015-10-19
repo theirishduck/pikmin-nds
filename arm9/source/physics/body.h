@@ -12,13 +12,20 @@ namespace physics {
 
 struct Body;
 
+struct BodyHandle {
+  Body* body{nullptr};
+  int generation{0};
+
+  bool is_valid();
+};
+
 struct CollisionResult {
   Body* body;
   u32 collision_group;
 };
 
 struct Neighbor {
-  Body* body{nullptr};
+  BodyHandle handle;
   numeric_types::Fixed<s32,12> distance = numeric_types::Fixed<s32,12>::FromInt(0);
 };
 
@@ -85,13 +92,8 @@ struct Body {
   numeric_types::Fixed<s32,12> old_radius;
 
   std::array<Neighbor, MAX_PHYSICS_NEIGHBORS> neighbors;
-};
 
-struct BodyHandle {
-  Body* body{nullptr};
-  int generation{0};
-
-  bool is_valid();
+  BodyHandle GetHandle();
 };
 
 }  // namespace physics

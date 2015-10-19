@@ -12,8 +12,15 @@ physics::CollisionResult Body::FirstCollisionWith(u32 collision_mask) {
 }
 
 bool physics::BodyHandle::is_valid() {
-  if (!body or !body->active or body->generation != this->generation) {
+  if (!body->active or body->generation != this->generation) {
     return false;
   }
   return true;
+}
+
+physics::BodyHandle physics::Body::GetHandle() {
+  auto handle = physics::BodyHandle();
+  handle.body = this;
+  handle.generation = generation;
+  return handle;
 }

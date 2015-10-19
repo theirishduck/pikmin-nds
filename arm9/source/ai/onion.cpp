@@ -187,7 +187,7 @@ Edge<OnionState> eject_seeds[] {
 Node<OnionState> node_list[] {
   {"Init", true, init},
   {"Idle", true, idle, "Armature|Idle", 1},
-  {"Bounce", true, bounce, "Armature|Bounce", 4},
+  {"Bounce", true, bounce, "Armature|Bounce", 9},
   {"WindUp", true, wind_up, "Armature|WindUp", 15},
   {"WindDown", true, wind_down, "Armature|WindDown", 15},
   {"Eject", true, eject_seeds, "Armature|Eject", 20},
