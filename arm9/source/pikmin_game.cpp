@@ -160,6 +160,7 @@ PikminState* PikminGame::SpawnObject<PikminState>() {
   // Perform allocation; similar to InitObject, minus the allocation for the
   // state
   pikmin_[slot].entity = allocate_entity();
+  pikmin_[slot].body = pikmin_[slot].entity->body_handle().body;
   pikmin_[slot].game = this;
   const bool too_many_objects = pikmin_[slot].entity == nullptr;
   if (too_many_objects) {

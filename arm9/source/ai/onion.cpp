@@ -37,11 +37,10 @@ void InitAlways(OnionState& onion) {
   onion.feet[2]->position = onion.position() + Vec3{-6.93847_f, 0_f, -12.01778_f};
 
   // Setup collision for ourself (this is the sensor for the "beam" the captain walks into)
-  auto onion_body = onion.entity->body_handle().body;
-  onion_body->is_sensor = true;
-  onion_body->radius = 3.5_f;
-  onion_body->height = 3.0_f;
-  onion_body->collision_group = ONION_BEAM_GROUP;
+  onion.body->is_sensor = true;
+  onion.body->radius = 3.5_f;
+  onion.body->height = 3.0_f;
+  onion.body->collision_group = ONION_BEAM_GROUP;
 }
 
 void HandleWithdrawingPikmin(OnionState& onion) {

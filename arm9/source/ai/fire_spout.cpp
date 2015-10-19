@@ -19,8 +19,8 @@ void InitAlways(FireSpoutState& fire_spout) {
   fire_spout.flame_timer = (rand() % 128);
 
   // Setup our static physics properties
-  fire_spout.entity->body_handle().body->collision_group = ATTACK_GROUP;
-  fire_spout.entity->body_handle().body->owner = &fire_spout.health;
+  fire_spout.body->collision_group = ATTACK_GROUP;
+  fire_spout.body->owner = &fire_spout.health;
 
   fire_spout.detection = fire_spout.entity->engine()->World().AllocateBody(&fire_spout).body;
   fire_spout.detection->position = fire_spout.position();
@@ -28,7 +28,7 @@ void InitAlways(FireSpoutState& fire_spout) {
   fire_spout.detection->height = 5_f;
   fire_spout.detection->is_sensor = true;
   fire_spout.detection->collision_group = DETECT_GROUP;
-  fire_spout.detection->owner = fire_spout.entity->body_handle().body;
+  fire_spout.detection->owner = fire_spout.body;
 }
 
 void FlameOn(FireSpoutState& fire_spout) {

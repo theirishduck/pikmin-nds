@@ -20,10 +20,10 @@ void InitAlways(PosyState& posy) {
   posy.detection->height = 5_f;
   posy.detection->is_sensor = true;
   posy.detection->collision_group = DETECT_GROUP;
-  posy.detection->owner = posy.entity->body_handle().body;
+  posy.detection->owner = posy.body;
 
-  posy.entity->body_handle().body->collision_group = ATTACK_GROUP;
-  posy.entity->body_handle().body->owner = &posy.health;
+  posy.body->collision_group = ATTACK_GROUP;
+  posy.body->owner = &posy.health;
 }
 
 bool ZeroHealth(const PosyState& posy) {
@@ -48,7 +48,7 @@ void GoodbyeCruelWorld(PosyState& posy) {
 }
 
 void MarkAsDead(PosyState& posy) {
-  posy.entity->body_handle().body->owner = nullptr;
+  posy.body->owner = nullptr;
   posy.detection->owner = nullptr;
 }
 

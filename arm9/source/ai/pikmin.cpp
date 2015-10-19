@@ -20,8 +20,11 @@ const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
 TreasureState* GetActiveTreasure(const PikminState& pikmin) {
-  TreasureState* treasure = (TreasureState*) pikmin.chase_target->owner;
-  return treasure;
+  if (pikmin.chase_target.is_valid()) {
+    TreasureState* treasure = (TreasureState*) pikmin.chase_target.body->owner;
+    return treasure;
+  }
+  return nullptr;
 }
 
 void InitAlways(PikminState& pikmin) {
@@ -41,14 +44,13 @@ void InitAlways(PikminState& pikmin) {
       break;
   }
 
-  auto body = pikmin.entity->body_handle().body;
-  body->height = 6_f;
-  body->radius = 1.0_f;
+  pikmin.body->height = 6_f;
+  pikmin.body->radius = 1.0_f;
 
-  body->collides_with_bodies = 1;
-  body->is_pikmin = 1;
-  body->is_movable = 1;
-  body->sensor_groups = WHISTLE_GROUP | DETECT_GROUP | ATTACK_GROUP | TREASURE_GROUP;
+  pikmin.body->collides_with_bodies = 1;
+  pikmin.body->is_pikmin = 1;
+  pikmin.body->is_movable = 1;
+  pikmin.body->sensor_groups = WHISTLE_GROUP | DETECT_GROUP | ATTACK_GROUP | TREASURE_GROUP;
 
   pikmin.entity->important = false;
 
@@ -107,12 +109,11 @@ void ClearTargetAndStop(PikminState& pikmin) {
 }
 
 bool Landed(const PikminState& pikmin) {
-  return pikmin.entity->body_handle().body->touching_ground;
+  return pikmin.body->touching_ground;
 }
 
 void FaceTarget(PikminState& pikmin) {
-  auto body = pikmin.entity->body_handle().body;
-  Vec2 posXZ{body->position.x, body->position.z};
+  Vec2 posXZ{pikmin.body->position.x, pikmin.body->position.z};
   Vec2 random_offset = Vec2{
     fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
     fixed::FromInt(rand() % 10) / 5_f - 0.5_f,
@@ -123,8 +124,8 @@ void FaceTarget(PikminState& pikmin) {
     movement_speed = kRunSpeed;
   }
   Vec2 new_velocity = new_direction * movement_speed;
-  body->velocity.x = new_velocity.x;
-  body->velocity.z = new_velocity.y;
+  pikmin.body->velocity.x = new_velocity.x;
+  pikmin.body->velocity.z = new_velocity.y;
   pikmin.entity->RotateToXZDirection(new_velocity);
 }
 
@@ -179,7 +180,7 @@ bool TooFarFromTarget(const PikminState& pikmin) {
 
 bool CollidedWithWhistle(const PikminState& pikmin) {
   if (pikmin.current_squad == nullptr) {
-    if (pikmin.entity->body_handle().body->result_groups & WHISTLE_GROUP) {
+    if (pikmin.body->result_groups & WHISTLE_GROUP) {
       return true;
     }
   }
@@ -187,7 +188,7 @@ bool CollidedWithWhistle(const PikminState& pikmin) {
 }
 
 void JoinSquad(PikminState& pikmin) {
-  auto result = pikmin.entity->body_handle().body->FirstCollisionWith(WHISTLE_GROUP);
+  auto result = pikmin.body->FirstCollisionWith(WHISTLE_GROUP);
   // make sure we got a real result (this can fail in extreme cases)
   if (result.body) {
     auto captain = (captain_ai::CaptainState*)result.body->owner;
@@ -198,53 +199,56 @@ void JoinSquad(PikminState& pikmin) {
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
   // Some unspeakable horror caused our target to vanish or otherwise change
-  if (!pikmin.chase_target or !pikmin.chase_target->active or !pikmin.chase_target->owner) {
+  if (!pikmin.chase_target.is_valid() or !pikmin.chase_target.body->owner) {
     return true;
   }
 
   // Treasure has no more room for us... :(
-  if (pikmin.chase_target->collision_group & TREASURE_GROUP) {
+  if (pikmin.chase_target.body->collision_group & TREASURE_GROUP) {
     auto treasure = GetActiveTreasure(pikmin);
     if (!(treasure->RoomForMorePikmin())) {
       return true;
     }
   }
-  // TODO: Expand on this a bit more. Identifiers / handles?
 
   return false;
 }
 
 bool CollideWithAttackable(const PikminState& pikmin) {
-  if (pikmin.entity->body_handle().body->result_groups & ATTACK_GROUP) {
+  if (pikmin.body->result_groups & ATTACK_GROUP) {
     return true;
   }
   return false;
 }
 
 void ChaseTarget(PikminState& pikmin) {
-  pikmin.target = Vec2{pikmin.chase_target->position.x, pikmin.chase_target->position.z};
-  RunToTarget(pikmin);
+  if (pikmin.chase_target.is_valid()) {
+    pikmin.target = Vec2{pikmin.chase_target.body->position.x, pikmin.chase_target.body->position.z};
+    RunToTarget(pikmin);
+  }
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  int* target_health = (int*)pikmin.chase_target->owner;
-  if (target_health) {
-    *target_health -= 5;
+  if (pikmin.chase_target.is_valid() and pikmin.chase_target.body->owner != nullptr) {
+    int* target_health = (int*)pikmin.chase_target.body->owner;
+    if (target_health) {
+      *target_health -= 5;
+    }
   }
 }
 
 void JumpTowardTarget(PikminState& pikmin) {
   // Face the target, then apply upwards velocity
   FaceTarget(pikmin);
-  pikmin.entity->body_handle().body->velocity.y = 0.4_f;
+  pikmin.body->velocity.y = 0.4_f;
 }
 
 bool CollideWithTarget(const PikminState& pikmin) {
   if (pikmin.current_squad) {
     return false;
   }
-  if (pikmin.entity->body_handle().body->result_groups & DETECT_GROUP) {
-    auto target_circle = pikmin.entity->body_handle().body->FirstCollisionWith(DETECT_GROUP);
+  if (pikmin.body->result_groups & DETECT_GROUP) {
+    auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
     if (target_circle.body) {
       if (target_circle.body->owner) {
         return true;
@@ -255,9 +259,9 @@ bool CollideWithTarget(const PikminState& pikmin) {
 }
 
 void StoreTargetBody(PikminState& pikmin) {
-  auto target_circle = pikmin.entity->body_handle().body->FirstCollisionWith(DETECT_GROUP);
+  auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
   if (target_circle.body) {
-    pikmin.chase_target = (physics::Body*)target_circle.body->owner;
+    pikmin.chase_target = ((physics::Body*)target_circle.body->owner)->GetHandle();
   }
 }
 
@@ -267,7 +271,7 @@ void Aim(PikminState& pikmin) {
 }
 
 bool CollideWithOnionFoot(const PikminState& pikmin) {
-  if (pikmin.entity->body_handle().body->result_groups & ONION_FEET_GROUP) {
+  if (pikmin.body->result_groups & ONION_FEET_GROUP) {
     return true;
   }
   return false;
@@ -275,11 +279,11 @@ bool CollideWithOnionFoot(const PikminState& pikmin) {
 
 void StartClimbingOnion(PikminState& pikmin) {
   // Grab the onion / foot that we're targeting
-  auto onion_foot = pikmin.entity->body_handle().body->FirstCollisionWith(ONION_FEET_GROUP);
+  auto onion_foot = pikmin.body->FirstCollisionWith(ONION_FEET_GROUP);
   fixed travel_frames = 60_f;
   if (onion_foot.body) {
     auto onion = (onion_ai::OnionState*)onion_foot.body->owner;
-    auto pikmin_body = pikmin.entity->body_handle().body;
+    auto pikmin_body = pikmin.body;
     pikmin_body->position = onion_foot.body->position;
     pikmin_body->affected_by_gravity = false;
     pikmin_body->collision_group = 0;
@@ -315,21 +319,21 @@ void EnterOnion(PikminState& pikmin) {
 }
 
 void WhistleOffOnion(PikminState& pikmin) {
-  pikmin.entity->body_handle().body->affected_by_gravity = true;
+  pikmin.body->affected_by_gravity = true;
   pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
-  pikmin.entity->body_handle().body->velocity.y = 0.5_f;
+  pikmin.body->velocity.y = 0.5_f;
 }
 
 void HopOffFoot(PikminState& pikmin) {
-  pikmin.entity->body_handle().body->affected_by_gravity = true;
-  pikmin.entity->body_handle().body->velocity.y = 1.0_f;
+  pikmin.body->affected_by_gravity = true;
+  pikmin.body->velocity.y = 1.0_f;
 
   pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
 }
 
 bool CollideWithValidTreasure(const PikminState& pikmin) {
-  if (pikmin.entity->body_handle().body->result_groups & TREASURE_GROUP) {
-    auto treasure_result = pikmin.entity->body_handle().body->FirstCollisionWith(TREASURE_GROUP);
+  if (pikmin.body->result_groups & TREASURE_GROUP) {
+    auto treasure_result = pikmin.body->FirstCollisionWith(TREASURE_GROUP);
     if (treasure_result.body != nullptr) {
       auto treasure = (TreasureState*)treasure_result.body->owner;
       if (treasure->RoomForMorePikmin()) {
@@ -342,25 +346,30 @@ bool CollideWithValidTreasure(const PikminState& pikmin) {
 
 void AddToTreasure(PikminState& pikmin) {
   auto treasure = GetActiveTreasure(pikmin);
-  treasure->AddPikmin(&pikmin);
+  if (treasure) {
+    treasure->AddPikmin(&pikmin);
+  }
   StopMoving(pikmin);
 }
 
 void RemoveFromTreasure(PikminState& pikmin) {
   auto treasure = GetActiveTreasure(pikmin);
-  treasure->RemovePikmin(&pikmin);
-  pikmin.chase_target = nullptr;
+  if (treasure) {
+    treasure->RemovePikmin(&pikmin);
+  }
 }
 
 void WhistleOffTreasure(PikminState& pikmin) {
   auto treasure = GetActiveTreasure(pikmin);
-  treasure->RemovePikmin(&pikmin);
-  JoinSquad(pikmin);
+  if (treasure) {
+    treasure->RemovePikmin(&pikmin);
+    JoinSquad(pikmin);
+  }
 }
 
 bool TreasureMoving(const PikminState& pikmin) {
   auto treasure = GetActiveTreasure(pikmin);
-  return treasure->Moving();
+  return treasure and treasure->Moving();
 }
 
 bool TreasureInvalid(const PikminState& pikmin) {

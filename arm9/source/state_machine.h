@@ -14,22 +14,23 @@ class PikminGame;
 struct ObjectState {
   PikminGame* game = nullptr;
   DrawableEntity* entity = nullptr;
+  physics::Body* body;
   int current_node = 0;
   int frames_alive = 0;
   int frames_at_this_node = 0;
   bool dead = false;
 
   Vec3 position() const {
-    return entity->body_handle().body->position;
+    return body->position;
   };
   void set_position(Vec3 position) {
-    entity->body_handle().body->position = position;
+    body->position = position;
   };
   Vec3 velocity() const {
-    return entity->body_handle().body->velocity;
+    return body->velocity;
   };
   void set_velocity(Vec3 velocity) {
-    entity->body_handle().body->velocity = velocity;
+    body->velocity = velocity;
   };
 };
 

@@ -26,22 +26,24 @@ const fixed kYellowPikminThrowHeight = 2.0_f;
 const int kWhistleExpandFrames = 8;
 
 void HandleWhistle(CaptainState& captain) {
-  captain.whistle->body_handle().body->position = captain.cursor->body_handle().body->position;
+  auto whistle_body = captain.whistle->body_handle().body;
+  auto cursor_body = captain.cursor->body_handle().body;
+  whistle_body->position = cursor_body->position;
 
   // Do a bit of cheating and handle the whistle here for now
   if (keysHeld() & KEY_B) {
     if (captain.whistle_timer < 8) {
       captain.whistle_timer++;
       //turn the whistle on
-      captain.whistle->body_handle().body->collision_group = WHISTLE_GROUP;
+      whistle_body->collision_group = WHISTLE_GROUP;
     }
   } else if (captain.whistle_timer > 0) {
     captain.whistle_timer--;
     //turn the whistle back off
-    captain.whistle->body_handle().body->collision_group = 0;
+    whistle_body->collision_group = 0;
   }
 
-  captain.whistle->body_handle().body->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
+  whistle_body->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
   captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames));
   captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 3_brad, 0_brad);
 }
@@ -52,25 +54,24 @@ void InitAlways(CaptainState& captain) {
   captain.entity->set_mesh("Olimar");
 
   //setup physics parameters for collision
-  auto body = captain.entity->body_handle().body;
-  body->height = 6_f;
-  body->radius = 1.5_f;
+  captain.body->height = 6_f;
+  captain.body->radius = 1.5_f;
 
-  body->collides_with_bodies = 1;
-  body->is_movable = 1;
-  body->collision_group = PLAYER_GROUP | WHISTLE_GROUP;
-  body->sensor_groups = ONION_BEAM_GROUP;
-  body->owner = &captain;
+  captain.body->collides_with_bodies = 1;
+  captain.body->is_movable = 1;
+  captain.body->collision_group = PLAYER_GROUP | WHISTLE_GROUP;
+  captain.body->sensor_groups = ONION_BEAM_GROUP;
+  captain.body->owner = &captain;
 
   //initialize our walking angle?
   captain.current_angle = 0_brad;
 
   //Initialize the cursor
   captain.cursor->set_actor(captain.game->ActorAllocator()->Retrieve("cursor"));
-  captain.cursor->body_handle().body->ignores_walls = 1;
-  captain.cursor->body_handle().body->position = body->position
-      + Vec3{0_f,0_f,5_f};
-  captain.cursor->body_handle().body->is_sensor = 1;
+  auto cursor_body = captain.cursor->body_handle().body;
+  cursor_body->ignores_walls = 1;
+  cursor_body->position = captain.body->position + Vec3{0_f,0_f,5_f};
+  cursor_body->is_sensor = 1;
 
   //Initialize the whistle
   captain.whistle->set_actor(captain.game->ActorAllocator()->Retrieve("whistle"));
@@ -95,9 +96,8 @@ bool DpadInactive(const CaptainState& captain) {
 void StopCaptain(CaptainState& captain) {
   // reset velocity in XZ to 0, so we stop moving
   // (but ignore Y so that we keep falling)
-  auto body = captain.entity->body_handle().body;
-  body->velocity.x = 0_f;
-  body->velocity.z = 0_f;
+  captain.body->velocity.x = 0_f;
+  captain.body->velocity.z = 0_f;
   auto cursor_body = captain.cursor->body_handle().body;
   cursor_body->velocity.x = 0_f;
   cursor_body->velocity.z = 0_f;
@@ -114,19 +114,18 @@ void MoveCaptain(CaptainState& captain) {
   captain.entity->RotateToFace(captain.current_angle, 20_brad);
 
   // Apply velocity in the direction of the current angle.
-  auto body = captain.entity->body_handle().body;
-  body->velocity.x = trig::CosLerp(captain.current_angle);
-  body->velocity.z = -trig::SinLerp(captain.current_angle);
-  body->velocity.x *= kRunSpeed;
-  body->velocity.z *= kRunSpeed;
+  captain.body->velocity.x = trig::CosLerp(captain.current_angle);
+  captain.body->velocity.z = -trig::SinLerp(captain.current_angle);
+  captain.body->velocity.x *= kRunSpeed;
+  captain.body->velocity.z *= kRunSpeed;
 
   // Move the cursor in the same direction, at a faster rate
   auto cursor_body = captain.cursor->body_handle().body;
-  cursor_body->velocity.x = body->velocity.x * kCursorSpeedMultiplier;
-  cursor_body->velocity.z = body->velocity.z * kCursorSpeedMultiplier;
+  cursor_body->velocity.x = captain.body->velocity.x * kCursorSpeedMultiplier;
+  cursor_body->velocity.z = captain.body->velocity.z * kCursorSpeedMultiplier;
 
   // Clamp the cursor to a certain distance from the captain
-  Vec2 captain_xz = Vec2{body->position.x, body->position.z};
+  Vec2 captain_xz = Vec2{captain.body->position.x, captain.body->position.z};
   Vec2 cursor_xz = Vec2{cursor_body->position.x, cursor_body->position.z};
   fixed distance = (cursor_xz - captain_xz).Length();
   if (distance > kCursorMaxDistance) {

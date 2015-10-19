@@ -55,10 +55,10 @@ void Init(TreasureState& treasure) {
   treasure.detection->height = 5_f;
   treasure.detection->is_sensor = true;
   treasure.detection->collision_group = DETECT_GROUP;
-  treasure.detection->owner = treasure.entity->body_handle().body;
+  treasure.detection->owner = treasure.body;
 
-  treasure.entity->body_handle().body->collision_group = TREASURE_GROUP;
-  treasure.entity->body_handle().body->owner = &treasure;
+  treasure.body->collision_group = TREASURE_GROUP;
+  treasure.body->owner = &treasure;
 
   //initialize proper!
   for (int i = 0; i < 100; i++) {
@@ -74,15 +74,6 @@ int CountOfType(TreasureState& treasure, PikminType type) {
         count++;
       }
     }
-  }
-  if (type == PikminType::kRedPikmin) {
-    debug::DisplayValue("REDS: ", count);
-  }
-  if (type == PikminType::kYellowPikmin) {
-    debug::DisplayValue("YELLOWS: ", count);
-  }
-  if (type == PikminType::kBluePikmin) {
-    debug::DisplayValue("BLUES: ", count);
   }
   return count;
 }
@@ -127,11 +118,11 @@ void UpdatePikminPositions(TreasureState& treasure) {
       fixed::FromInt(treasure.max_pikmin);
   for (int i = 0; i < treasure.max_pikmin; i++) {
     if (treasure.active_pikmin[i] != nullptr) {
-      Body* pikmin_body = treasure.active_pikmin[i]->entity->body_handle().body;
+      Body* pikmin_body = treasure.active_pikmin[i]->body;
       pikmin_body->position.x = trig::CosLerp(clockwise_angle);
       pikmin_body->position.y = 0_f;
       pikmin_body->position.z = -trig::SinLerp(clockwise_angle);
-      pikmin_body->position = pikmin_body->position * treasure.entity->body_handle().body->radius;
+      pikmin_body->position = pikmin_body->position * treasure.body->radius;
       pikmin_body->position += treasure.position();
 
       // Note: this bit here is going to be expensive. Maybe if it's a performance
