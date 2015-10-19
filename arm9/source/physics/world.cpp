@@ -35,6 +35,7 @@ BodyHandle World::AllocateBody(void* owner) {
       bodies_[i].is_pikmin = 0;
       bodies_[i].affected_by_gravity = 1;
       bodies_[i].active = 1;
+      bodies_[i].is_very_important = 0;
 
       bodies_[i].owner = owner;
       bodies_[i].generation = current_generation_;
@@ -72,12 +73,17 @@ void World::Sleep(Body* body) {
 void World::RebuildIndex() {
   active_bodies_ = 0;
   active_pikmin_ = 0;
+  important_bodies_ = 0;
   for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
     if (bodies_[i].active) {
-      if (bodies_[i].is_pikmin) {
-        pikmin_[active_pikmin_++] = i;
+      if (bodies_[i].is_very_important) {
+        important_[important_bodies_++] = i;
       } else {
-        active_[active_bodies_++] = i;
+        if (bodies_[i].is_pikmin) {
+          pikmin_[active_pikmin_++] = i;
+        } else {
+          active_[active_bodies_++] = i;
+        }
       }
     }
   }
@@ -328,6 +334,9 @@ void World::ProcessCollision() {
         CollideObjectWithObject(A, *(B.body));
       }
     }
+    for (int i = 0; i < important_bodies_; i++) {
+      CollideObjectWithObject(A, bodies_[important_[i]]);
+    }
   }
 
   // Repeat this with pikmin, our special case heros
@@ -341,6 +350,9 @@ void World::ProcessCollision() {
       if (A.is_valid()) {
         CollidePikminWithObject(P, *(A.body));
       }
+    }
+    for (int i = 0; i < important_bodies_; i++) {
+      CollidePikminWithObject(P, bodies_[important_[i]]);
     }
   }
 

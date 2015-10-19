@@ -42,6 +42,8 @@ class World {
     int active_[MAX_PHYSICS_BODIES];
     int active_pikmin_ = 0;
     int pikmin_[MAX_PHYSICS_BODIES];
+    int important_bodies_ = 0;
+    int important_[MAX_PHYSICS_BODIES];
 
     bool rebuild_index_ = true;
     int heightmap_width = 0;

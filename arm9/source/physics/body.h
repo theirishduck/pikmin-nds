@@ -84,6 +84,7 @@ struct Body {
   unsigned short is_movable : 1;  // Can this body be moved during collision?
   unsigned short is_pikmin : 1;  // Pikmin are treated as a special case
   unsigned short affected_by_gravity : 1;
+  unsigned short is_very_important : 1;
 
   CollisionResult FirstCollisionWith(u32 collision_mask);
   unsigned short active : 1;
