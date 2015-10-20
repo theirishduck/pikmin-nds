@@ -2,6 +2,15 @@
 #include "debug.h"
 #include "dsgx.h"
 
+#include "ai/captain.h"
+#include "ai/fire_spout.h"
+#include "ai/onion.h"
+#include "ai/pellet_posy.h"
+#include "ai/pikmin.h"
+#include "ai/squad.h"
+#include "ai/static.h"
+#include "ai/treasure.h"
+
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
 using captain_ai::CaptainState;

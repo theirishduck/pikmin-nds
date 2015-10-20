@@ -111,8 +111,8 @@ void EjectSeeds(OnionState& onion) {
   if (seeds_to_eject > 5) {
     seeds_to_eject = 5;
   }
-  if (seeds_to_eject == 0 and onion.seeds_count > 0) {
-    seeds_to_eject = 1;
+  if (seeds_to_eject < onion.seeds_count) {
+    seeds_to_eject++;
   }
 
   for (int i = 0; i < seeds_to_eject; i++) {

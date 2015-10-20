@@ -3,13 +3,22 @@
 
 #include "multipass_engine.h"
 #include "drawable_entity.h"
-#include "ai/captain.h"
-#include "ai/fire_spout.h"
-#include "ai/onion.h"
+//#include "ai/captain.h"
+//#include "ai/fire_spout.h"
+//#include "ai/onion.h"
+//namespace onion_ai {
+//struct OnionState;
+//}
 #include "ai/pikmin.h"
-#include "ai/pellet_posy.h"
-#include "ai/static.h"
-#include "ai/treasure.h"
+//#include "ai/pellet_posy.h"
+//#include "ai/static.h"
+//#include "ai/treasure.h"
+namespace captain_ai { struct CaptainState; }
+namespace fire_spout_ai { struct FireSpoutState; }
+namespace onion_ai { struct OnionState; }
+namespace posy_ai { struct PosyState;}
+namespace treasure_ai { struct TreasureState; }
+namespace static_ai { struct StaticState; }
 #include "ui.h"
 #include <list>
 

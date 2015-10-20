@@ -4,6 +4,7 @@
 #include <map>
 
 #include "pikmin_game.h"
+#include "ai/captain.h"
 
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;

@@ -30,7 +30,11 @@ enum PikminNode {
   kClimbIntoOnion,
   kSlideDownFromOnion,
   kLiftTreasure,
-  kCarryTreasure
+  kCarryTreasure,
+  kSeed,
+  kGrowing,
+  kSprout,
+  kPlucked,
 };
 }
 

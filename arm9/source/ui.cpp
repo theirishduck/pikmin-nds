@@ -5,6 +5,7 @@
 #include "debug.h"
 
 #include "pikmin_game.h"
+#include "ai/captain.h"
 
 // Numbers and fonts
 #include "bubblefont_img_bin.h"

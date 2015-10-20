@@ -387,6 +387,22 @@ bool TreasureStopped(const PikminState& pikmin) {
   return !TreasureMoving(pikmin);
 }
 
+void FloatGently(PikminState& pikmin) {
+  pikmin.body->acceleration.y = GRAVITY_CONSTANT / 2_f;
+}
+
+void PlantSeed(PikminState& pikmin) {
+  pikmin.body->acceleration.y = 0_f;
+  pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
+}
+
+bool PikminPlucked(const PikminState& pikmin) {
+  return false;
+}
+
+void ResetPhysics(PikminState& pikmin) {
+  // What did I mean to do here?
+}
 
 Edge<PikminState> init[] {
   // Init
@@ -488,6 +504,27 @@ Edge<PikminState> carry_treasure[] {
   END_OF_EDGES(PikminState)
 };
 
+Edge<PikminState> seed[] {
+  {kAlways, Landed, PlantSeed, PikminNode::kGrowing},
+  {kAlways, nullptr, FloatGently, PikminNode::kSeed},
+  END_OF_EDGES(PikminState)
+};
+
+Edge<PikminState> growing[] {
+  {kLastFrame, nullptr, nullptr, PikminNode::kSprout},
+  END_OF_EDGES(PikminState)
+};
+
+Edge<PikminState> sprout[] {
+  {kAlways, PikminPlucked, nullptr, PikminNode::kPlucked},
+  END_OF_EDGES(PikminState)
+};
+
+Edge<PikminState> plucked[] {
+  {kLastFrame, nullptr, nullptr, PikminNode::kIdle},
+  END_OF_EDGES(PikminState)
+};
+
 Node<PikminState> node_list[] {
   {"Init", true, init},
   {"Idle", true, idle, "Armature|Idle", 30},
@@ -501,6 +538,10 @@ Node<PikminState> node_list[] {
   {"SlideDownFromOnion", true, sliding_down_from_onion, "Armature|Climb", 30},
   {"LiftTreasure", true, lift_treasure, "Armature|Lift", 123},
   {"CarryTreasure", true, carry_treasure, "Armature|Carry", 72},
+  {"Seed", true, seed},
+  {"Growing", true, growing, "Armature|Grow", 116},
+  {"Sprout", true, sprout, "Armature|Planted", 40},
+  {"Plucked", true, plucked, "Armature|Plucked", 100},
 };
 
 StateMachine<PikminState> machine(node_list);

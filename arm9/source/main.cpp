@@ -17,6 +17,7 @@
 #include "ai/onion.h"
 #include "ai/fire_spout.h"
 #include "ai/treasure.h"
+#include "ai/pellet_posy.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
