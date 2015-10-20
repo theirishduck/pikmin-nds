@@ -106,7 +106,7 @@ bool Every40Frames(const OnionState& onion) {
 }
 
 void EjectSeeds(OnionState& onion) {
-  // Instead of seeds, spawn pikmin! (todo: not this plz)
+  // Spawn in pikmin seeds, either out in the world, or inside the onion
   int seeds_to_eject = onion.seeds_count / 2;
   if (seeds_to_eject > 5) {
     seeds_to_eject = 5;
@@ -116,13 +116,21 @@ void EjectSeeds(OnionState& onion) {
   }
 
   for (int i = 0; i < seeds_to_eject; i++) {
-    // Spawn in a pikmin!
+    // Spawn in a pikmin, as a seed!
     pikmin_ai::PikminState* pikmin = onion.game->SpawnObject<pikmin_ai::PikminState>();
     if (pikmin == nullptr) {
       onion.game->CurrentSaveData()->AddPikmin(onion.pikmin_type, 1);
     } else {
       pikmin->type = onion.pikmin_type;
-      pikmin->set_position(onion.position() + Vec3{0_f, 15_f, 0_f});
+      pikmin->set_position(onion.position() + Vec3{0_f, 16_f, 0_f});
+      pikmin->starting_state = pikmin_ai::PikminNode::kSeed;
+      // pick a random direction for it to float down
+      auto direction = Vec2{
+        fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
+        fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
+      };
+      direction = direction.Normalize() * 0.2_f;
+      pikmin->set_velocity({direction.x, 0.75_f, direction.y});
     }
   }
 

@@ -27,23 +27,40 @@ TreasureState* GetActiveTreasure(const PikminState& pikmin) {
   return nullptr;
 }
 
-void InitAlways(PikminState& pikmin) {
+void SetPikminModel(PikminState& pikmin) {
   switch (pikmin.type) {
     case PikminType::kNone:
     case PikminType::kRedPikmin:
-      pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
-      pikmin.entity->set_mesh("red_pikmin");
+      if (pikmin.current_node == PikminNode::kSeed) {
+        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin_seed"));
+        pikmin.entity->set_mesh("red_seed");
+      } else {
+        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
+        pikmin.entity->set_mesh("red_pikmin");
+      }
       break;
     case PikminType::kYellowPikmin:
-      pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
-      pikmin.entity->set_mesh("yellow_pikmin");
+      if (pikmin.current_node == PikminNode::kSeed) {
+        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin_seed"));
+        pikmin.entity->set_mesh("yellow_seed");
+      } else {
+        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
+        pikmin.entity->set_mesh("yellow_pikmin");
+      }
       break;
     case PikminType::kBluePikmin:
-      pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
-      pikmin.entity->set_mesh("blue_pikmin");
+      if (pikmin.current_node == PikminNode::kSeed) {
+        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin_seed"));
+        pikmin.entity->set_mesh("blue_seed");
+      } else {
+        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
+        pikmin.entity->set_mesh("blue_pikmin");
+      }
       break;
   }
+}
 
+void InitAlways(PikminState& pikmin) {
   pikmin.body->height = 6_f;
   pikmin.body->radius = 1.0_f;
 
@@ -55,6 +72,7 @@ void InitAlways(PikminState& pikmin) {
   pikmin.entity->important = false;
 
   pikmin.current_node = pikmin.starting_state;
+  SetPikminModel(pikmin);
 }
 
 void IdleAlways(PikminState& pikmin) {
@@ -388,12 +406,16 @@ bool TreasureStopped(const PikminState& pikmin) {
 }
 
 void FloatGently(PikminState& pikmin) {
-  pikmin.body->acceleration.y = GRAVITY_CONSTANT / 2_f;
+  pikmin.body->acceleration.y = GRAVITY_CONSTANT * 0.75_f;
+  pikmin.entity->set_rotation(0_brad, pikmin.entity->rotation().y + 20_brad, 0_brad);
+  pikmin.body->radius = 0_f;
 }
 
 void PlantSeed(PikminState& pikmin) {
   pikmin.body->acceleration.y = 0_f;
-  pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
+  pikmin.set_velocity(Vec3{0_f,0_f,0_f});
+  SetPikminModel(pikmin);
+
 }
 
 bool PikminPlucked(const PikminState& pikmin) {
@@ -517,6 +539,7 @@ Edge<PikminState> growing[] {
 
 Edge<PikminState> sprout[] {
   {kAlways, PikminPlucked, nullptr, PikminNode::kPlucked},
+  {kAlways, CollidedWithWhistle, nullptr, PikminNode::kPlucked},
   END_OF_EDGES(PikminState)
 };
 
@@ -539,9 +562,9 @@ Node<PikminState> node_list[] {
   {"LiftTreasure", true, lift_treasure, "Armature|Lift", 123},
   {"CarryTreasure", true, carry_treasure, "Armature|Carry", 72},
   {"Seed", true, seed},
-  {"Growing", true, growing, "Armature|Grow", 116},
+  {"Growing", true, growing, "Armature|Grow", 56},
   {"Sprout", true, sprout, "Armature|Planted", 40},
-  {"Plucked", true, plucked, "Armature|Plucked", 100},
+  {"Plucked", true, plucked, "Armature|Plucked", 25},
 };
 
 StateMachine<PikminState> machine(node_list);
