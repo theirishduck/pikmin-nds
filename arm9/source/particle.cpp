@@ -1,4 +1,5 @@
 #include "particle.h"
+#include "project_settings.h"
 
 #include <nds.h>
 #include "numeric_types.h"
@@ -7,10 +8,10 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 
-Particle g_particles[128];
+Particle g_particles[MAX_PARTICLES];
 
 void UpdateParticles() {
-  for (int slot = 0; slot < 128; slot++) {
+  for (int slot = 0; slot < MAX_PARTICLES; slot++) {
     Particle& particle = g_particles[slot];
     if (particle.active) {
       particle.age++;
@@ -52,7 +53,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
     }
   }
 
-  for (int slot = 0; slot < 128; slot++) {
+  for (int slot = 0; slot < MAX_PARTICLES; slot++) {
     Particle& particle = g_particles[slot];
     if (particle.active) {
       int alpha = (int)(particle.alpha * 31_f);
@@ -108,7 +109,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
 
 Particle* SpawnParticle(Particle& prototype) {
   //find the first unused slot and put the particle there
-  for (int slot = 0; slot < 128; slot++) {
+  for (int slot = 0; slot < MAX_PARTICLES; slot++) {
     if (!g_particles[slot].active) {
       g_particles[slot] = prototype;
       //initialize hidden / tracking parameters
@@ -124,7 +125,7 @@ Particle* SpawnParticle(Particle& prototype) {
 // Note: slow! for debugging only; don't rely on this for gameplay.
 int ActiveParticles() {
   int active = 0;
-  for (int slot = 0; slot < 128; slot++) {
+  for (int slot = 0; slot < MAX_PARTICLES; slot++) {
     if (g_particles[slot].active) {
       active++;
     }

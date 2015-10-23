@@ -3,6 +3,7 @@
 #include "dsgx.h"
 #include "pikmin_game.h"
 #include "particle.h"
+#include "particle_library.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
@@ -39,7 +40,8 @@ void FlameOn(FireSpoutState& fire_spout) {
   fire_spout.flame_sensor->collision_group = FIRE_HAZARD_GROUP;
   fire_spout.flame_sensor->position = fire_spout.position();
 
-  fire_spout.flame_timer = (rand() % 16) + 112;
+  //fire_spout.flame_timer = (rand() % 16) + 112;
+  fire_spout.flame_timer = 128;
 }
 
 void FlameOff(FireSpoutState& fire_spout) {
@@ -62,25 +64,17 @@ Vec3 FireSpread() {
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
     fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
-  };
+  } * 0.06_f;
 }
 
 void SpawnFireParticle(FireSpoutState& fire_spout) {
   if ((fire_spout.frames_at_this_node & 0x1) == 0) {
-    Particle fire_particle;
-    fire_particle.texture = fire_spout.game->TextureAllocator()->Retrieve("fire.a3i5");
-    fire_particle.palette = fire_spout.game->TexturePaletteAllocator()->Retrieve("fire.a3i5");
-    fire_particle.position = fire_spout.position();
-    fire_particle.position.y += 0.5_f;
-    fire_particle.lifespan = 16;
-    fire_particle.fade_rate = 1_f / 32_f;
-    fire_particle.scale = 2.0_f;
-    fire_particle.scale_rate = 0.08_f;
-
-    Particle* new_particle = SpawnParticle(fire_particle);
-    new_particle->velocity = FireSpread() * 0.06_f;
-    new_particle->velocity.y += 0.5_f;
-    new_particle->acceleration = Vec3{0_f,0.005_f,0_f};
+    Particle* fire_particle = SpawnParticle(particle_library::fire);
+    fire_particle->position = fire_spout.position();
+    fire_particle->position.y += 0.5_f;
+    fire_particle->velocity = FireSpread();
+    fire_particle->velocity.y += 0.5_f;
+    fire_particle->acceleration = Vec3{0_f,0.005_f,0_f};
   }
 }
 

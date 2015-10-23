@@ -32,6 +32,12 @@
 #define MAX_ENTITIES 256
 #endif
 
+// Maxiumum number of particles the engine can handle at once. Any particles
+// spawned above this limit silently fail.
+#ifndef MAX_PARTICLES
+#define MAX_PARTICLES 256
+#endif
+
 // Field of view, used by all 3D perspective transformations. (Ignored by ortho
 // projections)
 #ifndef FIELD_OF_VIEW
