@@ -58,23 +58,23 @@ bool FlameTimerExpired(const FireSpoutState& fire_spout) {
   return false;
 }
 
-//returns a random vector from -1 to 1 in all directions
-Vec3 FireSpread() {
-  return Vec3{
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
-  } * 0.06_f;
-}
-
 void SpawnFireParticle(FireSpoutState& fire_spout) {
-  if ((fire_spout.frames_at_this_node & 0x1) == 0) {
+  /*if ((fire_spout.frames_at_this_node & 0x1) == 0) {
     Particle* fire_particle = SpawnParticle(particle_library::fire);
     fire_particle->position = fire_spout.position();
     fire_particle->position.y += 0.5_f;
-    fire_particle->velocity = FireSpread();
+    fire_particle->velocity = particle_library::FireSpread();
     fire_particle->velocity.y += 0.5_f;
     fire_particle->acceleration = Vec3{0_f,0.005_f,0_f};
+  }*/
+
+  if ((fire_spout.frames_at_this_node & 0x1) == 0) {
+    Particle* fire_particle = SpawnParticle(particle_library::dirt_rock);
+    fire_particle->position = fire_spout.position();
+    fire_particle->position.y += 0.5_f;
+    fire_particle->velocity += particle_library::DirtSpread();
+    //fire_particle->velocity.y += 0.5_f;
+    //fire_particle->acceleration = Vec3{0_f,0.005_f,0_f};
   }
 }
 
