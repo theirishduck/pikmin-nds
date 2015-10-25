@@ -26,6 +26,7 @@ void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalett
   dirt_rock.position = Vec3{0_f,0_f,0_f};
   dirt_rock.lifespan = 16;
   dirt_rock.fade_rate = 1_f / 32_f;
+  dirt_rock.scale = 0.5_f;
   dirt_rock.scale_rate = 0.02_f;
   dirt_rock.velocity = Vec3{0_f,1_f,0_f};
   dirt_rock.acceleration = Vec3{0_f,-GRAVITY_CONSTANT,0_f};
@@ -48,9 +49,9 @@ Vec3 FireSpread() {
 
 Vec3 DirtSpread() {
   auto vel = RandomSpread();
-  vel.x *= 0.6_f;
-  vel.y *= 0.1_f;
-  vel.z *= 0.6_f;
+  vel.x *= 0.4_f;
+  vel.y *= 0.06_f;
+  vel.z *= 0.4_f;
   return vel;
 }
 

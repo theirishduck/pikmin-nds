@@ -3,6 +3,8 @@
 #include "onion.h"
 #include "treasure.h"
 #include "pikmin_game.h"
+#include "particle.h"
+#include "particle_library.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"
@@ -416,6 +418,12 @@ void PlantSeed(PikminState& pikmin) {
   pikmin.set_velocity(Vec3{0_f,0_f,0_f});
   SetPikminModel(pikmin);
 
+  // Spawn some flying dirt, for science
+  for (int i = 0; i < 3; i++) {
+    Particle* dirt_particle = SpawnParticle(particle_library::dirt_rock);
+    dirt_particle->position = pikmin.position();
+    dirt_particle->velocity += particle_library::DirtSpread();
+  }
 }
 
 bool PikminPlucked(const PikminState& pikmin) {
