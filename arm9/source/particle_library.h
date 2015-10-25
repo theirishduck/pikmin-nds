@@ -11,6 +11,7 @@ void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalett
 
 extern Particle fire;
 extern Particle dirt_rock;
+extern Particle smoke;
 
 Vec3 RandomSpread();
 Vec3 FireSpread();

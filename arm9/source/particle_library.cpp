@@ -11,12 +11,11 @@ namespace particle_library {
 
 Particle fire;
 Particle dirt_rock;
+Particle smoke;
 
 void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator) {
-  //fire.texture = texture_allocator->Retrieve("fire.a3i5");
-  //fire.palette = palette_allocator->Retrieve("fire.a3i5");
-  fire.texture = texture_allocator->Retrieve("smoke1.a5i3");
-  fire.palette = palette_allocator->Retrieve("smoke1.a5i3");
+  fire.texture = texture_allocator->Retrieve("fire.a3i5");
+  fire.palette = palette_allocator->Retrieve("fire.a3i5");
   // Perhaps we should be reading in the width/height from the image on disk?
   fire.texture.format_width = TEXTURE_SIZE_32;
   fire.texture.format_height = TEXTURE_SIZE_32;
@@ -38,6 +37,19 @@ void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalett
   dirt_rock.scale_rate = 0.02_f;
   dirt_rock.velocity = Vec3{0_f,1_f,0_f};
   dirt_rock.acceleration = Vec3{0_f,-GRAVITY_CONSTANT,0_f};
+
+  smoke.texture = texture_allocator->Retrieve("smoke1.a5i3");
+  smoke.palette = palette_allocator->Retrieve("smoke1.a5i3");
+  smoke.texture.format_width = TEXTURE_SIZE_32;
+  smoke.texture.format_height = TEXTURE_SIZE_32;
+  smoke.position = Vec3{0_f,0_f,0_f};
+  smoke.lifespan = 16;
+  smoke.fade_rate = 1_f / 16_f;
+  smoke.scale = 2.0_f;
+  smoke.scale_rate = 0.08_f;
+  smoke.color_a = RGB15(28,20,0);
+  smoke.color_b = RGB15(20,4,0);
+  smoke.color_change_rate = 8;
 }
 
 // Utility functions for setting particle properties and variance

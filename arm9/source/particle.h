@@ -21,6 +21,14 @@ struct Particle {
 
   numeric_types::fixed scale{numeric_types::fixed::FromInt(1)};
   numeric_types::fixed scale_rate;
+
+  u16 color_a{RGB15(31, 31, 31)};
+  u16 color_b{RGB15(31, 31, 31)};
+  u8 color_weight = 31;
+  u8 color_change_rate = 0;
+
+  // Normal color, is overriden by the above if color_change_rate is set
+  u16 color{RGB15(31, 31, 31)};
 };
 
 void UpdateParticles();

@@ -10,6 +10,21 @@ using numeric_types::Brads;
 
 Particle g_particles[MAX_PARTICLES];
 
+u16 color_blend(u16 a, u16 b, u8 weight) {
+  auto a_red =    a & 0x001F;
+  auto a_green = (a & 0x03E0) >> 5;
+  auto a_blue =  (a & 0x7C00) >> 10;
+
+  auto b_red =    b & 0x001F;
+  auto b_green = (b & 0x03E0) >> 5;
+  auto b_blue =  (b & 0x7C00) >> 10;
+
+  return
+      (  a_red   * (weight + 1) + b_red   * (31 - weight)) / 32 +
+      (((a_green * (weight + 1) + b_green * (31 - weight)) / 32) << 5) +
+      (((a_blue  * (weight + 1) + b_blue  * (31 - weight)) / 32) << 10);
+}
+
 void UpdateParticles() {
   for (int slot = 0; slot < MAX_PARTICLES; slot++) {
     Particle& particle = g_particles[slot];
@@ -22,6 +37,18 @@ void UpdateParticles() {
         particle.velocity += particle.acceleration;
         particle.alpha = particle.alpha - particle.fade_rate;
         particle.scale = particle.scale + particle.scale_rate;
+        if (particle.color_change_rate) {
+          particle.color_weight += particle.color_change_rate;
+          if (particle.color_weight > 31) {
+            particle.color_weight = 31;
+            particle.color_change_rate *= -1;
+          }
+          if (particle.color_weight < 0) {
+            particle.color_weight = 0;
+            particle.color_change_rate *= -1;
+          }
+          particle.color = color_blend(particle.color_a, particle.color_b, particle.color_weight);
+        }
       }
     }
   }
@@ -90,7 +117,7 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         glRotateXi(x_angle.data_);
         glScalef32(particle.scale.data_, particle.scale.data_, particle.scale.data_);
 
-        glColor(RGB15(31,31,31));
+        glColor(particle.color);
         glTexCoord2t16(0, 0);
         glVertex3v16(-1 << 12,  1 << 12, 0);
         glTexCoord2t16((32) << 4,  0);
@@ -115,6 +142,9 @@ Particle* SpawnParticle(Particle& prototype) {
       //initialize hidden / tracking parameters
       g_particles[slot].active = true;
       g_particles[slot].age = 0;
+      if (prototype.color_change_rate) {
+        g_particles[slot].color = prototype.color_a;
+      }
 
       return &g_particles[slot];
     }

@@ -60,7 +60,7 @@ bool FlameTimerExpired(const FireSpoutState& fire_spout) {
 
 void SpawnFireParticle(FireSpoutState& fire_spout) {
   if ((fire_spout.frames_at_this_node & 0x1) == 0) {
-    Particle* fire_particle = SpawnParticle(particle_library::fire);
+    Particle* fire_particle = SpawnParticle(particle_library::smoke);
     fire_particle->position = fire_spout.position();
     fire_particle->position.y += 0.5_f;
     fire_particle->velocity = particle_library::FireSpread();
