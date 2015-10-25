@@ -148,6 +148,7 @@ map<string, u32> texture_extension_formats = {
   {"4bpp", GL_RGB16},
   {"t4bpp", GL_RGB16},
   {"a3i5", GL_RGB32_A3},
+  {"a5i3", GL_RGB8_A5},
 };
 
 set<string> texture_extension_is_transparent {

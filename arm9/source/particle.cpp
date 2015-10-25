@@ -69,8 +69,8 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
         // TEXIMAGE_PARAM
         *((u32*)0x40004A8) =
           ((((u32)particle.texture.offset) / 8) & 0xFFFF) |
-          (TEXTURE_SIZE_32 << 20) |
-          (TEXTURE_SIZE_32 << 23) |
+          (particle.texture.format_width << 20) |
+          (particle.texture.format_height << 23) |
           (particle.texture.format << 26) |
           (particle.texture.transparency << 29);
 

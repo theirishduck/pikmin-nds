@@ -13,16 +13,24 @@ Particle fire;
 Particle dirt_rock;
 
 void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator) {
-  fire.texture = texture_allocator->Retrieve("fire.a3i5");
-  fire.palette = palette_allocator->Retrieve("fire.a3i5");
+  //fire.texture = texture_allocator->Retrieve("fire.a3i5");
+  //fire.palette = palette_allocator->Retrieve("fire.a3i5");
+  fire.texture = texture_allocator->Retrieve("smoke1.a5i3");
+  fire.palette = palette_allocator->Retrieve("smoke1.a5i3");
+  // Perhaps we should be reading in the width/height from the image on disk?
+  fire.texture.format_width = TEXTURE_SIZE_32;
+  fire.texture.format_height = TEXTURE_SIZE_32;
   fire.position = Vec3{0_f,0_f,0_f};
   fire.lifespan = 16;
   fire.fade_rate = 1_f / 32_f;
   fire.scale = 2.0_f;
   fire.scale_rate = 0.08_f;
 
-  dirt_rock.texture = texture_allocator->Retrieve("rock.t4bpp");
-  dirt_rock.palette = palette_allocator->Retrieve("rock.t4bpp");
+  dirt_rock.texture = texture_allocator->Retrieve("rock.t2bpp");
+  dirt_rock.palette = palette_allocator->Retrieve("rock.t2bpp");
+  // Perhaps we should be reading in the width/height from the image on disk?
+  dirt_rock.texture.format_width = TEXTURE_SIZE_16;
+  dirt_rock.texture.format_height = TEXTURE_SIZE_16;
   dirt_rock.position = Vec3{0_f,0_f,0_f};
   dirt_rock.lifespan = 16;
   dirt_rock.fade_rate = 1_f / 32_f;
