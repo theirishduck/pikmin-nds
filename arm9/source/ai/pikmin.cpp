@@ -409,10 +409,38 @@ bool TreasureStopped(const PikminState& pikmin) {
   return !TreasureMoving(pikmin);
 }
 
+void IssueThrowParticles(PikminState& pikmin) {
+  if ((pikmin.frames_at_this_node & 0x3) == 0) {
+    Particle* star = SpawnParticle(particle_library::piki_star);
+    star->position = pikmin.position();
+    particle_library::SpreadPikiStar(star);
+  }
+}
+
 void FloatGently(PikminState& pikmin) {
-  pikmin.body->acceleration.y = GRAVITY_CONSTANT * 0.75_f;
-  pikmin.entity->set_rotation(0_brad, pikmin.entity->rotation().y + 20_brad, 0_brad);
+  pikmin.body->acceleration.y = GRAVITY_CONSTANT * 0.82_f;
+  pikmin.entity->set_rotation(0_brad, pikmin.entity->rotation().y + 40_brad, 0_brad);
   pikmin.body->radius = 0_f;
+  if (pikmin.velocity().y < -0.4_f) {
+    pikmin.body->velocity.y = -0.4_f;
+  }
+
+  IssueThrowParticles(pikmin);
+}
+
+void CreateDirtCloud(PikminState& pikmin) {
+  // Spawn some flying dirt, for science
+  for (int i = 0; i < 2; i++) {
+    Particle* rock_particle = SpawnParticle(particle_library::rock);
+    rock_particle->position = pikmin.position();
+    rock_particle->velocity += particle_library::RockSpread();
+  }
+  for (int j = 0; j < 6; j++) {
+    Particle* dirt_cloud = SpawnParticle(particle_library::dirt_cloud);
+    dirt_cloud->position = pikmin.position();
+    dirt_cloud->position.y += 0.75_f;
+    dirt_cloud->velocity += particle_library::DirtCloudSpread();
+  }
 }
 
 void PlantSeed(PikminState& pikmin) {
@@ -420,12 +448,7 @@ void PlantSeed(PikminState& pikmin) {
   pikmin.set_velocity(Vec3{0_f,0_f,0_f});
   SetPikminModel(pikmin);
 
-  // Spawn some flying dirt, for science
-  for (int i = 0; i < 3; i++) {
-    Particle* dirt_particle = SpawnParticle(particle_library::dirt_rock);
-    dirt_particle->position = pikmin.position();
-    dirt_particle->velocity += particle_library::DirtSpread();
-  }
+  CreateDirtCloud(pikmin);
 }
 
 bool PikminPlucked(const PikminState& pikmin) {
@@ -436,12 +459,9 @@ void ResetPhysics(PikminState& pikmin) {
   // What did I mean to do here?
 }
 
-void IssueThrowParticles(PikminState& pikmin) {
-  if ((pikmin.frames_at_this_node & 0x3) == 0) {
-    Particle* star = SpawnParticle(particle_library::piki_star);
-    star->position = pikmin.position();
-    particle_library::SpreadPikiStar(star);
-  }
+void PluckIntoSquad(PikminState& pikmin) {
+  JoinSquad(pikmin);
+  CreateDirtCloud(pikmin);
 }
 
 Edge<PikminState> init[] {
@@ -558,7 +578,7 @@ Edge<PikminState> growing[] {
 
 Edge<PikminState> sprout[] {
   {kAlways, PikminPlucked, nullptr, PikminNode::kPlucked},
-  {kAlways, CollidedWithWhistle, nullptr, PikminNode::kPlucked},
+  {kAlways, CollidedWithWhistle, PluckIntoSquad, PikminNode::kPlucked},
   END_OF_EDGES(PikminState)
 };
 

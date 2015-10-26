@@ -9,23 +9,24 @@ using numeric_types::fixed;
 
 namespace particle_library {
 
-Particle dirt_rock;
+Particle dirt_cloud;
 Particle fire;
 Particle smoke;
 Particle piki_star;
+Particle rock;
 
 void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator) {
-  dirt_rock.texture = texture_allocator->Retrieve("rock.t2bpp");
-  dirt_rock.palette = palette_allocator->Retrieve("rock.t2bpp");
+  dirt_cloud.texture = texture_allocator->Retrieve("smoke1.a5i3");
+  dirt_cloud.palette = palette_allocator->Retrieve("smoke1.a5i3");
   // Perhaps we should be reading in the width/height from the image on disk?
-  dirt_rock.texture.format_width = TEXTURE_SIZE_16;
-  dirt_rock.texture.format_height = TEXTURE_SIZE_16;
-  dirt_rock.lifespan = 16;
-  dirt_rock.fade_rate = 1_f / 32_f;
-  dirt_rock.scale = 0.5_f;
-  dirt_rock.scale_rate = 0.02_f;
-  dirt_rock.velocity = Vec3{0_f,1_f,0_f};
-  dirt_rock.acceleration = Vec3{0_f,-GRAVITY_CONSTANT,0_f};
+  dirt_cloud.texture.format_width = TEXTURE_SIZE_32;
+  dirt_cloud.texture.format_height = TEXTURE_SIZE_32;
+  dirt_cloud.lifespan = 12;
+  dirt_cloud.alpha = 0.75_f;
+  dirt_cloud.fade_rate = dirt_cloud.alpha / fixed::FromInt(dirt_cloud.lifespan);
+  dirt_cloud.scale = 1.0_f;
+  dirt_cloud.scale_rate = 0.02_f;
+  dirt_cloud.color = RGB15(13,8,6);
 
   fire.texture = texture_allocator->Retrieve("fire.a3i5");
   fire.palette = palette_allocator->Retrieve("fire.a3i5");
@@ -59,6 +60,17 @@ void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalett
   piki_star.color_change_rate = 6;
   piki_star.rotation = 45_brad;
   piki_star.rotation_rate = 5_brad;
+
+  rock.texture = texture_allocator->Retrieve("rock.t2bpp");
+  rock.palette = palette_allocator->Retrieve("rock.t2bpp");
+  // Perhaps we should be reading in the width/height from the image on disk?
+  rock.texture.format_width = TEXTURE_SIZE_16;
+  rock.texture.format_height = TEXTURE_SIZE_16;
+  rock.lifespan = 16;
+  rock.fade_rate = 1_f / 32_f;
+  rock.scale = 0.4_f;
+  rock.velocity = Vec3{0_f,1_f,0_f};
+  rock.acceleration = Vec3{0_f,-GRAVITY_CONSTANT,0_f};
 }
 
 // Utility functions for setting particle properties and variance
@@ -76,11 +88,19 @@ Vec3 FireSpread() {
   return RandomSpread() * 0.06_f;
 }
 
-Vec3 DirtSpread() {
+Vec3 RockSpread() {
   auto vel = RandomSpread();
   vel.x *= 0.4_f;
   vel.y *= 0.06_f;
   vel.z *= 0.4_f;
+  return vel;
+}
+
+Vec3 DirtCloudSpread() {
+  auto vel = RandomSpread();
+  vel.x *= 0.3_f;
+  vel.y = 0_f;
+  vel.z *= 0.3_f;
   return vel;
 }
 

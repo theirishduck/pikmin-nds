@@ -9,14 +9,17 @@ namespace particle_library {
 
 void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalette>* palette_allocator);
 
-extern Particle dirt_rock;
+extern Particle dirt_cloud;
 extern Particle fire;
 extern Particle smoke;
 extern Particle piki_star;
+extern Particle rock;
 
-Vec3 RandomSpread();
+Vec3 DirtCloudSpread();
 Vec3 FireSpread();
-Vec3 DirtSpread();
+Vec3 RandomSpread();
+Vec3 RockSpread();
+
 
 void SpreadPikiStar(Particle* particle);
 

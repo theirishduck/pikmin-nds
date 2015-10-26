@@ -129,7 +129,7 @@ void EjectSeeds(OnionState& onion) {
         fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
         fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
       };
-      direction = direction.Normalize() * 0.2_f;
+      direction = direction.Normalize() * 0.12_f;
       pikmin->set_velocity({direction.x, 0.75_f, direction.y});
     }
   }
