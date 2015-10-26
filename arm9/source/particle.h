@@ -22,6 +22,9 @@ struct Particle {
   numeric_types::fixed scale{numeric_types::fixed::FromInt(1)};
   numeric_types::fixed scale_rate;
 
+  numeric_types::Brads rotation{numeric_types::Brads::Raw(degreesToAngle(0))};
+  numeric_types::Brads rotation_rate;
+
   u16 color_a{RGB15(31, 31, 31)};
   u16 color_b{RGB15(31, 31, 31)};
   u8 color_weight = 31;

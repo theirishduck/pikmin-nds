@@ -21,8 +21,8 @@ namespace captain_ai {
 const fixed kRunSpeed = 0.8_f;
 const fixed kCursorMaxDistance = 14_f;
 const fixed kCursorSpeedMultiplier = 3_f;
-const fixed kPikminThrowHeight = 1.6_f;
-const fixed kYellowPikminThrowHeight = 2.0_f;
+const fixed kPikminThrowHeight = 1.8_f;
+const fixed kYellowPikminThrowHeight = 2.2_f;
 const int kWhistleExpandFrames = 8;
 
 void HandleWhistle(CaptainState& captain) {

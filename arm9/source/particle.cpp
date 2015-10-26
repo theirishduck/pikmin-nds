@@ -37,6 +37,7 @@ void UpdateParticles() {
         particle.velocity += particle.acceleration;
         particle.alpha = particle.alpha - particle.fade_rate;
         particle.scale = particle.scale + particle.scale_rate;
+        particle.rotation += particle.rotation_rate;
         if (particle.color_change_rate) {
           particle.color_weight += particle.color_change_rate;
           if (particle.color_weight > 31) {
@@ -115,16 +116,22 @@ void DrawParticles(Vec3 camera_position, Vec3 target_position) {
           particle.position.z.data_);
         glRotateYi(y_angle.data_);
         glRotateXi(x_angle.data_);
+        if (particle.rotation != 0_brad) {
+          glRotateZi(particle.rotation.data_);
+        }
         glScalef32(particle.scale.data_, particle.scale.data_, particle.scale.data_);
+
+        auto texture_width = (8 << particle.texture.format_width);
+        auto texture_height = (8 << particle.texture.format_height);
 
         glColor(particle.color);
         glTexCoord2t16(0, 0);
         glVertex3v16(-1 << 12,  1 << 12, 0);
-        glTexCoord2t16((32) << 4,  0);
+        glTexCoord2t16((texture_width) << 4,  0);
         glVertex3v16( 1 << 12,  1 << 12, 0);
-        glTexCoord2t16((32) << 4,  (32) << 4);
+        glTexCoord2t16((texture_width) << 4,  (texture_height) << 4);
         glVertex3v16( 1 << 12, -1 << 12, 0);
-        glTexCoord2t16(0,  (32) << 4);
+        glTexCoord2t16(0,  (texture_height) << 4);
         glVertex3v16(-1 << 12, -1 << 12, 0);
         glEnd();
 

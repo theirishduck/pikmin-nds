@@ -5,6 +5,8 @@
 #include "pikmin_game.h"
 #include "particle.h"
 #include "particle_library.h"
+#include "particle.h"
+#include "particle_library.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"
@@ -434,6 +436,14 @@ void ResetPhysics(PikminState& pikmin) {
   // What did I mean to do here?
 }
 
+void IssueThrowParticles(PikminState& pikmin) {
+  if ((pikmin.frames_at_this_node & 0x3) == 0) {
+    Particle* star = SpawnParticle(particle_library::piki_star);
+    star->position = pikmin.position();
+    particle_library::SpreadPikiStar(star);
+  }
+}
+
 Edge<PikminState> init[] {
   // Init
   Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
@@ -461,6 +471,7 @@ Edge<PikminState> grabbed[] {
 Edge<PikminState> thrown[] {
   // Thrown
   {kAlways, Landed, StopMoving, PikminNode::kIdle},
+  {kAlways, nullptr, IssueThrowParticles, PikminNode::kThrown},  // Loopback
   END_OF_EDGES(PikminState)
 };
 
