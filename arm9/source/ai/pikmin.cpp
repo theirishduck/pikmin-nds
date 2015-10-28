@@ -446,7 +446,7 @@ void IssueThrowParticles(PikminState& pikmin) {
 void FloatGently(PikminState& pikmin) {
   pikmin.body->acceleration.y = GRAVITY_CONSTANT * 0.82_f;
   auto rotation = pikmin.entity->rotation();
-  rotation.z = 140_brad - ((140_brad / 45) * pikmin.frames_at_this_node); // vary!
+  rotation.z = 140_brad - ((140_brad / 40) * pikmin.frames_at_this_node); // vary!
   if (rotation.z < 0_brad) {
     rotation.z = 0_brad;
   }

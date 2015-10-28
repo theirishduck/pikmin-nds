@@ -43,7 +43,8 @@ void Init(VramAllocator<Texture>* texture_allocator, VramAllocator<TexturePalett
   smoke.texture.format_width = TEXTURE_SIZE_32;
   smoke.texture.format_height = TEXTURE_SIZE_32;
   smoke.lifespan = 16;
-  smoke.fade_rate = 1_f / 16_f;
+  smoke.alpha = 0.5_f;
+  smoke.fade_rate = 0.5_f / 16_f;
   smoke.scale = 2.0_f;
   smoke.scale_rate = 0.1_f;
 

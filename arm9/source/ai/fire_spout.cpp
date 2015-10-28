@@ -80,6 +80,13 @@ void KillSelf(FireSpoutState& fire_spout) {
   }
 
   // TODO: Spawn a ring of gas particles to indicate death
+  for (int i = 0; i < 16; i++) {
+    Particle* smoke = SpawnParticle(particle_library::smoke);
+    smoke->position = fire_spout.position();
+    smoke->position.y += 0.5_f;
+    smoke->velocity = particle_library::RandomSpread() * 0.3_f;
+    smoke->velocity.y = 0_f;
+  }
 
   // Clear out all of our collision data, so the pikmin stop attacking us
   fire_spout.entity->engine()->World().FreeBody(fire_spout.detection);
