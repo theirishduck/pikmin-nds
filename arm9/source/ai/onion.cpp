@@ -129,8 +129,16 @@ void EjectSeeds(OnionState& onion) {
         fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
         fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
       };
-      direction = direction.Normalize() * 0.12_f;
-      pikmin->set_velocity({direction.x, 0.75_f, direction.y});
+      direction = direction.Normalize();
+      pikmin->set_velocity({direction.x * 0.12_f, 0.75_f, direction.y * 0.12_f});
+      // Set the Y rotation for the seed appropriately, based on its new direction
+      Brads y_rotation = 0_brad;
+      if (direction.y <= 0_f) {
+        y_rotation = Brads::Raw(acosLerp(direction.x.data_));
+      } else {
+        y_rotation = Brads::Raw(-acosLerp(direction.x.data_));
+      }
+      pikmin->entity->set_rotation({0_brad, y_rotation, 0_brad});
     }
   }
 

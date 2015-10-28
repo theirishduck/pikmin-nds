@@ -15,6 +15,7 @@ using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
+using std::string;
 
 using treasure_ai::TreasureState;
 
@@ -32,6 +33,31 @@ TreasureState* GetActiveTreasure(const PikminState& pikmin) {
 }
 
 void SetPikminModel(PikminState& pikmin) {
+  string color = "";
+  // Set the initial mesh based on the pikmin's color and starting state
+  switch (pikmin.type) {
+    case PikminType::kNone:
+    case PikminType::kRedPikmin:
+      color = "red";
+    break;
+    case PikminType::kYellowPikmin:
+      color = "yellow";
+    break;
+    case PikminType::kBluePikmin:
+      color = "blue";
+    break;
+  }
+  string mesh = color + "_pikmin";
+  string actor = "pikmin";
+  if (pikmin.current_node == PikminNode::kSeed) {
+    mesh = color + "_seed";
+    actor = "pikmin_seed";
+  }
+
+  pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve(actor.c_str()));
+  pikmin.entity->set_mesh(mesh.c_str());
+
+  /*
   switch (pikmin.type) {
     case PikminType::kNone:
     case PikminType::kRedPikmin:
@@ -61,7 +87,7 @@ void SetPikminModel(PikminState& pikmin) {
         pikmin.entity->set_mesh("blue_pikmin");
       }
       break;
-  }
+  }*/
 }
 
 void InitAlways(PikminState& pikmin) {
@@ -419,7 +445,12 @@ void IssueThrowParticles(PikminState& pikmin) {
 
 void FloatGently(PikminState& pikmin) {
   pikmin.body->acceleration.y = GRAVITY_CONSTANT * 0.82_f;
-  pikmin.entity->set_rotation(0_brad, pikmin.entity->rotation().y + 40_brad, 0_brad);
+  auto rotation = pikmin.entity->rotation();
+  rotation.z = 140_brad - ((140_brad / 45) * pikmin.frames_at_this_node); // vary!
+  if (rotation.z < 0_brad) {
+    rotation.z = 0_brad;
+  }
+  pikmin.entity->set_rotation(rotation);
   pikmin.body->radius = 0_f;
   if (pikmin.velocity().y < -0.4_f) {
     pikmin.body->velocity.y = -0.4_f;
@@ -600,7 +631,7 @@ Node<PikminState> node_list[] {
   {"SlideDownFromOnion", true, sliding_down_from_onion, "Armature|Climb", 30},
   {"LiftTreasure", true, lift_treasure, "Armature|Lift", 123},
   {"CarryTreasure", true, carry_treasure, "Armature|Carry", 72},
-  {"Seed", true, seed},
+  {"Seed", true, seed, "Armature|twirl_about", 24},
   {"Growing", true, growing, "Armature|Grow", 56},
   {"Sprout", true, sprout, "Armature|Planted", 40},
   {"Plucked", true, plucked, "Armature|Plucked", 25},
