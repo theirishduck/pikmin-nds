@@ -13,6 +13,7 @@ RUN apt-get update && \
   curl \
   git \
   libfreetype6 \
+  libjpeg-dev \
   libssl-dev  \
   libxi6 \
   libxxf86vm1 \
