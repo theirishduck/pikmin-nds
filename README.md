@@ -28,6 +28,12 @@ Fortunately, AI for every entity does not need to be run every frame - instead, 
 
 Pikmin NDS is built using devkitARM portion of [devkitPro](http://devkitpro.org/), which runs on Windows, Linux, and Mac. It has been tested on r41 and r42, but should build on r43 as well. After installing devkitARM, `cd` into the project directory and run `make`. This will produce an NDS ROM titled `pikmin-nds.nds`.
 
+An alternative method for compiling, more suitable for development, uses [docker](http://docs.docker.com/mac/started). **Warning**, this will download quite a few packages to set up the developmental envirnment (only the first time). To compile this way, execute `build.sh` as the root user. For example, under debian based systems you would run the following:
+```
+sudo apt-get install docker.io
+sudo sh build.sh
+```
+
 This ROM can be run in [no$gba](http://problemkaputt.de/gba.htm) or in [DeSmuME](http://desmume.org/), or run on real hardware using flash carts. If you don't intend to be developing the software and want to run it in an emulator, the gaming version of no$gba is recommended; the debug version of no$gba is prone to rapid slowdowns, and DeSmuME is less accurate in its emulation.
 
 ## Usage notes
