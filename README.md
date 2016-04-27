@@ -50,4 +50,4 @@ Emulators and real hardware differ greatly in their hardware timings - this can 
 
 ### Emulation bugs
 
-Console output to the secondary screen in DeSmuME does not work. This broke when changing the backing bank for the console from VRAM bank C to bank H, and we're not sure why. It still works in no$ and on real hardware.
+Depth calculations are somewhat inaccurate in both emulators default modes, causing things to clip into each other when they would not on hardware. This is especially noticeable in no$gba with the ground plane. We've found using the OpenGL setting to be the most accurate in both emulators.
