@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import collections, struct, sys
+import hashlib, struct, sys
+from collections import namedtuple
 
-Chunk = collections.namedtuple('Chunk', 'kind size name')
+Chunk = namedtuple('Chunk', 'kind size name payload')
+DsgxPayload = namedtuple('DsgxPayload', 'word_count commands')
 
 def main(filenames):
     for filename in filenames:
@@ -11,17 +13,26 @@ def main(filenames):
 
 def cat_dsgx(contents):
     for chunk in chunks(contents):
-        print(chunk.kind, chunk.size, chunk.name)
+        print(chunk.kind, chunk.size, chunk.name, chunk.payload)
 
 def chunks(contents):
+    header_size = 8
+    word_size = 4
     offset = 0
     while True:
-        kind, size, name = struct.unpack("<4sI32s", contents[offset:offset + 8 + 32])
+        kind, size, name = struct.unpack("<4sI32s", contents[offset:offset + header_size + 32])
         name = name[:name.find('\x00')]
-        yield Chunk(kind, size, name)
-        offset += 8 + size * 4
+        yield Chunk(kind, size, name, hashlib.md5(contents[offset + header_size:offset + header_size + size * 4]).hexdigest())
+        offset += header_size + size * word_size
         if len(contents) <= offset:
             break
+
+def extract_dsgx_payload(contents):
+    pass
+
+payload_extractors = {
+    'DSGX': extract_dsgx_payload
+}
 
 if __name__ == '__main__':
     main([sys.argv[1]])
