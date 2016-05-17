@@ -101,7 +101,7 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES:.blend=.dsgx))) \
 
-.PHONY: $(BUILD) clean
+.PHONY: $(BUILD) clean clean-nitrofs clean-actors
 
 #---------------------------------------------------------------------------------
 $(BUILD): $(NITROFILES)
@@ -112,6 +112,12 @@ $(BUILD): $(NITROFILES)
 clean:
 	@echo clean ...
 	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR)
+
+clean-nitrofs:
+	@rm -rf $(NITRODIR)
+
+clean-actors:
+	@rm -rf $(NITRODIR)/actors
 
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.blend
 	@mkdir -p $(NITRODIR)/actors
