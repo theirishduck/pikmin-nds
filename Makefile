@@ -16,7 +16,7 @@ ifneq ($(strip $(NITRODATA)),)
 	export NITRO_FILES	:=	$(CURDIR)/$(NITRODATA)
 endif
 
-.PHONY: arm7/$(TARGET).elf arm9/$(TARGET).elf
+.PHONY: arm7/$(TARGET).elf arm9/$(TARGET).elf clean clean-nitrofs clean-actors
 
 #---------------------------------------------------------------------------------
 # main targets
@@ -30,7 +30,7 @@ $(TARGET).nds	:	arm7/$(TARGET).elf arm9/$(TARGET).elf
 #---------------------------------------------------------------------------------
 arm7/$(TARGET).elf:
 	$(MAKE) -C arm7
-	
+
 #---------------------------------------------------------------------------------
 arm9/$(TARGET).elf:
 	$(MAKE) -C arm9
@@ -40,3 +40,9 @@ clean:
 	$(MAKE) -C arm9 clean
 	$(MAKE) -C arm7 clean
 	rm -f $(TARGET).nds $(TARGET).arm7 $(TARGET).arm9
+
+clean-nitrofs:
+	$(MAKE) -C arm9 clean-nitrofs
+
+clean-actors:
+	$(MAKE) -C arm9 clean-actors

@@ -26,7 +26,7 @@ try:
 except Exception as e:
     traceback.print_exc()
     sys.exit(-1)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 log = logging.getLogger()
 
 try:
@@ -72,7 +72,7 @@ def display_model_info(model):
     log.info("Worst-case Draw Cost (polygons): %d" % model.max_cull_polys())
 
 def import_blendfile(filename):
-    print("IMPORT BLENDFILE HERE")
+    log.debug("IMPORT BLENDFILE HERE")
     output_model = model.Model()
     output_model.global_matrix = blend_matrix_to_euclid(blender_conversion_matrix())
 
@@ -95,7 +95,7 @@ def import_blendfile(filename):
     return output_model
 
 def import_material(output_model, material_name, blender_material):
-    print("Adding material: ", material_name)
+    log.info("Adding material: ", material_name)
     scene_ambient = bpy.data.worlds[0].ambient_color
     ambient = [
         blender_material.ambient * scene_ambient[0],
@@ -123,7 +123,7 @@ def import_material(output_model, material_name, blender_material):
 
 def import_mesh(output_model, mesh_name, blender_object):
     blender_mesh = blender_object.data
-    print("Processing mesh: ", mesh_name)
+    log.info("Processing mesh: ", mesh_name)
     output_model.addMesh(mesh_name)
     output_mesh = output_model.ActiveMesh()
     for vertex in blender_mesh.vertices:
@@ -157,10 +157,10 @@ def blender_conversion_matrix():
 def import_animations(output_model):
     # first, grab the armature itself. Bail if there is no armature.
     if len(bpy.data.armatures) == 0:
-        print("No armature! Skipping animation processing.")
+        log.info("No armature! Skipping animation processing.")
         return
     if len(bpy.data.armatures) > 1:
-        print("More than one armature! This is unsupported; bailing.")
+        log.warning("More than one armature! This is unsupported; bailing.")
         return
 
     # Note: I HATE that this is hardcoded here, but I can't find another way
@@ -168,11 +168,11 @@ def import_animations(output_model):
     armature = bpy.data.objects["Armature"]
     actions = bpy.data.actions
 
-    print("Importing animations...")
+    log.debug("Importing animations...")
 
     for action in actions:
         if action.id_root == "ARMATURE" or action.id_root == "OBJECT":
-            print("Switching to action: ", action.name)
+            log.debug("Switching to action: ", action.name)
             armature.animation_data.action = action
 
             # Initialize an empty list of nodes, based on the bones contained
@@ -195,7 +195,7 @@ def import_animations(output_model):
             animation.length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
             for key, node in nodes.items():
                 animation.addNode(key, node)
-            print("Created animation ", action.name, " with ", animation.length, " frames.")
+            log.info("Created animation ", action.name, " with ", animation.length, " frames.")
 
 def blend_matrix_to_euclid(matrix):
     return euclid.Matrix4.new(
@@ -205,7 +205,7 @@ def blend_matrix_to_euclid(matrix):
         matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3])
 
 def export_dsgx(model, output_filename, vtx10):
-    print("EXPORT BLENDFILE HERE")
+    log.debug("EXPORT BLENDFILE HERE")
     dsgx.Writer().write(output_filename, model, vtx10)
 
 if __name__ == '__main__':
