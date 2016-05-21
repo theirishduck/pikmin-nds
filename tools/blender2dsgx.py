@@ -63,13 +63,13 @@ def replace_extension(path, extension):
     return base_path + extension
 
 def display_model_info(model):
-    log.info("Polygons: %d" % len(model.ActiveMesh().polygons))
-    log.info("Vertecies: %d" % len(model.ActiveMesh().vertices))
-
-    log.info("Bounding Sphere: %s" % str(model.bounding_sphere()))
-    log.info("Bounding Box: %s" % str(model.bounding_box()))
-
-    log.info("Worst-case Draw Cost (polygons): %d" % model.max_cull_polys())
+    for mesh in model.meshes:
+        log.info("Mesh: %s", mesh)
+        log.info("- Polygons: %d" % len(model.meshes[mesh].polygons))
+        log.info("- Vertecies: %d" % len(model.meshes[mesh].vertices))
+        log.info("- Bounding Sphere: %s" % str(model.meshes[mesh].bounding_sphere()))
+        log.info("- Bounding Box: %s" % str(model.meshes[mesh].bounding_box()))
+        log.info("Worst-case Draw Cost (polygons): %d" % model.meshes[mesh].max_cull_polys())
 
 def import_blendfile(filename):
     log.debug("IMPORT BLENDFILE HERE")
@@ -124,8 +124,7 @@ def import_material(output_model, material_name, blender_material):
 def import_mesh(output_model, mesh_name, blender_object):
     blender_mesh = blender_object.data
     log.info("Processing mesh: ", mesh_name)
-    output_model.addMesh(mesh_name)
-    output_mesh = output_model.ActiveMesh()
+    output_mesh = output_model.addMesh(mesh_name)
     for vertex in blender_mesh.vertices:
         group = "group"
         if len(vertex.groups) == 1:
