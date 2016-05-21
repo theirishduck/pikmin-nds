@@ -51,7 +51,8 @@ void HandleWhistle(CaptainState& captain) {
 void InitAlways(CaptainState& captain) {
   //set the actor for animation
   captain.entity->set_actor(captain.game->ActorAllocator()->Retrieve("olimar_low_poly"));
-  captain.entity->set_mesh("Olimar");
+  // captain.entity->set_mesh("Olimar");
+  captain.entity->set_mesh("MediumPolyOlimar");
 
   //setup physics parameters for collision
   captain.body->height = 6_f;
