@@ -121,7 +121,7 @@ clean-actors:
 
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.blend
 	@mkdir -p $(NITRODIR)/actors
-	python3 ../tools/blender2dsgx.py --output $@ $< 2>&1 | sed -f supress-blender-output.sed
+	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
 
 # We need one of these for every paletted format, largely because make doesn't
 # seem to support multiple wildcard fields, and I'm *far* too lazy to come up
