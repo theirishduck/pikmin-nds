@@ -153,6 +153,84 @@ def blender_conversion_matrix():
     m[2][2] = 0
     return m
 
+def import_vertex_animations(output_model, mesh_name, blender_object):
+    armature = bpy.data.objects["Armature"]
+    actions = bpy.data.actions
+    log.debug("Importing VERTEX/NORMAL animations...")
+
+    for action in actions:
+        if action.id_root == "ARMATURE" or action.id_root == "OBJECT":
+            log.debug("Switching to action: ", action.name)
+            armature.animation_data.action = action
+
+            # Initialize an empty list of channels, one for each vertex
+            mesh = blender_object.to_mesh(bpy.data.scenes[0], True, "PREVIEW")
+            vertex_channels = {i: [] for i in range(len(mesh.vertices))}
+            normal_channels = {i: [] for i in range(len(mesh.vertices))}
+
+            frame_start = action.frame_range[0]
+            frame_end = action.frame_range[1]
+            for frame in range(int(action.frame_range[0]), int(action.frame_range[1]), 2):
+                bpy.data.scenes[0].frame_set(frame)
+                bpy.data.scenes[0].update()
+
+                mesh = blender_object.to_mesh(bpy.data.scenes[0], True, "PREVIEW")
+                for vertex_index in range(len(mesh.vertices)):
+                    vertex = mesh.vertices[vertex_index]
+                    vertex_channels[vertex_index].append(vertex.co)
+                    normal_channels[vertex_index].append(vertex.normal)
+
+            animation_length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
+            vertex_animation = output_model.create_animation("Armature|" + action.name, "vertex")
+            vertex_animation.mesh = mesh_name
+            vertex_animation.length = animation_length
+            for vertex_index, vertex_positions in vertex_channels.items():
+                vertex_animation.add_channel(vertex_index, vertex_positions)
+
+            normal_animation = output_model.create_animation("Armature|" + action.name, "normal")
+            normal_animation.length = animation_length
+            normal_animation.mesh = mesh_name
+            for vertex_index, normal_directions in normal_channels.items():
+                normal_animation.add_channel(vertex_index, normal_directions)
+            log.info("Created vertex animation ", action.name, " with ", animation_length, " frames.")
+
+
+def import_bone_animations(output_model):
+    # Note: I HATE that this is hardcoded here, but I can't find another way
+    # to do this. Future self, save me!
+    armature = bpy.data.objects["Armature"]
+    actions = bpy.data.actions
+
+    log.debug("Importing BONE animations...")
+
+    for action in actions:
+        if action.id_root == "ARMATURE" or action.id_root == "OBJECT":
+            log.debug("Switching to action: ", action.name)
+            armature.animation_data.action = action
+
+            # Initialize an empty list of channels, based on the bones contained
+            # in the armature
+            bone_channels = {bone.name: [] for bone in armature.data.bones}
+
+            # Note: step is 2, because blender defaults to 60 FPS, and we want
+            # to export at 30 FPS.
+            for frame in range(int(action.frame_range[0]), int(action.frame_range[1]), 2):
+                bpy.data.scenes[0].frame_set(frame)
+                # Write out the bone transformation matrix for each bone
+                for posebone in armature.pose.bones:
+                    bind_pose = posebone.bone.matrix_local
+                    object_space_transform = posebone.matrix
+                    # final_transform = blender_conversion_matrix() * object_space_transform * bind_pose.inverted()
+                    final_transform = object_space_transform * bind_pose.inverted()
+                    bone_channels[posebone.bone.name].append(blend_matrix_to_euclid(final_transform))
+                # Write out the transformed vertices and normals
+
+            animation = output_model.create_animation("Armature|" + action.name, "bone")
+            animation.length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
+            for bone_name, bone_transforms in bone_channels.items():
+                animation.add_channel(bone_name, bone_transforms)
+            log.info("Created animation ", action.name, " with ", animation.length, " frames.")
+
 def import_animations(output_model):
     # first, grab the armature itself. Bail if there is no armature.
     if len(bpy.data.armatures) == 0:
@@ -162,38 +240,12 @@ def import_animations(output_model):
         log.warning("More than one armature! This is unsupported; bailing.")
         return
 
-    # Note: I HATE that this is hardcoded here, but I can't find another way
-    # to do this. Future self, save me!
-    armature = bpy.data.objects["Armature"]
-    actions = bpy.data.actions
+    import_bone_animations(output_model)
 
-    log.debug("Importing animations...")
-
-    for action in actions:
-        if action.id_root == "ARMATURE" or action.id_root == "OBJECT":
-            log.debug("Switching to action: ", action.name)
-            armature.animation_data.action = action
-
-            # Initialize an empty list of nodes, based on the bones contained
-            # in the armature
-            nodes = {bone.name: [] for bone in armature.data.bones}
-
-            # Note: step is 2, because blender defaults to 60 FPS, and we want
-            # to export at 30 FPS.
-            for frame in range(int(action.frame_range[0]), int(action.frame_range[1]), 2):
-                bpy.data.scenes[0].frame_set(frame)
-                for posebone in armature.pose.bones:
-                    bind_pose = posebone.bone.matrix_local
-                    object_space_transform = posebone.matrix
-                    # final_transform = blender_conversion_matrix() * object_space_transform * bind_pose.inverted()
-                    final_transform = object_space_transform * bind_pose.inverted()
-                    nodes[posebone.bone.name].append(blend_matrix_to_euclid(final_transform))
-
-            animation = output_model.create_animation("Armature|" + action.name, "bone")
-            animation.length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
-            for bone_name, bone_transforms in nodes.items():
-                animation.add_channel(bone_name, bone_transforms)
-            log.info("Created animation ", action.name, " with ", animation.length, " frames.")
+    for blend_object in bpy.data.objects:
+        if blend_object.hide_render == False:
+            if blend_object.type == "MESH":
+                import_vertex_animations(output_model, blend_object.name, blend_object)
 
 def blend_matrix_to_euclid(matrix):
     return euclid.Matrix4.new(
