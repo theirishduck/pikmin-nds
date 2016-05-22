@@ -32,7 +32,7 @@ NITRODIR := $(CURDIR)/nitrofs
 ARCH	:=	-mthumb -mthumb-interwork
 
 CFLAGS	:=	-g -Wall -O2\
- 			-march=armv5te -mtune=arm946e-s -fomit-frame-pointer\
+			-march=armv5te -mtune=arm946e-s -fomit-frame-pointer\
 			-ffast-math \
 			$(ARCH)
 
@@ -121,8 +121,7 @@ clean-actors:
 
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.blend
 	@mkdir -p $(NITRODIR)/actors
-	@echo $(notdir $<)
-	python3 ../tools/blender2dsgx.py --output $@ $<
+	python3 ../tools/blender2dsgx.py --output $@ $< 2>&1 | sed -f supress-blender-output.sed
 
 # We need one of these for every paletted format, largely because make doesn't
 # seem to support multiple wildcard fields, and I'm *far* too lazy to come up
