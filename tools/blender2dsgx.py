@@ -189,11 +189,10 @@ def import_animations(output_model):
                     final_transform = object_space_transform * bind_pose.inverted()
                     nodes[posebone.bone.name].append(blend_matrix_to_euclid(final_transform))
 
-            output_model.createAnimation("Armature|" + action.name)
-            animation = output_model.getAnimation("Armature|" + action.name)
+            animation = output_model.create_animation("Armature|" + action.name, "bone")
             animation.length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
-            for key, node in nodes.items():
-                animation.addNode(key, node)
+            for bone_name, bone_transforms in nodes.items():
+                animation.add_channel(bone_name, bone_transforms)
             log.info("Created animation ", action.name, " with ", animation.length, " frames.")
 
 def blend_matrix_to_euclid(matrix):
