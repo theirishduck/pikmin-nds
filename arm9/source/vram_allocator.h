@@ -49,14 +49,14 @@ class VramAllocator {
       this->end_ = cpu_base + size / sizeof(u16);
       this->next_element_ = cpu_base;
       this->alignment_ = alignment;
-      nocashMessage("Constructor called with size: ");
-      debug::nocashNumber(size);
+      //nocashMessage("Constructor called with size: ");
+      //debug::nocashNumber(size);
     }
     ~VramAllocator() {}
 
     Metadata Load(std::string name, const u8* data, u32 size, Metadata metadata) {
       if (loaded_assets.count(name) > 0) {
-        nocashMessage("Already loaded!");
+        //nocashMessage("Already loaded!");
         // this is already loaded! Just return a reference to the data
         return loaded_assets[name];
       }
@@ -86,9 +86,9 @@ class VramAllocator {
       loaded_assets[name] = metadata;
       loaded_assets[name].offset = destination;
 
-      nocashMessage("Loaded Texture: ");
-      nocashMessage(name.c_str());
-      debug::nocashNumber(destination - base_);
+      //nocashMessage("Loaded Texture: ");
+      //nocashMessage(name.c_str());
+      //debug::nocashNumber(destination - base_);
 
       // return the address we just copied data to, for immediate use
       return loaded_assets[name];

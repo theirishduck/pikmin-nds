@@ -168,8 +168,8 @@ void LoadFileWithMetadata(T* vram_allocator, typename T::Metadata metadata, stri
     if (fread(buffer.data(), 1, size, file)) {
       vram_allocator->Load(
         identifier, (u8*)buffer.data(), size, metadata);
-      nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
-      debug::nocashNumber(size);
+      //nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
+      //debug::nocashNumber(size);
     } else {
       nocashMessage("NitroFS Read FAILED for");
       nocashMessage(filename.c_str());
@@ -193,8 +193,8 @@ void LoadDsgxFile(DsgxAllocator* dsgx_allocator, string filename, string identif
     if (fread(buffer.data(), 1, size, file)) {
       dsgx_allocator->Load(
         identifier, (u8*)buffer.data(), size);
-      nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
-      debug::nocashNumber(size);
+      //nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
+      //debug::nocashNumber(size);
     } else {
       nocashMessage("NitroFS Read FAILED for");
       nocashMessage(filename.c_str());
@@ -215,7 +215,7 @@ void LoadTexturesFromNitroFS() {
     if (texture_extension_formats.count(extension) > 0) {
       metadata.format = texture_extension_formats[extension];
     } else {
-      nocashMessage(("Skipping extension: " + extension).c_str());
+      //nocashMessage(("Skipping extension: " + extension).c_str());
       continue;
     }
     if (texture_extension_is_transparent.count(extension) > 0) {
@@ -301,7 +301,7 @@ void InitCaptain() {
 void Init() {
   // filesystem testing stuff
   if (nitroFSInit(NULL)) {
-    nocashMessage("Filesystem SUCCESS");
+    //nocashMessage("Filesystem SUCCESS");
   } else {
     nocashMessage("Filesystem FAILURE");
   }

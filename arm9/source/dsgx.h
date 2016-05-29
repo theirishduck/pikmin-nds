@@ -11,11 +11,17 @@
 #include "vector.h"
 #include "vram_allocator.h"
 
+struct OffsetList {
+  char* name;
+  u32 num_offsets;
+  u32* offsets;
+};
+
 struct AnimationReference {
   char* data_type;
   char* mesh_name;
   u32 num_references;
-  u32* reference_data;
+  std::vector<OffsetList> offset_lists;
 };
 
 struct AnimationData {
@@ -51,6 +57,7 @@ struct TextureParam {
 };
 
 struct Mesh {
+  char* name;
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
   u32* model_data{nullptr};

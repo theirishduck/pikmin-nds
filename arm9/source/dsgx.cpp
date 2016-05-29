@@ -25,11 +25,11 @@ Dsgx::Dsgx(u32* data, const u32 length):
   CollectAnimations();
 
   // Print out a crapton of debug info
-  nocashMessage("==DSGX Data== ");
-  debug::nocashValue("Number of meshes", meshes_.size());
-  for (auto mesh : meshes_) {
-    debug::nocashValue("-- Mesh: " + mesh.first, " --");
-  }
+  //nocashMessage("==DSGX Data== ");
+  //debug::nocashValue("Number of meshes", meshes_.size());
+  //for (auto mesh : meshes_) {
+  //  debug::nocashValue("-- Mesh: " + mesh.first, " --");
+  //}
 }
 
 u32 Dsgx::ProcessChunk(u32* location) {
@@ -82,8 +82,8 @@ void Dsgx::CollectAnimations() {
     AnimationReference reference;
     bool found_reference = false;
     for (auto aref : animation_references_) {
-      if (aref.data_type == anim.data_type) {
-        if (aref.mesh_name == "" or aref.mesh_name == anim.mesh_name) {
+      if (strcmp(aref.data_type, anim.data_type) == 0) {
+        if (strlen(aref.mesh_name) == 0 or strcmp(aref.mesh_name, anim.mesh_name) == 0) {
           reference = aref;
           found_reference = true;
           break;
@@ -92,14 +92,18 @@ void Dsgx::CollectAnimations() {
     }
     if (found_reference) {
       for (auto kv : meshes_) {
-        if (anim.mesh_name == "" or anim.mesh_name == kv.first) {
+        if (strlen(anim.mesh_name) == 0 or strcmp(anim.mesh_name, kv.first.c_str()) == 0) {
           kv.second.AddAnimation(anim.animation_name, anim.frame_length,
             reference, anim);
+          meshes_[kv.first] = kv.second;
+          debug::nocashValue("Added ANIM", anim.animation_name);
+          debug::nocashValue("To Mesh   ", anim.mesh_name);
         }
       }
     } else {
         nocashMessage("No AREF found for ANIM: ");
         nocashMessage(anim.animation_name);
+        nocashMessage(anim.data_type);
     }
   }
 }
@@ -108,6 +112,7 @@ void Dsgx::DsgxChunk(u32* data) {
   char* mesh_name = (char*)data;
   meshes_.emplace(mesh_name, Mesh());
   data += 8;  // Skip past the name
+  meshes_[mesh_name].name = mesh_name;
   meshes_[mesh_name].model_data = data;
 }
 
@@ -145,8 +150,8 @@ void Dsgx::BoneChunk(u32* data) {
     bone.num_offsets = *data;
     data++;
 
-    nocashMessage(bone.name);
-    debug::nocashNumber(bone.num_offsets);
+    //nocashMessage(bone.name);
+    //debug::nocashNumber(bone.num_offsets);
 
     bone.offsets = data;
     data += bone.num_offsets;
@@ -175,7 +180,7 @@ void Dsgx::TextureChunk(u32* data) {
 
   u32 num_textures = *data;
   data++;
-  nocashMessage("Loading Textures...");
+  //nocashMessage("Loading Textures...");
 
   for (u32 i = 0; i < num_textures; i++) {
     TextureParam texture;
@@ -190,7 +195,7 @@ void Dsgx::TextureChunk(u32* data) {
 
     meshes_[mesh_name].textures.push_back(texture);
 
-    nocashMessage(texture.name);
+    //nocashMessage(texture.name);
   }
 }
 
@@ -203,8 +208,26 @@ void Dsgx::ArefChunk(u32* data) {
 
   aref.num_references = *data;
   data++;
-  aref.reference_data = data;
+
+  for (u32 i = 0; i < aref.num_references; i++) {
+    OffsetList offset_list;
+    offset_list.name = (char*)data;
+    data += 8;  // Skip past the reference name.
+
+    offset_list.num_offsets = *data;
+    data++;
+
+    offset_list.offsets = data;
+    data += offset_list.num_offsets;
+
+    aref.offset_lists.push_back(offset_list);
+  }
+
   animation_references_.push_back(aref);
+
+  nocashMessage("Loaded AREF: ");
+  nocashMessage(aref.data_type);
+  nocashMessage(aref.mesh_name);
 }
 
 void Dsgx::AnimChunk(u32* data) {
@@ -223,6 +246,12 @@ void Dsgx::AnimChunk(u32* data) {
   anim.data = data;
 
   animation_data_.push_back(anim);
+
+  debug::nocashValue("Loaded ANIM", anim.animation_name);
+  debug::nocashValue("Type", anim.data_type);
+  debug::nocashValue("Mesh", anim.mesh_name);
+  debug::nocashValue("Length", anim.frame_length);
+  debug::nocashValue("Word Count", anim.word_count);
 }
 
 Mesh* Dsgx::MeshByName(const char* mesh_name) {
@@ -239,14 +268,34 @@ Mesh* Dsgx::DefaultMesh() {
 Animation* Dsgx::GetAnimation(string name, Mesh* mesh) {
   if (mesh->animations.count(name) == 0) {
     printf("Couldn't find animation: %s", name.c_str());
+    debug::nocashValue("Could not load ANIM: ", name);
+    debug::nocashValue("From mesh: ", mesh->name);
+    debug::nocashValue("With total anims: ", mesh->animations.size());
     return nullptr;  // The requested animation doesn't exist.
   }
+  debug::nocashValue("Switched to ANIM", name);
+  debug::nocashValue("Length", mesh->animations[name].frame_length);
+  debug::nocashValue("Channels", mesh->animations[name].channels.size());
+  debug::nocashValue("Data Size", mesh->animations[name].channels[0].first.num_references);
   return &mesh->animations[name];
 }
 
 void Dsgx::ApplyAnimation(Animation* animation, u32 frame, Mesh* mesh) {
-  // NOT IMPLEMENTED YET
-  return;
+  auto destination = mesh->model_data + 1;
+  for (auto& channel : animation->channels) {
+    auto& ref = channel.first;
+    auto& data = channel.second;
+    u32 const* current_data = data.data;
+    current_data += ref.num_references * data.word_count * frame;
+    for (auto offset_list = ref.offset_lists.begin(); offset_list != ref.offset_lists.end(); offset_list++) {
+      for (u32 i = 0; i < offset_list->num_offsets; i++) {
+        for (u32 d = 0; d < data.word_count; d++) {
+          *((u32*)(destination + offset_list->offsets[i] + d)) = current_data[d];
+        }
+      }
+      current_data += data.word_count;
+    }
+  }
 }
 
 BoneAnimation* Dsgx::GetBoneAnimation(string name) {
