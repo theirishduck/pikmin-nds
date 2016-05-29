@@ -72,7 +72,8 @@ CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
-BLENDFILES	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.blend)))
+BLENDFILES_BONE	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.bone.blend)))
+BLENDFILES_VERTEX	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.vertex.blend)))
 TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
 
 #---------------------------------------------------------------------------------
@@ -99,7 +100,8 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
-				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES:.blend=.dsgx))) \
+				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_BONE:.bone.blend=.dsgx))) \
+				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx)))
 
 .PHONY: $(BUILD) clean clean-nitrofs clean-actors
 
@@ -119,9 +121,13 @@ clean-nitrofs:
 clean-actors:
 	@rm -rf $(NITRODIR)/actors
 
-$(NITRODIR)/actors/%.dsgx : $(BLEND)/%.blend
+$(NITRODIR)/actors/%.dsgx : $(BLEND)/%.vertex.blend
+		@mkdir -p $(NITRODIR)/actors
+		bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=vertex --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
+
+$(NITRODIR)/actors/%.dsgx : $(BLEND)/%.bone.blend
 	@mkdir -p $(NITRODIR)/actors
-	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
+	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=bone --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
 
 # We need one of these for every paletted format, largely because make doesn't
 # seem to support multiple wildcard fields, and I'm *far* too lazy to come up

@@ -47,9 +47,9 @@ Dsgx* DsgxAllocator::Load(string name, const u8* data, u32 size) {
   Dsgx* dsgx = new Dsgx((u32*)destination, size);
   loaded_assets[name] = dsgx;
 
-  nocashMessage("Loaded DSGX: ");
-  nocashMessage(name.c_str());
-  debug::nocashNumber(destination - base_);
+  //nocashMessage("Loaded DSGX: ");
+  //nocashMessage(name.c_str());
+  //debug::nocashNumber(destination - base_);
 
   // return the address we just copied data to, for immediate use
   return loaded_assets[name];
