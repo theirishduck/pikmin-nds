@@ -79,28 +79,25 @@ void Dsgx::CollectAnimations() {
   for (auto anim : animation_data_) {
     // First, we need to see if there's a matching animation reference for this
     // mesh / type
-    AnimationReference reference;
     bool found_reference = false;
     for (auto aref : animation_references_) {
       if (strcmp(aref.data_type, anim.data_type) == 0) {
-        if (strlen(aref.mesh_name) == 0 or strcmp(aref.mesh_name, anim.mesh_name) == 0) {
-          reference = aref;
-          found_reference = true;
-          break;
+        if (strlen(anim.mesh_name) == 0 or strcmp(aref.mesh_name, anim.mesh_name) == 0) {
+          // Now go through and pair this anim/aref with every mesh that matches it
+          for (auto kv : meshes_) {
+            if (strcmp(aref.mesh_name, kv.first.c_str()) == 0) {
+              kv.second.AddAnimation(anim.animation_name, anim.frame_length,
+                aref, anim);
+              meshes_[kv.first] = kv.second;
+              found_reference = true;
+              debug::nocashValue("Added ANIM", anim.animation_name);
+              debug::nocashValue("To Mesh   ", anim.mesh_name);
+            }
+          }
         }
       }
     }
-    if (found_reference) {
-      for (auto kv : meshes_) {
-        if (strlen(anim.mesh_name) == 0 or strcmp(anim.mesh_name, kv.first.c_str()) == 0) {
-          kv.second.AddAnimation(anim.animation_name, anim.frame_length,
-            reference, anim);
-          meshes_[kv.first] = kv.second;
-          debug::nocashValue("Added ANIM", anim.animation_name);
-          debug::nocashValue("To Mesh   ", anim.mesh_name);
-        }
-      }
-    } else {
+    if (!found_reference) {
         nocashMessage("No AREF found for ANIM: ");
         nocashMessage(anim.animation_name);
         nocashMessage(anim.data_type);
