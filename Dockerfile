@@ -50,4 +50,14 @@ RUN mkdir /opt/dsgx-converter \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
 
+ARG external_username
+ARG external_uid
+ARG external_gid
+RUN mkdir /home/$external_username && \
+  groupadd --gid 1000 $external_username && \
+  useradd --uid $external_uid --gid $external_gid $external_username && \
+  chown $external_username /home/$external_username /source && \
+  chgrp $external_username /home/$external_username /source
+USER $external_username
+
 CMD make
