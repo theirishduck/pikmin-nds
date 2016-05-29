@@ -9,8 +9,10 @@ Usage:
     blender2dsgx.py [options] <blend_file>
 
 Options:
-    -h --help       Print this message and exit
-    -v --version    Show version number and exit
+    -h --help            Print this message and exit
+    -v --version         Show version number and exit
+    --vtx10              Output 10-bit vertex coordinates (default is 16-bit)
+    --animation=<mode>   Either bone or vertex [default: bone]
     --output <fbx_file>  The name of the exported .dsgx file. If not provided,
                          defaults to the same as the <blend_file> with the
                          ".blend" suffix replaced by ".dsgx".
@@ -48,7 +50,8 @@ def main():
 
         blender_model = import_blendfile(arguments['<blend_file>'])
         display_model_info(blender_model)
-        export_dsgx(blender_model, output_filename, False)
+        animation_mode = "bone"
+        export_dsgx(blender_model, output_filename, arguments['--vtx10'], arguments['--animation'])
     except Exception as e:
         log.error("Something bad happened!")
         traceback.print_exc()
@@ -181,13 +184,13 @@ def import_vertex_animations(output_model, mesh_name, blender_object):
                     normal_channels[vertex_index].append(vertex.normal)
 
             animation_length = int(math.floor((action.frame_range[1] - action.frame_range[0]) / 2))
-            vertex_animation = output_model.create_animation("Armature|" + action.name, "vertex")
+            vertex_animation = output_model.create_animation("Armature|" + action.name, "vertex", mesh_name)
             vertex_animation.mesh = mesh_name
             vertex_animation.length = animation_length
             for vertex_index, vertex_positions in vertex_channels.items():
                 vertex_animation.add_channel(vertex_index, vertex_positions)
 
-            normal_animation = output_model.create_animation("Armature|" + action.name, "normal")
+            normal_animation = output_model.create_animation("Armature|" + action.name, "normal", mesh_name)
             normal_animation.length = animation_length
             normal_animation.mesh = mesh_name
             for vertex_index, normal_directions in normal_channels.items():
@@ -254,9 +257,9 @@ def blend_matrix_to_euclid(matrix):
         matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
         matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3])
 
-def export_dsgx(model, output_filename, vtx10):
+def export_dsgx(model, output_filename, vtx10, animation_mode):
     log.debug("EXPORT BLENDFILE HERE")
-    dsgx.Writer().write(output_filename, model, vtx10)
+    dsgx.Writer().write(output_filename, model, vtx10, animation_mode)
 
 if __name__ == '__main__':
     main()
