@@ -38,6 +38,11 @@ arm9/nitrofs/actors/
 # Sublime Text .dmp files (upon crashes)
 *.dmp
 
+# emacs temporary files
+*~
+*[#]*[#]
+.[#]*
+
 tools/olimar_low_poly.blend
 tools/olimar_low_poly.dsgx
 debug.sh
