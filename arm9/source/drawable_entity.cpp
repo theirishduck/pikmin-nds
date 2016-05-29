@@ -186,7 +186,7 @@ void DrawableEntity::Update() {
   if (current_.animation) {
     current_.animation_frame++;
     // Wrap around to the beginning of the animation.
-    if (current_.animation_frame >= current_.animation->length) {
+    if (current_.animation_frame >= current_.animation->frame_length) {
       current_.animation_frame = 0;
     }
   }
@@ -234,7 +234,7 @@ numeric_types::fixed DrawableEntity::GetRealModelZ() {
 }
 
 void DrawableEntity::SetAnimation(std::string name) {
-  current_.animation = current_.actor->GetAnimation(name);
+  current_.animation = current_.actor->GetAnimation(name, current_.current_mesh);
   current_.animation_frame = 0;
 }
 

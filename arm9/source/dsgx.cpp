@@ -13,13 +13,16 @@ constexpr u32 kChunkHeaderSizeWords{2};
 
 Dsgx::Dsgx(u32* data, const u32 length):
     meshes_{},
-    animations_{} {
+    bone_animations_{} {
   u32 seek = 0;
   // printf("length of Dsgx: %u\n", length);
   while (seek < (length >> 2)) {
     int const chunk_size = ProcessChunk(&data[seek]);
     seek += chunk_size;
   }
+
+  // Nice-ify the animation data
+  CollectAnimations();
 
   // Print out a crapton of debug info
   nocashMessage("==DSGX Data== ");
@@ -52,9 +55,53 @@ u32 Dsgx::ProcessChunk(u32* location) {
   if (strncmp(header, "TXTR", 4) == 0) {
     TextureChunk(data);
   }
+  if (strncmp(header, "AREF", 4) == 0) {
+    ArefChunk(data);
+  }
+  if (strncmp(header, "ANIM", 4) == 0) {
+    AnimChunk(data);
+  }
 
   // Return the size of this chunk so the reader can skip to the next chunk.
   return chunk_length + kChunkHeaderSizeWords;
+}
+
+void Mesh::AddAnimation(char* name, u32 length, AnimationReference ref, AnimationData data) {
+  animations.emplace(name, Animation());
+  animations[name].name = name;
+  animations[name].frame_length = length;
+  animations[name].channels.push_back(std::make_pair(ref, data));
+}
+
+void Dsgx::CollectAnimations() {
+  // Run through the animation data that we read in, and store that data in the
+  // mesh for easier access.
+  for (auto anim : animation_data_) {
+    // First, we need to see if there's a matching animation reference for this
+    // mesh / type
+    AnimationReference reference;
+    bool found_reference = false;
+    for (auto aref : animation_references_) {
+      if (aref.data_type == anim.data_type) {
+        if (aref.mesh_name == "" or aref.mesh_name == anim.mesh_name) {
+          reference = aref;
+          found_reference = true;
+          break;
+        }
+      }
+    }
+    if (found_reference) {
+      for (auto kv : meshes_) {
+        if (anim.mesh_name == "" or anim.mesh_name == kv.first) {
+          kv.second.AddAnimation(anim.animation_name, anim.frame_length,
+            reference, anim);
+        }
+      }
+    } else {
+        nocashMessage("No AREF found for ANIM: ");
+        nocashMessage(anim.animation_name);
+    }
+  }
 }
 
 void Dsgx::DsgxChunk(u32* data) {
@@ -91,7 +138,7 @@ void Dsgx::BoneChunk(u32* data) {
   u32 num_bones = *data;
   data++;
   for (u32 i = 0; i < num_bones; i++) {
-    Bone bone;
+    BoneReference bone;
     bone.name = (char*)data;
     data += 8;  // Skip past the bone name.
 
@@ -110,7 +157,7 @@ void Dsgx::BoneChunk(u32* data) {
 
 // BANI is short for Baked ANImation.
 void Dsgx::BaniChunk(u32* data) {
-  Animation new_anim;
+  BoneAnimation new_anim;
   char* name = (char*)data;
   data += 8;
 
@@ -118,7 +165,7 @@ void Dsgx::BaniChunk(u32* data) {
   data++;
 
   new_anim.transforms = (m4x4*)data;
-  animations_[name] = new_anim;
+  bone_animations_[name] = new_anim;
 }
 
 void Dsgx::TextureChunk(u32* data) {
@@ -147,6 +194,37 @@ void Dsgx::TextureChunk(u32* data) {
   }
 }
 
+void Dsgx::ArefChunk(u32* data) {
+  AnimationReference aref;
+  aref.data_type = (char*) data;
+  data += 8;
+  aref.mesh_name = (char*) data;
+  data += 8;
+
+  aref.num_references = *data;
+  data++;
+  aref.reference_data = data;
+  animation_references_.push_back(aref);
+}
+
+void Dsgx::AnimChunk(u32* data) {
+  AnimationData anim;
+  anim.animation_name = (char*) data;
+  data += 8;
+  anim.data_type = (char*) data;
+  data += 8;
+  anim.mesh_name = (char*) data;
+  data += 8;
+
+  anim.frame_length = *data;
+  data++;
+  anim.word_count = *data;
+  data++;
+  anim.data = data;
+
+  animation_data_.push_back(anim);
+}
+
 Mesh* Dsgx::MeshByName(const char* mesh_name) {
   if (meshes_.count(mesh_name) > 0) {
     return &meshes_[mesh_name];
@@ -158,16 +236,29 @@ Mesh* Dsgx::DefaultMesh() {
   return &meshes_.begin()->second;
 }
 
-Animation* Dsgx::GetAnimation(string name) {
-  if (animations_.count(name) == 0) {
+Animation* Dsgx::GetAnimation(string name, Mesh* mesh) {
+  if (mesh->animations.count(name) == 0) {
     printf("Couldn't find animation: %s", name.c_str());
     return nullptr;  // The requested animation doesn't exist.
   }
-
-  return &animations_[name];
+  return &mesh->animations[name];
 }
 
 void Dsgx::ApplyAnimation(Animation* animation, u32 frame, Mesh* mesh) {
+  // NOT IMPLEMENTED YET
+  return;
+}
+
+BoneAnimation* Dsgx::GetBoneAnimation(string name) {
+  if (bone_animations_.count(name) == 0) {
+    printf("Couldn't find bone animation: %s", name.c_str());
+    return nullptr;  // The requested animation doesn't exist.
+  }
+
+  return &bone_animations_[name];
+}
+
+void Dsgx::ApplyBoneAnimation(BoneAnimation* animation, u32 frame, Mesh* mesh) {
   auto destination = mesh->model_data + 1;
   m4x4 const* current_matrix = animation->transforms + mesh->bones.size() * frame;
   for (auto bone = mesh->bones.begin(); bone != mesh->bones.end(); bone++) {
