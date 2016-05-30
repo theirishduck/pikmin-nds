@@ -48,7 +48,7 @@ def main():
         output_filename = (arguments['--output'] if arguments['--output'] else
             replace_extension(arguments['<blend_file>'], '.dsgx'))
 
-        blender_model = import_blendfile(arguments['<blend_file>'])
+        blender_model = import_blendfile(arguments['<blend_file>'], arguments['--animation'])
         display_model_info(blender_model)
         animation_mode = "bone"
         export_dsgx(blender_model, output_filename, arguments['--vtx10'], arguments['--animation'])
@@ -74,7 +74,7 @@ def display_model_info(model):
         log.info("- Bounding Box: %s" % str(model.meshes[mesh].bounding_box()))
         log.info("Worst-case Draw Cost (polygons): %d" % model.meshes[mesh].max_cull_polys())
 
-def import_blendfile(filename):
+def import_blendfile(filename, animation_mode):
     log.debug("IMPORT BLENDFILE HERE")
     output_model = model.Model()
     output_model.global_matrix = blend_matrix_to_euclid(blender_conversion_matrix())
@@ -88,7 +88,7 @@ def import_blendfile(filename):
     for blend_object in bpy.data.objects:
         if blend_object.hide_render == False:
             if blend_object.type == "MESH":
-                import_mesh(output_model, blend_object.name, blend_object)
+                import_mesh(output_model, blend_object.name, blend_object, animation_mode == "bone")
 
     for material in bpy.data.materials:
         import_material(output_model, material.name, material)
@@ -124,13 +124,13 @@ def import_material(output_model, material_name, blender_material):
     output_model.addMaterial(material_name, ambient, specular, diffuse, emit,
             texture, texture_width, texture_height)
 
-def import_mesh(output_model, mesh_name, blender_object):
+def import_mesh(output_model, mesh_name, blender_object, use_vertex_groups=True):
     blender_mesh = blender_object.data
     log.info("Processing mesh: ", mesh_name)
     output_mesh = output_model.addMesh(mesh_name)
     for vertex in blender_mesh.vertices:
         group = "group"
-        if len(vertex.groups) == 1:
+        if use_vertex_groups and len(vertex.groups) == 1:
             group = blender_object.vertex_groups[vertex.groups[0].group].name
         position = euclid.Vector3(vertex.co.x, vertex.co.y, vertex.co.z)
         output_mesh.addVertex(position, group)
