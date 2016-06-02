@@ -284,13 +284,23 @@ void Dsgx::ApplyAnimation(Animation* animation, u32 frame, Mesh* mesh) {
     auto& data = channel.second;
     u32 const* current_data = data.data;
     current_data += ref.num_references * data.word_count * frame;
-    for (auto offset_list = ref.offset_lists.begin(); offset_list != ref.offset_lists.end(); offset_list++) {
-      for (u32 i = 0; i < offset_list->num_offsets; i++) {
-        for (u32 d = 0; d < data.word_count; d++) {
-          *((u32*)(destination + offset_list->offsets[i] + d)) = current_data[d];
+    if (data.word_count == 1) {
+      //Optimized Case for 1-word copies, avoids the inner loop
+      for (auto offset_list = ref.offset_lists.begin(); offset_list != ref.offset_lists.end(); offset_list++) {
+        for (u32 i = 0; i < offset_list->num_offsets; i++) {
+            *((u32*)(destination + offset_list->offsets[i])) = *current_data;
         }
+        current_data++;
       }
-      current_data += data.word_count;
+    } else {
+      for (auto offset_list = ref.offset_lists.begin(); offset_list != ref.offset_lists.end(); offset_list++) {
+        for (u32 i = 0; i < offset_list->num_offsets; i++) {
+          for (u32 d = 0; d < data.word_count; d++) {
+            *((u32*)(destination + offset_list->offsets[i] + d)) = current_data[d];
+          }
+        }
+        current_data += data.word_count;
+      }
     }
   }
 }
