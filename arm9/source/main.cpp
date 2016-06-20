@@ -68,11 +68,21 @@ void InitSubScreen() {
 void InitMainScreen() {
   videoSetMode(MODE_0_3D);
   glInit();
-  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE);
+  glEnable(GL_TEXTURE_2D | GL_BLEND | GL_OUTLINE/* | GL_FOG*/);
+
+  // Fog!
+  glFogColor(4, 4, 4, 31);
+  glFogOffset(0);
+  glFogShift(5);
+  for (u32 i = 0; i < 32; i++) {
+    glFogDensity(i, i * 4);
+  }
 
   glClearColor(4, 4, 4, 31);
   glClearDepth(0x7FFF);
   glViewport(0, 0, 255, 191);
+
+  GFX_CLEAR_COLOR = GFX_CLEAR_COLOR | POLY_FOG;
 
   Vec3 light0_direction = Vec3{1_f, -1_f, -1_f}.Normalize() * 0.99_f;
   Vec3 light1_direction = Vec3{-1_f, -1_f, -1_f}.Normalize() * 0.99_f;

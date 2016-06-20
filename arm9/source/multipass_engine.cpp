@@ -523,7 +523,7 @@ void MultipassEngine::Draw() {
 
   DrawClearPlane();
 
-  GFX_FLUSH = 0;
+  GFX_FLUSH = GL_WBUFFERING;
   debug::StartTopic(Topic::kIdle);
   swiWaitForVBlank();
 
