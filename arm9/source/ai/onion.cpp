@@ -163,38 +163,38 @@ enum OnionNode {
 }
 
 Edge<OnionState> init[] {
-  Edge<OnionState>{kAlways, nullptr, InitAlways, OnionNode::kIdle},
+  {Trigger::kAlways, nullptr, InitAlways, OnionNode::kIdle},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> idle[] {
-  {kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {kAlways, nullptr, HandleWithdrawingPikmin, OnionNode::kIdle},  // Loopback
+  {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
+  {Trigger::kAlways, nullptr, HandleWithdrawingPikmin, OnionNode::kIdle},  // Loopback
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> bounce[] {
-  {kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {kLastFrame, nullptr, nullptr, OnionNode::kWindUp},
+  {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
+  {Trigger::kLastFrame, nullptr, nullptr, OnionNode::kWindUp},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> wind_up[] {
-  {kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {kLastFrame, nullptr, nullptr, OnionNode::kEject},
+  {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
+  {Trigger::kLastFrame, nullptr, nullptr, OnionNode::kEject},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> wind_down[] {
-  {kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {kLastFrame, nullptr, nullptr, OnionNode::kIdle},
+  {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
+  {Trigger::kLastFrame, nullptr, nullptr, OnionNode::kIdle},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> eject_seeds[] {
-  {kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {kAlways, NoMoreSeeds, nullptr, OnionNode::kWindDown},
-  {kAlways, Every40Frames, EjectSeeds, OnionNode::kEject},  // Loopback
+  {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
+  {Trigger::kAlways, NoMoreSeeds, nullptr, OnionNode::kWindDown},
+  {Trigger::kAlways, Every40Frames, EjectSeeds, OnionNode::kEject},  // Loopback
   END_OF_EDGES(OnionState)
 };
 

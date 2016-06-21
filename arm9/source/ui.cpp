@@ -427,61 +427,61 @@ enum UINode {
 }
 
 Edge<UIState> wait_frame[] = {
-  Edge<UIState>{kAlways, nullptr, nullptr, UINode::kInit},
+  Edge<UIState>{Trigger::kAlways, nullptr, nullptr, UINode::kInit},
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> init[] = {
-  Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{Trigger::kAlways, nullptr, InitNavPad, UINode::kNavPad},
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> nav_pad[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
-  Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
-  Edge<UIState>{kAlways, PauseButtonPressed, PauseGame, UINode::kPauseScreen},
-  Edge<UIState>{kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
+  Edge<UIState>{Trigger::kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
+  Edge<UIState>{Trigger::kAlways, PauseButtonPressed, PauseGame, UINode::kPauseScreen},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> onion_ui[] = {
-  Edge<UIState>{kAlways, CloseOnionUI, ApplyOnionDelta, UINode::kOnionClosing},
-  Edge<UIState>{kAlways, CancelOnionUI, UnpauseGame, UINode::kOnionClosing},
-  Edge<UIState>{kAlways, nullptr, UpdateOnionUI, UINode::kOnionUI},
+  Edge<UIState>{Trigger::kAlways, CloseOnionUI, ApplyOnionDelta, UINode::kOnionClosing},
+  Edge<UIState>{Trigger::kAlways, CancelOnionUI, UnpauseGame, UINode::kOnionClosing},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateOnionUI, UINode::kOnionUI},
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> closing_onion_ui[] = {
-  Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{Trigger::kAlways, nullptr, InitNavPad, UINode::kNavPad},
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> debug_timings[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugValues},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugTimers, UINode::kDebugTiming}, //Loopback
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, nullptr, UINode::kDebugValues},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugTimers, UINode::kDebugTiming}, //Loopback
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> debug_values[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugToggles},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, nullptr, UINode::kDebugToggles},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> debug_toggles[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitDebugSpawners, UINode::kDebugSpawners},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitDebugSpawners, UINode::kDebugSpawners},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> debug_spawners[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> pause_screen[] = {
-  Edge<UIState>{kAlways, PauseButtonPressed, UnpauseGame, UINode::kNavPad},
+  Edge<UIState>{Trigger::kAlways, PauseButtonPressed, UnpauseGame, UINode::kNavPad},
   END_OF_EDGES(UIState)
 };
 

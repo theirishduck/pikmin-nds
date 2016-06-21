@@ -497,78 +497,78 @@ void PluckIntoSquad(PikminState& pikmin) {
 
 Edge<PikminState> init[] {
   // Init
-  Edge<PikminState>{kAlways, nullptr, InitAlways, PikminNode::kIdle},
+  {Trigger::kAlways, nullptr, InitAlways, PikminNode::kIdle},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> idle[] {
   // Idle
-  {kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
-  {kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
-  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
-  {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
-  {kAlways, CollideWithTarget, StoreTargetBody, PikminNode::kChasing},
-  {kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
+  {Trigger::kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
+  {Trigger::kAlways, TooFarFromTarget, nullptr, PikminNode::kTargeting},
+  {Trigger::kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {Trigger::kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
+  {Trigger::kAlways, CollideWithTarget, StoreTargetBody, PikminNode::kChasing},
+  {Trigger::kAlways,nullptr,IdleAlways,PikminNode::kIdle}, // Loopback
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> grabbed[] {
   // Grabbed
-  {kAlways, LeftParent, nullptr, PikminNode::kThrown},
-  {kAlways, nullptr, FollowParent, PikminNode::kGrabbed},  // Loopback
+  {Trigger::kAlways, LeftParent, nullptr, PikminNode::kThrown},
+  {Trigger::kAlways, nullptr, FollowParent, PikminNode::kGrabbed},  // Loopback
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> thrown[] {
   // Thrown
-  {kAlways, Landed, StopMoving, PikminNode::kIdle},
-  {kAlways, nullptr, IssueThrowParticles, PikminNode::kThrown},  // Loopback
+  {Trigger::kAlways, Landed, StopMoving, PikminNode::kIdle},
+  {Trigger::kAlways, nullptr, IssueThrowParticles, PikminNode::kThrown},  // Loopback
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> targeting[] {
   // Targeting
-  {kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
-  {kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
-  {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
-  {kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
-  {kAlways, nullptr, RunToTarget, PikminNode::kTargeting},  // loopback
+  {Trigger::kAlways, CollideWithOnionFoot, StartClimbingOnion, PikminNode::kClimbIntoOnion},
+  {Trigger::kAlways, TargetReached, ClearTargetAndStop, PikminNode::kIdle},
+  {Trigger::kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
+  {Trigger::kAlways, HasNewParent, StoreParentLocation, PikminNode::kGrabbed},
+  {Trigger::kAlways, nullptr, RunToTarget, PikminNode::kTargeting},  // loopback
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> chasing[] {
   // Chasing (Attack, Work, Carry)
-  {kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
-  {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
-  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
-  {kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
-  {kAlways, CollideWithValidTreasure, AddToTreasure, PikminNode::kLiftTreasure},
-  {kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
+  {Trigger::kAlways, CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
+  {Trigger::kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
+  {Trigger::kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {Trigger::kAlways, CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
+  {Trigger::kAlways, CollideWithValidTreasure, AddToTreasure, PikminNode::kLiftTreasure},
+  {Trigger::kAlways, nullptr, ChaseTarget, PikminNode::kChasing},  // loopback
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> standing_attack[] {
   // Standing Attack
-  {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
-  {kFirstFrame, nullptr, Aim, PikminNode::kStandingAttack},
-  {kLastFrame, nullptr, DealDamageToTarget, PikminNode::kJump},
-  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {Trigger::kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
+  {Trigger::kFirstFrame, nullptr, Aim, PikminNode::kStandingAttack},
+  {Trigger::kLastFrame, nullptr, DealDamageToTarget, PikminNode::kJump},
+  {Trigger::kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> jumping[] {
   // Jump
-  {kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
-  {kFirstFrame, nullptr, JumpTowardTarget, PikminNode::kJump},
-  {kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
-  {kAlways, Landed, StopMoving, PikminNode::kChasing},
+  {Trigger::kAlways, ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
+  {Trigger::kFirstFrame, nullptr, JumpTowardTarget, PikminNode::kJump},
+  {Trigger::kAlways, CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
+  {Trigger::kAlways, Landed, StopMoving, PikminNode::kChasing},
   // note: no loopback, as we want motion to be physics driven here
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> climbing_into_onion[] {
   // ClimbIntoOnion
-  {kLastFrame, nullptr, EnterOnion, PikminNode::kClimbIntoOnion},
+  {Trigger::kLastFrame, nullptr, EnterOnion, PikminNode::kClimbIntoOnion},
   // Note: while this is technically a loopback, the EnterOnion function
   // marks the pikmin as dead, removing it from the game. Thus, this state
   // runs to completion just once.
@@ -577,44 +577,44 @@ Edge<PikminState> climbing_into_onion[] {
 
 Edge<PikminState> sliding_down_from_onion[] {
   // SlideDownFromOnion
-  {kAlways, CollidedWithWhistle, WhistleOffOnion, PikminNode::kIdle},
-  {kLastFrame, nullptr, HopOffFoot, PikminNode::kIdle},
+  {Trigger::kAlways, CollidedWithWhistle, WhistleOffOnion, PikminNode::kIdle},
+  {Trigger::kLastFrame, nullptr, HopOffFoot, PikminNode::kIdle},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> lift_treasure[] {
-  {kAlways, CollidedWithWhistle, WhistleOffTreasure, PikminNode::kIdle},
-  {kAlways, TreasureMoving, nullptr, PikminNode::kCarryTreasure},
-  {kAlways, TreasureInvalid, RemoveFromTreasure, PikminNode::kIdle},
+  {Trigger::kAlways, CollidedWithWhistle, WhistleOffTreasure, PikminNode::kIdle},
+  {Trigger::kAlways, TreasureMoving, nullptr, PikminNode::kCarryTreasure},
+  {Trigger::kAlways, TreasureInvalid, RemoveFromTreasure, PikminNode::kIdle},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> carry_treasure[] {
-  {kAlways, CollidedWithWhistle, WhistleOffTreasure, PikminNode::kIdle},
-  {kAlways, TreasureStopped, nullptr, PikminNode::kLiftTreasure},
-  {kAlways, TreasureInvalid, RemoveFromTreasure, PikminNode::kIdle},
+  {Trigger::kAlways, CollidedWithWhistle, WhistleOffTreasure, PikminNode::kIdle},
+  {Trigger::kAlways, TreasureStopped, nullptr, PikminNode::kLiftTreasure},
+  {Trigger::kAlways, TreasureInvalid, RemoveFromTreasure, PikminNode::kIdle},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> seed[] {
-  {kAlways, Landed, PlantSeed, PikminNode::kGrowing},
-  {kAlways, nullptr, FloatGently, PikminNode::kSeed},
+  {Trigger::kAlways, Landed, PlantSeed, PikminNode::kGrowing},
+  {Trigger::kAlways, nullptr, FloatGently, PikminNode::kSeed},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> growing[] {
-  {kLastFrame, nullptr, nullptr, PikminNode::kSprout},
+  {Trigger::kLastFrame, nullptr, nullptr, PikminNode::kSprout},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> sprout[] {
-  {kAlways, PikminPlucked, nullptr, PikminNode::kPlucked},
-  {kAlways, CollidedWithWhistle, PluckIntoSquad, PikminNode::kPlucked},
+  {Trigger::kAlways, PikminPlucked, nullptr, PikminNode::kPlucked},
+  {Trigger::kAlways, CollidedWithWhistle, PluckIntoSquad, PikminNode::kPlucked},
   END_OF_EDGES(PikminState)
 };
 
 Edge<PikminState> plucked[] {
-  {kLastFrame, nullptr, nullptr, PikminNode::kIdle},
+  {Trigger::kLastFrame, nullptr, nullptr, PikminNode::kIdle},
   END_OF_EDGES(PikminState)
 };
 

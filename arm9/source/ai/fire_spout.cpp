@@ -95,20 +95,20 @@ void KillSelf(FireSpoutState& fire_spout) {
 }
 
 Edge<FireSpoutState> init[] {
-  Edge<FireSpoutState>{kAlways, nullptr, InitAlways, 1},
+  Edge<FireSpoutState>{Trigger::kAlways, nullptr, InitAlways, 1},
   END_OF_EDGES(FireSpoutState)
 };
 
 Edge<FireSpoutState> flame_off[] {
-  {kAlways, FlameTimerExpired, FlameOn, 2},
-  {kAlways, OutOfHealth, KillSelf, 3},
+  {Trigger::kAlways, FlameTimerExpired, FlameOn, 2},
+  {Trigger::kAlways, OutOfHealth, KillSelf, 3},
   END_OF_EDGES(FireSpoutState)
 };
 
 Edge<FireSpoutState> flame_on[] {
-  {kAlways, FlameTimerExpired, FlameOff, 1},
-  {kAlways, OutOfHealth, KillSelf, 3},
-  {kAlways, nullptr, SpawnFireParticle, 2}, // Loopback
+  {Trigger::kAlways, FlameTimerExpired, FlameOff, 1},
+  {Trigger::kAlways, OutOfHealth, KillSelf, 3},
+  {Trigger::kAlways, nullptr, SpawnFireParticle, 2}, // Loopback
   END_OF_EDGES(FireSpoutState)
 };
 

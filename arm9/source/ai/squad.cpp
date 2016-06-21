@@ -261,12 +261,12 @@ void UpdateCircleShape(SquadState& squad) {
 }
 
 Edge<SquadState> init[] {
-  Edge<SquadState>{kAlways, nullptr, InitAlways, 1},
+  {Trigger::kAlways, nullptr, InitAlways, 1},
   END_OF_EDGES(SquadState)
 };
 
 Edge<SquadState> circle_following_captain[] {
-  Edge<SquadState>{kAlways, nullptr, UpdateCircleShape, 1},
+  {Trigger::kAlways, nullptr, UpdateCircleShape, 1},
   END_OF_EDGES(SquadState)
 };
 

@@ -34,7 +34,7 @@ struct ObjectState {
   };
 };
 
-enum Trigger {
+enum class Trigger {
   kAlways = 0,
   kGuardOnly, // same as always? state logic is run per-frame
   kFirstFrame, //ie, framecount for the state == 0
@@ -50,7 +50,15 @@ struct Edge {
   int destination;
 };
 
-#define END_OF_EDGES(Type) Edge<Type>{kEndOfList, nullptr, nullptr, 0},
+enum class Guard {
+  kNone = 0
+};
+
+enum class Action {
+  kNone = 0
+};
+
+#define END_OF_EDGES(Type) Edge<Type>{Trigger::kEndOfList, nullptr, nullptr, 0},
 
 template<typename T>
 struct Node {
@@ -75,12 +83,12 @@ class StateMachine {
 
     void RunLogic(T& state) {
       auto current_node = node_list[state.current_node];
-      for (auto i = current_node.edge_list; i->trigger != kEndOfList; i++) {
+      for (auto i = current_node.edge_list; i->trigger != Trigger::kEndOfList; i++) {
         auto edge = *i;
         // Make sure we pass this edge's trigger condition
-        if (edge.trigger == kAlways or edge.trigger == kGuardOnly or
-            (edge.trigger == kFirstFrame and state.frames_at_this_node == 0) or
-            (edge.trigger == kLastFrame and state.frames_at_this_node >= current_node.duration - 1)) {
+        if (edge.trigger == Trigger::kAlways or edge.trigger == Trigger::kGuardOnly or
+            (edge.trigger == Trigger::kFirstFrame and state.frames_at_this_node == 0) or
+            (edge.trigger == Trigger::kLastFrame and state.frames_at_this_node >= current_node.duration - 1)) {
           // If this edge has a guard function, only continue if the guard
           // passes its condition. If not, always continue.
           if (edge.guard == nullptr or edge.guard(state)) {

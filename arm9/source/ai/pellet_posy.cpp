@@ -63,28 +63,28 @@ enum PosyNode {
 
 Edge<PosyState> init[] {
   // Init
-  Edge<PosyState>{kAlways, nullptr, InitAlways, PosyNode::kIdle},
+  {Trigger::kAlways, nullptr, InitAlways, PosyNode::kIdle},
   END_OF_EDGES(PosyState)
 };
 
 Edge<PosyState> idle[] {
   // Idle
-  {kAlways, ZeroHealth, MarkAsDead, PosyNode::kDeath},
-  {kAlways, TookDamage, nullptr, PosyNode::kHit},
-  {kAlways, nullptr, nullptr, PosyNode::kIdle},  // Loopback
+  {Trigger::kAlways, ZeroHealth, MarkAsDead, PosyNode::kDeath},
+  {Trigger::kAlways, TookDamage, nullptr, PosyNode::kHit},
+  {Trigger::kAlways, nullptr, nullptr, PosyNode::kIdle},  // Loopback
   END_OF_EDGES(PosyState)
 };
 
 Edge<PosyState> hit[] {
   // Hit
-  {kAlways, ZeroHealth, MarkAsDead, PosyNode::kDeath},
-  {kLastFrame, nullptr, StoreCurrentHealth, PosyNode::kIdle},
+  {Trigger::kAlways, ZeroHealth, MarkAsDead, PosyNode::kDeath},
+  {Trigger::kLastFrame, nullptr, StoreCurrentHealth, PosyNode::kIdle},
   END_OF_EDGES(PosyState)
 };
 
 Edge<PosyState> death[] {
   // Death
-  {kLastFrame, nullptr, GoodbyeCruelWorld, PosyNode::kDeath},
+  {Trigger::kLastFrame, nullptr, GoodbyeCruelWorld, PosyNode::kDeath},
   END_OF_EDGES(PosyState)
 };
 
