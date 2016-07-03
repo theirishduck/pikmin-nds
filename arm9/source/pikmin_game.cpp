@@ -46,6 +46,7 @@ int PikminGame::TotalPikmin() {
 
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   ui_.game = this;
+  ui_.debug_state.game = this;
 }
 
 PikminGame::~PikminGame() {
@@ -243,8 +244,8 @@ void PikminGame::Step() {
   for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
     if ((*i).active) {
       pikmin_ai::machine.RunLogic(*i);
-      debug::DisplayValue("NodeFrames", i->frames_at_this_node);
-      debug::DisplayValue("Node", pikmin_ai::machine.NodeName(i->current_node));
+      DebugDictionary().Set("NodeFrames", i->frames_at_this_node);
+      DebugDictionary().Set("Node", pikmin_ai::machine.NodeName(i->current_node));
       if (i->dead) {
         RemoveObject(i);
       }
@@ -283,6 +284,10 @@ void PikminGame::Step() {
   }
 
   debug::EndTopic(debug::Topic::kAI);
+
+  // Update some debug details about the world
+  DebugDictionary().Set("Physics: Bodies Overlapping: ", engine.World().BodiesOverlapping());
+  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());
 }
 
 CaptainState* PikminGame::ActiveCaptain() {
@@ -366,4 +371,8 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
 
 std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> PikminGame::SpawnNames() {
   return std::make_pair(spawn_.begin(), spawn_.end());
+}
+
+debug::Dictionary& PikminGame::DebugDictionary() {
+  return debug_dictionary_;
 }

@@ -151,7 +151,7 @@ void MoveCaptain(CaptainState& captain) {
   } else {
     captain.active_onion = nullptr;
   }
-  debug::DisplayValue("Pos: ", captain.position());
+  captain.game->DebugDictionary().Set("Pos: ", captain.position());
 }
 
 bool ActionDownNearPikmin(const CaptainState& captain) {

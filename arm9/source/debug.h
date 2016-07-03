@@ -35,17 +35,12 @@ void DrawLine(Vec3 p1, Vec3 p2, rgb color);
 void DrawLine(Vec2 p1, Vec2 p2, rgb color);
 void _TimingColor(rgb color);
 void Update();
-void UpdateValuesMode();
 void UpdateTimingMode();
 void UpdateTogglesMode();
 void InitializeSpawners();
 void UpdateSpawnerMode(PikminGame* game);
 void AddToggle(std::string name, bool* toggle);
-
-void DisplayValue(const std::string &name, int value);
-void DisplayValue(const std::string &name, numeric_types::fixed value);
-void DisplayValue(const std::string &name, Vec3 value);
-void DisplayValue(const std::string &name, const std::string value);
+void PrintTitle(const char* title);
 
 enum Topic {
   kPhysics = 0,

@@ -23,6 +23,7 @@ namespace static_ai { struct StaticState; }
 #include <list>
 
 #include "debug.h"
+#include "debug_dictionary.h"
 #include "vram_allocator.h"
 #include "dsgx_allocator.h"
 
@@ -78,6 +79,7 @@ class PikminGame {
 
   static std::pair<SpawnMap::const_iterator, SpawnMap::const_iterator> SpawnNames();
 
+  debug::Dictionary& DebugDictionary();
  private:
   bool paused_ = false;
   PikminSave current_save_data_;
@@ -129,6 +131,9 @@ class PikminGame {
     state->entity->body_handle().body->owner = state;
     return state;
   }
+
+  // Debug Objects
+  debug::Dictionary debug_dictionary_;
 };
 
 #endif  // GAME_H

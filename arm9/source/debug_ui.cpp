@@ -1,12 +1,29 @@
 #include "debug_ui.h"
 
-#include "debug.h"
+#include <cstdio>
 #include <nds.h>
+
+#include "debug.h"
+#include "pikmin_game.h"
 
 namespace debug_ui {
 
 void UpdateDebugValues(DebugUiState& debug_ui) {
-  debug::UpdateValuesMode();
+  // Clear the screen
+  printf("\x1b[2J");
+  debug::PrintTitle("VALUES");
+
+  int display_position = 2;
+  auto display_values = debug_ui.game->DebugDictionary().DisplayValues();
+  for (auto kv : display_values) {
+    if (display_position < 22) {
+      printf("\x1b[39m%s: \x1b[36;1m%s\n", kv.first.c_str(), kv.second.c_str());
+      display_position++;
+    }
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
 }
 
 void UpdateDebugTimings(DebugUiState& debug_ui) {

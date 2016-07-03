@@ -121,12 +121,6 @@ void debug::_TimingColor(rgb color) {
   }
 }
 
-namespace {
-void Status(char const* status) {
-  printf("\x1b[23;0H[D] %28.28s", status);
-}
-}  // namespace
-
 struct TimingResult {
   u32 start = 0;
   u32 end = 0;
@@ -199,7 +193,7 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
     RGB8(48, 48, 48)}},
 };
 
-void _printTitle(const char* title) {
+void debug::PrintTitle(const char* title) {
   int console_width = 64;
   int leading_space = (console_width - strlen(title)) / 2 - 1;
   int following_space = leading_space + (strlen(title) % 2);
@@ -211,7 +205,7 @@ void _printTitle(const char* title) {
 void debug::UpdateTimingMode() {
   // Clear the screen
   printf("\x1b[2J");
-  _printTitle("TIMING");
+  debug::PrintTitle("TIMING");
 
   // For every topic, output the timing on its own line
   for (int i = 0; i < static_cast<int>(debug::Topic::kNumTopics); i++) {
@@ -235,158 +229,6 @@ void debug::UpdateTimingMode() {
 
   // Reset the colors when we're done
   printf("\x1b[39m");
-}
-
-std::map<std::string, int> g_debug_ints;
-std::map<std::string, fixed> g_debug_fixeds;
-std::map<std::string, Vec3> g_debug_vectors;
-std::map<std::string, std::string> g_debug_strings;
-
-void debug::DisplayValue(const std::string &name, int value) {
-  g_debug_ints[name] = value;
-}
-
-void debug::DisplayValue(const std::string &name, fixed value) {
-  g_debug_fixeds[name] = value;
-}
-
-void debug::DisplayValue(const std::string &name, Vec3 value) {
-  g_debug_vectors[name] = value;
-}
-
-void debug::DisplayValue(const std::string &name, std::string value) {
-  g_debug_strings[name] = value;
-}
-
-void debug::UpdateValuesMode() {
-  // Clear the screen
-  printf("\x1b[2J");
-  _printTitle("VALUES");
-
-  int display_position = 2;
-  for (auto kv : g_debug_ints) {
-    if (display_position < 22) {
-      printf("\x1b[39m%s: \x1b[36;1m%d\n", kv.first.c_str(), kv.second);
-        display_position++;
-    }
-  }
-
-  for (auto kv : g_debug_fixeds) {
-    if (display_position < 22) {
-      printf("\x1b[39m%s: \x1b[32;1m%.3f\n", kv.first.c_str(), (float)kv.second);
-        display_position++;
-    }
-  }
-
-  for (auto kv : g_debug_vectors) {
-    if (display_position < 22) {
-      Vec3 vector = kv.second;
-      printf("\x1b[39m%s: \x1b[30;1m(\x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m)\n", kv.first.c_str(), (float)vector.x, (float)vector.y, (float)vector.z);
-         display_position++;
-    }
-  }
-
-  for (auto kv : g_debug_strings) {
-    if (display_position < 22) {
-      std::string value = kv.second;
-      printf("\x1b[39m%s: \x1b[36;1m%s\n", kv.first.c_str(), value.c_str());
-         display_position++;
-    }
-  }
-
-  // Reset the colors when we're done
-  printf("\x1b[39m");
-}
-
-enum DebugMode {
-  kOff = 0,
-  kTiming,
-  kValues,
-  kNumDebugModes
-};
-
-int g_debug_mode = DebugMode::kOff;
-
-void debug::Update() {
-  if (keysDown() & KEY_SELECT) {
-    g_debug_mode++;
-    if (g_debug_mode >= DebugMode::kNumDebugModes) {
-      g_debug_mode = DebugMode::kOff;
-    }
-    // Clear the screen for any switch
-    printf("\x1b[2J");
-  }
-
-  switch (g_debug_mode) {
-    case DebugMode::kOff:
-      return;
-    case DebugMode::kTiming:
-      UpdateTimingMode();
-      break;
-    case DebugMode::kValues:
-      UpdateValuesMode();
-      break;
-    default:
-      printf("\x1b[2Jm");
-      printf("Undefined debug mode!");
-  }
-
-  return;
-
-
-  // Hold debug modifier [SELECT], then press:
-  // A = Render only First Pass
-  // B = Skip VBlank, useful for:
-  // X = Draw Debug Timings to Bottom Screen (with flashing colors!)
-
-  // Check for debug-related input and update the flags accordingly.
-  // Todo(Nick) Make this touchscreen based instead of key combo based.
-  if (keysHeld() & KEY_SELECT) {
-    if (keysDown() & KEY_A) {
-      debug::g_render_first_pass_only = not debug::g_render_first_pass_only;
-      if (debug::g_render_first_pass_only) {
-        Status("Rendering only first pass.");
-      } else {
-        Status("Rendering every pass.");
-      }
-    }
-
-    if (keysDown() & KEY_B) {
-      debug::g_skip_vblank = not debug::g_skip_vblank;
-      if (debug::g_skip_vblank) {
-        Status("Skipping vBlank");
-      } else {
-        Status("Not skipping vBlank");
-      }
-    }
-
-    if (keysDown() & KEY_X) {
-      debug::g_timing_colors = not debug::g_timing_colors;
-      if (debug::g_timing_colors) {
-        Status("Rendering Colors");
-      } else {
-        Status("No more flashing!");
-      }
-    }
-
-    if (keysDown() & KEY_Y) {
-      debug::g_physics_circles = not debug::g_physics_circles;
-      if (debug::g_physics_circles) {
-        Status("Physics Circles!");
-      } else {
-        Status("No more circles.");
-      }
-    }
-
-    //switch timing topics
-    if (keysDown() & KEY_LEFT) {
-      debug::PreviousTopic();
-    }
-
-    if (keysDown() & KEY_RIGHT) {
-      debug::NextTopic();
-    }
-  }
 }
 
 void debug::StartTopic(debug::Topic topic) {
@@ -449,7 +291,7 @@ std::map<std::string, bool*> g_debugToggles {
 
 void debug::UpdateTogglesMode() {
   printf("\x1b[2J");
-  _printTitle("Debug Toggles");
+  debug::PrintTitle("Debug Toggles");
   int touch_offset = 16;
   for (auto pair : g_debugToggles) {
     std::string toggleName = pair.first;
@@ -495,7 +337,7 @@ void debug::InitializeSpawners() {
 
 void debug::UpdateSpawnerMode(PikminGame* game) {
   printf("\x1b[2J");
-  _printTitle("Spawn Objects");
+  debug::PrintTitle("Spawn Objects");
 
   printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
   printf("|      | | %*s | |      |", 42, " ");
