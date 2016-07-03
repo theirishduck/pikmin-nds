@@ -5,6 +5,7 @@
 #include "debug.h"
 
 #include "pikmin_game.h"
+#include "wide_console.h"
 #include "ai/captain.h"
 
 // Numbers and fonts
@@ -32,12 +33,6 @@
 #include "yellow_dot_img_bin.h"
 #include "blue_dot_img_bin.h"
 #include "map_icons_pal_bin.h"
-
-// Console Fonts
-//#include "yesh1_stretched_16_img_bin.h"
-//#include "yesh1_stretched_16_pal_bin.h"
-#include "yesh1_stretched_256_img_bin.h"
-#include "yesh1_stretched_256_pal_bin.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
@@ -174,6 +169,10 @@ void UpdatePikminSelector(UIState& ui, int index) {
     "bubblefont", bubblefont_img_bin, bubblefont_img_bin_size);
 }
 
+void InitDebugScreen(UIState&) {
+  InitWideConsole();
+}
+
 void InitNavPad(UIState& ui) {
   // Set up the video modes for the NavPad
   videoSetModeSub(MODE_2_2D);
@@ -210,96 +209,6 @@ void InitNavPad(UIState& ui) {
     "blue_dot", blue_dot_img_bin, blue_dot_img_bin_size, {8, 8});
 }
 
-// Initialize the console using the full version of the console init function so
-// that VRAM bank H can be used instead of the default bank, bank C.
-
-u16 _color_blend(u16 rgb5_a, u16 rgb5_b) {
-  // unpack
-  u16 Ar =  rgb5_a & 0x001F;
-  u16 Ag = (rgb5_a & 0x03E0) >> 5;
-  u16 Ab = (rgb5_a & 0x7A00) >> 10;
-
-  u16 Br =  rgb5_b & 0x001F;
-  u16 Bg = (rgb5_b & 0x03E0) >> 5;
-  u16 Bb = (rgb5_b & 0x7A00) >> 10;
-
-  // Blend
-  u16 Fr = (((Ar + 1) * (Br + 1)) - 1) / 32;
-  u16 Fg = (((Ag + 1) * (Bg + 1)) - 1) / 32;
-  u16 Fb = (((Ab + 1) * (Bb + 1)) - 1) / 32;
-
-  return RGB5(Fr, Fg, Fb);
-}
-
-PrintConsole custom_console;
-void InitDebug(UIState& ui) {
-  vramSetBankH(VRAM_H_SUB_BG);
-  videoSetModeSub(MODE_5_2D);
-
-  ConsoleFont YeshFont;
-  YeshFont.asciiOffset = ' ';
-  YeshFont.bpp = 4;
-  YeshFont.convertSingleColor = false;
-  YeshFont.gfx = (u16*)yesh1_stretched_256_img_bin;
-  YeshFont.pal = (u16*)yesh1_stretched_256_pal_bin;
-  YeshFont.numChars = 96 * 2;
-  YeshFont.numColors = 16;
-
-  custom_console = *(consoleGetDefault());
-
-  //PrintConsole* const kDefaultConsole{nullptr};
-  s32 const kConsoleLayer{3};
-  s32 const kConsoleMapBase{15};
-  s32 const kConsoleTileBase{0};
-  bool const kConsoleOnMainDisplay{true};
-  bool const kLoadConsoleGraphics{true};
-  consoleInit(&custom_console, kConsoleLayer, BgType_ExRotation, BgSize_ER_512x512,
-      kConsoleMapBase, kConsoleTileBase, not kConsoleOnMainDisplay,
-      not kLoadConsoleGraphics);
-  consoleSetWindow(&custom_console, 0, 0, 64, 24);
-  custom_console.consoleWidth = 64;
-
-  swiWaitForVBlank();
-  bgSetScale(custom_console.bgId, 1 << 9, 1 << 8);
-  bgUpdate();
-
-  consoleSetFont(&custom_console, &YeshFont);
-
-  // Now we need to duplicate the font palette and colorize the entries
-  u16 font_colors[] = {
-    // Dark Colors
-    RGB5( 4, 4, 4), // black
-    RGB5(16, 8, 8), // red
-    RGB5( 8,16, 8), // green
-    RGB5(16,16, 8), // yellow
-    RGB5( 8, 8,16), // blue
-    RGB5(16, 8,16), // magenta
-    RGB5( 8,16,16), // cyan
-    RGB5(16,16,16), // white
-
-    // "Bright" Colors
-    RGB5( 8, 8, 8), // black
-    RGB5(31,16,16), // red
-    RGB5(16,31,16), // green
-    RGB5(31,31,16), // yellow
-    RGB5(16,16,31), // blue
-    RGB5(31,16,31), // magenta
-    RGB5(16,31,31), // cyan
-    RGB5(31,31,31), // white
-  };
-
-  //for (int font_color = 0; font_color < 16; font_color++) {
-    u16* font_palette = (u16*)yesh1_stretched_256_pal_bin;
-    for (int palette_color = 0; palette_color < 256; palette_color++) {
-      BG_PALETTE_SUB[palette_color] = font_palette[palette_color];
-    }
-  //}
-
-  // Because we have no idea what state our console is going to be in after
-  // the game has been running for a bit, go ahead and clear it
-  printf("\x1b[2J");
-}
-
 void UpdateNavPad(UIState& ui) {
   debug::StartTopic(debug::Topic::kUi);
   // Update pikmin counts
@@ -323,7 +232,7 @@ bool OpenOnionUI(const UIState& ui) {
 
 void InitOnionUI(UIState& ui) {
   // for now, use the debug screen for the onion
-  InitDebug(ui);
+  InitDebugScreen(ui);
 
   // Pause the main game
   ui.game->PauseGame();
@@ -347,7 +256,7 @@ bool key_repeat_active(int frame_timer) {
 void PauseGame(UIState& ui) {
   ui.game->PauseGame();
   // Todo: something fancier later
-  InitDebug(ui);
+  InitDebugScreen(ui);
   printf("\n\n\n\n\n\n\n\n\n\n\n");
   printf("          -- PAUSED --");
 }
@@ -462,28 +371,13 @@ void ApplyOnionDelta(UIState& ui) {
   UnpauseGame(ui);
 }
 
-void UpdateDebugValues(UIState& ui) {
-  debug::UpdateValuesMode();
-}
-
-void UpdateDebugTimers(UIState& ui) {
-  debug::UpdateTimingMode();
-}
-
-void UpdateDebugToggles(UIState& ui) {
-  debug::UpdateTogglesMode();
-}
-
-void InitDebugSpawners(UIState& ui) {
-  debug::InitializeSpawners();
-}
-
-void UpdateDebugSpawners(UIState& ui) {
-  debug::UpdateSpawnerMode(ui.game);
-}
-
 bool DebugButtonPressed(const UIState&  ui) {
   return keysDown() & KEY_SELECT;
+}
+
+void UpdateDebugScreen(UIState& ui) {
+  //printf("Update Debug Screen!\n");
+  debug_ui::machine.RunLogic(ui.debug_state);
 }
 
 namespace UINode {
@@ -493,10 +387,7 @@ enum UINode {
   kNavPad,
   kOnionUI,
   kOnionClosing,
-  kDebugTiming,
-  kDebugValues,
-  kDebugToggles,
-  kDebugSpawners,
+  kDebugScreen,
   kPauseScreen,
 };
 }
@@ -512,7 +403,7 @@ Edge<UIState> init[] = {
 };
 
 Edge<UIState> nav_pad[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
+  Edge<UIState>{kAlways, DebugButtonPressed, InitDebugScreen, UINode::kDebugScreen},
   Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
   Edge<UIState>{kAlways, PauseButtonPressed, PauseGame, UINode::kPauseScreen},
   Edge<UIState>{kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
@@ -531,33 +422,15 @@ Edge<UIState> closing_onion_ui[] = {
   END_OF_EDGES(UIState)
 };
 
-Edge<UIState> debug_timings[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugValues},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugTimers, UINode::kDebugTiming}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_values[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, nullptr, UINode::kDebugToggles},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_toggles[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitDebugSpawners, UINode::kDebugSpawners},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_spawners[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
-  Edge<UIState>{kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
 Edge<UIState> pause_screen[] = {
   Edge<UIState>{kAlways, PauseButtonPressed, UnpauseGame, UINode::kNavPad},
   END_OF_EDGES(UIState)
+};
+
+Edge<UIState> debug_screen[] = {
+  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
+  Edge<UIState>{kAlways, nullptr, UpdateDebugScreen, UINode::kDebugScreen}, // Loopback
 };
 
 Node<UIState> node_list[] {
@@ -566,10 +439,7 @@ Node<UIState> node_list[] {
   {"NavPad", true, nav_pad},
   {"OnionUI", true, onion_ui},
   {"OnionClosing", true, closing_onion_ui},
-  {"DebugTiming", true, debug_timings},
-  {"DebugValues", true, debug_values},
-  {"DebugToggles", true, debug_toggles},
-  {"DebugSpawners", true, debug_spawners},
+  {"DebugScreen", true, debug_screen},
   {"PauseScreen", true, pause_screen},
 };
 
