@@ -33,6 +33,12 @@
 #include "blue_dot_img_bin.h"
 #include "map_icons_pal_bin.h"
 
+// Console Fonts
+//#include "yesh1_stretched_16_img_bin.h"
+//#include "yesh1_stretched_16_pal_bin.h"
+#include "yesh1_stretched_256_img_bin.h"
+#include "yesh1_stretched_256_pal_bin.h"
+
 using numeric_types::literals::operator"" _f;
 using numeric_types::fixed;
 
@@ -206,19 +212,88 @@ void InitNavPad(UIState& ui) {
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
+
+u16 _color_blend(u16 rgb5_a, u16 rgb5_b) {
+  // unpack
+  u16 Ar =  rgb5_a & 0x001F;
+  u16 Ag = (rgb5_a & 0x03E0) >> 5;
+  u16 Ab = (rgb5_a & 0x7A00) >> 10;
+
+  u16 Br =  rgb5_b & 0x001F;
+  u16 Bg = (rgb5_b & 0x03E0) >> 5;
+  u16 Bb = (rgb5_b & 0x7A00) >> 10;
+
+  // Blend
+  u16 Fr = (((Ar + 1) * (Br + 1)) - 1) / 32;
+  u16 Fg = (((Ag + 1) * (Bg + 1)) - 1) / 32;
+  u16 Fb = (((Ab + 1) * (Bb + 1)) - 1) / 32;
+
+  return RGB5(Fr, Fg, Fb);
+}
+
+PrintConsole custom_console;
 void InitDebug(UIState& ui) {
   vramSetBankH(VRAM_H_SUB_BG);
-  videoSetModeSub(MODE_2_2D);
+  videoSetModeSub(MODE_5_2D);
 
-  PrintConsole* const kDefaultConsole{nullptr};
-  s32 const kConsoleLayer{0};
+  ConsoleFont YeshFont;
+  YeshFont.asciiOffset = ' ';
+  YeshFont.bpp = 4;
+  YeshFont.convertSingleColor = false;
+  YeshFont.gfx = (u16*)yesh1_stretched_256_img_bin;
+  YeshFont.pal = (u16*)yesh1_stretched_256_pal_bin;
+  YeshFont.numChars = 96 * 2;
+  YeshFont.numColors = 16;
+
+  custom_console = *(consoleGetDefault());
+
+  //PrintConsole* const kDefaultConsole{nullptr};
+  s32 const kConsoleLayer{3};
   s32 const kConsoleMapBase{15};
   s32 const kConsoleTileBase{0};
   bool const kConsoleOnMainDisplay{true};
   bool const kLoadConsoleGraphics{true};
-  consoleInit(kDefaultConsole, kConsoleLayer, BgType_Text4bpp, BgSize_T_256x256,
+  consoleInit(&custom_console, kConsoleLayer, BgType_ExRotation, BgSize_ER_512x512,
       kConsoleMapBase, kConsoleTileBase, not kConsoleOnMainDisplay,
-      kLoadConsoleGraphics);
+      not kLoadConsoleGraphics);
+  consoleSetWindow(&custom_console, 0, 0, 64, 24);
+  custom_console.consoleWidth = 64;
+
+  swiWaitForVBlank();
+  bgSetScale(custom_console.bgId, 1 << 9, 1 << 8);
+  bgUpdate();
+
+  consoleSetFont(&custom_console, &YeshFont);
+
+  // Now we need to duplicate the font palette and colorize the entries
+  u16 font_colors[] = {
+    // Dark Colors
+    RGB5( 4, 4, 4), // black
+    RGB5(16, 8, 8), // red
+    RGB5( 8,16, 8), // green
+    RGB5(16,16, 8), // yellow
+    RGB5( 8, 8,16), // blue
+    RGB5(16, 8,16), // magenta
+    RGB5( 8,16,16), // cyan
+    RGB5(16,16,16), // white
+
+    // "Bright" Colors
+    RGB5( 8, 8, 8), // black
+    RGB5(31,16,16), // red
+    RGB5(16,31,16), // green
+    RGB5(31,31,16), // yellow
+    RGB5(16,16,31), // blue
+    RGB5(31,16,31), // magenta
+    RGB5(16,31,31), // cyan
+    RGB5(31,31,31), // white
+  };
+
+  //for (int font_color = 0; font_color < 16; font_color++) {
+    u16* font_palette = (u16*)yesh1_stretched_256_pal_bin;
+    for (int palette_color = 0; palette_color < 256; palette_color++) {
+      BG_PALETTE_SUB[palette_color] = font_palette[palette_color];
+    }
+  //}
 
   // Because we have no idea what state our console is going to be in after
   // the game has been running for a bit, go ahead and clear it

@@ -199,10 +199,19 @@ std::map<debug::Topic, TopicInfo> g_topic_info{
     RGB8(48, 48, 48)}},
 };
 
+void _printTitle(const char* title) {
+  int console_width = 64;
+  int leading_space = (console_width - strlen(title)) / 2 - 1;
+  int following_space = leading_space + (strlen(title) % 2);
+
+  printf("%s %s %s", std::string(leading_space, '-').c_str(), title,
+    std::string(following_space, '-').c_str());
+}
+
 void debug::UpdateTimingMode() {
   // Clear the screen
   printf("\x1b[2J");
-  printf("-------------TIMING-------------");
+  _printTitle("TIMING");
 
   // For every topic, output the timing on its own line
   for (int i = 0; i < static_cast<int>(debug::Topic::kNumTopics); i++) {
@@ -252,19 +261,19 @@ void debug::DisplayValue(const std::string &name, std::string value) {
 void debug::UpdateValuesMode() {
   // Clear the screen
   printf("\x1b[2J");
-  printf("-------------VALUES-------------");
+  _printTitle("VALUES");
 
   int display_position = 2;
   for (auto kv : g_debug_ints) {
     if (display_position < 22) {
-      printf("\x1b[%d;0H\x1b[39m%s: \x1b[36;1m%d", display_position, kv.first.c_str(), kv.second);
+      printf("\x1b[39m%s: \x1b[36;1m%d\n", kv.first.c_str(), kv.second);
         display_position++;
     }
   }
 
   for (auto kv : g_debug_fixeds) {
     if (display_position < 22) {
-      printf("\x1b[%d;0H\x1b[39m%s: \x1b[32;1m%.3f", display_position, kv.first.c_str(), (float)kv.second);
+      printf("\x1b[39m%s: \x1b[32;1m%.3f\n", kv.first.c_str(), (float)kv.second);
         display_position++;
     }
   }
@@ -272,7 +281,7 @@ void debug::UpdateValuesMode() {
   for (auto kv : g_debug_vectors) {
     if (display_position < 22) {
       Vec3 vector = kv.second;
-      printf("\x1b[%d;0H\x1b[39m%s: \x1b[30;1m(\x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m)", display_position, kv.first.c_str(), (float)vector.x, (float)vector.y, (float)vector.z);
+      printf("\x1b[39m%s: \x1b[30;1m(\x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m, \x1b[33;1m%.1f\x1b[30;1m)\n", kv.first.c_str(), (float)vector.x, (float)vector.y, (float)vector.z);
          display_position++;
     }
   }
@@ -280,7 +289,7 @@ void debug::UpdateValuesMode() {
   for (auto kv : g_debug_strings) {
     if (display_position < 22) {
       std::string value = kv.second;
-      printf("\x1b[%d;0H\x1b[39m%s: \x1b[36;1m%s", display_position, kv.first.c_str(), value.c_str());
+      printf("\x1b[39m%s: \x1b[36;1m%s\n", kv.first.c_str(), value.c_str());
          display_position++;
     }
   }
@@ -440,7 +449,7 @@ std::map<std::string, bool*> g_debugToggles {
 
 void debug::UpdateTogglesMode() {
   printf("\x1b[2J");
-  printf("----------Debug Options---------\n");
+  _printTitle("Debug Toggles");
   int touch_offset = 16;
   for (auto pair : g_debugToggles) {
     std::string toggleName = pair.first;
@@ -450,9 +459,9 @@ void debug::UpdateTogglesMode() {
     } else {
       printf("\x1b[30;1m");
     }
-    printf("+------------------------------+");
-    printf("| (%s) %*s |", (*toggleActive ? "*" : " "), 24, toggleName.c_str());
-    printf("+------------------------------+");
+    printf("+------------------------------+\n");
+    printf("| (%s) %*s |\n", (*toggleActive ? "*" : " "), 24, toggleName.c_str());
+    printf("+------------------------------+\n");
 
     // figure out if we need to toggle this frame
     if (keysDown() & KEY_TOUCH) {
@@ -486,8 +495,13 @@ void debug::InitializeSpawners() {
 
 void debug::UpdateSpawnerMode(PikminGame* game) {
   printf("\x1b[2J");
+  _printTitle("Spawn Objects");
 
-  printf("%s", g_current_spawner->first.c_str());
+  printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
+  printf("|      | | %*s | |      |", 42, " ");
+  printf("|   <  | | %*s | |  >   |", 42, g_current_spawner->first.c_str());
+  printf("|      | | %*s | |      |", 42, " ");
+  printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
 
   if (keysDown() & KEY_TOUCH) {
     touchPosition touch;
