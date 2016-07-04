@@ -12,6 +12,7 @@ struct UIState : ObjectState {
   int touch_timer = 0;
 
   debug_ui::DebugUiState debug_state;
+  bool debug_screen_active = false;
 };
 
 extern StateMachine<UIState> machine;

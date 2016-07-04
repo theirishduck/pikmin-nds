@@ -169,8 +169,9 @@ void UpdatePikminSelector(UIState& ui, int index) {
     "bubblefont", bubblefont_img_bin, bubblefont_img_bin_size);
 }
 
-void InitDebugScreen(UIState&) {
+void InitDebugScreen(UIState& ui) {
   InitWideConsole();
+  ui.debug_screen_active = true;
 }
 
 void InitNavPad(UIState& ui) {
@@ -231,8 +232,8 @@ bool OpenOnionUI(const UIState& ui) {
 }
 
 void InitOnionUI(UIState& ui) {
-  // for now, use the debug screen for the onion
-  InitDebugScreen(ui);
+  // for now, use the console screen for the onion
+  InitWideConsole();
 
   // Pause the main game
   ui.game->PauseGame();
@@ -256,7 +257,7 @@ bool key_repeat_active(int frame_timer) {
 void PauseGame(UIState& ui) {
   ui.game->PauseGame();
   // Todo: something fancier later
-  InitDebugScreen(ui);
+  InitWideConsole();
   printf("\n\n\n\n\n\n\n\n\n\n\n");
   printf("          -- PAUSED --");
 }
@@ -368,7 +369,7 @@ void ApplyOnionDelta(UIState& ui) {
     }
   }
 
-  UnpauseGame(ui);
+  ui.game->UnpauseGame();
 }
 
 bool DebugButtonPressed(const UIState&  ui) {
@@ -378,6 +379,16 @@ bool DebugButtonPressed(const UIState&  ui) {
 void UpdateDebugScreen(UIState& ui) {
   //printf("Update Debug Screen!\n");
   debug_ui::machine.RunLogic(ui.debug_state);
+  ui.game->DebugDictionary().Set("Debug Active: ", (int)ui.debug_screen_active);
+}
+
+bool DebugScreenActive(const UIState& ui) {
+  return ui.debug_screen_active;
+}
+
+void CloseDebugScreen(UIState& ui) {
+  ui.debug_screen_active = 0;
+  InitNavPad(ui);
 }
 
 namespace UINode {
@@ -418,6 +429,7 @@ Edge<UIState> onion_ui[] = {
 };
 
 Edge<UIState> closing_onion_ui[] = {
+  Edge<UIState>{kAlways, DebugScreenActive, InitDebugScreen, UINode::kDebugScreen},
   Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
   END_OF_EDGES(UIState)
 };
@@ -428,7 +440,7 @@ Edge<UIState> pause_screen[] = {
 };
 
 Edge<UIState> debug_screen[] = {
-  Edge<UIState>{kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, DebugButtonPressed, CloseDebugScreen, UINode::kNavPad},
   Edge<UIState>{kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
   Edge<UIState>{kAlways, nullptr, UpdateDebugScreen, UINode::kDebugScreen}, // Loopback
 };

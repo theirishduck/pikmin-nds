@@ -28,6 +28,7 @@ u16 _color_blend(u16 rgb5_a, u16 rgb5_b) {
 
 PrintConsole wide_console;
 void InitWideConsole() {
+  swiWaitForVBlank();
   vramSetBankH(VRAM_H_SUB_BG);
   videoSetModeSub(MODE_5_2D);
 
@@ -40,9 +41,6 @@ void InitWideConsole() {
   YeshFont.numChars = 96 * 2;
   YeshFont.numColors = 16;
 
-  wide_console = *(consoleGetDefault());
-
-  //PrintConsole* const kDefaultConsole{nullptr};
   s32 const kConsoleLayer{3};
   s32 const kConsoleMapBase{12};
   s32 const kConsoleTileBase{0};
