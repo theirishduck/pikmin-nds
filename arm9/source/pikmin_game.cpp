@@ -53,6 +53,8 @@ PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   engine.debug_flags["Draw Physics Circles"] = false;
   engine.debug_flags["Skip VBlank"] = false;
   engine.debug_flags["Render First Pass Only"] = false;
+
+  tAI = engine.DebugProfiler().RegisterTopic("Game: AI / Logic");
 }
 
 PikminGame::~PikminGame() {
@@ -245,7 +247,7 @@ void PikminGame::Step() {
     return;
   }
 
-  debug::StartTopic(debug::Topic::kAI);
+  engine.DebugProfiler().StartTopic(tAI);
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
     squad_ai::machine.RunLogic((*captain_).squad);
@@ -293,7 +295,7 @@ void PikminGame::Step() {
     }
   }
 
-  debug::EndTopic(debug::Topic::kAI);
+  engine.DebugProfiler().EndTopic(tAI);
 
   // Update some debug details about the world
   DebugDictionary().Set("Physics: Bodies Overlapping: ", engine.World().BodiesOverlapping());

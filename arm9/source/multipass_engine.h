@@ -9,6 +9,7 @@
 #include "drawable_entity.h"
 #include "entities/camera.h"
 #include "physics/world.h"
+#include "debug/profiler.h"
 
 struct EntityContainer {
   template <typename FixedT, int FixedF>
@@ -44,6 +45,8 @@ class MultipassEngine {
   void PauseEngine();
   void UnpauseEngine();
   bool IsPaused();
+
+  debug::Profiler& DebugProfiler();
 
   void EnableEffectsLayer(bool enabled);
 
@@ -91,6 +94,18 @@ class MultipassEngine {
 
   bool effects_enabled{false};
   bool effects_drawn{false};
+
+  debug::Profiler debug_profiler_;
+
+  // Debug Topics
+  int tEntityUpdate;
+  int tPhysicsUpdate;
+  int tParticleUpdate;
+  int tParticleDraw;
+  int tFrameInit;
+  int tPassInit;
+  int tIdle;
+  std::vector<int> tPassUpdate;
 };
 
 #endif  // MULTIPASS_ENGINE_H

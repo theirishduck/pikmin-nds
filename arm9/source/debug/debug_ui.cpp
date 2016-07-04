@@ -39,7 +39,21 @@ void UpdateDebugValues(DebugUiState& debug_ui) {
 }
 
 void UpdateDebugTimings(DebugUiState& debug_ui) {
-  debug::UpdateTimingMode();
+  // Clear the screen
+  printf("\x1b[2J");
+  debug::PrintTitle("TIMING");
+
+  // For every topic, output the timing on its own line
+  for (auto topic : debug_ui.game->Engine().DebugProfiler().Topics()) {
+    if (topic.timing.delta() > 0) {
+      printf("%-32s %31lu", topic.name.c_str(), topic.timing.delta());
+    } else {
+      printf("\n");
+    }
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
 }
 
 void UpdateDebugToggles(DebugUiState& debug_ui) {

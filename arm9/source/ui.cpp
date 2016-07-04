@@ -210,15 +210,21 @@ void InitNavPad(UIState& ui) {
     "blue_dot", blue_dot_img_bin, blue_dot_img_bin_size, {8, 8});
 }
 
+void InitAlways(UIState& ui) {
+  ui.debug_topic_id = ui.game->Engine().DebugProfiler().RegisterTopic("Game: UI");
+  InitNavPad(ui);
+}
+
 void UpdateNavPad(UIState& ui) {
-  debug::StartTopic(debug::Topic::kUi);
+  //auto profiler = ui.game->Engine().DebugProfiler();
+  ui.game->Engine().DebugProfiler().StartTopic(ui.debug_topic_id);
   // Update pikmin counts
   BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->TotalPikmin(), 3);
   UpdatePikminSelector(ui, 109);
   UpdateMapIcons(ui);
-  debug::EndTopic(debug::Topic::kUi);
+  ui.game->Engine().DebugProfiler().EndTopic(ui.debug_topic_id);
 }
 
 bool OpenOnionUI(const UIState& ui) {
@@ -409,7 +415,7 @@ Edge<UIState> wait_frame[] = {
 };
 
 Edge<UIState> init[] = {
-  Edge<UIState>{kAlways, nullptr, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{kAlways, nullptr, InitAlways, UINode::kNavPad},
   END_OF_EDGES(UIState)
 };
 

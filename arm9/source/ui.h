@@ -13,6 +13,7 @@ struct UIState : ObjectState {
 
   debug_ui::DebugUiState debug_state;
   bool debug_screen_active = false;
+  int debug_topic_id;
 };
 
 extern StateMachine<UIState> machine;

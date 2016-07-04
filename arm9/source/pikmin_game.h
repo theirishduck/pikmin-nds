@@ -135,6 +135,8 @@ class PikminGame {
 
   // Debug Objects
   debug::Dictionary debug_dictionary_;
+  // Debug Topic IDs
+  int tAI;
 };
 
 #endif  // GAME_H

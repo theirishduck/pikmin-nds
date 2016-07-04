@@ -30,41 +30,9 @@ void DrawLine(Vec3 p1, Vec3 p2, rgb color);
 void DrawLine(Vec2 p1, Vec2 p2, rgb color);
 void _TimingColor(rgb color);
 void Update();
-void UpdateTimingMode();
 void UpdateTogglesMode();
 void AddToggle(std::string name, bool* toggle);
 void PrintTitle(const char* title);
-
-enum Topic {
-  kPhysics = 0,
-  kAI,
-  kEntityUpdate,
-  kFrameInit,
-  kPassInit,
-  kPass1,
-  kPass2,
-  kPass3,
-  kPass4,
-  kPass5,
-  kPass6,
-  kPass7,
-  kPass8,
-  kPass9,
-  kIdle,
-  kUi,
-  kParticleUpdate,
-  kParticleDraw,
-  kNumTopics
-};
-
-void StartTopic(Topic topic);
-void EndTopic(Topic topic);
-void ClearTopic(Topic topic);
-void StartCpuTimer();
-void NextTopic();
-void PreviousTopic();
-void UpdateTopic();
-
 }  // namespace debug
 
 #endif  // DEBUG_UTILITIES_H
