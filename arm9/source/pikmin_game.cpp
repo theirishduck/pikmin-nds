@@ -1,5 +1,5 @@
 #include "pikmin_game.h"
-#include "debug.h"
+#include "debug/utilities.h"
 #include "dsgx.h"
 
 #include "ai/captain.h"
@@ -297,7 +297,7 @@ void PikminGame::Step() {
 
   // Update some debug details about the world
   DebugDictionary().Set("Physics: Bodies Overlapping: ", engine.World().BodiesOverlapping());
-  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());  
+  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());
 }
 
 CaptainState* PikminGame::ActiveCaptain() {

@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
-#include "debug.h"
+#include "debug/utilities.h"
 
 struct Texture {
   int format_width;

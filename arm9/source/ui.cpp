@@ -2,7 +2,7 @@
 
 #include <nds.h>
 #include <stdio.h>
-#include "debug.h"
+#include "debug/utilities.h"
 
 #include "pikmin_game.h"
 #include "wide_console.h"

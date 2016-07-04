@@ -1,4 +1,4 @@
-#include "debug_dictionary.h"
+#include "debug/dictionary.h"
 
 #include <cstdio>
 

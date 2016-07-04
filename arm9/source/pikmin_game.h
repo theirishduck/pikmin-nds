@@ -22,8 +22,8 @@ namespace static_ai { struct StaticState; }
 #include "ui.h"
 #include <list>
 
-#include "debug.h"
-#include "debug_dictionary.h"
+#include "debug/utilities.h"
+#include "debug/dictionary.h"
 #include "vram_allocator.h"
 #include "dsgx_allocator.h"
 

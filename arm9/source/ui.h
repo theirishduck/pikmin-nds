@@ -2,7 +2,7 @@
 #define UI_H
 
 #include "state_machine.h"
-#include "debug_ui.h"
+#include "debug/debug_ui.h"
 
 namespace ui {
 

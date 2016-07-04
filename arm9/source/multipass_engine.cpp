@@ -10,7 +10,7 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/input.h>
 
-#include "debug.h"
+#include "debug/utilities.h"
 
 #include "particle.h"
 

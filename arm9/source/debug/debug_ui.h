@@ -3,10 +3,12 @@
 
 #include "state_machine.h"
 
+class PikminGame;
+
 namespace debug_ui {
 
 struct DebugUiState : ObjectState {
-  
+  std::map<std::string, std::function<ObjectState*(PikminGame*)> >::const_iterator current_spawner;
 };
 
 extern StateMachine<DebugUiState> machine;

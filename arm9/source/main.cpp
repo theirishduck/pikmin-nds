@@ -10,7 +10,7 @@
 
 #include "multipass_engine.h"
 #include "pikmin_game.h"
-#include "debug.h"
+#include "debug/utilities.h"
 #include "particle_library.h"
 
 #include "entities/level.h"

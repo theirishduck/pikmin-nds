@@ -1,4 +1,4 @@
-#include "debug.h"
+#include "debug/utilities.h"
 #include <cstdio>
 #include <nds.h>
 #include <map>
@@ -267,50 +267,4 @@ void debug::UpdateTopic() {
     printf("\x1b[22;0HTopic:%d", g_debug_current_topic);
   }
   printf("\x1b[22;21H%10lu", g_timing_results[g_debug_current_topic].delta());
-}
-
-namespace {
-std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> g_spawn_names;
-PikminGame::SpawnMap::const_iterator g_current_spawner;
-}  // namespace
-
-void debug::InitializeSpawners() {
-  g_spawn_names = PikminGame::SpawnNames();
-  g_current_spawner = g_spawn_names.first;
-}
-
-void debug::UpdateSpawnerMode(PikminGame* game) {
-  printf("\x1b[2J");
-  debug::PrintTitle("Spawn Objects");
-
-  printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
-  printf("|      | | %*s | |      |", 42, " ");
-  printf("|   <  | | %*s | |  >   |", 42, g_current_spawner->first.c_str());
-  printf("|      | | %*s | |      |", 42, " ");
-  printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
-
-  if (keysDown() & KEY_TOUCH) {
-    touchPosition touch;
-    touchRead(&touch);
-
-    if (touch.px > 192) {
-      g_current_spawner++;
-      if (g_current_spawner == g_spawn_names.second) {
-        g_current_spawner = g_spawn_names.first;
-      }
-    } else if (touch.px < 64) {
-      if (g_current_spawner == g_spawn_names.first) {
-        g_current_spawner = g_spawn_names.second;
-      }
-      g_current_spawner--;
-    } else {
-      //Spawn a thingy!!
-      ObjectState* object = game->Spawn(g_current_spawner->first);
-      object->set_position(game->ActiveCaptain()->cursor->position());
-      object->entity->set_rotation(game->ActiveCaptain()->cursor->rotation());
-    }
-  }
-
-  // Reset the colors when we're done
-  printf("\x1b[39m");
 }

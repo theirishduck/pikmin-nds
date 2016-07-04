@@ -4,13 +4,21 @@
 #include <functional>
 #include <nds.h>
 
-#include "debug.h"
+#include "ai/captain.h"
+#include "debug/utilities.h"
+#include "numeric_types.h"
 #include "pikmin_game.h"
 
 using std::string;
 using std::function;
 
+using numeric_types::literals::operator"" _brad;
+
 namespace debug_ui {
+
+void InitAlways(DebugUiState& debug_ui) {
+  debug_ui.current_spawner = PikminGame::SpawnNames().first;
+}
 
 void UpdateDebugValues(DebugUiState& debug_ui) {
   // Clear the screen
@@ -68,12 +76,42 @@ void UpdateDebugToggles(DebugUiState& debug_ui) {
   printf("\x1b[39m");
 }
 
-void InitDebugSpawners(DebugUiState& debug_ui) {
-  debug::InitializeSpawners();
-}
-
 void UpdateDebugSpawners(DebugUiState& debug_ui) {
-  debug::UpdateSpawnerMode(debug_ui.game);
+  printf("\x1b[2J");
+  debug::PrintTitle("Spawn Objects");
+
+  printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
+  printf("|      | | %*s | |      |", 42, " ");
+  printf("|   <  | | %*s | |  >   |", 42, debug_ui.current_spawner->first.c_str());
+  printf("|      | | %*s | |      |", 42, " ");
+  printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
+
+  if (keysDown() & KEY_TOUCH) {
+    touchPosition touch;
+    touchRead(&touch);
+
+    if (touch.px > 192) {
+      debug_ui.current_spawner++;
+      if (debug_ui.current_spawner == PikminGame::SpawnNames().second) {
+        debug_ui.current_spawner = PikminGame::SpawnNames().first;
+      }
+    } else if (touch.px < 64) {
+      if (debug_ui.current_spawner == PikminGame::SpawnNames().first) {
+        debug_ui.current_spawner = PikminGame::SpawnNames().second;
+      }
+      debug_ui.current_spawner--;
+    } else {
+      //Spawn a thingy!!
+      ObjectState* object = debug_ui.game->Spawn(debug_ui.current_spawner->first);
+      object->set_position(debug_ui.game->ActiveCaptain()->cursor->position());
+      auto object_rotation = debug_ui.game->ActiveCaptain()->cursor->rotation();
+      object_rotation.y += 180_brad;
+      object->entity->set_rotation(object_rotation);
+    }
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
 }
 
 bool DebugSwitcherPressed(const DebugUiState&  debug_ui) {
@@ -91,7 +129,7 @@ enum DebugUiNode {
 }
 
 Edge<DebugUiState> init[] = {
-  Edge<DebugUiState>{kAlways, nullptr, nullptr, DebugUiNode::kDebugTimings},
+  Edge<DebugUiState>{kAlways, nullptr, InitAlways, DebugUiNode::kDebugTimings},
   END_OF_EDGES(DebugUiState)
 };
 
@@ -108,7 +146,7 @@ Edge<DebugUiState> debug_values[] = {
 };
 
 Edge<DebugUiState> debug_toggles[] = {
-  Edge<DebugUiState>{kAlways, DebugSwitcherPressed, InitDebugSpawners, DebugUiNode::kDebugSpawners},
+  Edge<DebugUiState>{kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugSpawners},
   Edge<DebugUiState>{kAlways, nullptr, UpdateDebugToggles, DebugUiNode::kDebugToggles}, //Loopback
   END_OF_EDGES(DebugUiState)
 };

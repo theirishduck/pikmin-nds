@@ -3,7 +3,7 @@
 #include "numeric_types.h"
 #include "vector.h"
 #include "body.h"
-#include "debug.h"
+#include "debug/utilities.h"
 
 using physics::World;
 using physics::Body;
@@ -389,7 +389,6 @@ int World::TotalCollisions() {
   return total_collisions_;
 }
 
-#include "debug.h"
 void World::DebugCircles() {
   for (int i = 0; i < active_bodies_; i++) {
     Body& body = bodies_[active_[i]];

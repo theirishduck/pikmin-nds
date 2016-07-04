@@ -7,7 +7,7 @@
 
 #include "ai/captain.h"
 #include "pikmin_game.h"
-#include "debug.h"
+#include "debug/utilities.h"
 
 using namespace std;
 using numeric_types::literals::operator"" _f;

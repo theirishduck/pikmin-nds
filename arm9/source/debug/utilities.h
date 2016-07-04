@@ -1,5 +1,5 @@
-#ifndef DEBUG_DRAW_H
-#define DEBUG_DRAW_H
+#ifndef DEBUG_UTILITIES_H
+#define DEBUG_UTILITIES_H
 
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
@@ -32,8 +32,6 @@ void _TimingColor(rgb color);
 void Update();
 void UpdateTimingMode();
 void UpdateTogglesMode();
-void InitializeSpawners();
-void UpdateSpawnerMode(PikminGame* game);
 void AddToggle(std::string name, bool* toggle);
 void PrintTitle(const char* title);
 
@@ -69,4 +67,4 @@ void UpdateTopic();
 
 }  // namespace debug
 
-#endif  // DEBUG_DRAW_H
+#endif  // DEBUG_UTILITIES_H
