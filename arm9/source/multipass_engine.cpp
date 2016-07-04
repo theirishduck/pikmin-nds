@@ -22,9 +22,15 @@ using numeric_types::Brads;
 
 using debug::Topic;
 
+
+
 MultipassEngine::MultipassEngine() {
-  debug::AddToggle("Enable Effects Layer", &effects_enabled);
 }
+
+void MultipassEngine::EnableEffectsLayer(bool enabled) {
+  effects_enabled = enabled;
+}
+
 
 physics::World& MultipassEngine::World() {
   return world_;
@@ -196,6 +202,8 @@ void MultipassEngine::GatherDrawList() {
       draw_list_.push(container);
     }
   }
+
+  effects_enabled = debug_flags["Draw Effects Layer"];
 }
 
 void MultipassEngine::ClearDrawList() {
@@ -484,7 +492,7 @@ void MultipassEngine::DrawEffects() {
   ClipFriendlyPerspective(0.1_f, 768.0_f, FIELD_OF_VIEW);
   glLoadIdentity();
   camera_.ApplyTransform();
-  if (debug::g_physics_circles) {
+  if (debug_flags["Draw Physics Circles"]) {
     world_.DebugCircles();
   }
   effects_drawn = true;
@@ -528,7 +536,7 @@ void MultipassEngine::Draw() {
   swiWaitForVBlank();
 
 
-  if (debug::g_render_first_pass_only) {
+  if (debug_flags["Render First Pass Only"]) {
     // Empty the draw list; limiting the frame to one pass.
     ClearDrawList();
   }
@@ -536,7 +544,7 @@ void MultipassEngine::Draw() {
   SetVRAMforPass(current_pass_);
   current_pass_++;
 
-  if (debug::g_skip_vblank) {
+  if (debug_flags["Skip VBlank"]) {
     // Spin wait until scanline 0 so that the timing colors are visible.
     while (REG_VCOUNT != 0) {
       continue;

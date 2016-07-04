@@ -48,6 +48,7 @@ class PikminGame {
   void PauseGame();
   void UnpauseGame();
   bool IsPaused();
+  MultipassEngine& Engine();
 
   template <typename StateType>
   StateType* SpawnObject();

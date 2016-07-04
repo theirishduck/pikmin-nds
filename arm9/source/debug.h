@@ -13,11 +13,6 @@ class PikminGame;
 
 namespace debug {
 
-extern bool g_timing_colors;
-extern bool g_render_first_pass_only;
-extern bool g_skip_vblank;
-extern bool g_physics_circles;
-
 //some quick functions to make nocash debugging a bit easier
 void nocashNumber(int num);
 

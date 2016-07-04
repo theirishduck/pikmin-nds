@@ -3,6 +3,8 @@
 
 #include <queue>
 #include <list>
+#include <map>
+#include <string>
 
 #include "drawable_entity.h"
 #include "entities/camera.h"
@@ -43,6 +45,9 @@ class MultipassEngine {
   void UnpauseEngine();
   bool IsPaused();
 
+  void EnableEffectsLayer(bool enabled);
+
+  std::map<std::string, bool> debug_flags;
  private:
   bool paused_ = false;
   template <typename FixedT, int FixedF>

@@ -47,9 +47,19 @@ int PikminGame::TotalPikmin() {
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   ui_.game = this;
   ui_.debug_state.game = this;
+
+  // Setup initial debug flags
+  engine.debug_flags["Draw Effects Layer"] = false;
+  engine.debug_flags["Draw Physics Circles"] = false;
+  engine.debug_flags["Skip VBlank"] = false;
+  engine.debug_flags["Render First Pass Only"] = false;
 }
 
 PikminGame::~PikminGame() {
+}
+
+MultipassEngine& PikminGame::Engine() {
+  return engine;
 }
 
 VramAllocator<Texture>* PikminGame::TextureAllocator() {
@@ -287,7 +297,7 @@ void PikminGame::Step() {
 
   // Update some debug details about the world
   DebugDictionary().Set("Physics: Bodies Overlapping: ", engine.World().BodiesOverlapping());
-  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());
+  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());  
 }
 
 CaptainState* PikminGame::ActiveCaptain() {

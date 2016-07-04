@@ -1,10 +1,14 @@
 #include "debug_ui.h"
 
 #include <cstdio>
+#include <functional>
 #include <nds.h>
 
 #include "debug.h"
 #include "pikmin_game.h"
+
+using std::string;
+using std::function;
 
 namespace debug_ui {
 
@@ -31,7 +35,37 @@ void UpdateDebugTimings(DebugUiState& debug_ui) {
 }
 
 void UpdateDebugToggles(DebugUiState& debug_ui) {
-  debug::UpdateTogglesMode();
+  printf("\x1b[2J");
+  debug::PrintTitle("Debug Toggles");
+  int touch_offset = 16;
+  auto &debug_flags = debug_ui.game->Engine().debug_flags;
+  for (auto pair : debug_flags) {
+    std::string toggleName = pair.first;
+    bool toggleActive = pair.second;
+    if (toggleActive) {
+      printf("\x1b[39m");
+    } else {
+      printf("\x1b[30;1m");
+    }
+    printf("+------------------------------+\n");
+    printf("| (%s) %*s |\n", (toggleActive ? "*" : " "), 24, toggleName.c_str());
+    printf("+------------------------------+\n");
+
+    // figure out if we need to toggle this frame
+    if (keysDown() & KEY_TOUCH) {
+      touchPosition touch;
+      touchRead(&touch);
+
+      if (touch.py > touch_offset and touch.py < touch_offset + 24) {
+        //*toggleActive = !(*toggleActive);
+        debug_flags[toggleName] = !toggleActive;
+      }
+    }
+    touch_offset += 24;
+  }
+
+  // Reset the colors when we're done
+  printf("\x1b[39m");
 }
 
 void InitDebugSpawners(DebugUiState& debug_ui) {
