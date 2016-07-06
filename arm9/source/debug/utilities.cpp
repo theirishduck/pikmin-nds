@@ -109,12 +109,3 @@ void debug::DrawGroundPlane(int width, int segments, rgb color) {
   glPopMatrix(1);
   glEnd();
 }
-
-void debug::PrintTitle(const char* title) {
-  int console_width = 64;
-  int leading_space = (console_width - strlen(title)) / 2 - 1;
-  int following_space = leading_space + (strlen(title) % 2);
-
-  printf("%s %s %s", std::string(leading_space, '-').c_str(), title,
-    std::string(following_space, '-').c_str());
-}

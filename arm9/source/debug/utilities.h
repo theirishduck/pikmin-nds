@@ -32,7 +32,6 @@ void _TimingColor(rgb color);
 void Update();
 void UpdateTogglesMode();
 void AddToggle(std::string name, bool* toggle);
-void PrintTitle(const char* title);
 }  // namespace debug
 
 #endif  // DEBUG_UTILITIES_H

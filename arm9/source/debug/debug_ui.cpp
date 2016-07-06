@@ -16,14 +16,31 @@ using numeric_types::literals::operator"" _brad;
 
 namespace debug_ui {
 
+// Console Utilities
+void ClearConsole() {
+  printf("\x1b[2J");
+}
+
+void ResetColors() {
+  printf("\x1b[39m");
+}
+
+void PrintTitle(const char* title) {
+  int console_width = 64;
+  int leading_space = (console_width - strlen(title)) / 2 - 1;
+  int following_space = leading_space + (strlen(title) % 2);
+
+  printf("%s %s %s", std::string(leading_space, '-').c_str(), title,
+    std::string(following_space, '-').c_str());
+}
+
 void InitAlways(DebugUiState& debug_ui) {
   debug_ui.current_spawner = PikminGame::SpawnNames().first;
 }
 
 void UpdateDebugValues(DebugUiState& debug_ui) {
-  // Clear the screen
-  printf("\x1b[2J");
-  debug::PrintTitle("VALUES");
+  ClearConsole();
+  PrintTitle("VALUES");
 
   int display_position = 2;
   auto display_values = debug_ui.game->DebugDictionary().DisplayValues();
@@ -34,14 +51,12 @@ void UpdateDebugValues(DebugUiState& debug_ui) {
     }
   }
 
-  // Reset the colors when we're done
-  printf("\x1b[39m");
+  ResetColors();
 }
 
 void UpdateDebugTimings(DebugUiState& debug_ui) {
-  // Clear the screen
-  printf("\x1b[2J");
-  debug::PrintTitle("TIMING");
+  ClearConsole();
+  PrintTitle("TIMING");
 
   // For every topic, output the timing on its own line
   for (auto topic : debug_ui.game->Engine().DebugProfiler().Topics()) {
@@ -52,13 +67,12 @@ void UpdateDebugTimings(DebugUiState& debug_ui) {
     }
   }
 
-  // Reset the colors when we're done
-  printf("\x1b[39m");
+  ResetColors();
 }
 
 void UpdateDebugToggles(DebugUiState& debug_ui) {
-  printf("\x1b[2J");
-  debug::PrintTitle("Debug Toggles");
+  ClearConsole();
+  PrintTitle("Debug Toggles");
   int touch_offset = 16;
   auto &debug_flags = debug_ui.game->Engine().debug_flags;
   for (auto pair : debug_flags) {
@@ -86,13 +100,12 @@ void UpdateDebugToggles(DebugUiState& debug_ui) {
     touch_offset += 24;
   }
 
-  // Reset the colors when we're done
-  printf("\x1b[39m");
+  ResetColors();
 }
 
 void UpdateDebugSpawners(DebugUiState& debug_ui) {
-  printf("\x1b[2J");
-  debug::PrintTitle("Spawn Objects");
+  ClearConsole();
+  PrintTitle("Spawn Objects");
 
   printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
   printf("|      | | %*s | |      |", 42, " ");
@@ -125,7 +138,27 @@ void UpdateDebugSpawners(DebugUiState& debug_ui) {
   }
 
   // Reset the colors when we're done
-  printf("\x1b[39m");
+  ResetColors();
+}
+
+void UpdateDebugAi(DebugUiState& debug_ui) {
+  ClearConsole();
+  PrintTitle("AI Profiler");
+  PrintTitle("Pikmin");
+
+  auto& active_profiler = debug_ui.game->DebugAiProfilers()["Pikmin"];
+
+  printf("%-25s %12s %12s %12s", "State Name", "Runs", "Average", "Total");
+  for (auto state_timing : active_profiler.StateTimings()) {
+    std::string name = state_timing.first;
+    u32 run_count = state_timing.second.run_count;
+    u32 average_time = state_timing.second.total / state_timing.second.run_count;
+    u32 total_time = state_timing.second.total;
+
+    printf("%-25s %12lu %12lu %12lu", name.c_str(), run_count, average_time, total_time);
+  }
+
+  ResetColors();
 }
 
 bool DebugSwitcherPressed(const DebugUiState&  debug_ui) {
@@ -136,6 +169,7 @@ namespace DebugUiNode {
 enum DebugUiNode {
   kInit = 0,
   kDebugTimings,
+  kDebugAi,
   kDebugValues,
   kDebugToggles,
   kDebugSpawners,
@@ -148,8 +182,14 @@ Edge<DebugUiState> init[] = {
 };
 
 Edge<DebugUiState> debug_timings[] = {
-  Edge<DebugUiState>{kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugValues},
+  Edge<DebugUiState>{kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugAi},
   Edge<DebugUiState>{kAlways, nullptr, UpdateDebugTimings, DebugUiNode::kDebugTimings}, //Loopback
+  END_OF_EDGES(DebugUiState)
+};
+
+Edge<DebugUiState> debug_ai[] = {
+  Edge<DebugUiState>{kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugValues},
+  Edge<DebugUiState>{kAlways, nullptr, UpdateDebugAi, DebugUiNode::kDebugAi}, //Loopback
   END_OF_EDGES(DebugUiState)
 };
 
@@ -174,6 +214,7 @@ Edge<DebugUiState> debug_spawners[] = {
 Node<DebugUiState> node_list[] {
   {"Init", true, init},
   {"Timing", true, debug_timings},
+  {"Ai", true, debug_ai},
   {"Values", true, debug_values},
   {"Toggles", true, debug_toggles},
   {"Spawners", true, debug_spawners},

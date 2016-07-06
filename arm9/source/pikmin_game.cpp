@@ -55,6 +55,8 @@ PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   engine.debug_flags["Render First Pass Only"] = false;
 
   tAI = engine.DebugProfiler().RegisterTopic("Game: AI / Logic");
+
+  ai_profilers_.emplace("Pikmin", debug::AiProfiler());
 }
 
 PikminGame::~PikminGame() {
@@ -253,11 +255,10 @@ void PikminGame::Step() {
     squad_ai::machine.RunLogic((*captain_).squad);
   }
 
+  ai_profilers_["Pikmin"].ClearTimingData();
   for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
     if ((*i).active) {
-      pikmin_ai::machine.RunLogic(*i);
-      DebugDictionary().Set("NodeFrames", i->frames_at_this_node);
-      DebugDictionary().Set("Node", pikmin_ai::machine.NodeName(i->current_node));
+      pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
       if (i->dead) {
         RemoveObject(i);
       }
@@ -387,4 +388,8 @@ std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iter
 
 debug::Dictionary& PikminGame::DebugDictionary() {
   return debug_dictionary_;
+}
+
+std::map<std::string, debug::AiProfiler>& PikminGame::DebugAiProfilers() {
+  return ai_profilers_;
 }

@@ -21,7 +21,9 @@ namespace treasure_ai { struct TreasureState; }
 namespace static_ai { struct StaticState; }
 #include "ui.h"
 #include <list>
+#include <map>
 
+#include "debug/ai_profiler.h"
 #include "debug/utilities.h"
 #include "debug/dictionary.h"
 #include "vram_allocator.h"
@@ -81,6 +83,7 @@ class PikminGame {
   static std::pair<SpawnMap::const_iterator, SpawnMap::const_iterator> SpawnNames();
 
   debug::Dictionary& DebugDictionary();
+  std::map<std::string, debug::AiProfiler>& DebugAiProfilers();
  private:
   bool paused_ = false;
   PikminSave current_save_data_;
@@ -137,6 +140,8 @@ class PikminGame {
   debug::Dictionary debug_dictionary_;
   // Debug Topic IDs
   int tAI;
+  // Debug AI Profiler
+  std::map<std::string, debug::AiProfiler> ai_profilers_;
 };
 
 #endif  // GAME_H

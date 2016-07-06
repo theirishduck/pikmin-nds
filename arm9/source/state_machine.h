@@ -3,6 +3,7 @@
 
 #include <functional>
 #include "drawable_entity.h"
+#include "debug/ai_profiler.h"
 
 template<typename T>
 using GuardFunction = std::function<bool(T const&)>;
@@ -73,9 +74,20 @@ class StateMachine {
       return node_list[node].name;
     }
 
-    void RunLogic(T& state) {
+    void RunLogic(T& state, debug::AiProfiler* profiler = nullptr) {
+      std::string current_node_name;
+      if (profiler) {
+        current_node_name = NodeName(state.current_node);
+        profiler->StartState(current_node_name);
+      }
+
       auto current_node = node_list[state.current_node];
+      //int edge_index = 0; // for profiling
       for (auto i = current_node.edge_list; i->trigger != kEndOfList; i++) {
+        /*
+        if (profiler) {
+          profiler->StartEdge(current_node_name, edge_index);
+        }//*/
         auto edge = *i;
         // Make sure we pass this edge's trigger condition
         if (edge.trigger == kAlways or edge.trigger == kGuardOnly or
@@ -105,16 +117,29 @@ class StateMachine {
                 node_list[state.current_node].animation != current_node.animation) {
               state.entity->SetAnimation(node_list[state.current_node].animation);
             }
+            /*
+            if (profiler) {
+              profiler->EndEdge(current_node_name, edge_index);
+            }//*/
 
             //finally, break out so we stop processing edges
             break;
           }
         }
+        /*
+        if (profiler) {
+          profiler->EndEdge(current_node_name, edge_index);
+        }
+        edge_index++; //*/
       }
 
       //increment counters, to track actions and lifetimes
       state.frames_alive++;
       state.frames_at_this_node++;
+
+      if (profiler) {
+        profiler->EndState(current_node_name);
+      }
     }
 
   private:
