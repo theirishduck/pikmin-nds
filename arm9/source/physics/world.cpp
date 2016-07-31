@@ -3,7 +3,7 @@
 #include "numeric_types.h"
 #include "vector.h"
 #include "body.h"
-#include "debug.h"
+#include "debug/utilities.h"
 
 using physics::World;
 using physics::Body;
@@ -94,7 +94,7 @@ bool World::BodiesOverlap(Body& a, Body& b) {
   if (&a == &b) {
     return false; // Don't collide with yourself.
   }
-  bodies_overlap_debug++;
+  bodies_overlapping_++;
   //Check to see if the circles overlap on the XZ plane
   Vec2 axz = Vec2{a.position.x, a.position.z};
   Vec2 bxz = Vec2{b.position.x, b.position.z};
@@ -105,7 +105,7 @@ bool World::BodiesOverlap(Body& a, Body& b) {
     //Check to see if their Y values are overlapping also
     if (a.position.y + a.height >= b.position.y) {
       if (b.position.y + b.height >= a.position.y) {
-        collisions_this_frame++;
+        total_collisions_++;
         return true;
       }
     }
@@ -369,8 +369,8 @@ void World::ProcessCollision() {
 }
 
 void World::Update() {
-  bodies_overlap_debug = 0;
-  collisions_this_frame = 0;
+  bodies_overlapping_ = 0;
+  total_collisions_ = 0;
   if (rebuild_index_) {
     RebuildIndex();
   }
@@ -379,11 +379,16 @@ void World::Update() {
   CollideBodiesWithLevel();
 
   iteration++;
-  debug::DisplayValue("BodiesOverlap Calls: ", bodies_overlap_debug);
-  debug::DisplayValue("Total Collisions: ", collisions_this_frame);
 }
 
-#include "debug.h"
+int World::BodiesOverlapping() {
+  return bodies_overlapping_;
+}
+
+int World::TotalCollisions() {
+  return total_collisions_;
+}
+
 void World::DebugCircles() {
   for (int i = 0; i < active_bodies_; i++) {
     Body& body = bodies_[active_[i]];

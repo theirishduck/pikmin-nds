@@ -117,7 +117,7 @@ void ClearDestinationType(TreasureState& treasure) {
 }
 
 void UpdatePikminPositions(TreasureState& treasure) {
-  debug::DisplayValue("ActivePikmin: ", treasure.num_active_pikmin);
+  treasure.game->DebugDictionary().Set("ActivePikmin: ", treasure.num_active_pikmin);
 
   Brads clockwise_angle = 0_brad;
   Brads delta = 360_brad /

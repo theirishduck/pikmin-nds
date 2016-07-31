@@ -2,6 +2,8 @@
 #include "multipass_engine.h"
 
 #include <stdio.h>
+#include <string>
+#include <sstream>
 
 #include <vector>
 
@@ -10,7 +12,7 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/input.h>
 
-#include "debug.h"
+#include "debug/utilities.h"
 
 #include "particle.h"
 
@@ -23,7 +25,27 @@ using numeric_types::Brads;
 using debug::Topic;
 
 MultipassEngine::MultipassEngine() {
-  debug::AddToggle("Enable Effects Layer", &effects_enabled);
+  // Initialize debug topics
+  tIdle =           debug_profiler_.RegisterTopic("Engine: Idle");
+  tEntityUpdate =   debug_profiler_.RegisterTopic("Engine: Entities");
+  tPhysicsUpdate =  debug_profiler_.RegisterTopic("Engine: Physics");
+  tParticleUpdate = debug_profiler_.RegisterTopic("Engine: Particle Updatess");
+  tParticleDraw =   debug_profiler_.RegisterTopic("Engine: Particle Drawing");
+  tFrameInit =      debug_profiler_.RegisterTopic("Engine: Frame Init");
+  tPassInit =       debug_profiler_.RegisterTopic("Engine: Pass Init");
+  for (int i = 0; i < 9; i++) {
+    std::stringstream ss;
+    ss << "Engine: Pass: " << i + 1;
+    tPassUpdate[i] = debug_profiler_.RegisterTopic(ss.str());
+  }
+}
+
+void MultipassEngine::EnableEffectsLayer(bool enabled) {
+  effects_enabled = enabled;
+}
+
+debug::Profiler& MultipassEngine::DebugProfiler() {
+  return debug_profiler_;
 }
 
 physics::World& MultipassEngine::World() {
@@ -65,19 +87,19 @@ void MultipassEngine::Update() {
     return;
   }
 
-  debug::StartTopic(Topic::kEntityUpdate);
+  debug_profiler_.StartTopic(tEntityUpdate);
   for (auto entity : entities_) {
     entity->Update();
   }
-  debug::EndTopic(Topic::kEntityUpdate);
+  debug_profiler_.EndTopic(tEntityUpdate);
 
-  debug::StartTopic(Topic::kPhysics);
+  debug_profiler_.StartTopic(tPhysicsUpdate);
   world_.Update();
-  debug::EndTopic(Topic::kPhysics);
+  debug_profiler_.EndTopic(tPhysicsUpdate);
 
-  debug::StartTopic(Topic::kParticleUpdate);
+  debug_profiler_.StartTopic(tParticleUpdate);
   UpdateParticles();
-  debug::EndTopic(Topic::kParticleUpdate);
+  debug_profiler_.EndTopic(tParticleUpdate);
 
   camera_.Update();
 
@@ -196,6 +218,8 @@ void MultipassEngine::GatherDrawList() {
       draw_list_.push(container);
     }
   }
+
+  effects_enabled = debug_flags["Draw Effects Layer"];
 }
 
 void MultipassEngine::ClearDrawList() {
@@ -299,11 +323,11 @@ void MultipassEngine::DrawClearPlane() {
 void MultipassEngine::InitFrame() {
   // Initialize the debug counts for this pass
   for (int i = current_pass_; i < 9; i++) {
-    debug::ClearTopic((Topic)((int)Topic::kPass1 + i));
+    debug_profiler_.ClearTopic(tPassUpdate[i]);
   }
 
   //debug::TimingColor(RGB5(0, 15, 0));
-  debug::StartTopic(Topic::kFrameInit);
+  debug_profiler_.StartTopic(tFrameInit);
   // Handle everything that happens at the start of a frame. This includes
   // gathering the initial draw list, and setting up caches for subsequent
   // passes.
@@ -321,11 +345,11 @@ void MultipassEngine::InitFrame() {
   effects_drawn = false;
 
   // consoleClear();
-  debug::EndTopic(Topic::kFrameInit);
+  debug_profiler_.EndTopic(tFrameInit);
 }
 
 void MultipassEngine::GatherPassList() {
-  debug::StartTopic(Topic::kPassInit);
+  debug_profiler_.StartTopic(tPassInit);
 
   // Build up the list of objects to render this pass.
   int polycount = 0;
@@ -366,7 +390,7 @@ void MultipassEngine::GatherPassList() {
     objects_this_pass++;
   }
 
-  debug::EndTopic(Topic::kPassInit);
+  debug_profiler_.EndTopic(tPassInit);
 }
 
 bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
@@ -444,9 +468,9 @@ bool MultipassEngine::ValidateDividingPlane() {
       DrawClearPlane();
 
       GFX_FLUSH = 0;
-      debug::StartTopic(Topic::kIdle);
+      debug_profiler_.StartTopic(tIdle);
       swiWaitForVBlank();
-      debug::EndTopic(Topic::kIdle);
+      debug_profiler_.EndTopic(tIdle);
 
       SetVRAMforPass(current_pass_);
       current_pass_++;
@@ -464,7 +488,9 @@ bool MultipassEngine::ValidateDividingPlane() {
 
 void MultipassEngine::DrawPassList() {
   // Draw the entities for the pass.
-  debug::StartTopic((Topic)((int)Topic::kPass1 + current_pass_));
+  if (current_pass_ < 9) {
+    debug_profiler_.StartTopic(tPassUpdate[current_pass_]);
+  }
 
   for (auto& container : pass_list_) {
     glPushMatrix();
@@ -477,14 +503,16 @@ void MultipassEngine::DrawPassList() {
       overlap_list_.push_back(container);
     }
   }
-  debug::EndTopic((Topic)((int)Topic::kPass1 + current_pass_));
+  if (current_pass_ < 9) {
+    debug_profiler_.EndTopic(tPassUpdate[current_pass_]);
+  }
 }
 
 void MultipassEngine::DrawEffects() {
   ClipFriendlyPerspective(0.1_f, 768.0_f, FIELD_OF_VIEW);
   glLoadIdentity();
   camera_.ApplyTransform();
-  if (debug::g_physics_circles) {
+  if (debug_flags["Draw Physics Circles"]) {
     world_.DebugCircles();
   }
   effects_drawn = true;
@@ -513,9 +541,9 @@ void MultipassEngine::Draw() {
 
     DrawPassList();
 
-    debug::StartTopic(Topic::kParticleDraw);
+    debug_profiler_.StartTopic(tParticleDraw);
     DrawParticles(camera_.Position(), camera_.Target());
-    debug::EndTopic(Topic::kParticleDraw);
+    debug_profiler_.EndTopic(tParticleDraw);
 
     // Reset the polygon format after all that drawing
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
@@ -524,11 +552,11 @@ void MultipassEngine::Draw() {
   DrawClearPlane();
 
   GFX_FLUSH = GL_WBUFFERING;
-  debug::StartTopic(Topic::kIdle);
+  debug_profiler_.StartTopic(tIdle);
   swiWaitForVBlank();
 
 
-  if (debug::g_render_first_pass_only) {
+  if (debug_flags["Render First Pass Only"]) {
     // Empty the draw list; limiting the frame to one pass.
     ClearDrawList();
   }
@@ -536,7 +564,7 @@ void MultipassEngine::Draw() {
   SetVRAMforPass(current_pass_);
   current_pass_++;
 
-  if (debug::g_skip_vblank) {
+  if (debug_flags["Skip VBlank"]) {
     // Spin wait until scanline 0 so that the timing colors are visible.
     while (REG_VCOUNT != 0) {
       continue;
@@ -544,5 +572,5 @@ void MultipassEngine::Draw() {
     irqEnable(IRQ_HBLANK);
     swiIntrWait(1, IRQ_HBLANK);
   }
-  debug::EndTopic(Topic::kIdle);
+  debug_profiler_.EndTopic(tIdle);
 }

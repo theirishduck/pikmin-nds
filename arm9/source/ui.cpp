@@ -2,9 +2,10 @@
 
 #include <nds.h>
 #include <stdio.h>
-#include "debug.h"
+#include "debug/utilities.h"
 
 #include "pikmin_game.h"
+#include "wide_console.h"
 #include "ai/captain.h"
 
 // Numbers and fonts
@@ -168,6 +169,11 @@ void UpdatePikminSelector(UIState& ui, int index) {
     "bubblefont", bubblefont_img_bin, bubblefont_img_bin_size);
 }
 
+void InitDebugScreen(UIState& ui) {
+  InitWideConsole();
+  ui.debug_screen_active = true;
+}
+
 void InitNavPad(UIState& ui) {
   // Set up the video modes for the NavPad
   videoSetModeSub(MODE_2_2D);
@@ -204,36 +210,21 @@ void InitNavPad(UIState& ui) {
     "blue_dot", blue_dot_img_bin, blue_dot_img_bin_size, {8, 8});
 }
 
-// Initialize the console using the full version of the console init function so
-// that VRAM bank H can be used instead of the default bank, bank C.
-void InitDebug(UIState& ui) {
-  vramSetBankH(VRAM_H_SUB_BG);
-  videoSetModeSub(MODE_2_2D);
-
-  PrintConsole* const kDefaultConsole{nullptr};
-  s32 const kConsoleLayer{0};
-  s32 const kConsoleMapBase{15};
-  s32 const kConsoleTileBase{0};
-  bool const kConsoleOnMainDisplay{true};
-  bool const kLoadConsoleGraphics{true};
-  consoleInit(kDefaultConsole, kConsoleLayer, BgType_Text4bpp, BgSize_T_256x256,
-      kConsoleMapBase, kConsoleTileBase, not kConsoleOnMainDisplay,
-      kLoadConsoleGraphics);
-
-  // Because we have no idea what state our console is going to be in after
-  // the game has been running for a bit, go ahead and clear it
-  printf("\x1b[2J");
+void InitAlways(UIState& ui) {
+  ui.debug_topic_id = ui.game->Engine().DebugProfiler().RegisterTopic("Game: UI");
+  InitNavPad(ui);
 }
 
 void UpdateNavPad(UIState& ui) {
-  debug::StartTopic(debug::Topic::kUi);
+  //auto profiler = ui.game->Engine().DebugProfiler();
+  ui.game->Engine().DebugProfiler().StartTopic(ui.debug_topic_id);
   // Update pikmin counts
   BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->TotalPikmin(), 3);
   UpdatePikminSelector(ui, 109);
   UpdateMapIcons(ui);
-  debug::EndTopic(debug::Topic::kUi);
+  ui.game->Engine().DebugProfiler().EndTopic(ui.debug_topic_id);
 }
 
 bool OpenOnionUI(const UIState& ui) {
@@ -247,8 +238,8 @@ bool OpenOnionUI(const UIState& ui) {
 }
 
 void InitOnionUI(UIState& ui) {
-  // for now, use the debug screen for the onion
-  InitDebug(ui);
+  // for now, use the console screen for the onion
+  InitWideConsole();
 
   // Pause the main game
   ui.game->PauseGame();
@@ -272,7 +263,7 @@ bool key_repeat_active(int frame_timer) {
 void PauseGame(UIState& ui) {
   ui.game->PauseGame();
   // Todo: something fancier later
-  InitDebug(ui);
+  InitWideConsole();
   printf("\n\n\n\n\n\n\n\n\n\n\n");
   printf("          -- PAUSED --");
 }
@@ -384,31 +375,26 @@ void ApplyOnionDelta(UIState& ui) {
     }
   }
 
-  UnpauseGame(ui);
-}
-
-void UpdateDebugValues(UIState& ui) {
-  debug::UpdateValuesMode();
-}
-
-void UpdateDebugTimers(UIState& ui) {
-  debug::UpdateTimingMode();
-}
-
-void UpdateDebugToggles(UIState& ui) {
-  debug::UpdateTogglesMode();
-}
-
-void InitDebugSpawners(UIState& ui) {
-  debug::InitializeSpawners();
-}
-
-void UpdateDebugSpawners(UIState& ui) {
-  debug::UpdateSpawnerMode(ui.game);
+  ui.game->UnpauseGame();
 }
 
 bool DebugButtonPressed(const UIState&  ui) {
   return keysDown() & KEY_SELECT;
+}
+
+void UpdateDebugScreen(UIState& ui) {
+  //printf("Update Debug Screen!\n");
+  debug_ui::machine.RunLogic(ui.debug_state);
+  ui.game->DebugDictionary().Set("Debug Active: ", (int)ui.debug_screen_active);
+}
+
+bool DebugScreenActive(const UIState& ui) {
+  return ui.debug_screen_active;
+}
+
+void CloseDebugScreen(UIState& ui) {
+  ui.debug_screen_active = 0;
+  InitNavPad(ui);
 }
 
 namespace UINode {
@@ -418,10 +404,7 @@ enum UINode {
   kNavPad,
   kOnionUI,
   kOnionClosing,
-  kDebugTiming,
-  kDebugValues,
-  kDebugToggles,
-  kDebugSpawners,
+  kDebugScreen,
   kPauseScreen,
 };
 }
@@ -432,12 +415,12 @@ Edge<UIState> wait_frame[] = {
 };
 
 Edge<UIState> init[] = {
-  Edge<UIState>{Trigger::kAlways, nullptr, InitNavPad, UINode::kNavPad},
+  Edge<UIState>{Trigger::kAlways, nullptr, InitAlways, UINode::kNavPad},
   END_OF_EDGES(UIState)
 };
 
 Edge<UIState> nav_pad[] = {
-  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitDebug, UINode::kDebugTiming},
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitDebugScreen, UINode::kDebugScreen},
   Edge<UIState>{Trigger::kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
   Edge<UIState>{Trigger::kAlways, PauseButtonPressed, PauseGame, UINode::kPauseScreen},
   Edge<UIState>{Trigger::kAlways, nullptr, UpdateNavPad, UINode::kNavPad}, //Loopback
@@ -452,31 +435,8 @@ Edge<UIState> onion_ui[] = {
 };
 
 Edge<UIState> closing_onion_ui[] = {
+  Edge<UIState>{Trigger::kAlways, DebugScreenActive, InitDebugScreen, UINode::kDebugScreen},
   Edge<UIState>{Trigger::kAlways, nullptr, InitNavPad, UINode::kNavPad},
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_timings[] = {
-  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, nullptr, UINode::kDebugValues},
-  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugTimers, UINode::kDebugTiming}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_values[] = {
-  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, nullptr, UINode::kDebugToggles},
-  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugValues, UINode::kDebugValues}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_toggles[] = {
-  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitDebugSpawners, UINode::kDebugSpawners},
-  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugToggles, UINode::kDebugToggles}, //Loopback
-  END_OF_EDGES(UIState)
-};
-
-Edge<UIState> debug_spawners[] = {
-  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, InitNavPad, UINode::kNavPad},
-  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugSpawners, UINode::kDebugSpawners}, //Loopback
   END_OF_EDGES(UIState)
 };
 
@@ -485,16 +445,19 @@ Edge<UIState> pause_screen[] = {
   END_OF_EDGES(UIState)
 };
 
+Edge<UIState> debug_screen[] = {
+  Edge<UIState>{Trigger::kAlways, DebugButtonPressed, CloseDebugScreen, UINode::kNavPad},
+  Edge<UIState>{Trigger::kAlways, OpenOnionUI, InitOnionUI, UINode::kOnionUI},
+  Edge<UIState>{Trigger::kAlways, nullptr, UpdateDebugScreen, UINode::kDebugScreen}, // Loopback
+};
+
 Node<UIState> node_list[] {
   {"Sleep", true, wait_frame},
   {"Init", true, init},
   {"NavPad", true, nav_pad},
   {"OnionUI", true, onion_ui},
   {"OnionClosing", true, closing_onion_ui},
-  {"DebugTiming", true, debug_timings},
-  {"DebugValues", true, debug_values},
-  {"DebugToggles", true, debug_toggles},
-  {"DebugSpawners", true, debug_spawners},
+  {"DebugScreen", true, debug_screen},
   {"PauseScreen", true, pause_screen},
 };
 

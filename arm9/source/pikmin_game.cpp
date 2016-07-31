@@ -1,5 +1,5 @@
 #include "pikmin_game.h"
-#include "debug.h"
+#include "debug/utilities.h"
 #include "dsgx.h"
 
 #include "ai/captain.h"
@@ -46,9 +46,24 @@ int PikminGame::TotalPikmin() {
 
 PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
   ui_.game = this;
+  ui_.debug_state.game = this;
+
+  // Setup initial debug flags
+  engine.debug_flags["Draw Effects Layer"] = false;
+  engine.debug_flags["Draw Physics Circles"] = false;
+  engine.debug_flags["Skip VBlank"] = false;
+  engine.debug_flags["Render First Pass Only"] = false;
+
+  tAI = engine.DebugProfiler().RegisterTopic("Game: AI / Logic");
+
+  ai_profilers_.emplace("Pikmin", debug::AiProfiler());
 }
 
 PikminGame::~PikminGame() {
+}
+
+MultipassEngine& PikminGame::Engine() {
+  return engine;
 }
 
 VramAllocator<Texture>* PikminGame::TextureAllocator() {
@@ -234,17 +249,16 @@ void PikminGame::Step() {
     return;
   }
 
-  debug::StartTopic(debug::Topic::kAI);
+  engine.DebugProfiler().StartTopic(tAI);
   if (captain_) {
     captain_ai::machine.RunLogic(*captain_);
     squad_ai::machine.RunLogic((*captain_).squad);
   }
 
+  ai_profilers_["Pikmin"].ClearTimingData();
   for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
     if ((*i).active) {
-      pikmin_ai::machine.RunLogic(*i);
-      debug::DisplayValue("NodeFrames", i->frames_at_this_node);
-      debug::DisplayValue("Node", pikmin_ai::machine.NodeName(i->current_node));
+      pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
       if (i->dead) {
         RemoveObject(i);
       }
@@ -282,7 +296,11 @@ void PikminGame::Step() {
     }
   }
 
-  debug::EndTopic(debug::Topic::kAI);
+  engine.DebugProfiler().EndTopic(tAI);
+
+  // Update some debug details about the world
+  DebugDictionary().Set("Physics: Bodies Overlapping: ", engine.World().BodiesOverlapping());
+  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());
 }
 
 CaptainState* PikminGame::ActiveCaptain() {
@@ -366,4 +384,12 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
 
 std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> PikminGame::SpawnNames() {
   return std::make_pair(spawn_.begin(), spawn_.end());
+}
+
+debug::Dictionary& PikminGame::DebugDictionary() {
+  return debug_dictionary_;
+}
+
+std::map<std::string, debug::AiProfiler>& PikminGame::DebugAiProfilers() {
+  return ai_profilers_;
 }

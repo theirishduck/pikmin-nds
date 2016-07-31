@@ -10,7 +10,7 @@
 
 #include "multipass_engine.h"
 #include "pikmin_game.h"
-#include "debug.h"
+#include "debug/utilities.h"
 #include "particle_library.h"
 
 #include "entities/level.h"
@@ -40,9 +40,6 @@ using numeric_types::fixed;
 using debug::Topic;
 
 using namespace std;
-
-MultipassEngine g_engine;
-PikminGame g_game(g_engine);
 
 // Initialize the console using the full version of the console init function so
 // that VRAM bank H can be used instead of the default bank, bank C.
@@ -216,7 +213,7 @@ void LoadDsgxFile(DsgxAllocator* dsgx_allocator, string filename, string identif
   }
 }
 
-void LoadTexturesFromNitroFS() {
+void LoadTexturesFromNitroFS(PikminGame& game) {
   auto texture_files = FilesInDirectory("/textures");
   for (string filename : texture_files) {
     // Collect metadata about this file
@@ -235,80 +232,80 @@ void LoadTexturesFromNitroFS() {
     }
 
     // Load the file data into a temporary buffer
-    LoadFileWithMetadata(g_game.TextureAllocator(), metadata, filename, filename);
+    LoadFileWithMetadata(game.TextureAllocator(), metadata, filename, filename);
 
     // Attempt to find and load a matching palette file, if one exists
     string const palette_filename = BaseName(filename) + ".pal";
-    LoadFileWithMetadata(g_game.TexturePaletteAllocator(), TexturePalette{}, palette_filename, filename);
+    LoadFileWithMetadata(game.TexturePaletteAllocator(), TexturePalette{}, palette_filename, filename);
   }
 }
 
-void LoadActors() {
+void LoadActors(PikminGame& game) {
   auto texture_files = FilesInDirectory("/actors");
   for (string filename : texture_files) {
     auto extension = FileExtension(filename);
     if (extension == "dsgx") {
       // load and parse the DSGX data
-      LoadDsgxFile(g_game.ActorAllocator(), filename, BaseName(filename));
+      LoadDsgxFile(game.ActorAllocator(), filename, BaseName(filename));
       // apply texture offsets from our previously loaded textures and palettes
-      Dsgx* actor = g_game.ActorAllocator()->Retrieve(BaseName(filename));
-      actor->ApplyTextures(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
+      Dsgx* actor = game.ActorAllocator()->Retrieve(BaseName(filename));
+      actor->ApplyTextures(game.TextureAllocator(), game.TexturePaletteAllocator());
     }
   }
 }
 
-void LoadTextures() {
+void LoadTextures(PikminGame& game) {
   // VRAM is not memory mapped to the CPU when in texture mode, so all
   // modifications to textures must be done by changing the bank to a mode
   // where it is mapped to the CPU, performing the modifications, and
   // switching it back to texture mode.
   vramSetBankC(VRAM_C_LCD);
   vramSetBankG(VRAM_G_LCD);
-  LoadTexturesFromNitroFS();
+  LoadTexturesFromNitroFS(game);
   vramSetBankC(VRAM_C_TEXTURE);
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
 
-void SetupDemoStage() {
+void SetupDemoStage(PikminGame& game) {
   //load in the test level
-  Level* sandbox = new Level(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
-  sandbox->set_actor(g_game.ActorAllocator()->Retrieve("checker_test"));
-  g_engine.AddEntity(sandbox);
-  g_engine.World().SetHeightmap(checkerboard_height_bin);
+  Level* sandbox = new Level(game.TextureAllocator(), game.TexturePaletteAllocator());
+  sandbox->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
+  game.Engine().AddEntity(sandbox);
+  game.Engine().World().SetHeightmap(checkerboard_height_bin);
 
   //spawn in an onion!
-  auto red_onion = g_game.SpawnObject<OnionState>();
+  auto red_onion = game.SpawnObject<OnionState>();
   red_onion->set_position(Vec3{64_f, 0_f, -32_f});
   red_onion->pikmin_type = PikminType::kRedPikmin;
 
   //spawn in a yellow onion too!
-  auto yellow_onion = g_game.SpawnObject<OnionState>();
+  auto yellow_onion = game.SpawnObject<OnionState>();
   yellow_onion->set_position(Vec3{96_f, 0_f, -64_f});
   yellow_onion->pikmin_type = PikminType::kYellowPikmin;
 
   //spawn in a blue onion while we're at it
-  auto blue_onion = g_game.SpawnObject<OnionState>();
+  auto blue_onion = game.SpawnObject<OnionState>();
   blue_onion->set_position(Vec3{64_f, 0_f, -96_f});
   blue_onion->pikmin_type = PikminType::kBluePikmin;
 
   //auto posy = g_game.SpawnObject<PosyState>();
-  auto posy = g_game.Spawn<PosyState>("Enemy:PelletPosy");
+  auto posy = game.Spawn<PosyState>("Enemy:PelletPosy");
   posy->set_position(Vec3{44_f, 0_f, -72_f});
 
-  auto fire_spout = g_game.Spawn<FireSpoutState>("Hazard:FireSpout");
+  auto fire_spout = game.Spawn<FireSpoutState>("Hazard:FireSpout");
   fire_spout->set_position(Vec3{64_f, 0_f, -64_f});
 
-  auto pellet = g_game.Spawn<TreasureState>("Corpse:Pellet");
+  auto pellet = game.Spawn<TreasureState>("Corpse:Pellet");
   pellet->set_position(Vec3{54_f, 0_f, -64_f});
 }
 
-void InitCaptain() {
-  CaptainState* captain = g_game.SpawnObject<CaptainState>();
-  g_engine.camera()->FollowCaptain(captain);
+void InitCaptain(PikminGame& game) {
+  CaptainState* captain = game.SpawnObject<CaptainState>();
+  game.Engine().camera()->FollowCaptain(captain);
   captain->set_position(Vec3{64_f,0_f,-62_f});
 }
 
-void Init() {
+void Init(PikminGame& game) {
   // filesystem testing stuff
   if (nitroFSInit(NULL)) {
     //nocashMessage("Filesystem SUCCESS");
@@ -319,17 +316,17 @@ void Init() {
   InitMainScreen();
   InitSubScreen();
 
-  LoadTextures();
-  LoadActors();
-  particle_library::Init(g_game.TextureAllocator(), g_game.TexturePaletteAllocator());
-  InitCaptain();
-  SetupDemoStage();
+  LoadTextures(game);
+  LoadActors(game);
+  particle_library::Init(game.TextureAllocator(), game.TexturePaletteAllocator());
+  InitCaptain(game);
+  SetupDemoStage(game);
 
   glPushMatrix();
 }
 
-void RunLogic() {
-  g_game.Step();
+void RunLogic(PikminGame& game) {
+  game.Step();
 }
 
 //returns a random vector from -1 to 1 in all directions
@@ -341,7 +338,7 @@ Vec3 RandomVector() {
   };
 }
 
-void GameLoop() {
+void GameLoop(PikminGame& game) {
   int frame_counter = 0;
   for (;;) {
     frame_counter++;
@@ -349,21 +346,24 @@ void GameLoop() {
     touchRead(&touchXY);
 
     //start debug timings for this loop
-    debug::StartCpuTimer();
+    game.Engine().DebugProfiler().StartTimer();
 
     if (frame_counter % 2 == 0) {
-      RunLogic();
+      RunLogic(game);
     } else {
-      g_engine.Update();
+      game.Engine().Update();
     }
-    g_engine.Draw();
+    game.Engine().Draw();
 
     oamUpdate(&oamSub);
   }
 }
 
+MultipassEngine g_engine;
+PikminGame g_game(g_engine);
+
 int main() {
-  Init();
-  GameLoop();
+  Init(g_game);
+  GameLoop(g_game);
   return 0;
 }

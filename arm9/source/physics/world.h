@@ -13,6 +13,10 @@ class World {
     void Update();
     void DebugCircles();
 
+    // Metrics
+    int BodiesOverlapping();
+    int TotalCollisions();
+
     void SetHeightmap(const u8* raw_heightmap_data);
     World();
     ~World();
@@ -51,8 +55,8 @@ class World {
     numeric_types::fixed* heightmap_data = nullptr;
 
     int iteration = 0;
-    int bodies_overlap_debug = 0;
-    int collisions_this_frame;
+    int bodies_overlapping_ = 0;
+    int total_collisions_ = 0;
 
     int current_neighbor_ = 0;
 
