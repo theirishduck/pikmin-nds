@@ -90,8 +90,8 @@ void Dsgx::CollectAnimations() {
                 aref, anim);
               meshes_[kv.first] = kv.second;
               found_reference = true;
-              debug::nocashValue("Added ANIM", anim.animation_name);
-              debug::nocashValue("To Mesh   ", anim.mesh_name);
+              //debug::nocashValue("Added ANIM", anim.animation_name);
+              //debug::nocashValue("To Mesh   ", anim.mesh_name);
             }
           }
         }
@@ -244,11 +244,11 @@ void Dsgx::AnimChunk(u32* data) {
 
   animation_data_.push_back(anim);
 
-  debug::nocashValue("Loaded ANIM", anim.animation_name);
-  debug::nocashValue("Type", anim.data_type);
-  debug::nocashValue("Mesh", anim.mesh_name);
-  debug::nocashValue("Length", anim.frame_length);
-  debug::nocashValue("Word Count", anim.word_count);
+  //debug::nocashValue("Loaded ANIM", anim.animation_name);
+  //debug::nocashValue("Type", anim.data_type);
+  //debug::nocashValue("Mesh", anim.mesh_name);
+  //debug::nocashValue("Length", anim.frame_length);
+  //debug::nocashValue("Word Count", anim.word_count);
 }
 
 Mesh* Dsgx::MeshByName(const char* mesh_name) {
@@ -270,10 +270,10 @@ Animation* Dsgx::GetAnimation(string name, Mesh* mesh) {
     debug::nocashValue("With total anims: ", mesh->animations.size());
     return nullptr;  // The requested animation doesn't exist.
   }
-  debug::nocashValue("Switched to ANIM", name);
-  debug::nocashValue("Length", mesh->animations[name].frame_length);
-  debug::nocashValue("Channels", mesh->animations[name].channels.size());
-  debug::nocashValue("Data Size", mesh->animations[name].channels[0].first.num_references);
+  //debug::nocashValue("Switched to ANIM", name);
+  //debug::nocashValue("Length", mesh->animations[name].frame_length);
+  //debug::nocashValue("Channels", mesh->animations[name].channels.size());
+  //debug::nocashValue("Data Size", mesh->animations[name].channels[0].first.num_references);
   return &mesh->animations[name];
 }
 
