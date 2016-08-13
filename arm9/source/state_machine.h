@@ -6,9 +6,9 @@
 #include "debug/ai_profiler.h"
 
 template<typename T>
-using GuardFunction = std::function<bool(T const&)>;
+using GuardFunction = bool (*)(T const&);
 template<typename T>
-using ActionFunction = std::function<void(T &)>;
+using ActionFunction = void (*)(T &);
 
 class PikminGame;
 
@@ -45,18 +45,31 @@ enum class Trigger {
 
 template<typename T>
 struct Edge {
-  Trigger trigger;
-  GuardFunction<T> guard;
-  ActionFunction<T> action;
-  int destination;
-};
+  Trigger trigger{Trigger::kAlways};
+  GuardFunction<T> guard = [](const T&) -> bool{return true;};
+  ActionFunction<T> action = [](T&) -> void{};
+  int destination{0};
 
-enum class Guard {
-  kNone = 0
-};
+  // Here, the trigger, guard, and action are ALL optional, and we don't have
+  // a more convenient way to do this using C++ (named initializer lists are
+  // weirdly C specific) so 2^3 constructors it is!
+  Edge(Trigger trigger, GuardFunction<T> guard, ActionFunction<T> action, int destination)
+    : trigger{trigger}, guard{guard}, action{action}, destination{destination} {}
+  Edge(Trigger trigger, ActionFunction<T> action, int destination)
+    : trigger{trigger}, action{action}, destination{destination} {}
+  Edge(Trigger trigger, GuardFunction<T> guard, int destination)
+    : trigger{trigger}, guard{guard}, destination{destination} {}
+  Edge(Trigger trigger, int destination)
+    : trigger{trigger}, destination{destination} {}
 
-enum class Action {
-  kNone = 0
+  Edge(GuardFunction<T> guard, ActionFunction<T> action, int destination)
+    : guard{guard}, action{action}, destination{destination} {}
+  Edge(ActionFunction<T> action, int destination)
+    : action{action}, destination{destination} {}
+  Edge(GuardFunction<T> guard, int destination)
+    : guard{guard}, destination{destination} {}
+  Edge(int destination)
+    : destination{destination} {}
 };
 
 #define END_OF_EDGES(Type) Edge<Type>{Trigger::kEndOfList, nullptr, nullptr, 0},
