@@ -1,0 +1,12 @@
+sudo: required
+
+services:
+  - docker
+
+language: cpp
+
+before_install:
+  docker build -t pikmin-nds .
+
+script:
+  docker run -i --rm -v $(pwd):/source pikmin-nds
