@@ -6,7 +6,7 @@ services:
 language: cpp
 
 before_install:
-  docker build -t pikmin-nds .
+  docker build --build-arg external_username=$(id --user --name) --build-arg external_uid=$(id --user) --build-arg external_gid=$(id --group) -t pikmin-nds .
 
 script:
   docker run -i --rm -v $(pwd):/source pikmin-nds
