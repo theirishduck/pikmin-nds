@@ -12,7 +12,7 @@ script: docker run -i --rm -v $(pwd):/source pikmin-nds
 
 before_deploy:
 - mkdir release 
-- mv pikmin-nds.nds release/pikmin-$(git rev-parse --verify HEAD).nds
+- mv pikmin-nds.nds release/pikmin-$(date +%F)-$(git rev-parse --verify HEAD).nds
 - cd release
 
 deploy:
