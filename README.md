@@ -1,4 +1,4 @@
-# Pikmin NDS :seedling:
+# Pikmin NDS :seedling: [![Build Status](https://travis-ci.org/zeta0134/pikmin-nds.svg?branch=master)](https://travis-ci.org/zeta0134/pikmin-nds)
 
 Pikmin NDS (also called Pikmin DS) is a tech demo that runs on the Nintendo DS that pushes the hardware to its limits. It is inspired by the Pikmin series by Nintendo, which premiered on the Nintendo GameCube.
 
