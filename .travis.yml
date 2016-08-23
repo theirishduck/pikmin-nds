@@ -11,9 +11,9 @@ before_install: docker build --build-arg external_username=$(id --user --name) -
 script: docker run -i --rm -v $(pwd):/source pikmin-nds
 
 before_deploy:
-  - mkdir release 
-  - mv pikmin-nds.nds release/pikmin.nds
-  - cd release
+- mkdir release 
+- mv pikmin-nds.nds release/pikmin-$(git rev-parse --verify HEAD).nds
+- cd release
 
 deploy:
   provider: cloudfiles
