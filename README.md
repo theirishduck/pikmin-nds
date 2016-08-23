@@ -2,7 +2,7 @@
 
 Pikmin NDS (also called Pikmin DS) is a tech demo that runs on the Nintendo DS that pushes the hardware to its limits. It is inspired by the Pikmin series by Nintendo, which premiered on the Nintendo GameCube.
 
-There is an [imgur album](http://imgur.com/a/YMi6K) here detailing progress on the demo.
+There is an [imgur album](http://imgur.com/a/YMi6K) here detailing progress on the demo, and a [build server](http://pikmin-ds.nicholasflynt.com/) if you'd like to download (very incomplete) development builds.
 
 ## Goals
 
