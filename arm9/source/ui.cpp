@@ -69,12 +69,13 @@ void UpdateMapIcons(UIState& ui) {
   auto yellow_dot = ui.game->SpriteAllocator()->Retrieve("yellow_dot").offset;
   auto blue_dot = ui.game->SpriteAllocator()->Retrieve("blue_dot").offset;
 
-  auto pikmin = ui.game->Pikmin();
+  auto pikmin = ui.game->PikminList();
   auto olimar_position = ui.game->ActiveCaptain()->position();
   for (int slot = 0; slot < 100; slot++) {
-    if (pikmin[slot].active) {
+    if (pikmin[slot].object.active) {
+      auto& current_pikmin = pikmin[slot].object;
       // calculate the on-screen position of these pikmin
-      auto position = pikmin[slot].position();
+      auto position = current_pikmin.position();
       int x = (int)(position.x - olimar_position.x) * 2 + 128;
       int y = (int)(position.z - olimar_position.z) * 2 + 96;
 
@@ -84,7 +85,7 @@ void UpdateMapIcons(UIState& ui) {
         oamSetXY(&oamSub, slot, x, y);
         oamSetPalette(&oamSub, slot, 4);
         oamSetPriority(&oamSub, slot, 3);
-        switch(pikmin[slot].type) {
+        switch(current_pikmin.type) {
           case PikminType::kNone:
           case PikminType::kRedPikmin:
             oamSetGfx(&oamSub, slot, SpriteSize_8x8, SpriteColorFormat_16Color,

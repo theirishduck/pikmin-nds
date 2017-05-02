@@ -2,6 +2,7 @@
 #define STATE_MACHINE_H_
 
 #include <functional>
+#include "handle.h"
 #include "drawable_entity.h"
 #include "debug/ai_profiler.h"
 
@@ -13,6 +14,7 @@ using ActionFunction = void (*)(T &);
 class PikminGame;
 
 struct ObjectState {
+  Handle handle;
   PikminGame* game = nullptr;
   DrawableEntity* entity = nullptr;
   physics::Body* body;

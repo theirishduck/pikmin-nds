@@ -31,6 +31,8 @@ namespace static_ai { struct StaticState; }
 #include "vram_allocator.h"
 #include "dsgx_allocator.h"
 
+using PikminWrapper = HandleWrapper<pikmin_ai::PikminState>;
+
 struct PikminSave {
   int red_pikmin = 100;
   int yellow_pikmin = 100;
@@ -70,7 +72,7 @@ class PikminGame {
   captain_ai::CaptainState* ActiveCaptain();
   int PikminInField();
   int TotalPikmin();
-  pikmin_ai::PikminState* Pikmin();
+  std::array<PikminWrapper, 100>& PikminList();
 
   PikminSave* CurrentSaveData();
 
@@ -97,7 +99,7 @@ class PikminGame {
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
-  std::array<HandleWrapper<pikmin_ai::PikminState>, 100> pikmin_;
+  std::array<PikminWrapper, 100> pikmin_;
   std::array<onion_ai::OnionState*, 3> onions_;
   int num_onions_{0};
   std::array<posy_ai::PosyState*, 32> posies_;

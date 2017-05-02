@@ -333,8 +333,8 @@ PikminSave* PikminGame::CurrentSaveData() {
   return &current_save_data_;
 }
 
-PikminState* PikminGame::Pikmin() {
-  return &pikmin_[0].object;
+std::array<PikminWrapper, 100>& PikminGame::PikminList() {
+  return pikmin_;
 }
 
 const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {
