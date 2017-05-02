@@ -1,4 +1,5 @@
 #include "pikmin_game.h"
+
 #include "debug/utilities.h"
 #include "dsgx.h"
 
@@ -171,33 +172,35 @@ template <>
 PikminState* PikminGame::SpawnObject<PikminState>() {
   // find an available slot for this pikmin
   int slot = 0;
-  while (slot < 100 and pikmin_[slot].active) { slot++; }
+  while (slot < 100 and pikmin_[slot].object.active) { slot++; }
   if (slot >= 100) {
     return nullptr; // fail; can't spawn more pikmin.
   }
 
+  PikminState& new_pikmin = pikmin_[slot].object;
+
   // clear the slot to defaults, then set the ID based on the slot chosen
-  pikmin_[slot] = PikminState();
-  pikmin_[slot].id = slot;
-  pikmin_[slot].active = true;
+  new_pikmin = PikminState();
+  new_pikmin.id = slot;
+  new_pikmin.active = true;
 
   // Perform allocation; similar to InitObject, minus the allocation for the
   // state
-  pikmin_[slot].entity = allocate_entity();
-  pikmin_[slot].body = pikmin_[slot].entity->body_handle().body;
-  pikmin_[slot].game = this;
-  const bool too_many_objects = pikmin_[slot].entity == nullptr;
+  new_pikmin.entity = allocate_entity();
+  new_pikmin.body = new_pikmin.entity->body_handle().body;
+  new_pikmin.game = this;
+  const bool too_many_objects = new_pikmin.entity == nullptr;
   if (too_many_objects) {
     return nullptr;
   }
-  return &pikmin_[slot];
+  return &pikmin_[slot].object;
 }
 
 template<>
 void PikminGame::RemoveObject<PikminState>(PikminState* object) {
   // similar to cleanup object, again minus the state allocation
   nocashMessage("Remove Pikmin Called");
-  pikmin_[object->id].active = false;
+  pikmin_[object->id].object.active = false;
   nocashMessage("Set Pikmin Inactive Succeeded");
   engine.RemoveEntity(object->entity);
   nocashMessage("Removed Pikmin from Engine!");
@@ -257,10 +260,10 @@ void PikminGame::Step() {
 
   ai_profilers_["Pikmin"].ClearTimingData();
   for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
-    if ((*i).active) {
-      pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
-      if (i->dead) {
-        RemoveObject(i);
+    if ((*i).object.active) {
+      pikmin_ai::machine.RunLogic((*i).object, &ai_profilers_["Pikmin"]);
+      if (i->object.dead) {
+        RemoveObject(&(i->object));
       }
     }
   }
@@ -319,7 +322,7 @@ OnionState* PikminGame::Onion(PikminType type) {
 int PikminGame::PikminInField() {
   int count = 0;
   for (int slot = 0; slot < 100; slot++) {
-    if (pikmin_[slot].active) {
+    if (pikmin_[slot].object.active) {
       count++;
     }
   }
@@ -331,7 +334,7 @@ PikminSave* PikminGame::CurrentSaveData() {
 }
 
 PikminState* PikminGame::Pikmin() {
-  return &pikmin_[0];
+  return &pikmin_[0].object;
 }
 
 const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {

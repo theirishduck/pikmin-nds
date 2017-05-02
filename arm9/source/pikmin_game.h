@@ -1,8 +1,10 @@
 #ifndef PIKMIN_GAME_H
 #define PIKMIN_GAME_H
 
-#include "multipass_engine.h"
+#include "handle.h"
 #include "drawable_entity.h"
+#include "multipass_engine.h"
+
 //#include "ai/captain.h"
 //#include "ai/fire_spout.h"
 //#include "ai/onion.h"
@@ -95,7 +97,7 @@ class PikminGame {
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
-  std::array<pikmin_ai::PikminState, 100> pikmin_;
+  std::array<HandleWrapper<pikmin_ai::PikminState>, 100> pikmin_;
   std::array<onion_ai::OnionState*, 3> onions_;
   int num_onions_{0};
   std::array<posy_ai::PosyState*, 32> posies_;
