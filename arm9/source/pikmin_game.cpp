@@ -92,206 +92,38 @@ DrawableEntity* PikminGame::allocate_entity() {
   return entities_.back();
 }
 
-template <>
-PosyState* PikminGame::SpawnObject<PosyState>() {
+template <typename StateType, unsigned int size>
+StateType* PikminGame::SpawnObject(std::array<StateType, size>& object_list, int type) {
   unsigned int slot = 0;
-  while (slot < posies_.size() and posies_[slot].active) {
+  while (slot < object_list.size() and object_list[slot].active) {
     slot++;
   }
-  if (slot >= posies_.size()) {
+  if (slot >= object_list.size()) {
     return nullptr;
   }
 
-  PosyState& new_posy = posies_[slot];
+  StateType& new_object = object_list[slot];
 
   // clear the slot to defaults, then set the ID based on the slot chosen
-  new_posy = PosyState();
-  new_posy.handle.id = slot;
-  new_posy.handle.generation = current_generation_;
-  new_posy.handle.type = PikminGame::kPelletPosy;
+  new_object = StateType();
+  new_object.handle.id = slot;
+  new_object.handle.generation = current_generation_;
+  new_object.handle.type = type;
 
-  new_posy.active = true;
+  new_object.active = true;
 
   // Perform allocation; similar to InitObject, minus the allocation for the
   // state
-  new_posy.entity = allocate_entity();
-  new_posy.body = new_posy.entity->body_handle().body;
-  new_posy.body->owner = &new_posy;
-  new_posy.game = this;
-  const bool too_many_objects = new_posy.entity == nullptr;
+  new_object.entity = allocate_entity();
+  new_object.body = new_object.entity->body_handle().body;
+  new_object.body->owner = &new_object;
+  new_object.game = this;
+  const bool too_many_objects = new_object.entity == nullptr;
   if (too_many_objects) {
     return nullptr;
   }
 
-  return &posies_[slot];
-}
-
-template <>
-StaticState* PikminGame::SpawnObject<StaticState>() {
-  unsigned int slot = 0;
-  while (slot < statics_.size() and statics_[slot].active) {
-    slot++;
-  }
-  if (slot >= statics_.size()) {
-    return nullptr;
-  }
-
-  StaticState& new_static = statics_[slot];
-
-  // clear the slot to defaults, then set the ID based on the slot chosen
-  new_static = StaticState();
-  new_static.handle.id = slot;
-  new_static.handle.generation = current_generation_;
-  new_static.handle.type = PikminGame::kStatic;
-
-  new_static.active = true;
-
-  // Perform allocation; similar to InitObject, minus the allocation for the
-  // state
-  new_static.entity = allocate_entity();
-  new_static.body = new_static.entity->body_handle().body;
-  new_static.body->owner = &new_static;
-  new_static.game = this;
-  const bool too_many_objects = new_static.entity == nullptr;
-  if (too_many_objects) {
-    return nullptr;
-  }
-
-  return &statics_[slot];
-}
-
-template <>
-TreasureState* PikminGame::SpawnObject<TreasureState>() {
-  unsigned int slot = 0;
-  while (slot < treasures_.size() and treasures_[slot].active) {
-    slot++;
-  }
-  if (slot >= posies_.size()) {
-    return nullptr;
-  }
-
-  TreasureState& new_treasure = treasures_[slot];
-
-  // clear the slot to defaults, then set the ID based on the slot chosen
-  new_treasure = TreasureState();
-  new_treasure.handle.id = slot;
-  new_treasure.handle.generation = current_generation_;
-  new_treasure.handle.type = PikminGame::kTreasure;
-
-  new_treasure.active = true;
-
-  // Perform allocation; similar to InitObject, minus the allocation for the
-  // state
-  new_treasure.entity = allocate_entity();
-  new_treasure.body = new_treasure.entity->body_handle().body;
-  new_treasure.body->owner = &new_treasure;
-  new_treasure.game = this;
-  const bool too_many_objects = new_treasure.entity == nullptr;
-  if (too_many_objects) {
-    return nullptr;
-  }
-
-  return &treasures_[slot];
-}
-
-template <>
-FireSpoutState* PikminGame::SpawnObject<FireSpoutState>() {
-  unsigned int slot = 0;
-  while (slot < fire_spouts_.size() and fire_spouts_[slot].active) {
-    slot++;
-  }
-  if (slot >= fire_spouts_.size()) {
-    return nullptr;
-  }
-
-  FireSpoutState& new_fire_spout = fire_spouts_[slot];
-
-  // clear the slot to defaults, then set the ID based on the slot chosen
-  new_fire_spout = FireSpoutState();
-  new_fire_spout.handle.id = slot;
-  new_fire_spout.handle.generation = current_generation_;
-  new_fire_spout.handle.type = PikminGame::kFireSpout;
-
-  new_fire_spout.active = true;
-
-  // Perform allocation; similar to InitObject, minus the allocation for the
-  // state
-  new_fire_spout.entity = allocate_entity();
-  new_fire_spout.body = new_fire_spout.entity->body_handle().body;
-  new_fire_spout.body->owner = &new_fire_spout;
-  new_fire_spout.game = this;
-  const bool too_many_objects = new_fire_spout.entity == nullptr;
-  if (too_many_objects) {
-    return nullptr;
-  }
-
-  return &fire_spouts_[slot];
-}
-
-template <>
-OnionState* PikminGame::SpawnObject<OnionState>() {
-  unsigned int slot = 0;
-  while (slot < onions_.size() and onions_[slot].active) {
-    slot++;
-  }
-  if (slot >= onions_.size()) {
-    return nullptr;
-  }
-
-  OnionState& new_onion = onions_[slot];
-
-  // clear the slot to defaults, then set the ID based on the slot chosen
-  new_onion = OnionState();
-  new_onion.handle.id = slot;
-  new_onion.handle.generation = current_generation_;
-  new_onion.handle.type = PikminGame::kOnion;
-
-  new_onion.active = true;
-
-  // Perform allocation; similar to InitObject, minus the allocation for the
-  // state
-  new_onion.entity = allocate_entity();
-  new_onion.body = new_onion.entity->body_handle().body;
-  new_onion.body->owner = &new_onion;
-  new_onion.game = this;
-  const bool too_many_objects = new_onion.entity == nullptr;
-  if (too_many_objects) {
-    return nullptr;
-  }
-
-  return &onions_[slot];
-}
-
-template <>
-PikminState* PikminGame::SpawnObject<PikminState>() {
-  // find an available slot for this pikmin
-  int slot = 0;
-  while (slot < 100 and pikmin_[slot].active) { slot++; }
-  if (slot >= 100) {
-    return nullptr; // fail; can't spawn more pikmin.
-  }
-
-  PikminState& new_pikmin = pikmin_[slot];
-
-  // clear the slot to defaults, then set the ID based on the slot chosen
-  new_pikmin = PikminState();
-  new_pikmin.handle.id = slot;
-  new_pikmin.handle.generation = current_generation_;
-  new_pikmin.handle.type = PikminGame::kPikmin;
-
-  new_pikmin.active = true;
-
-  // Perform allocation; similar to InitObject, minus the allocation for the
-  // state
-  new_pikmin.entity = allocate_entity();
-  new_pikmin.body = new_pikmin.entity->body_handle().body;
-  new_pikmin.body->owner = &new_pikmin;
-  new_pikmin.game = this;
-  const bool too_many_objects = new_pikmin.entity == nullptr;
-  if (too_many_objects) {
-    return nullptr;
-  }
-  return &pikmin_[slot];
+  return &object_list[slot];
 }
 
 template <typename StateType, unsigned int size>
@@ -313,8 +145,7 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
   }
 }
 
-template <>
-CaptainState* PikminGame::SpawnObject<CaptainState>() {
+CaptainState* PikminGame::SpawnCaptain() {
   if (captain_) {
     return captain_;
   }
@@ -361,42 +192,42 @@ void PikminGame::Step() {
   }
 
   ai_profilers_["Pikmin"].ClearTimingData();
-  for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
+  for (auto i = pikmin.begin(); i != pikmin.end(); i++) {
     if (i->active) {
       pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
       if (i->dead) {
-        RemoveObject(i->handle, pikmin_);
+        RemoveObject(i->handle, pikmin);
       }
     }
   }
 
-  for (unsigned int o = 0; o < onions_.size(); o++) {
-    onion_ai::machine.RunLogic(onions_[o]);
+  for (unsigned int o = 0; o < onions.size(); o++) {
+    onion_ai::machine.RunLogic(onions[o]);
   }
 
-  for (unsigned int p = 0; p < posies_.size(); p++) {
-    if (posies_[p].active) {
-      posy_ai::machine.RunLogic(posies_[p]);
-      if (posies_[p].dead) {
-        RemoveObject(posies_[p].handle, posies_);
+  for (unsigned int p = 0; p < posies.size(); p++) {
+    if (posies[p].active) {
+      posy_ai::machine.RunLogic(posies[p]);
+      if (posies[p].dead) {
+        RemoveObject(posies[p].handle, posies);
       }
     }
   }
 
-  for (unsigned int f = 0; f < fire_spouts_.size(); f++) {
-    if (fire_spouts_[f].active) {
-      fire_spout_ai::machine.RunLogic(fire_spouts_[f]);
-      if (fire_spouts_[f].dead) {
-        RemoveObject(fire_spouts_[f].handle, fire_spouts_);
+  for (unsigned int f = 0; f < fire_spouts.size(); f++) {
+    if (fire_spouts[f].active) {
+      fire_spout_ai::machine.RunLogic(fire_spouts[f]);
+      if (fire_spouts[f].dead) {
+        RemoveObject(fire_spouts[f].handle, fire_spouts);
       }
     }
   }
 
-  for (unsigned int t = 0; t < treasures_.size(); t++) {
-    if (treasures_[t].active) {
-      treasure_ai::machine.RunLogic(treasures_[t]);
-      if (treasures_[t].dead) {
-        RemoveObject<TreasureState>(treasures_[t].handle, treasures_);
+  for (unsigned int t = 0; t < treasures.size(); t++) {
+    if (treasures[t].active) {
+      treasure_ai::machine.RunLogic(treasures[t]);
+      if (treasures[t].dead) {
+        RemoveObject<TreasureState>(treasures[t].handle, treasures);
       }
     }
   }
@@ -413,9 +244,9 @@ CaptainState* PikminGame::ActiveCaptain() {
 }
 
 OnionState* PikminGame::Onion(PikminType type) {
-  for (unsigned int i = 0; i < onions_.size(); i++) {
-    if (onions_[i].pikmin_type == type) {
-      return &onions_[i];
+  for (unsigned int i = 0; i < onions.size(); i++) {
+    if (onions[i].pikmin_type == type) {
+      return &onions[i];
     }
   }
   return nullptr;
@@ -424,7 +255,7 @@ OnionState* PikminGame::Onion(PikminType type) {
 int PikminGame::PikminInField() {
   int count = 0;
   for (int slot = 0; slot < 100; slot++) {
-    if (pikmin_[slot].active) {
+    if (pikmin[slot].active) {
       count++;
     }
   }
@@ -436,51 +267,51 @@ PikminSave* PikminGame::CurrentSaveData() {
 }
 
 std::array<PikminState, 100>& PikminGame::PikminList() {
-  return pikmin_;
+  return pikmin;
 }
 
 const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {
   {"Enemy:PelletPosy", [](PikminGame* game) -> ObjectState* {
-    return game->SpawnObject<PosyState>();
+    return game->SpawnObject(game->posies, PikminGame::kPelletPosy);
   }},
   {"Pikmin:Red", [](PikminGame* game) -> ObjectState* {
-    auto pikmin = game->SpawnObject<PikminState>();
+    auto pikmin = game->SpawnObject(game->pikmin, PikminGame::kPikmin);
     pikmin->type = PikminType::kRedPikmin;
     return pikmin;
   }},
   {"Pikmin:Yellow", [](PikminGame* game) -> ObjectState* {
-    auto pikmin = game->SpawnObject<PikminState>();
+    auto pikmin = game->SpawnObject(game->pikmin, PikminGame::kPikmin);
     pikmin->type = PikminType::kYellowPikmin;
     return pikmin;
   }},
   {"Pikmin:Blue", [](PikminGame* game) -> ObjectState* {
-    auto pikmin = game->SpawnObject<PikminState>();
+    auto pikmin = game->SpawnObject(game->pikmin, PikminGame::kPikmin);
     pikmin->type = PikminType::kBluePikmin;
     return pikmin;
   }},
   {"Onion:Red", [](PikminGame* game) -> ObjectState* {
-    auto onion = game->SpawnObject<OnionState>();
+    auto onion = game->SpawnObject(game->onions, PikminGame::kOnion);
     onion->pikmin_type = PikminType::kRedPikmin;
     return onion;
   }},
   {"Onion:Yellow", [](PikminGame* game) -> ObjectState* {
-    auto onion = game->SpawnObject<OnionState>();
+    auto onion = game->SpawnObject(game->onions, PikminGame::kOnion);
     onion->pikmin_type = PikminType::kYellowPikmin;
     return onion;
   }},
   {"Onion:Blue", [](PikminGame* game) -> ObjectState* {
-    auto onion = game->SpawnObject<OnionState>();
+    auto onion = game->SpawnObject(game->onions, PikminGame::kOnion);
     onion->pikmin_type = PikminType::kBluePikmin;
     return onion;
   }},
   {"Hazard:FireSpout", [](PikminGame* game) -> ObjectState* {
-    return game->SpawnObject<FireSpoutState>();
+    return game->SpawnObject(game->fire_spouts, PikminGame::kFireSpout);
   }},
   {"Static", [](PikminGame* game) -> ObjectState* {
-    return game->SpawnObject<StaticState>();
+    return game->SpawnObject(game->statics, PikminGame::kStatic);
   }},
   {"Corpse:Pellet", [](PikminGame* game) -> TreasureState* {
-    auto treasure = game->SpawnObject<TreasureState>();
+    auto treasure = game->SpawnObject(game->treasures, PikminGame::kTreasure);
     treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
     treasure->entity->body_handle().body->radius = 2_f;
     return treasure;

@@ -46,7 +46,7 @@ void InitAlways(OnionState& onion) {
 void HandleWithdrawingPikmin(OnionState& onion) {
   if (onion.withdraw_count > 0) {
     // Spawn in a pikmin of the appropriate type!
-    auto pikmin = onion.game->SpawnObject<pikmin_ai::PikminState>();
+    auto pikmin = onion.game->Spawn<pikmin_ai::PikminState>("Pikmin:Red");
     if (pikmin!= nullptr) {
       pikmin->type = onion.pikmin_type;
 
@@ -117,7 +117,7 @@ void EjectSeeds(OnionState& onion) {
 
   for (int i = 0; i < seeds_to_eject; i++) {
     // Spawn in a pikmin, as a seed!
-    pikmin_ai::PikminState* pikmin = onion.game->SpawnObject<pikmin_ai::PikminState>();
+    pikmin_ai::PikminState* pikmin = onion.game->Spawn<pikmin_ai::PikminState>("Pikmin:Red");
     if (pikmin == nullptr) {
       onion.game->CurrentSaveData()->AddPikmin(onion.pikmin_type, 1);
     } else {

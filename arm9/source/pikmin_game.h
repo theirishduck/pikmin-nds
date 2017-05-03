@@ -55,8 +55,10 @@ class PikminGame {
   bool IsPaused();
   MultipassEngine& Engine();
 
-  template <typename StateType>
-  StateType* SpawnObject();
+  captain_ai::CaptainState* SpawnCaptain();
+
+  template <typename StateType, unsigned int size>
+  StateType* SpawnObject(std::array<StateType, size>& object_list, int type);
 
   template <typename StateType, unsigned int size>
   void RemoveObject(Handle handle, std::array<StateType, size>& object_list);
@@ -89,6 +91,13 @@ class PikminGame {
 
   debug::Dictionary& DebugDictionary();
   std::map<std::string, debug::AiProfiler>& DebugAiProfilers();
+
+  std::array<pikmin_ai::PikminState, 100> pikmin;
+  std::array<onion_ai::OnionState, 3> onions;
+  std::array<posy_ai::PosyState, 32> posies;
+  std::array<fire_spout_ai::FireSpoutState, 16> fire_spouts;
+  std::array<static_ai::StaticState, 16> statics;
+  std::array<treasure_ai::TreasureState, 16> treasures;
  private:
   int current_generation_ = 0;
   bool paused_ = false;
@@ -101,14 +110,8 @@ class PikminGame {
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
 
-  std::array<pikmin_ai::PikminState, 100> pikmin_;
-  std::array<onion_ai::OnionState, 3> onions_;
-  std::array<posy_ai::PosyState, 32> posies_;
-  std::array<fire_spout_ai::FireSpoutState, 16> fire_spouts_;
-  std::array<static_ai::StaticState, 16> statics_;
-  std::array<treasure_ai::TreasureState, 16> treasures_;
-
   captain_ai::CaptainState* captain_;
+
   ui::UIState ui_;
 
   DrawableEntity* allocate_entity();
