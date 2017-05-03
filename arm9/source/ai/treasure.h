@@ -22,7 +22,6 @@ struct TreasureState : ObjectState {
   DestinationType destination{DestinationType::kNone};
   int lift_timer{0};
   bool is_corpse{true}; // Corpses go to onions, treasures go to the ship
-  bool active{true};
   bool carryable{true};
   int pokos{0}; // Treasure worth, in pokos
   int pikmin_seeds{10};  // Treasure worth, in pikmin seeds

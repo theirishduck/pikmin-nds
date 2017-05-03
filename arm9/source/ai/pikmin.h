@@ -40,8 +40,6 @@ enum PikminNode {
 
 struct PikminState : ObjectState {
   PikminType type = PikminType::kRedPikmin;
-  int id = 0;
-  bool active; // Used by the allocator to flag unused slots
   squad_ai::SquadState* current_squad{nullptr};
 
   //parent: used for being thrown (and later chewed?)

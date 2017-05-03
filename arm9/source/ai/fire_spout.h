@@ -11,7 +11,6 @@ struct FireSpoutState : ObjectState {
   physics::Body* detection;
   int flame_timer{0};
   int health{50};
-  bool active{true};
 };
 
 extern StateMachine<FireSpoutState> machine;

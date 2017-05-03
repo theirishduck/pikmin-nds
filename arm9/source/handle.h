@@ -9,7 +9,7 @@ public:
   unsigned int id;
   unsigned int generation;
   unsigned int type;
-  bool IsHandleValid(Handle other) {
+  bool Matches(Handle other) {
     return id == other.id and generation == other.generation and type == other.type;
   }
 };

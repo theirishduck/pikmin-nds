@@ -15,13 +15,14 @@ class PikminGame;
 
 struct ObjectState {
   Handle handle;
+  bool active = false; // Used by the allocator to flag unused slots
+  bool dead = false;
   PikminGame* game = nullptr;
   DrawableEntity* entity = nullptr;
   physics::Body* body;
   int current_node = 0;
   int frames_alive = 0;
   int frames_at_this_node = 0;
-  bool dead = false;
 
   Vec3 position() const {
     return body->position;

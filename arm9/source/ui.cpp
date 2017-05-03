@@ -283,6 +283,7 @@ void UpdateOnionUI(UIState& ui) {
 
   auto captain = ui.game->ActiveCaptain();
   auto onion = captain->active_onion;
+    
   if (onion->pikmin_type == PikminType::kRedPikmin) {
     printf("Red Pikmin: ");
   }

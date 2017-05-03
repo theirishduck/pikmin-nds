@@ -5,22 +5,14 @@
 #include "drawable_entity.h"
 #include "multipass_engine.h"
 
-//#include "ai/captain.h"
-//#include "ai/fire_spout.h"
-//#include "ai/onion.h"
-//namespace onion_ai {
-//struct OnionState;
-//}
+#include "ai/captain.h"
+#include "ai/fire_spout.h"
+#include "ai/onion.h"
 #include "ai/pikmin.h"
-//#include "ai/pellet_posy.h"
-//#include "ai/static.h"
-//#include "ai/treasure.h"
-namespace captain_ai { struct CaptainState; }
-namespace fire_spout_ai { struct FireSpoutState; }
-namespace onion_ai { struct OnionState; }
-namespace posy_ai { struct PosyState;}
-namespace treasure_ai { struct TreasureState; }
-namespace static_ai { struct StaticState; }
+#include "ai/pellet_posy.h"
+#include "ai/static.h"
+#include "ai/treasure.h"
+
 #include "ui.h"
 #include <list>
 #include <map>
@@ -42,6 +34,15 @@ struct PikminSave {
 
 class PikminGame {
  public:
+   enum ObjectType {
+     kPikmin = 0,
+     kPelletPosy,
+     kStatic,
+     kTreasure,
+     kFireSpout,
+     kOnion
+   };
+
   using SpawnMap = std::map<std::string, std::function<ObjectState*(PikminGame*)>>;
 
   PikminGame(MultipassEngine& engine);
@@ -57,8 +58,10 @@ class PikminGame {
   template <typename StateType>
   StateType* SpawnObject();
 
-  template <typename StateType>
-  void RemoveObject(StateType* object);
+  template <typename StateType, unsigned int size>
+  void RemoveObject(Handle handle, std::array<StateType, size>& object_list);
+
+  void RemoveObject(captain_ai::CaptainState* captain_state);
 
   void Step();
   VramAllocator<Texture>* TextureAllocator();
@@ -87,6 +90,7 @@ class PikminGame {
   debug::Dictionary& DebugDictionary();
   std::map<std::string, debug::AiProfiler>& DebugAiProfilers();
  private:
+  int current_generation_ = 0;
   bool paused_ = false;
   PikminSave current_save_data_;
   static const SpawnMap spawn_;
@@ -98,16 +102,11 @@ class PikminGame {
   std::list<DrawableEntity*> entities_;
 
   std::array<pikmin_ai::PikminState, 100> pikmin_;
-  std::array<onion_ai::OnionState*, 3> onions_;
-  int num_onions_{0};
-  std::array<posy_ai::PosyState*, 32> posies_;
-  int num_posies_{0};
-  std::array<fire_spout_ai::FireSpoutState*, 32> fire_spouts_;
-  int num_fire_spouts_{0};
-  std::array<static_ai::StaticState*, 128> statics_;
-  int num_statics_{0};
-  std::array<treasure_ai::TreasureState*, 128> treasures_;
-  int num_treasures_{0};
+  std::array<onion_ai::OnionState, 3> onions_;
+  std::array<posy_ai::PosyState, 32> posies_;
+  std::array<fire_spout_ai::FireSpoutState, 16> fire_spouts_;
+  std::array<static_ai::StaticState, 16> statics_;
+  std::array<treasure_ai::TreasureState, 16> treasures_;
 
   captain_ai::CaptainState* captain_;
   ui::UIState ui_;
