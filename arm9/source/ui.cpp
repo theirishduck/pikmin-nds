@@ -72,8 +72,8 @@ void UpdateMapIcons(UIState& ui) {
   auto pikmin = ui.game->PikminList();
   auto olimar_position = ui.game->ActiveCaptain()->position();
   for (int slot = 0; slot < 100; slot++) {
-    if (pikmin[slot].object.active) {
-      auto& current_pikmin = pikmin[slot].object;
+    if (pikmin[slot].active) {
+      auto& current_pikmin = pikmin[slot];
       // calculate the on-screen position of these pikmin
       auto position = current_pikmin.position();
       int x = (int)(position.x - olimar_position.x) * 2 + 128;

@@ -9,16 +9,8 @@ public:
   unsigned int id;
   unsigned int generation;
   unsigned int type;
-};
-
-template <typename ObjectType>
-struct HandleWrapper {
-public:
-  Handle handle;
-  ObjectType object;
-
   bool IsHandleValid(Handle other) {
-    return handle.id == other.id and handle.generation == other.generation and handle.type == other.type;
+    return id == other.id and generation == other.generation and type == other.type;
   }
 };
 

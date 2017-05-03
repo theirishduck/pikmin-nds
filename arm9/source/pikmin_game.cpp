@@ -172,12 +172,12 @@ template <>
 PikminState* PikminGame::SpawnObject<PikminState>() {
   // find an available slot for this pikmin
   int slot = 0;
-  while (slot < 100 and pikmin_[slot].object.active) { slot++; }
+  while (slot < 100 and pikmin_[slot].active) { slot++; }
   if (slot >= 100) {
     return nullptr; // fail; can't spawn more pikmin.
   }
 
-  PikminState& new_pikmin = pikmin_[slot].object;
+  PikminState& new_pikmin = pikmin_[slot];
 
   // clear the slot to defaults, then set the ID based on the slot chosen
   new_pikmin = PikminState();
@@ -193,14 +193,14 @@ PikminState* PikminGame::SpawnObject<PikminState>() {
   if (too_many_objects) {
     return nullptr;
   }
-  return &pikmin_[slot].object;
+  return &pikmin_[slot];
 }
 
 template<>
 void PikminGame::RemoveObject<PikminState>(PikminState* object) {
   // similar to cleanup object, again minus the state allocation
   nocashMessage("Remove Pikmin Called");
-  pikmin_[object->id].object.active = false;
+  pikmin_[object->id].active = false;
   nocashMessage("Set Pikmin Inactive Succeeded");
   engine.RemoveEntity(object->entity);
   nocashMessage("Removed Pikmin from Engine!");
@@ -260,10 +260,10 @@ void PikminGame::Step() {
 
   ai_profilers_["Pikmin"].ClearTimingData();
   for (auto i = pikmin_.begin(); i != pikmin_.end(); i++) {
-    if ((*i).object.active) {
-      pikmin_ai::machine.RunLogic((*i).object, &ai_profilers_["Pikmin"]);
-      if (i->object.dead) {
-        RemoveObject(&(i->object));
+    if (i->active) {
+      pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
+      if (i->dead) {
+        RemoveObject(i);
       }
     }
   }
@@ -322,7 +322,7 @@ OnionState* PikminGame::Onion(PikminType type) {
 int PikminGame::PikminInField() {
   int count = 0;
   for (int slot = 0; slot < 100; slot++) {
-    if (pikmin_[slot].object.active) {
+    if (pikmin_[slot].active) {
       count++;
     }
   }
@@ -333,7 +333,7 @@ PikminSave* PikminGame::CurrentSaveData() {
   return &current_save_data_;
 }
 
-std::array<PikminWrapper, 100>& PikminGame::PikminList() {
+std::array<PikminState, 100>& PikminGame::PikminList() {
   return pikmin_;
 }
 
