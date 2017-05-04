@@ -43,7 +43,7 @@ void GoodbyeCruelWorld(PosyState& posy) {
   posy.dead = true;
 
   // Spawn in the pellet
-  auto pellet = posy.game->Spawn<treasure_ai::TreasureState>("Corpse:Pellet");
+  auto pellet = posy.game->RetrieveTreasure(posy.game->Spawn("Corpse:Pellet"));
   pellet->set_position(posy.position());
 }
 

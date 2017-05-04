@@ -20,6 +20,8 @@
 #include "debug/ai_profiler.h"
 #include "debug/utilities.h"
 #include "debug/dictionary.h"
+#include "numeric_types.h"
+#include "vector.h"
 #include "vram_allocator.h"
 #include "dsgx_allocator.h"
 
@@ -35,7 +37,9 @@ struct PikminSave {
 class PikminGame {
  public:
    enum ObjectType {
-     kPikmin = 0,
+     kNone = 0, // Default, useful as an error type. This should never retrieve any object.
+     kCaptain,
+     kPikmin,
      kPelletPosy,
      kStatic,
      kTreasure,
@@ -55,15 +59,11 @@ class PikminGame {
   bool IsPaused();
   MultipassEngine& Engine();
 
-  captain_ai::CaptainState* SpawnCaptain();
-
   template <typename StateType, unsigned int size>
-  StateType* SpawnObject(std::array<StateType, size>& object_list, int type);
+  Handle SpawnObject(std::array<StateType, size>& object_list, int type);
 
   template <typename StateType, unsigned int size>
   void RemoveObject(Handle handle, std::array<StateType, size>& object_list);
-
-  void RemoveObject(captain_ai::CaptainState* captain_state);
 
   void Step();
   VramAllocator<Texture>* TextureAllocator();
@@ -72,7 +72,6 @@ class PikminGame {
   DsgxAllocator* ActorAllocator();
 
   //useful polling functions
-  captain_ai::CaptainState* ActiveCaptain();
   int PikminInField();
   int TotalPikmin();
   std::array<pikmin_ai::PikminState, 100>& PikminList();
@@ -82,22 +81,40 @@ class PikminGame {
   onion_ai::OnionState* Onion(pikmin_ai::PikminType type);
 
   //name-based spawning, for level loading and happy debuggers
-  template<typename StateType = ObjectState>
-  StateType* Spawn(const std::string& name) {
-    return reinterpret_cast<StateType*>(spawn_.at(name)(this));
-  }
+  Handle Spawn(const std::string& name, Vec3 position = Vec3{}, Rotation rotation = Rotation{});
 
   static std::pair<SpawnMap::const_iterator, SpawnMap::const_iterator> SpawnNames();
 
   debug::Dictionary& DebugDictionary();
   std::map<std::string, debug::AiProfiler>& DebugAiProfilers();
 
-  std::array<pikmin_ai::PikminState, 100> pikmin;
-  std::array<onion_ai::OnionState, 3> onions;
-  std::array<posy_ai::PosyState, 32> posies;
+  // Lists to hold each type of object, and retrieval functions for each
   std::array<fire_spout_ai::FireSpoutState, 16> fire_spouts;
+  fire_spout_ai::FireSpoutState* RetrieveFireSpout(Handle handle);
+
+  std::array<onion_ai::OnionState, 3> onions;
+  onion_ai::OnionState* RetrieveOnion(Handle handle);
+
+  std::array<pikmin_ai::PikminState, 100> pikmin;
+  pikmin_ai::PikminState* RetrievePikmin(Handle handle);
+
+  std::array<posy_ai::PosyState, 32> posies;
+  posy_ai::PosyState* RetrievePelletPosy(Handle handle);
+
   std::array<static_ai::StaticState, 16> statics;
+  static_ai::StaticState* RetrieveStatic(Handle handle);
+
   std::array<treasure_ai::TreasureState, 16> treasures;
+  treasure_ai::TreasureState* RetrieveTreasure(Handle handle);
+
+  std::array<captain_ai::CaptainState, 1> captains;
+  captain_ai::CaptainState* RetrieveCaptain(Handle handle);
+
+  // The player character is a bit of a special case
+  Handle SpawnCaptain();
+  void RemoveCaptain(Handle handle);
+  Handle ActiveCaptain();
+
  private:
   int current_generation_ = 0;
   bool paused_ = false;
@@ -109,8 +126,6 @@ class PikminGame {
   DsgxAllocator dsgx_allocator_;
   const u32 kMaxEntities = 256;
   std::list<DrawableEntity*> entities_;
-
-  captain_ai::CaptainState* captain_;
 
   ui::UIState ui_;
 

@@ -368,7 +368,7 @@ void EnterOnion(PikminState& pikmin) {
 
 void WhistleOffOnion(PikminState& pikmin) {
   pikmin.body->affected_by_gravity = true;
-  pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
+  pikmin.game->RetrieveCaptain(pikmin.game->ActiveCaptain())->squad.AddPikmin(&pikmin);
   pikmin.body->velocity.y = 0.5_f;
 }
 
@@ -376,7 +376,7 @@ void HopOffFoot(PikminState& pikmin) {
   pikmin.body->affected_by_gravity = true;
   pikmin.body->velocity.y = 1.0_f;
 
-  pikmin.game->ActiveCaptain()->squad.AddPikmin(&pikmin);
+  pikmin.game->RetrieveCaptain(pikmin.game->ActiveCaptain())->squad.AddPikmin(&pikmin);
 }
 
 bool CollideWithValidTreasure(const PikminState& pikmin) {

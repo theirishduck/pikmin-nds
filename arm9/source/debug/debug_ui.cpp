@@ -129,11 +129,11 @@ void UpdateDebugSpawners(DebugUiState& debug_ui) {
       debug_ui.current_spawner--;
     } else {
       //Spawn a thingy!!
-      ObjectState* object = debug_ui.game->Spawn(debug_ui.current_spawner->first);
-      object->set_position(debug_ui.game->ActiveCaptain()->cursor->position());
-      auto object_rotation = debug_ui.game->ActiveCaptain()->cursor->rotation();
-      object_rotation.y += 180_brad;
-      object->entity->set_rotation(object_rotation);
+      auto active_captain = debug_ui.game->RetrieveCaptain(debug_ui.game->ActiveCaptain());
+      Vec3 new_position = active_captain->cursor->position();
+      Rotation new_rotation = active_captain->cursor->rotation();
+      new_rotation.y += 180_brad;
+      debug_ui.game->Spawn(debug_ui.current_spawner->first, new_position, new_rotation);
     }
   }
 

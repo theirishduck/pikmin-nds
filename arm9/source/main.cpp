@@ -274,32 +274,34 @@ void SetupDemoStage(PikminGame& game) {
   game.Engine().World().SetHeightmap(checkerboard_height_bin);
 
   //spawn in an onion!
-  auto red_onion = game.Spawn<OnionState>("Onion:Red");
-  red_onion->set_position(Vec3{64_f, 0_f, -32_f});
+  auto red_onion = game.RetrieveOnion(game.Spawn("Onion:Red"));
+  if (red_onion) { red_onion->set_position(Vec3{64_f, 0_f, -32_f}); }
 
   //spawn in a yellow onion too!
-  auto yellow_onion = game.Spawn<OnionState>("Onion:Yellow");
-  yellow_onion->set_position(Vec3{96_f, 0_f, -64_f});
+  auto yellow_onion = game.RetrieveOnion(game.Spawn("Onion:Yellow"));
+  if (yellow_onion) { yellow_onion->set_position(Vec3{96_f, 0_f, -64_f}); }
 
   //spawn in a blue onion while we're at it
-  auto blue_onion = game.Spawn<OnionState>("Onion:Blue");;
-  blue_onion->set_position(Vec3{64_f, 0_f, -96_f});
+  auto blue_onion = game.RetrieveOnion(game.Spawn("Onion:Blue"));
+  if (blue_onion) { blue_onion->set_position(Vec3{64_f, 0_f, -96_f}); }
 
   //auto posy = g_game.SpawnObject<PosyState>();
-  auto posy = game.Spawn<PosyState>("Enemy:PelletPosy");
-  posy->set_position(Vec3{44_f, 0_f, -72_f});
+  auto posy = game.RetrievePelletPosy(game.Spawn("Enemy:PelletPosy"));
+  if (posy) { posy->set_position(Vec3{44_f, 0_f, -72_f}); }
 
-  auto fire_spout = game.Spawn<FireSpoutState>("Hazard:FireSpout");
-  fire_spout->set_position(Vec3{64_f, 0_f, -64_f});
+  auto fire_spout = game.RetrieveFireSpout(game.Spawn("Hazard:FireSpout"));
+  if (fire_spout) { fire_spout->set_position(Vec3{64_f, 0_f, -64_f}); }
 
-  auto pellet = game.Spawn<TreasureState>("Corpse:Pellet");
-  pellet->set_position(Vec3{54_f, 0_f, -64_f});
+  auto pellet = game.RetrieveTreasure(game.Spawn("Corpse:Pellet"));
+  if (pellet) { pellet->set_position(Vec3{54_f, 0_f, -64_f}); }
 }
 
 void InitCaptain(PikminGame& game) {
-  CaptainState* captain = game.SpawnCaptain();
-  game.Engine().camera()->FollowCaptain(captain);
-  captain->set_position(Vec3{64_f,0_f,-62_f});
+  CaptainState* captain = game.RetrieveCaptain(game.SpawnCaptain());
+  if (captain) {
+    game.Engine().camera()->FollowCaptain(captain);
+    captain->set_position(Vec3{64_f,0_f,-62_f});
+  }
 }
 
 void Init(PikminGame& game) {

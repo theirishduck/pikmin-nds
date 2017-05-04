@@ -70,7 +70,7 @@ void UpdateMapIcons(UIState& ui) {
   auto blue_dot = ui.game->SpriteAllocator()->Retrieve("blue_dot").offset;
 
   auto pikmin = ui.game->PikminList();
-  auto olimar_position = ui.game->ActiveCaptain()->position();
+  auto olimar_position = ui.game->RetrieveCaptain(ui.game->ActiveCaptain())->position();
   for (int slot = 0; slot < 100; slot++) {
     if (pikmin[slot].active) {
       auto& current_pikmin = pikmin[slot];
@@ -134,7 +134,7 @@ void UpdatePikminSelector(UIState& ui, int index) {
       ui.game->SpriteAllocator()->Retrieve("bluebutton").offset);
 
   // Decide which version to display
-  auto next_pikmin = ui.game->ActiveCaptain()->squad.NextPikmin();
+  auto next_pikmin = ui.game->RetrieveCaptain(ui.game->ActiveCaptain())->squad.NextPikmin();
   if (next_pikmin and next_pikmin->type == PikminType::kRedPikmin) {
     // Use the lit texture
     memcpy(&SPRITE_PALETTE_SUB[16], red_button_light_pal_bin, red_button_light_pal_bin_size);
@@ -220,7 +220,7 @@ void UpdateNavPad(UIState& ui) {
   //auto profiler = ui.game->Engine().DebugProfiler();
   ui.game->Engine().DebugProfiler().StartTopic(ui.debug_topic_id);
   // Update pikmin counts
-  BubbleNumber(100, 70,  168, ui.game->ActiveCaptain()->squad.squad_size, 3);
+  BubbleNumber(100, 70,  168, ui.game->RetrieveCaptain(ui.game->ActiveCaptain())->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->TotalPikmin(), 3);
   UpdatePikminSelector(ui, 109);
@@ -230,7 +230,7 @@ void UpdateNavPad(UIState& ui) {
 
 bool OpenOnionUI(const UIState& ui) {
   if (keysDown() & KEY_A) {
-    auto captain = ui.game->ActiveCaptain();
+    auto captain = ui.game->RetrieveCaptain(ui.game->ActiveCaptain());
     if (captain->active_onion) {
       return true;
     }
@@ -281,9 +281,9 @@ bool PauseButtonPressed(const UIState& ui) {
 void UpdateOnionUI(UIState& ui) {
   printf("\x1b[2J");
 
-  auto captain = ui.game->ActiveCaptain();
+  auto captain = ui.game->RetrieveCaptain(ui.game->ActiveCaptain());
   auto onion = captain->active_onion;
-    
+
   if (onion->pikmin_type == PikminType::kRedPikmin) {
     printf("Red Pikmin: ");
   }
@@ -349,11 +349,11 @@ bool CancelOnionUI(const UIState& ui) {
 
 void ApplyOnionDelta(UIState& ui) {
   if (ui.pikmin_delta > 0) {
-    ui.game->ActiveCaptain()->active_onion->withdraw_count = ui.pikmin_delta;
+    ui.game->RetrieveCaptain(ui.game->ActiveCaptain())->active_onion->withdraw_count = ui.pikmin_delta;
   }
   if (ui.pikmin_delta < 0) {
     //TODO: Handle this using pikmin states instead of removing them here
-    auto captain = ui.game->ActiveCaptain();
+    auto captain = ui.game->RetrieveCaptain(ui.game->ActiveCaptain());
     auto active_onion = captain->active_onion;
     int squad_index = 0;
     while (squad_index < captain->squad.squad_size and ui.pikmin_delta < 0) {

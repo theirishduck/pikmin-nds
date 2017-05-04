@@ -6,9 +6,9 @@
 
 struct Handle {
 public:
-  unsigned int id;
-  unsigned int generation;
-  unsigned int type;
+  unsigned int id{0};
+  unsigned int generation{0};
+  unsigned int type{0};
   bool Matches(Handle other) {
     return id == other.id and generation == other.generation and type == other.type;
   }

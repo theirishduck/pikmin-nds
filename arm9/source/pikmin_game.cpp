@@ -93,13 +93,13 @@ DrawableEntity* PikminGame::allocate_entity() {
 }
 
 template <typename StateType, unsigned int size>
-StateType* PikminGame::SpawnObject(std::array<StateType, size>& object_list, int type) {
+Handle PikminGame::SpawnObject(std::array<StateType, size>& object_list, int type) {
   unsigned int slot = 0;
   while (slot < object_list.size() and object_list[slot].active) {
     slot++;
   }
   if (slot >= object_list.size()) {
-    return nullptr;
+    return Handle();
   }
 
   StateType& new_object = object_list[slot];
@@ -120,10 +120,10 @@ StateType* PikminGame::SpawnObject(std::array<StateType, size>& object_list, int
   new_object.game = this;
   const bool too_many_objects = new_object.entity == nullptr;
   if (too_many_objects) {
-    return nullptr;
+    return Handle();
   }
 
-  return &object_list[slot];
+  return new_object.handle;
 }
 
 template <typename StateType, unsigned int size>
@@ -145,23 +145,101 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
   }
 }
 
-CaptainState* PikminGame::SpawnCaptain() {
-  if (captain_) {
-    return captain_;
+Handle PikminGame::SpawnCaptain() {
+  CaptainState* captain = RetrieveCaptain(SpawnObject(captains, PikminGame::kCaptain));
+  if (captain) {
+    captain->cursor = allocate_entity();
+    captain->whistle = allocate_entity();
+    captain->squad.captain = captain;
+  } else {
+    // How did we fail here?
   }
-  captain_ = InitObject<CaptainState>();
-  captain_->cursor = allocate_entity();
-  captain_->whistle = allocate_entity();
-  captain_->squad.captain = captain_;
-  return captain_;
+  return captain->handle;
 }
 
-void PikminGame::RemoveObject(CaptainState* object) {
-  engine.RemoveEntity(object->cursor);
-  entities_.remove(object->cursor);
-  delete object->cursor;
-  captain_ = nullptr;
-  CleanupObject(object);
+void PikminGame::RemoveCaptain(Handle handle) {
+  CaptainState* captain = RetrieveCaptain(handle);
+  if (captain) {
+    engine.RemoveEntity(captain->cursor);
+    entities_.remove(captain->cursor);
+    delete captain->cursor;
+
+    engine.RemoveEntity(captain->whistle);
+    entities_.remove(captain->whistle);
+    delete captain->whistle;
+
+    RemoveObject(handle, captains);
+  }
+}
+
+CaptainState* PikminGame::RetrieveCaptain(Handle handle) {
+  if (handle.id < captains.size()) {
+    auto object = &captains[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+FireSpoutState* PikminGame::RetrieveFireSpout(Handle handle) {
+  if (handle.id < fire_spouts.size()) {
+    auto object = &fire_spouts[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+OnionState* PikminGame::RetrieveOnion(Handle handle) {
+  if (handle.id < onions.size()) {
+    auto object = &onions[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+PikminState* PikminGame::RetrievePikmin(Handle handle) {
+  if (handle.id < pikmin.size()) {
+    auto object = &pikmin[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+PosyState* PikminGame::RetrievePelletPosy(Handle handle) {
+  if (handle.id < posies.size()) {
+    auto object = &posies[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+StaticState* PikminGame::RetrieveStatic(Handle handle) {
+  if (handle.id < statics.size()) {
+    auto object = &statics[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+TreasureState* PikminGame::RetrieveTreasure(Handle handle) {
+  if (handle.id < treasures.size()) {
+    auto object = &treasures[handle.id];
+    if (object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
 }
 
 void PikminGame::PauseGame() {
@@ -186,9 +264,14 @@ void PikminGame::Step() {
   }
 
   engine.DebugProfiler().StartTopic(tAI);
-  if (captain_) {
-    captain_ai::machine.RunLogic(*captain_);
-    squad_ai::machine.RunLogic((*captain_).squad);
+  for (auto i = captains.begin(); i != captains.end(); i++) {
+    if (i->active) {
+      captain_ai::machine.RunLogic(*i);
+      squad_ai::machine.RunLogic((*i).squad);
+      if (i->dead) {
+        RemoveCaptain(i->handle);
+      }
+    }
   }
 
   ai_profilers_["Pikmin"].ClearTimingData();
@@ -239,8 +322,8 @@ void PikminGame::Step() {
   DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());
 }
 
-CaptainState* PikminGame::ActiveCaptain() {
-  return captain_;
+Handle PikminGame::ActiveCaptain() {
+  return captains[0].handle;
 }
 
 OnionState* PikminGame::Onion(PikminType type) {
@@ -272,46 +355,46 @@ std::array<PikminState, 100>& PikminGame::PikminList() {
 
 const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame::spawn_ = {
   {"Enemy:PelletPosy", [](PikminGame* game) -> ObjectState* {
-    return game->SpawnObject(game->posies, PikminGame::kPelletPosy);
+    return game->RetrievePelletPosy(game->SpawnObject(game->posies, PikminGame::kPelletPosy));
   }},
   {"Pikmin:Red", [](PikminGame* game) -> ObjectState* {
-    auto pikmin = game->SpawnObject(game->pikmin, PikminGame::kPikmin);
+    auto pikmin = game->RetrievePikmin(game->SpawnObject(game->pikmin, PikminGame::kPikmin));
     pikmin->type = PikminType::kRedPikmin;
     return pikmin;
   }},
   {"Pikmin:Yellow", [](PikminGame* game) -> ObjectState* {
-    auto pikmin = game->SpawnObject(game->pikmin, PikminGame::kPikmin);
+    auto pikmin = game->RetrievePikmin(game->SpawnObject(game->pikmin, PikminGame::kPikmin));
     pikmin->type = PikminType::kYellowPikmin;
     return pikmin;
   }},
   {"Pikmin:Blue", [](PikminGame* game) -> ObjectState* {
-    auto pikmin = game->SpawnObject(game->pikmin, PikminGame::kPikmin);
+    auto pikmin = game->RetrievePikmin(game->SpawnObject(game->pikmin, PikminGame::kPikmin));
     pikmin->type = PikminType::kBluePikmin;
     return pikmin;
   }},
   {"Onion:Red", [](PikminGame* game) -> ObjectState* {
-    auto onion = game->SpawnObject(game->onions, PikminGame::kOnion);
+    auto onion = game->RetrieveOnion(game->SpawnObject(game->onions, PikminGame::kOnion));
     onion->pikmin_type = PikminType::kRedPikmin;
     return onion;
   }},
   {"Onion:Yellow", [](PikminGame* game) -> ObjectState* {
-    auto onion = game->SpawnObject(game->onions, PikminGame::kOnion);
+    auto onion = game->RetrieveOnion(game->SpawnObject(game->onions, PikminGame::kOnion));
     onion->pikmin_type = PikminType::kYellowPikmin;
     return onion;
   }},
   {"Onion:Blue", [](PikminGame* game) -> ObjectState* {
-    auto onion = game->SpawnObject(game->onions, PikminGame::kOnion);
+    auto onion = game->RetrieveOnion(game->SpawnObject(game->onions, PikminGame::kOnion));
     onion->pikmin_type = PikminType::kBluePikmin;
     return onion;
   }},
   {"Hazard:FireSpout", [](PikminGame* game) -> ObjectState* {
-    return game->SpawnObject(game->fire_spouts, PikminGame::kFireSpout);
+    return game->RetrieveFireSpout(game->SpawnObject(game->fire_spouts, PikminGame::kFireSpout));
   }},
   {"Static", [](PikminGame* game) -> ObjectState* {
-    return game->SpawnObject(game->statics, PikminGame::kStatic);
+    return game->RetrieveStatic(game->SpawnObject(game->statics, PikminGame::kStatic));
   }},
-  {"Corpse:Pellet", [](PikminGame* game) -> TreasureState* {
-    auto treasure = game->SpawnObject(game->treasures, PikminGame::kTreasure);
+  {"Corpse:Pellet", [](PikminGame* game) -> ObjectState* {
+    auto treasure = game->RetrieveTreasure(game->SpawnObject(game->treasures, PikminGame::kTreasure));
     treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
     treasure->entity->body_handle().body->radius = 2_f;
     return treasure;
@@ -320,6 +403,13 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
 
 std::pair<PikminGame::SpawnMap::const_iterator, PikminGame::SpawnMap::const_iterator> PikminGame::SpawnNames() {
   return std::make_pair(spawn_.begin(), spawn_.end());
+}
+
+Handle PikminGame::Spawn(const std::string& name, Vec3 position, Rotation rotation) {
+  ObjectState* object = spawn_.at(name)(this);
+  object->set_position(position);
+  object->entity->set_rotation(rotation);
+  return object->handle;
 }
 
 debug::Dictionary& PikminGame::DebugDictionary() {
