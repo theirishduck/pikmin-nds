@@ -41,7 +41,7 @@ class MultipassEngine {
 
   Camera* camera();
 
-  int FrameCounter();
+  unsigned int FrameCounter();
   void PauseEngine();
   void UnpauseEngine();
   bool IsPaused();
@@ -90,7 +90,7 @@ class MultipassEngine {
 
   physics::World world_;
 
-  int frame_counter_{0};
+  unsigned int frame_counter_{0};
 
   bool effects_enabled{false};
   bool effects_drawn{false};

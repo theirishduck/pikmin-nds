@@ -25,7 +25,7 @@ bool TreasureState::AddPikmin(PikminState* pikmin) {
         lift_timer = 0;
         if (!RoomForMorePikmin()) {
           // Disable the detection radius so pikmin stop attempting to chase us
-          this->detection->owner = nullptr;
+          this->detection->owner = Handle();
         }
         return true;
       }
@@ -40,7 +40,7 @@ void TreasureState::RemovePikmin(PikminState* pikmin) {
       active_pikmin[i] = nullptr;
       num_active_pikmin--;
       lift_timer = 0;
-      this->detection->owner = this->body;
+      this->detection->owner = this->handle;
       return;
     }
   }
@@ -55,16 +55,14 @@ bool TreasureState::Moving() {
 }
 
 void Init(TreasureState& treasure) {
-  treasure.detection = treasure.entity->engine()->World().AllocateBody(&treasure).body;
+  treasure.detection = treasure.entity->engine()->World().AllocateBody(treasure.handle).body;
   treasure.detection->position = treasure.position();
   treasure.detection->radius = 10_f;
   treasure.detection->height = 5_f;
   treasure.detection->is_sensor = true;
   treasure.detection->collision_group = DETECT_GROUP;
-  treasure.detection->owner = treasure.body;
 
   treasure.body->collision_group = TREASURE_GROUP;
-  treasure.body->owner = &treasure;
 
   //initialize proper!
   for (int i = 0; i < 100; i++) {

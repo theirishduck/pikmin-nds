@@ -239,7 +239,7 @@ void DrawableEntity::SetAnimation(std::string name) {
 }
 
 void DrawableEntity::Init() {
-  body_ = engine()->World().AllocateBody(this);
+  body_ = engine()->World().AllocateBody();
 }
 
 physics::BodyHandle DrawableEntity::body_handle() {

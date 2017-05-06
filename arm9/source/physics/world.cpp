@@ -17,7 +17,7 @@ World::World() {
 World::~World() {
 }
 
-BodyHandle World::AllocateBody(void* owner) {
+BodyHandle World::AllocateBody(Handle owner) {
   // This is a fairly naive implementation.
 
   // Note: A return value of 0 (Null) indicates failure.
@@ -54,7 +54,7 @@ BodyHandle World::AllocateBody(void* owner) {
 }
 
 void World::FreeBody(Body* body) {
-  body->owner = nullptr;
+  body->owner = Handle{};
   body->active = 0;
   rebuild_index_ = true;
   current_generation_++;

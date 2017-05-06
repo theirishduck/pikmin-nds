@@ -106,7 +106,7 @@ void MultipassEngine::Update() {
   frame_counter_++;
 }
 
-int MultipassEngine::FrameCounter() {
+unsigned int MultipassEngine::FrameCounter() {
   return frame_counter_;
 }
 

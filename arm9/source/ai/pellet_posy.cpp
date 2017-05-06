@@ -14,16 +14,14 @@ namespace posy_ai {
 void InitAlways(PosyState& posy) {
   posy.entity->set_actor(posy.game->ActorAllocator()->Retrieve("pellet_posy"));
 
-  posy.detection = posy.entity->engine()->World().AllocateBody(&posy).body;
+  posy.detection = posy.entity->engine()->World().AllocateBody(posy.handle).body;
   posy.detection->position = posy.position();
   posy.detection->radius = 10_f;
   posy.detection->height = 5_f;
   posy.detection->is_sensor = true;
   posy.detection->collision_group = DETECT_GROUP;
-  posy.detection->owner = posy.body;
 
   posy.body->collision_group = ATTACK_GROUP;
-  posy.body->owner = &posy.health;
 }
 
 bool ZeroHealth(const PosyState& posy) {
@@ -48,8 +46,8 @@ void GoodbyeCruelWorld(PosyState& posy) {
 }
 
 void MarkAsDead(PosyState& posy) {
-  posy.body->owner = nullptr;
-  posy.detection->owner = nullptr;
+  posy.body->owner = Handle();
+  posy.detection->owner = Handle();
 }
 
 namespace PosyNode {

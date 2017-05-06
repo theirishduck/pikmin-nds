@@ -26,8 +26,7 @@ const fixed kTargetThreshold = 2.0_f;
 
 TreasureState* GetActiveTreasure(const PikminState& pikmin) {
   if (pikmin.chase_target.IsValid()) {
-    TreasureState* treasure = (TreasureState*) pikmin.chase_target.body->owner;
-    return treasure;
+    return pikmin.game->RetrieveTreasure(pikmin.chase_target.body->owner);
   }
   return nullptr;
 }
@@ -56,38 +55,6 @@ void SetPikminModel(PikminState& pikmin) {
 
   pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve(actor.c_str()));
   pikmin.entity->set_mesh(mesh.c_str());
-
-  /*
-  switch (pikmin.type) {
-    case PikminType::kNone:
-    case PikminType::kRedPikmin:
-      if (pikmin.current_node == PikminNode::kSeed) {
-        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin_seed"));
-        pikmin.entity->set_mesh("red_seed");
-      } else {
-        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
-        pikmin.entity->set_mesh("red_pikmin");
-      }
-      break;
-    case PikminType::kYellowPikmin:
-      if (pikmin.current_node == PikminNode::kSeed) {
-        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin_seed"));
-        pikmin.entity->set_mesh("yellow_seed");
-      } else {
-        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
-        pikmin.entity->set_mesh("yellow_pikmin");
-      }
-      break;
-    case PikminType::kBluePikmin:
-      if (pikmin.current_node == PikminNode::kSeed) {
-        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin_seed"));
-        pikmin.entity->set_mesh("blue_seed");
-      } else {
-        pikmin.entity->set_actor(pikmin.game->ActorAllocator()->Retrieve("pikmin"));
-        pikmin.entity->set_mesh("blue_pikmin");
-      }
-      break;
-  }*/
 }
 
 void InitAlways(PikminState& pikmin) {
@@ -239,23 +206,28 @@ void JoinSquad(PikminState& pikmin) {
   auto result = pikmin.body->FirstCollisionWith(WHISTLE_GROUP);
   // make sure we got a real result (this can fail in extreme cases)
   if (result.body) {
-    auto captain = (captain_ai::CaptainState*)result.body->owner;
-    pikmin.current_squad = &captain->squad;
-    captain->squad.AddPikmin(&pikmin);
+
+    auto captain = pikmin.game->RetrieveCaptain(result.body->owner);
+    if (captain) {
+      pikmin.current_squad = &captain->squad;
+      captain->squad.AddPikmin(&pikmin);
+    }
   }
 }
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
   // Some unspeakable horror caused our target to vanish or otherwise change
-  if (!pikmin.chase_target.IsValid() or !pikmin.chase_target.body->owner) {
+  if (!pikmin.chase_target.IsValid()) {
     return true;
   }
 
   // Treasure has no more room for us... :(
   if (pikmin.chase_target.body->collision_group & TREASURE_GROUP) {
     auto treasure = GetActiveTreasure(pikmin);
-    if (!(treasure->RoomForMorePikmin())) {
-      return true;
+    if (treasure) {
+      if (!(treasure->RoomForMorePikmin())) {
+        return true;
+      }
     }
   }
 
@@ -277,12 +249,12 @@ void ChaseTarget(PikminState& pikmin) {
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  if (pikmin.chase_target.IsValid() and pikmin.chase_target.body->owner != nullptr) {
-    int* target_health = (int*)pikmin.chase_target.body->owner;
-    if (target_health) {
-      *target_health -= 5;
-    }
-  }
+  //if (pikmin.chase_target.IsValid() and pikmin.chase_target.body->owner != nullptr) {
+  //  int* target_health = (int*)pikmin.chase_target.body->owner;
+  //  if (target_health) {
+  //    *target_health -= 5;
+  //  }
+  //}
 }
 
 void JumpTowardTarget(PikminState& pikmin) {
@@ -298,19 +270,17 @@ bool CollideWithTarget(const PikminState& pikmin) {
   if (pikmin.body->result_groups & DETECT_GROUP) {
     auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
     if (target_circle.body) {
-      if (target_circle.body->owner) {
-        return true;
-      }
+      return true;
     }
   }
   return false;
 }
 
 void StoreTargetBody(PikminState& pikmin) {
-  auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
-  if (target_circle.body and target_circle.body->owner) {
-    pikmin.chase_target = ((physics::Body*)target_circle.body->owner)->GetHandle();
-  }
+  //auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
+  //if (target_circle.body) {
+  //  pikmin.chase_target = ((physics::Body*)target_circle.body->owner)->GetHandle();
+  //}
 }
 
 void Aim(PikminState& pikmin) {
@@ -330,7 +300,7 @@ void StartClimbingOnion(PikminState& pikmin) {
   auto onion_foot = pikmin.body->FirstCollisionWith(ONION_FEET_GROUP);
   fixed travel_frames = 60_f;
   if (onion_foot.body) {
-    auto onion = (onion_ai::OnionState*)onion_foot.body->owner;
+    auto onion = pikmin.game->RetrieveOnion(onion_foot.body->owner);
     auto pikmin_body = pikmin.body;
     pikmin_body->position = onion_foot.body->position;
     pikmin_body->affected_by_gravity = false;
@@ -383,7 +353,7 @@ bool CollideWithValidTreasure(const PikminState& pikmin) {
   if (pikmin.body->result_groups & TREASURE_GROUP) {
     auto treasure_result = pikmin.body->FirstCollisionWith(TREASURE_GROUP);
     if (treasure_result.body != nullptr) {
-      auto treasure = (TreasureState*)treasure_result.body->owner;
+      auto treasure = pikmin.game->RetrieveTreasure(treasure_result.body->owner);
       if (treasure->RoomForMorePikmin()) {
         return true;
       }

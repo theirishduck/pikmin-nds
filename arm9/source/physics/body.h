@@ -1,6 +1,7 @@
 #ifndef PHYSICS_BODY_H
 #define PHYSICS_BODY_H
 
+#include "handle.h"
 #include "project_settings.h"
 #include "numeric_types.h"
 #include "vector.h"
@@ -60,7 +61,8 @@ struct Body {
   //numeric_types::Fixed<s32,12> radius2;
 
   //used to store arbitrary information. Flexible, dangerous; be careful.
-  void* owner{nullptr};
+  //void* owner{nullptr};
+  Handle owner;
 
   //list of which collision groups we BELONG TO
   u32 collision_group{0};

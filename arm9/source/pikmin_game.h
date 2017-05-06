@@ -89,6 +89,9 @@ class PikminGame {
   std::map<std::string, debug::AiProfiler>& DebugAiProfilers();
 
   // Lists to hold each type of object, and retrieval functions for each
+  std::array<captain_ai::CaptainState, 1> captains;
+  captain_ai::CaptainState* RetrieveCaptain(Handle handle);
+
   std::array<fire_spout_ai::FireSpoutState, 16> fire_spouts;
   fire_spout_ai::FireSpoutState* RetrieveFireSpout(Handle handle);
 
@@ -106,9 +109,6 @@ class PikminGame {
 
   std::array<treasure_ai::TreasureState, 16> treasures;
   treasure_ai::TreasureState* RetrieveTreasure(Handle handle);
-
-  std::array<captain_ai::CaptainState, 1> captains;
-  captain_ai::CaptainState* RetrieveCaptain(Handle handle);
 
   // The player character is a bit of a special case
   Handle SpawnCaptain();

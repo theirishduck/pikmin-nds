@@ -116,7 +116,7 @@ Handle PikminGame::SpawnObject(std::array<StateType, size>& object_list, int typ
   // state
   new_object.entity = allocate_entity();
   new_object.body = new_object.entity->body_handle().body;
-  new_object.body->owner = &new_object;
+  new_object.body->owner = new_object.handle;
   new_object.game = this;
   const bool too_many_objects = new_object.entity == nullptr;
   if (too_many_objects) {

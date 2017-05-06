@@ -62,7 +62,6 @@ void InitAlways(CaptainState& captain) {
   captain.body->is_movable = 1;
   captain.body->collision_group = PLAYER_GROUP | WHISTLE_GROUP;
   captain.body->sensor_groups = ONION_BEAM_GROUP;
-  captain.body->owner = &captain;
 
   //initialize our walking angle?
   captain.current_angle = 0_brad;
@@ -80,7 +79,7 @@ void InitAlways(CaptainState& captain) {
 
   whistle_body->height = 20.0_f;
   whistle_body->is_sensor = 1;
-  whistle_body->owner = &captain;
+  whistle_body->owner = captain.handle;
   whistle_body->is_very_important = 1;
 }
 
@@ -146,7 +145,7 @@ void MoveCaptain(CaptainState& captain) {
   // Handle collision with certain kinds of sensors
   if (captain.entity->body_handle().body->result_groups & ONION_BEAM_GROUP) {
     onion_ai::OnionState* current_onion =
-        (onion_ai::OnionState*)(captain.entity->body_handle().body->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
+        captain.game->RetrieveOnion(captain.entity->body_handle().body->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
     captain.active_onion = current_onion;
   } else {
     captain.active_onion = nullptr;
