@@ -39,11 +39,20 @@ BodyHandle World::AllocateBody(Handle owner) {
 
       bodies_[i].owner = owner;
       bodies_[i].generation = current_generation_;
-
       rebuild_index_ = true;
+
+      // Old-style handle, kept here for compatability reasons.
+      // TODO: Remove this when reliance on this handle is refactored out.
       BodyHandle handle;
       handle.body = &bodies_[i];
       handle.generation = current_generation_;
+
+      // New-style handle, used for safer references to Physics bodies by
+      // non-owners.
+      bodies_[i].handle.id = i;
+      bodies_[i].handle.generation = current_generation_;
+      bodies_[i].handle.type = World::kBody;
+
       return handle;
     }
   }
@@ -58,6 +67,16 @@ void World::FreeBody(Body* body) {
   body->active = 0;
   rebuild_index_ = true;
   current_generation_++;
+}
+
+Body* World::RetrieveBody(Handle handle) {
+  if (handle.id < MAX_PHYSICS_BODIES) {
+    Body* body = &bodies_[handle.id];
+    if (body->active and body->handle.Matches(handle)) {
+      return body;
+    }
+  }
+  return nullptr;
 }
 
 void World::Wake(Body* body) {

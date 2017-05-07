@@ -175,7 +175,7 @@ void PikminGame::RemoveCaptain(Handle handle) {
 CaptainState* PikminGame::RetrieveCaptain(Handle handle) {
   if (handle.id < captains.size()) {
     auto object = &captains[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }
@@ -185,7 +185,7 @@ CaptainState* PikminGame::RetrieveCaptain(Handle handle) {
 FireSpoutState* PikminGame::RetrieveFireSpout(Handle handle) {
   if (handle.id < fire_spouts.size()) {
     auto object = &fire_spouts[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }
@@ -195,7 +195,7 @@ FireSpoutState* PikminGame::RetrieveFireSpout(Handle handle) {
 OnionState* PikminGame::RetrieveOnion(Handle handle) {
   if (handle.id < onions.size()) {
     auto object = &onions[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }
@@ -205,7 +205,7 @@ OnionState* PikminGame::RetrieveOnion(Handle handle) {
 PikminState* PikminGame::RetrievePikmin(Handle handle) {
   if (handle.id < pikmin.size()) {
     auto object = &pikmin[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }
@@ -215,7 +215,7 @@ PikminState* PikminGame::RetrievePikmin(Handle handle) {
 PosyState* PikminGame::RetrievePelletPosy(Handle handle) {
   if (handle.id < posies.size()) {
     auto object = &posies[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }
@@ -225,7 +225,7 @@ PosyState* PikminGame::RetrievePelletPosy(Handle handle) {
 StaticState* PikminGame::RetrieveStatic(Handle handle) {
   if (handle.id < statics.size()) {
     auto object = &statics[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }
@@ -235,7 +235,7 @@ StaticState* PikminGame::RetrieveStatic(Handle handle) {
 TreasureState* PikminGame::RetrieveTreasure(Handle handle) {
   if (handle.id < treasures.size()) {
     auto object = &treasures[handle.id];
-    if (object->handle.Matches(handle)) {
+    if (object->active and object->handle.Matches(handle)) {
       return object;
     }
   }

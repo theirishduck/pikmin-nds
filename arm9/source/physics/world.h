@@ -10,6 +10,8 @@ class World {
   public:
     BodyHandle AllocateBody(Handle owner = Handle{});
     void FreeBody(Body* body);
+    Body* RetrieveBody(Handle handle);
+
     void Update();
     void DebugCircles();
 
@@ -20,6 +22,11 @@ class World {
     void SetHeightmap(const u8* raw_heightmap_data);
     World();
     ~World();
+
+    enum ObjectType {
+      kNone = 0,
+      kBody
+    };
   private:
     bool BodiesOverlap(physics::Body& A, physics::Body& b);
     void ResolveCollision(physics::Body& A, physics::Body& B);

@@ -31,6 +31,8 @@ struct Neighbor {
 };
 
 struct Body {
+  Handle handle;
+
   friend class World;
   //movement information
   Vec3 position = Vec3{
@@ -60,8 +62,8 @@ struct Body {
   numeric_types::Fixed<s32,12> radius = numeric_types::Fixed<s32,12>::FromInt(1);
   //numeric_types::Fixed<s32,12> radius2;
 
-  //used to store arbitrary information. Flexible, dangerous; be careful.
-  //void* owner{nullptr};
+  // Stores a handle to the owner of this body, helpful when reacting to
+  // collisions.
   Handle owner;
 
   //list of which collision groups we BELONG TO
