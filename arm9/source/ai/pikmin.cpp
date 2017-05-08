@@ -19,15 +19,17 @@ using std::string;
 
 using treasure_ai::TreasureState;
 
+using physics::Body;
+
 namespace pikmin_ai {
 
 const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
 TreasureState* GetActiveTreasure(const PikminState& pikmin) {
-  if (pikmin.chase_target.IsValid()) {
-    return pikmin.game->RetrieveTreasure(pikmin.chase_target.body->owner);
-  }
+  //if (pikmin.chase_target.IsValid()) {
+  //  return pikmin.game->RetrieveTreasure(pikmin.chase_target.body->owner);
+  //}
   return nullptr;
 }
 
@@ -217,20 +219,9 @@ void JoinSquad(PikminState& pikmin) {
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
   // Some unspeakable horror caused our target to vanish or otherwise change
-  if (!pikmin.chase_target.IsValid()) {
+  if (pikmin.game->Engine().World().RetrieveBody(pikmin.chase_target_body) == nullptr) {
     return true;
   }
-
-  // Treasure has no more room for us... :(
-  if (pikmin.chase_target.body->collision_group & TREASURE_GROUP) {
-    auto treasure = GetActiveTreasure(pikmin);
-    if (treasure) {
-      if (!(treasure->RoomForMorePikmin())) {
-        return true;
-      }
-    }
-  }
-
   return false;
 }
 
@@ -242,8 +233,8 @@ bool CollideWithAttackable(const PikminState& pikmin) {
 }
 
 void ChaseTarget(PikminState& pikmin) {
-  if (pikmin.chase_target.IsValid()) {
-    pikmin.target = Vec2{pikmin.chase_target.body->position.x, pikmin.chase_target.body->position.z};
+  if (Body* chase_target = pikmin.game->Engine().World().RetrieveBody(pikmin.chase_target_body)) {
+    pikmin.target = Vec2{chase_target->position.x, chase_target->position.z};
     RunToTarget(pikmin);
   }
 }
@@ -277,10 +268,10 @@ bool CollideWithTarget(const PikminState& pikmin) {
 }
 
 void StoreTargetBody(PikminState& pikmin) {
-  //auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
-  //if (target_circle.body) {
-  //  pikmin.chase_target = ((physics::Body*)target_circle.body->owner)->GetHandle();
-  //}
+  auto target_circle = pikmin.body->FirstCollisionWith(DETECT_GROUP);
+  if (target_circle.body) {
+    pikmin.chase_target_body = target_circle.body->handle;
+  }
 }
 
 void Aim(PikminState& pikmin) {
