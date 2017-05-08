@@ -451,6 +451,7 @@ void ResetPhysics(PikminState& pikmin) {
 }
 
 void PluckIntoSquad(PikminState& pikmin) {
+  pikmin.body->radius = 1_f;
   JoinSquad(pikmin);
   CreateDirtCloud(pikmin);
 }
