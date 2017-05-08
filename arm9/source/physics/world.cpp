@@ -414,7 +414,7 @@ void World::DebugCircles() {
 
     //pick a color based on the state of this body
     rgb color = RGB5(31,31,31);
-    int segments = 16;
+    int segments = 12;
     if (body.is_sensor) {
       color = RGB5(31,31,0); //yellow for sensors
     }
@@ -425,6 +425,14 @@ void World::DebugCircles() {
     //pick a color based on the state of this body
     rgb color = RGB5(31,15,15);
     int segments = 6;
+    debug::DrawCircle(body.position, body.radius, color, segments);
+  }
+
+  for (int i = 0; i < important_bodies_; i++) {
+    Body& body = bodies_[important_[i]];
+    //pick a color based on the state of this body
+    rgb color = RGB5(15,31,31);
+    int segments = 12;
     debug::DrawCircle(body.position, body.radius, color, segments);
   }
 
