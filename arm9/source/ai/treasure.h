@@ -29,6 +29,7 @@ struct TreasureState : ObjectState {
 
 
   physics::Body* detection;
+  bool detection_active{false};
   pikmin_ai::PikminState* active_pikmin[100];
   int num_active_pikmin{0};
 
@@ -36,6 +37,7 @@ struct TreasureState : ObjectState {
   void RemovePikmin(pikmin_ai::PikminState* pikmin);
   bool RoomForMorePikmin();
   bool Moving();
+  void UpdateDetectionBody();
 };
 
 extern StateMachine<TreasureState> machine;

@@ -16,6 +16,25 @@ using physics::Body;
 
 namespace treasure_ai {
 
+void TreasureState::UpdateDetectionBody() {
+  if (RoomForMorePikmin() and  !this->detection_active and this->carryable) {
+    this->detection = this->entity->engine()->World().AllocateBody(this->handle).body;
+    this->detection->position = this->position();
+    this->detection->radius = 10_f;
+    this->detection->height = 5_f;
+    this->detection->is_sensor = true;
+    this->detection->collision_group = DETECT_GROUP;
+    this->detection_active = true;
+    return;
+  }
+  if (!RoomForMorePikmin() and this->detection_active) {
+    // Disable the detection radius so pikmin stop attempting to chase us
+    this->entity->engine()->World().FreeBody(this->detection);
+    this->detection_active = false;
+    return;
+  }
+}
+
 bool TreasureState::AddPikmin(PikminState* pikmin) {
   if (RoomForMorePikmin()) {
     for (int i = 0; i < max_pikmin; i++) {
@@ -23,10 +42,7 @@ bool TreasureState::AddPikmin(PikminState* pikmin) {
         active_pikmin[i] = pikmin;
         num_active_pikmin++;
         lift_timer = 0;
-        if (!RoomForMorePikmin()) {
-          // Disable the detection radius so pikmin stop attempting to chase us
-          this->detection->owner = Handle();
-        }
+        UpdateDetectionBody();
         return true;
       }
     }
@@ -40,7 +56,7 @@ void TreasureState::RemovePikmin(PikminState* pikmin) {
       active_pikmin[i] = nullptr;
       num_active_pikmin--;
       lift_timer = 0;
-      this->detection->owner = this->handle;
+      UpdateDetectionBody();
       return;
     }
   }
@@ -55,12 +71,7 @@ bool TreasureState::Moving() {
 }
 
 void Init(TreasureState& treasure) {
-  treasure.detection = treasure.entity->engine()->World().AllocateBody(treasure.handle).body;
-  treasure.detection->position = treasure.position();
-  treasure.detection->radius = 10_f;
-  treasure.detection->height = 5_f;
-  treasure.detection->is_sensor = true;
-  treasure.detection->collision_group = DETECT_GROUP;
+  treasure.UpdateDetectionBody();
 
   treasure.body->collision_group = TREASURE_GROUP;
 
@@ -139,7 +150,9 @@ void UpdatePikminPositions(TreasureState& treasure) {
 }
 
 void IdleAlways(TreasureState& treasure) {
-  treasure.detection->position = treasure.position();
+  if (treasure.detection_active) {
+    treasure.detection->position = treasure.position();
+  }
   UpdatePikminPositions(treasure);
   if (treasure.Moving()) {
     treasure.lift_timer++;
@@ -175,7 +188,9 @@ void MoveTowardTarget(TreasureState& treasure) {
   new_velocity = new_velocity.Normalize() * 0.2_f;
   treasure.set_velocity(new_velocity);
   UpdatePikminPositions(treasure);
-  treasure.detection->position = treasure.position();
+  if (treasure.detection_active) {
+    treasure.detection->position = treasure.position();
+  }
 }
 
 bool DestinationReached(const TreasureState& treasure) {
@@ -189,8 +204,10 @@ void PrepareForRetrieval(TreasureState& treasure) {
   // Align with the destination region
   treasure.set_position(destination->position());
   // Kill the targeting radius, so pikmin stop trying to carry us
-  treasure.entity->engine()->World().FreeBody(treasure.detection);
-  treasure.detection = nullptr;
+  if (treasure.detection_active) {
+    treasure.entity->engine()->World().FreeBody(treasure.detection);
+    treasure.detection = nullptr;
+  }
   // Dislodge all the pikmin carrying us
   treasure.carryable = false;
   // Remove ourselves from physics calculations, and prepare to rise into the

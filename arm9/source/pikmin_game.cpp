@@ -397,6 +397,8 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
     auto treasure = game->RetrieveTreasure(game->SpawnObject(game->treasures, PikminGame::kTreasure));
     treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
     treasure->entity->body_handle().body->radius = 2_f;
+    treasure->cost = 5;
+    treasure->max_pikmin = 8;
     return treasure;
   }},
 };
