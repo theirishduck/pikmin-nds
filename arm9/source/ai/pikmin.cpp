@@ -26,13 +26,6 @@ namespace pikmin_ai {
 const fixed kRunSpeed = 40.0_f / 60_f;
 const fixed kTargetThreshold = 2.0_f;
 
-TreasureState* GetActiveTreasure(const PikminState& pikmin) {
-  //if (pikmin.chase_target.IsValid()) {
-  //  return pikmin.game->RetrieveTreasure(pikmin.chase_target.body->owner);
-  //}
-  return nullptr;
-}
-
 void SetPikminModel(PikminState& pikmin) {
   string color = "";
   // Set the initial mesh based on the pikmin's color and starting state
@@ -354,35 +347,41 @@ bool CollideWithValidTreasure(const PikminState& pikmin) {
 }
 
 void AddToTreasure(PikminState& pikmin) {
-  auto treasure = GetActiveTreasure(pikmin);
-  if (treasure) {
-    treasure->AddPikmin(&pikmin);
+  auto treasure_result = pikmin.body->FirstCollisionWith(TREASURE_GROUP);
+  if (treasure_result.body != nullptr) {
+    pikmin.active_treasure = treasure_result.body->owner;
+    TreasureState* treasure = pikmin.game->RetrieveTreasure(pikmin.active_treasure);
+    if (treasure) {
+      treasure->AddPikmin(&pikmin);
+    }
   }
   StopMoving(pikmin);
 }
 
 void RemoveFromTreasure(PikminState& pikmin) {
-  auto treasure = GetActiveTreasure(pikmin);
+  auto treasure = pikmin.game->RetrieveTreasure(pikmin.active_treasure);
   if (treasure) {
     treasure->RemovePikmin(&pikmin);
+    pikmin.active_treasure = Handle();
   }
 }
 
 void WhistleOffTreasure(PikminState& pikmin) {
-  auto treasure = GetActiveTreasure(pikmin);
+  auto treasure = pikmin.game->RetrieveTreasure(pikmin.active_treasure);
   if (treasure) {
     treasure->RemovePikmin(&pikmin);
     JoinSquad(pikmin);
+    pikmin.active_treasure = Handle();
   }
 }
 
 bool TreasureMoving(const PikminState& pikmin) {
-  auto treasure = GetActiveTreasure(pikmin);
+  auto treasure = pikmin.game->RetrieveTreasure(pikmin.active_treasure);
   return treasure and treasure->Moving();
 }
 
 bool TreasureInvalid(const PikminState& pikmin) {
-  auto treasure = GetActiveTreasure(pikmin);
+  auto treasure = pikmin.game->RetrieveTreasure(pikmin.active_treasure);
   if (treasure == nullptr) {
     return true;
   }

@@ -50,6 +50,8 @@ struct PikminState : ObjectState {
   bool has_target{false};
   Vec2 target;
 
+  Handle active_treasure;
+
   Handle chase_target_body;
 
   //cache values for not updating so often
