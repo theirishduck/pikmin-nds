@@ -359,32 +359,44 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
   }},
   {"Pikmin:Red", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->RetrievePikmin(game->SpawnObject(game->pikmin, PikminGame::kPikmin));
-    pikmin->type = PikminType::kRedPikmin;
+    if (pikmin) {
+      pikmin->type = PikminType::kRedPikmin;
+    }
     return pikmin;
   }},
   {"Pikmin:Yellow", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->RetrievePikmin(game->SpawnObject(game->pikmin, PikminGame::kPikmin));
-    pikmin->type = PikminType::kYellowPikmin;
+    if (pikmin) {
+      pikmin->type = PikminType::kYellowPikmin;
+    }
     return pikmin;
   }},
   {"Pikmin:Blue", [](PikminGame* game) -> ObjectState* {
     auto pikmin = game->RetrievePikmin(game->SpawnObject(game->pikmin, PikminGame::kPikmin));
-    pikmin->type = PikminType::kBluePikmin;
+    if (pikmin) {
+      pikmin->type = PikminType::kBluePikmin;
+    }
     return pikmin;
   }},
   {"Onion:Red", [](PikminGame* game) -> ObjectState* {
     auto onion = game->RetrieveOnion(game->SpawnObject(game->onions, PikminGame::kOnion));
-    onion->pikmin_type = PikminType::kRedPikmin;
+    if (onion) {
+      onion->pikmin_type = PikminType::kRedPikmin;
+    }
     return onion;
   }},
   {"Onion:Yellow", [](PikminGame* game) -> ObjectState* {
     auto onion = game->RetrieveOnion(game->SpawnObject(game->onions, PikminGame::kOnion));
-    onion->pikmin_type = PikminType::kYellowPikmin;
+    if (onion) {
+      onion->pikmin_type = PikminType::kYellowPikmin;
+    }
     return onion;
   }},
   {"Onion:Blue", [](PikminGame* game) -> ObjectState* {
     auto onion = game->RetrieveOnion(game->SpawnObject(game->onions, PikminGame::kOnion));
-    onion->pikmin_type = PikminType::kBluePikmin;
+    if (onion) {
+      onion->pikmin_type = PikminType::kBluePikmin;
+    }
     return onion;
   }},
   {"Hazard:FireSpout", [](PikminGame* game) -> ObjectState* {
@@ -395,10 +407,12 @@ const std::map<std::string, std::function<ObjectState*(PikminGame*)>> PikminGame
   }},
   {"Corpse:Pellet", [](PikminGame* game) -> ObjectState* {
     auto treasure = game->RetrieveTreasure(game->SpawnObject(game->treasures, PikminGame::kTreasure));
-    treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
-    treasure->entity->body_handle().body->radius = 2_f;
-    treasure->cost = 5;
-    treasure->max_pikmin = 8;
+    if (treasure) {
+      treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
+      treasure->entity->body_handle().body->radius = 2_f;
+      treasure->cost = 5;
+      treasure->max_pikmin = 10;
+    }
     return treasure;
   }},
 };
