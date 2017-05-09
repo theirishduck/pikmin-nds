@@ -22,18 +22,28 @@ void InitAlways(PosyState& posy) {
   posy.detection->collision_group = DETECT_GROUP;
 
   posy.body->collision_group = ATTACK_GROUP;
+
+  auto health_state = posy.game->RetrieveHealth(posy.game->SpawnHealth());
+  if (!health_state) {
+    posy.dead = true;
+    return;
+  }
+  posy.health_state = health_state;
+  posy.old_health = posy.health_state->health;
+
+  posy.body->owner = posy.health_state->handle;
 }
 
 bool ZeroHealth(const PosyState& posy) {
-  return posy.health <= 0;
+  return posy.health_state->health <= 0;
 }
 
 bool TookDamage(const PosyState& posy) {
-  return posy.health < posy.old_health;
+  return posy.health_state->health < posy.old_health;
 }
 
 void StoreCurrentHealth(PosyState& posy) {
-  posy.old_health = posy.health;
+  posy.old_health = posy.health_state->health;
 }
 
 void GoodbyeCruelWorld(PosyState& posy) {

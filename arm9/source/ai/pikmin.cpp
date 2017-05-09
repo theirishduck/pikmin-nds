@@ -11,12 +11,15 @@
 #include "dsgx.h"
 #include "multipass_engine.h"
 
+#include "ai/health.h"
+
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
 using std::string;
 
+using health_ai::HealthState;
 using treasure_ai::TreasureState;
 
 using physics::Body;
@@ -225,6 +228,14 @@ bool CollideWithAttackable(const PikminState& pikmin) {
   return false;
 }
 
+void SetAttackTarget(PikminState& pikmin) {
+  auto result = pikmin.body->FirstCollisionWith(ATTACK_GROUP);
+  if (result.body) {
+    pikmin.attack_target_body = result.body->handle;
+  }
+  StopMoving(pikmin);
+}
+
 void ChaseTarget(PikminState& pikmin) {
   if (Body* chase_target = pikmin.game->Engine().World().RetrieveBody(pikmin.chase_target_body)) {
     pikmin.target = Vec2{chase_target->position.x, chase_target->position.z};
@@ -233,12 +244,13 @@ void ChaseTarget(PikminState& pikmin) {
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  //if (pikmin.chase_target.IsValid() and pikmin.chase_target.body->owner != nullptr) {
-  //  int* target_health = (int*)pikmin.chase_target.body->owner;
-  //  if (target_health) {
-  //    *target_health -= 5;
-  //  }
-  //}
+  if (Body* chase_target = pikmin.game->Engine().World().RetrieveBody(pikmin.attack_target_body)) {
+    if (HealthState* enemy_health = pikmin.game->RetrieveHealth(chase_target->owner)) {
+      enemy_health->DealDamage(5);
+    } else {
+      pikmin.body->velocity.y = 20.5_f;
+    }
+  }
 }
 
 void JumpTowardTarget(PikminState& pikmin) {
@@ -502,7 +514,7 @@ Edge<PikminState> chasing[] {
   {CantReachTarget, ClearTargetAndStop, PikminNode::kIdle},
   {ChaseTargetInvalid, ClearTargetAndStop, PikminNode::kIdle},
   {CollidedWithWhistle, JoinSquad, PikminNode::kIdle},
-  {CollideWithAttackable, StopMoving, PikminNode::kStandingAttack},
+  {CollideWithAttackable, SetAttackTarget, PikminNode::kStandingAttack},
   {CollideWithValidTreasure, AddToTreasure, PikminNode::kLiftTreasure},
   {ChaseTarget, PikminNode::kChasing},  // loopback
   END_OF_EDGES(PikminState)

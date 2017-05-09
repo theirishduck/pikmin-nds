@@ -54,6 +54,8 @@ struct PikminState : ObjectState {
 
   Handle chase_target_body;
 
+  Handle attack_target_body;
+
   //cache values for not updating so often
   numeric_types::Brads target_facing_angle;
 

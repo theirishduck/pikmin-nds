@@ -5,11 +5,13 @@
 #include "drawable_entity.h"
 #include "physics/body.h"
 
+#include "ai/health.h"
+
 namespace posy_ai {
 
 struct PosyState : ObjectState {
-  int health{50};
-  int old_health{50};
+  health_ai::HealthState* health_state;
+  unsigned int old_health;
   physics::Body* detection;
 };
 
