@@ -10,6 +10,8 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
 
+using health_ai::HealthState;
+
 namespace fire_spout_ai {
 
 void InitAlways(FireSpoutState& fire_spout) {
@@ -28,6 +30,14 @@ void InitAlways(FireSpoutState& fire_spout) {
   fire_spout.detection->height = 5_f;
   fire_spout.detection->is_sensor = true;
   fire_spout.detection->collision_group = DETECT_GROUP;
+
+  auto health_state = fire_spout.game->RetrieveHealth(fire_spout.game->SpawnHealth());
+  if (!health_state) {
+    fire_spout.dead = true;
+    return;
+  }
+  fire_spout.health_state = health_state;
+  fire_spout.body->owner = fire_spout.health_state->handle;
 }
 
 void FlameOn(FireSpoutState& fire_spout) {
@@ -68,7 +78,7 @@ void SpawnFireParticle(FireSpoutState& fire_spout) {
 }
 
 bool OutOfHealth(const FireSpoutState& fire_spout) {
-  return fire_spout.health <= 0;
+  return fire_spout.health_state->health <= 0;
 }
 
 void KillSelf(FireSpoutState& fire_spout) {
