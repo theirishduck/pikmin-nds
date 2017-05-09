@@ -18,6 +18,7 @@ using captain_ai::CaptainState;
 using onion_ai::OnionState;
 using posy_ai::PosyState;
 using fire_spout_ai::FireSpoutState;
+using health_ai::HealthState;
 using static_ai::StaticState;
 using treasure_ai::TreasureState;
 
@@ -169,6 +170,38 @@ void PikminGame::RemoveCaptain(Handle handle) {
     delete captain->whistle;
 
     RemoveObject(handle, captains);
+  }
+}
+
+Handle PikminGame::SpawnHealth() {
+  for (unsigned int i = 0; i < health.size(); i++) {
+    if (!(health[i].active)) {
+      health[i] = HealthState();
+      health[i].handle.id = i;
+      health[i].handle.generation = current_generation_;
+      health[i].handle.type = PikminGame::kHealth;
+      health[i].active = true;
+      return health[i].handle;
+    }
+  }
+  return Handle();
+}
+
+HealthState* PikminGame::RetrieveHealth(Handle handle) {
+  if (handle.id < health.size()) {
+    auto object = &health[handle.id];
+    if (object->active and object->handle.Matches(handle)) {
+      return object;
+    }
+  }
+  return nullptr;
+}
+
+void PikminGame::RemoveHealth(Handle handle) {
+  HealthState* object = RetrieveHealth(handle);
+  if (object) {
+    object->active = false;
+    object->handle = Handle();
   }
 }
 

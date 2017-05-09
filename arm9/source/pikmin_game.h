@@ -7,6 +7,7 @@
 
 #include "ai/captain.h"
 #include "ai/fire_spout.h"
+#include "ai/health.h"
 #include "ai/onion.h"
 #include "ai/pikmin.h"
 #include "ai/pellet_posy.h"
@@ -39,6 +40,7 @@ class PikminGame {
    enum ObjectType {
      kNone = 0, // Default, useful as an error type. This should never retrieve any object.
      kCaptain,
+     kHealth,
      kPikmin,
      kPelletPosy,
      kStatic,
@@ -109,6 +111,11 @@ class PikminGame {
 
   std::array<treasure_ai::TreasureState, 16> treasures;
   treasure_ai::TreasureState* RetrieveTreasure(Handle handle);
+
+  std::array<health_ai::HealthState, 128> health;
+  Handle SpawnHealth();
+  health_ai::HealthState* RetrieveHealth(Handle handle);
+  void RemoveHealth(Handle handle);
 
   // The player character is a bit of a special case
   Handle SpawnCaptain();
