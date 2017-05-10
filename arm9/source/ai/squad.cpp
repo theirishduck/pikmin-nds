@@ -3,6 +3,8 @@
 #include "captain.h"
 #include "trig.h"
 
+#include "drawable_entity.h"
+
 #include <algorithm>
 
 using numeric_types::literals::operator"" _f;

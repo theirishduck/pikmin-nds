@@ -1,10 +1,17 @@
 #ifndef AI_PIKMIN_GAME_STATE_H
 #define AI_PIKMIN_GAME_STATE_H
 
+#include "handle.h"
 #include "state_machine.h"
-#include "drawable_entity.h"
+#include "vector.h"
 
 class PikminGame;
+class DrawableEntity;
+
+namespace physics {
+  class World;
+  class Body;
+}
 
 struct PikminGameState : ObjectState {
   Handle handle;
@@ -14,18 +21,13 @@ struct PikminGameState : ObjectState {
   DrawableEntity* entity = nullptr;
   physics::Body* body;
 
-  Vec3 position() const {
-    return body->position;
-  };
-  void set_position(Vec3 position) {
-    body->position = position;
-  };
-  Vec3 velocity() const {
-    return body->velocity;
-  };
-  void set_velocity(Vec3 velocity) {
-    body->velocity = velocity;
-  };
+  Vec3 position() const;
+  void set_position(Vec3 position);
+  Vec3 velocity() const;
+  void set_velocity(Vec3 velocity);
+
+  physics::World& world() const;
+
 };
 
 #endif
