@@ -1,8 +1,7 @@
 #ifndef AI_TREASURE_H
 #define AI_TREASURE_H
 
-#include "state_machine.h"
-#include "drawable_entity.h"
+#include "ai/pikmin_game_state.h"
 #include "physics/body.h"
 #include "pikmin.h"
 
@@ -16,7 +15,7 @@ namespace treasure_ai {
     kShip
   };
 
-struct TreasureState : ObjectState {
+struct TreasureState : PikminGameState {
   int cost{3};
   int max_pikmin{3};
   DestinationType destination{DestinationType::kNone};

@@ -1,12 +1,12 @@
 #ifndef UI_H
 #define UI_H
 
-#include "state_machine.h"
+#include "ai/pikmin_game_state.h"
 #include "debug/debug_ui.h"
 
 namespace ui {
 
-struct UIState : ObjectState {
+struct UIState : PikminGameState {
   int pikmin_delta;
   int key_timer = 0;
   int touch_timer = 0;

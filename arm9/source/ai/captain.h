@@ -1,15 +1,14 @@
 #ifndef AI_CAPTAIN_H
 #define AI_CAPTAIN_H
 
-#include "state_machine.h"
-#include "drawable_entity.h"
+#include "ai/pikmin_game_state.h"
 #include "pikmin.h"
 #include "onion.h"
 #include "squad.h"
 
 namespace captain_ai {
 
-struct CaptainState : ObjectState {
+struct CaptainState : PikminGameState {
   numeric_types::Brads current_angle = numeric_types::Brads::Raw(0);
   pikmin_ai::PikminState* held_pikmin;
   DrawableEntity* cursor;

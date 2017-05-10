@@ -2,8 +2,6 @@
 #define STATE_MACHINE_H_
 
 #include <functional>
-#include "handle.h"
-#include "drawable_entity.h"
 #include "debug/ai_profiler.h"
 
 template<typename T>
@@ -11,31 +9,10 @@ using GuardFunction = bool (*)(T const&);
 template<typename T>
 using ActionFunction = void (*)(T &);
 
-class PikminGame;
-
 struct ObjectState {
-  Handle handle;
-  bool active = false; // Used by the allocator to flag unused slots
-  bool dead = false;
-  PikminGame* game = nullptr;
-  DrawableEntity* entity = nullptr;
-  physics::Body* body;
   int current_node = 0;
   int frames_alive = 0;
   int frames_at_this_node = 0;
-
-  Vec3 position() const {
-    return body->position;
-  };
-  void set_position(Vec3 position) {
-    body->position = position;
-  };
-  Vec3 velocity() const {
-    return body->velocity;
-  };
-  void set_velocity(Vec3 velocity) {
-    body->velocity = velocity;
-  };
 };
 
 enum class Trigger {

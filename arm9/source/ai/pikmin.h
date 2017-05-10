@@ -1,8 +1,7 @@
 #ifndef AI_PIKMIN_H
 #define AI_PIKMIN_H
 
-#include "state_machine.h"
-#include "drawable_entity.h"
+#include "ai/pikmin_game_state.h"
 
 namespace squad_ai {
 struct SquadState;
@@ -38,7 +37,7 @@ enum PikminNode {
 };
 }
 
-struct PikminState : ObjectState {
+struct PikminState : PikminGameState {
   PikminType type = PikminType::kRedPikmin;
   squad_ai::SquadState* current_squad{nullptr};
 

@@ -1,7 +1,7 @@
 #ifndef AI_SQUAD_H
 #define AI_SQUAD_H
 
-#include "state_machine.h"
+#include "ai/pikmin_game_state.h"
 
 namespace pikmin_ai {
 struct PikminState;
@@ -14,7 +14,7 @@ struct CaptainState;
 
 namespace squad_ai {
 
-struct SquadState : ObjectState {
+struct SquadState : PikminGameState {
   captain_ai::CaptainState* captain;
   pikmin_ai::PikminState* pikmin[100];
   int squad_size{0};

@@ -1,12 +1,11 @@
 #ifndef AI_STATIC_H
 #define AI_STATIC_H
 
-#include "state_machine.h"
-#include "drawable_entity.h"
+#include "ai/pikmin_game_state.h"
 
 namespace static_ai {
 
-struct StaticState : ObjectState {
+struct StaticState : PikminGameState {
 };
 
 extern StateMachine<StaticState> machine;

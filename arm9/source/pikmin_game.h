@@ -51,7 +51,7 @@ class PikminGame {
      kOnion
    };
 
-  using SpawnMap = std::map<std::string, std::function<ObjectState*(PikminGame*)>>;
+  using SpawnMap = std::map<std::string, std::function<PikminGameState*(PikminGame*)>>;
 
   PikminGame(MultipassEngine& engine);
   ~PikminGame();
