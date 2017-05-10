@@ -14,6 +14,8 @@
 #include "ai/static.h"
 #include "ai/treasure.h"
 
+#include "physics/world.h"
+
 #include "ui.h"
 #include <list>
 #include <map>
@@ -59,7 +61,9 @@ class PikminGame {
   void PauseGame();
   void UnpauseGame();
   bool IsPaused();
-  MultipassEngine& Engine();
+
+  MultipassEngine& engine();
+  physics::World& world();
 
   template <typename StateType, unsigned int size>
   Handle SpawnObject(std::array<StateType, size>& object_list, int type);
@@ -122,7 +126,8 @@ class PikminGame {
   void RemoveCaptain(Handle handle);
   Handle ActiveCaptain();
 
- private:
+private:
+  physics::World world_;
   int current_generation_ = 0;
   bool paused_ = false;
   PikminSave current_save_data_;
@@ -137,11 +142,11 @@ class PikminGame {
   ui::UIState ui_;
 
   DrawableEntity* allocate_entity();
-  MultipassEngine& engine;
+  MultipassEngine& engine_;
 
   template <typename StateType>
   void CleanupObject(StateType* object) {
-    engine.RemoveEntity(object->entity);
+    engine_.RemoveEntity(object->entity);
     entities_.remove(object->entity);
     delete object->entity;
     delete object;
@@ -166,6 +171,7 @@ class PikminGame {
   debug::Dictionary debug_dictionary_;
   // Debug Topic IDs
   int tAI;
+  int tPhysicsUpdate;
   // Debug AI Profiler
   std::map<std::string, debug::AiProfiler> ai_profilers_;
 };

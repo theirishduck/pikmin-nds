@@ -24,7 +24,7 @@ void InitAlways(FireSpoutState& fire_spout) {
   // Setup our static physics properties
   fire_spout.body->collision_group = ATTACK_GROUP;
 
-  fire_spout.detection = fire_spout.entity->engine()->World().AllocateBody(fire_spout.handle).body;
+  fire_spout.detection = fire_spout.game->world().AllocateBody(fire_spout.handle).body;
   fire_spout.detection->position = fire_spout.position();
   fire_spout.detection->radius = 10_f;
   fire_spout.detection->height = 5_f;
@@ -42,7 +42,7 @@ void InitAlways(FireSpoutState& fire_spout) {
 
 void FlameOn(FireSpoutState& fire_spout) {
   // Spawn in a physics entity for the fire hazard
-  fire_spout.flame_sensor = fire_spout.entity->engine()->World().AllocateBody().body;
+  fire_spout.flame_sensor = fire_spout.game->world().AllocateBody().body;
   fire_spout.flame_sensor->radius = 2.0_f;
   fire_spout.flame_sensor->is_sensor = true;
   fire_spout.flame_sensor->collision_group = FIRE_HAZARD_GROUP;
@@ -53,7 +53,7 @@ void FlameOn(FireSpoutState& fire_spout) {
 }
 
 void FlameOff(FireSpoutState& fire_spout) {
-  fire_spout.entity->engine()->World().FreeBody(fire_spout.flame_sensor);
+  fire_spout.game->world().FreeBody(fire_spout.flame_sensor);
   fire_spout.flame_sensor = nullptr;
 
   fire_spout.flame_timer = (rand() % 16) + 112;
@@ -97,7 +97,7 @@ void KillSelf(FireSpoutState& fire_spout) {
   }
 
   // Clear out all of our collision data, so the pikmin stop attacking us
-  fire_spout.entity->engine()->World().FreeBody(fire_spout.detection);
+  fire_spout.game->world().FreeBody(fire_spout.detection);
   fire_spout.detection = nullptr;
   fire_spout.entity->body_handle().body->owner = Handle();
 }

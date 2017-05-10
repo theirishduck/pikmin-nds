@@ -4,8 +4,6 @@
 
 #include <nds/arm9/postest.h>
 
-#include "multipass_engine.h"
-
 namespace nt = numeric_types;
 
 using numeric_types::literals::operator"" _f;
@@ -13,7 +11,7 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 using numeric_types::Brads;
 
-DrawableEntity::DrawableEntity() {
+DrawableEntity::DrawableEntity(physics::World& world) : world_(world) {
   //zero out the cached matrix to initialize it
   for (int i = 1; i < 13; i++) {
     cached_matrix_[i] = 0;
@@ -23,10 +21,12 @@ DrawableEntity::DrawableEntity() {
   //MATRIX_MUL4x3
   cached_matrix_[0] = 0x19;
   current_.scale = 1.0_f;
+
+  body_ = world_.AllocateBody();
 }
 
 DrawableEntity::~DrawableEntity() {
-  engine()->World().FreeBody(body_.body);
+  world_.FreeBody(body_.body);
 }
 
 Vec3 DrawableEntity::position() const {
@@ -117,14 +117,6 @@ void DrawableEntity::set_mesh(const char* mesh_name) {
 
 Mesh* DrawableEntity::mesh() {
   return current_.current_mesh;
-}
-
-void DrawableEntity::set_engine(MultipassEngine* engine) {
-  engine_ = engine;
-}
-
-MultipassEngine* DrawableEntity::engine() {
-  return engine_;
 }
 
 void DrawableEntity::ApplyTransformation() {
@@ -236,10 +228,6 @@ numeric_types::fixed DrawableEntity::GetRealModelZ() {
 void DrawableEntity::SetAnimation(std::string name) {
   current_.animation = current_.actor->GetAnimation(name, current_.current_mesh);
   current_.animation_frame = 0;
-}
-
-void DrawableEntity::Init() {
-  body_ = engine()->World().AllocateBody();
 }
 
 physics::BodyHandle DrawableEntity::body_handle() {

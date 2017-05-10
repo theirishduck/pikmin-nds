@@ -212,20 +212,20 @@ void InitNavPad(UIState& ui) {
 }
 
 void InitAlways(UIState& ui) {
-  ui.debug_topic_id = ui.game->Engine().DebugProfiler().RegisterTopic("Game: UI");
+  ui.debug_topic_id = ui.game->engine().DebugProfiler().RegisterTopic("Game: UI");
   InitNavPad(ui);
 }
 
 void UpdateNavPad(UIState& ui) {
   //auto profiler = ui.game->Engine().DebugProfiler();
-  ui.game->Engine().DebugProfiler().StartTopic(ui.debug_topic_id);
+  ui.game->engine().DebugProfiler().StartTopic(ui.debug_topic_id);
   // Update pikmin counts
   BubbleNumber(100, 70,  168, ui.game->RetrieveCaptain(ui.game->ActiveCaptain())->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->TotalPikmin(), 3);
   UpdatePikminSelector(ui, 109);
   UpdateMapIcons(ui);
-  ui.game->Engine().DebugProfiler().EndTopic(ui.debug_topic_id);
+  ui.game->engine().DebugProfiler().EndTopic(ui.debug_topic_id);
 }
 
 bool OpenOnionUI(const UIState& ui) {

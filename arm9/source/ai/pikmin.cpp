@@ -73,7 +73,7 @@ void InitAlways(PikminState& pikmin) {
 void IdleAlways(PikminState& pikmin) {
   if (pikmin.current_squad) {
     //every 8 frames or so, update our facing direction to look at the captain
-    if ((pikmin.entity->engine()->FrameCounter() + pikmin.handle.id) % 8 == 0) {
+    if ((pikmin.game->engine().FrameCounter() + pikmin.handle.id) % 8 == 0) {
       pikmin.target_facing_angle = pikmin.entity->AngleTo(pikmin.current_squad->captain->entity);
     }
     pikmin.entity->RotateToFace(pikmin.target_facing_angle, 10_brad);
@@ -85,7 +85,7 @@ void IdleAlways(PikminState& pikmin) {
 // frame. This is very handy for making sure that very complex AI tasks aren't
 // happening too much in a single frame.
 bool AiStaggerDelay(const PikminState& pikmin) {
-  return (pikmin.entity->engine()->FrameCounter() % 100) == (pikmin.handle.id % 100);
+  return (pikmin.game->engine().FrameCounter() % 100) == (pikmin.handle.id % 100);
 }
 
 bool HasNewParent(const PikminState& pikmin) {
@@ -144,13 +144,13 @@ void FaceTarget(PikminState& pikmin) {
 
 void RunToTarget(PikminState& pikmin) {
   // Only update the angle every so often, as this is expensive!
-  if ((pikmin.handle.id + pikmin.entity->engine()->FrameCounter()) % 4 == 0) {
+  if ((pikmin.handle.id + pikmin.game->engine().FrameCounter()) % 4 == 0) {
     FaceTarget(pikmin);
   }
 }
 
 bool PikminTurn(const PikminState& pikmin) {
-  return pikmin.entity->engine()->FrameCounter() % 100 == pikmin.handle.id;
+  return pikmin.game->engine().FrameCounter() % 100 == pikmin.handle.id;
 }
 
 template <int Chance>
@@ -167,7 +167,7 @@ void ChooseRandomTarget(PikminState& pikmin) {
 
 bool TargetReached(const PikminState& pikmin) {
   //don't do this every frame, for intentional inaccuracy
-  if ((pikmin.handle.id + pikmin.entity->engine()->FrameCounter()) % 16 == 0) {
+  if ((pikmin.handle.id + pikmin.game->engine().FrameCounter()) % 16 == 0) {
     auto position = pikmin.position();
     return (pikmin.target - Vec2{position.x, position.z}).Length2() <
         kTargetThreshold * kTargetThreshold;
@@ -215,7 +215,7 @@ void JoinSquad(PikminState& pikmin) {
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
   // Some unspeakable horror caused our target to vanish or otherwise change
-  if (pikmin.game->Engine().World().RetrieveBody(pikmin.chase_target_body) == nullptr) {
+  if (pikmin.game->world().RetrieveBody(pikmin.chase_target_body) == nullptr) {
     return true;
   }
   return false;
@@ -237,14 +237,14 @@ void SetAttackTarget(PikminState& pikmin) {
 }
 
 void ChaseTarget(PikminState& pikmin) {
-  if (Body* chase_target = pikmin.game->Engine().World().RetrieveBody(pikmin.chase_target_body)) {
+  if (Body* chase_target = pikmin.game->world().RetrieveBody(pikmin.chase_target_body)) {
     pikmin.target = Vec2{chase_target->position.x, chase_target->position.z};
     RunToTarget(pikmin);
   }
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  if (Body* chase_target = pikmin.game->Engine().World().RetrieveBody(pikmin.attack_target_body)) {
+  if (Body* chase_target = pikmin.game->world().RetrieveBody(pikmin.attack_target_body)) {
     if (HealthState* enemy_health = pikmin.game->RetrieveHealth(chase_target->owner)) {
       enemy_health->DealDamage(5);
     } else {

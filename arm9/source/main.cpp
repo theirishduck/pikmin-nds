@@ -268,10 +268,10 @@ void LoadTextures(PikminGame& game) {
 
 void SetupDemoStage(PikminGame& game) {
   //load in the test level
-  Level* sandbox = new Level(game.TextureAllocator(), game.TexturePaletteAllocator());
+  Level* sandbox = new Level(game.world());
   sandbox->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
-  game.Engine().AddEntity(sandbox);
-  game.Engine().World().SetHeightmap(checkerboard_height_bin);
+  game.engine().AddEntity(sandbox);
+  game.world().SetHeightmap(checkerboard_height_bin);
 
   //spawn in an onion!
   auto red_onion = game.RetrieveOnion(game.Spawn("Onion:Red"));
@@ -299,7 +299,7 @@ void SetupDemoStage(PikminGame& game) {
 void InitCaptain(PikminGame& game) {
   CaptainState* captain = game.RetrieveCaptain(game.SpawnCaptain());
   if (captain) {
-    game.Engine().camera()->FollowCaptain(captain);
+    game.engine().camera()->FollowCaptain(captain);
     captain->set_position(Vec3{64_f,0_f,-62_f});
   }
 }
@@ -345,14 +345,14 @@ void GameLoop(PikminGame& game) {
     touchRead(&touchXY);
 
     //start debug timings for this loop
-    game.Engine().DebugProfiler().StartTimer();
+    game.engine().DebugProfiler().StartTimer();
 
     if (frame_counter % 2 == 0) {
       RunLogic(game);
     } else {
-      game.Engine().Update();
+      game.engine().Update();
     }
-    game.Engine().Draw();
+    game.engine().Draw();
 
     oamUpdate(&oamSub);
   }

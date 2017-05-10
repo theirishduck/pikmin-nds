@@ -6,6 +6,7 @@
 #include "dsgx.h"
 #include "vector.h"
 #include "physics/body.h"
+#include "physics/world.h"
 
 struct Rotation {
   numeric_types::Brads x;
@@ -25,14 +26,12 @@ struct DrawState {
   u32 animation_frame{0};
 };
 
-class MultipassEngine;
-
 // Root for anything that the various Graphics Engines may use;
 // intended to be inherited from to create game objects with
 // custom logic.
 class DrawableEntity {
  public:
-  DrawableEntity();
+  DrawableEntity(physics::World& world);
   virtual ~DrawableEntity();
   DrawState& GetCachedState();
   void SetCache();
@@ -61,11 +60,7 @@ class DrawableEntity {
 
   physics::BodyHandle body_handle();
 
-  void set_engine(MultipassEngine* engine);
-  MultipassEngine* engine();
-
   virtual void Update();
-  virtual void Init();
   inline void ApplyTransformation();
   void Draw();
 
@@ -76,12 +71,11 @@ class DrawableEntity {
   bool important{true};
 
  private:
+  physics::World& world_;
   DrawState current_{};
   DrawState cached_{};
 
   s32 cached_matrix_[13]; //one extra entry for size; for DMA transfers
-
-  MultipassEngine* engine_{nullptr};
  protected:
   physics::BodyHandle body_;
 };

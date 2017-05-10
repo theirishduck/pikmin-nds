@@ -28,7 +28,6 @@ MultipassEngine::MultipassEngine() {
   // Initialize debug topics
   tIdle =           debug_profiler_.RegisterTopic("Engine: Idle");
   tEntityUpdate =   debug_profiler_.RegisterTopic("Engine: Entities");
-  tPhysicsUpdate =  debug_profiler_.RegisterTopic("Engine: Physics");
   tParticleUpdate = debug_profiler_.RegisterTopic("Engine: Particle Updatess");
   tParticleDraw =   debug_profiler_.RegisterTopic("Engine: Particle Drawing");
   tFrameInit =      debug_profiler_.RegisterTopic("Engine: Frame Init");
@@ -46,10 +45,6 @@ void MultipassEngine::EnableEffectsLayer(bool enabled) {
 
 debug::Profiler& MultipassEngine::DebugProfiler() {
   return debug_profiler_;
-}
-
-physics::World& MultipassEngine::World() {
-  return world_;
 }
 
 Camera* MultipassEngine::camera() {
@@ -72,8 +67,6 @@ bool MultipassEngine::IsPaused() {
 
 void MultipassEngine::AddEntity(DrawableEntity* entity) {
   entities_.push_back(entity);
-  entity->set_engine(this);
-  entity->Init();
 }
 
 void MultipassEngine::RemoveEntity(DrawableEntity* entity) {
@@ -92,10 +85,6 @@ void MultipassEngine::Update() {
     entity->Update();
   }
   debug_profiler_.EndTopic(tEntityUpdate);
-
-  debug_profiler_.StartTopic(tPhysicsUpdate);
-  world_.Update();
-  debug_profiler_.EndTopic(tPhysicsUpdate);
 
   debug_profiler_.StartTopic(tParticleUpdate);
   UpdateParticles();
@@ -512,9 +501,9 @@ void MultipassEngine::DrawEffects() {
   ClipFriendlyPerspective(0.1_f, 768.0_f, FIELD_OF_VIEW);
   glLoadIdentity();
   camera_.ApplyTransform();
-  if (debug_flags["Draw Physics Circles"]) {
-    world_.DebugCircles();
-  }
+  //if (debug_flags["Draw Physics Circles"]) {
+  //  world_.DebugCircles();
+  //}
   effects_drawn = true;
 }
 

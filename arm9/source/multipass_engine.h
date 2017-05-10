@@ -31,8 +31,6 @@ class MultipassEngine {
   void Update();
   void Draw();
 
-  physics::World& World();
-
   void AddEntity(DrawableEntity* entity);
   void RemoveEntity(DrawableEntity* entity);
 
@@ -88,8 +86,6 @@ class MultipassEngine {
 
   Camera camera_;
 
-  physics::World world_;
-
   unsigned int frame_counter_{0};
 
   bool effects_enabled{false};
@@ -99,7 +95,6 @@ class MultipassEngine {
 
   // Debug Topics
   int tEntityUpdate;
-  int tPhysicsUpdate;
   int tParticleUpdate;
   int tParticleDraw;
   int tFrameInit;

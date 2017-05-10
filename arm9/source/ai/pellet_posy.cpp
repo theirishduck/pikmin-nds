@@ -14,7 +14,7 @@ namespace posy_ai {
 void InitAlways(PosyState& posy) {
   posy.entity->set_actor(posy.game->ActorAllocator()->Retrieve("pellet_posy"));
 
-  posy.detection = posy.entity->engine()->World().AllocateBody(posy.handle).body;
+  posy.detection = posy.game->world().AllocateBody(posy.handle).body;
   posy.detection->position = posy.position();
   posy.detection->radius = 10_f;
   posy.detection->height = 5_f;
@@ -47,7 +47,7 @@ void StoreCurrentHealth(PosyState& posy) {
 }
 
 void GoodbyeCruelWorld(PosyState& posy) {
-  posy.entity->engine()->World().FreeBody(posy.detection);
+  posy.game->world().FreeBody(posy.detection);
   posy.dead = true;
 
   // Spawn in the pellet

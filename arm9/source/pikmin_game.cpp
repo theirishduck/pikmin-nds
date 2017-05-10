@@ -46,17 +46,18 @@ int PikminGame::TotalPikmin() {
   return total;
 }
 
-PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
+PikminGame::PikminGame(MultipassEngine& engine) : engine_{engine} {
   ui_.game = this;
   ui_.debug_state.game = this;
 
   // Setup initial debug flags
-  engine.debug_flags["Draw Effects Layer"] = false;
-  engine.debug_flags["Draw Physics Circles"] = false;
-  engine.debug_flags["Skip VBlank"] = false;
-  engine.debug_flags["Render First Pass Only"] = false;
+  engine_.debug_flags["Draw Effects Layer"] = false;
+  engine_.debug_flags["Draw Physics Circles"] = false;
+  engine_.debug_flags["Skip VBlank"] = false;
+  engine_.debug_flags["Render First Pass Only"] = false;
 
-  tAI = engine.DebugProfiler().RegisterTopic("Game: AI / Logic");
+  tAI = engine_.DebugProfiler().RegisterTopic("Game: AI / Logic");
+  tPhysicsUpdate = engine_.DebugProfiler().RegisterTopic("Game: Physics");
 
   ai_profilers_.emplace("Pikmin", debug::AiProfiler());
 }
@@ -64,8 +65,12 @@ PikminGame::PikminGame(MultipassEngine& engine) : engine{engine} {
 PikminGame::~PikminGame() {
 }
 
-MultipassEngine& PikminGame::Engine() {
-  return engine;
+MultipassEngine& PikminGame::engine() {
+  return engine_;
+}
+
+physics::World& PikminGame::world() {
+  return world_;
 }
 
 VramAllocator<Texture>* PikminGame::TextureAllocator() {
@@ -88,8 +93,8 @@ DrawableEntity* PikminGame::allocate_entity() {
   if (entities_.size() >= kMaxEntities) {
     return nullptr;
   }
-  entities_.push_back(new DrawableEntity());
-  engine.AddEntity(entities_.back());
+  entities_.push_back(new DrawableEntity(world_));
+  engine_.AddEntity(entities_.back());
   return entities_.back();
 }
 
@@ -134,7 +139,7 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
     if (handle.Matches(object_to_delete.handle)) {
       // similar to cleanup object, again minus the state allocation
       object_to_delete.active = false;
-      engine.RemoveEntity(object_to_delete.entity);
+      engine_.RemoveEntity(object_to_delete.entity);
       entities_.remove(object_to_delete.entity);
       delete object_to_delete.entity;
       current_generation_++;
@@ -161,11 +166,11 @@ Handle PikminGame::SpawnCaptain() {
 void PikminGame::RemoveCaptain(Handle handle) {
   CaptainState* captain = RetrieveCaptain(handle);
   if (captain) {
-    engine.RemoveEntity(captain->cursor);
+    engine_.RemoveEntity(captain->cursor);
     entities_.remove(captain->cursor);
     delete captain->cursor;
 
-    engine.RemoveEntity(captain->whistle);
+    engine_.RemoveEntity(captain->whistle);
     entities_.remove(captain->whistle);
     delete captain->whistle;
 
@@ -277,12 +282,12 @@ TreasureState* PikminGame::RetrieveTreasure(Handle handle) {
 
 void PikminGame::PauseGame() {
   paused_ = true;
-  engine.PauseEngine();
+  engine_.PauseEngine();
 }
 
 void PikminGame::UnpauseGame() {
   paused_ = false;
-  engine.UnpauseEngine();
+  engine_.UnpauseEngine();
 }
 
 bool PikminGame::IsPaused() {
@@ -296,7 +301,7 @@ void PikminGame::Step() {
     return;
   }
 
-  engine.DebugProfiler().StartTopic(tAI);
+  engine_.DebugProfiler().StartTopic(tAI);
   for (auto i = captains.begin(); i != captains.end(); i++) {
     if (i->active) {
       captain_ai::machine.RunLogic(*i);
@@ -348,11 +353,15 @@ void PikminGame::Step() {
     }
   }
 
-  engine.DebugProfiler().EndTopic(tAI);
+  engine_.DebugProfiler().EndTopic(tAI);
+
+  engine_.DebugProfiler().StartTopic(tPhysicsUpdate);
+  world_.Update();
+  engine_.DebugProfiler().EndTopic(tPhysicsUpdate);
 
   // Update some debug details about the world
-  DebugDictionary().Set("Physics: Bodies Overlapping: ", engine.World().BodiesOverlapping());
-  DebugDictionary().Set("Physics: Total Collisions: ", engine.World().TotalCollisions());
+  DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());
+  DebugDictionary().Set("Physics: Total Collisions: ", world().TotalCollisions());
 }
 
 Handle PikminGame::ActiveCaptain() {
