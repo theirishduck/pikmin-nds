@@ -29,8 +29,9 @@ void InitAlways(PosyState& posy) {
     return;
   }
   posy.health_state = health_state;
+  posy.health_state->health = 25;
+  posy.health_state->max_health = 25;
   posy.old_health = posy.health_state->health;
-
   posy.body->owner = posy.health_state->handle;
 }
 
@@ -51,7 +52,7 @@ void GoodbyeCruelWorld(PosyState& posy) {
   posy.dead = true;
 
   // Spawn in the pellet
-  auto pellet = posy.game->RetrieveTreasure(posy.game->Spawn("Corpse:Pellet"));
+  auto pellet = posy.game->RetrieveTreasure(posy.game->Spawn("Corpse:Pellet:Red"));
   pellet->set_position(posy.position());
 }
 

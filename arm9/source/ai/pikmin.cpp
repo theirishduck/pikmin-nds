@@ -247,8 +247,6 @@ void DealDamageToTarget(PikminState& pikmin) {
   if (Body* chase_target = pikmin.world().RetrieveBody(pikmin.attack_target_body)) {
     if (HealthState* enemy_health = pikmin.game->RetrieveHealth(chase_target->owner)) {
       enemy_health->DealDamage(5);
-    } else {
-      pikmin.body->velocity.y = 20.5_f;
     }
   }
 }
