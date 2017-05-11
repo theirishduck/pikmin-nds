@@ -27,7 +27,7 @@ void InitAlways(OnionState& onion) {
 
   // Setup collision for feet
   for (int i = 0; i < 3; i++) {
-    onion.feet[i] = onion.game->world().AllocateBody(onion.handle).body;
+    onion.feet[i] = onion.world().AllocateBody(onion.handle).body;
     onion.feet[i]->radius = 2.1_f;
     onion.feet[i]->height = 1.0_f;
     onion.feet[i]->collision_group = ONION_FEET_GROUP;

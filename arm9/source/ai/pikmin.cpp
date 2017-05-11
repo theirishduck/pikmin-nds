@@ -215,7 +215,7 @@ void JoinSquad(PikminState& pikmin) {
 
 bool ChaseTargetInvalid(const PikminState& pikmin) {
   // Some unspeakable horror caused our target to vanish or otherwise change
-  if (pikmin.game->world().RetrieveBody(pikmin.chase_target_body) == nullptr) {
+  if (pikmin.world().RetrieveBody(pikmin.chase_target_body) == nullptr) {
     return true;
   }
   return false;
@@ -237,14 +237,14 @@ void SetAttackTarget(PikminState& pikmin) {
 }
 
 void ChaseTarget(PikminState& pikmin) {
-  if (Body* chase_target = pikmin.game->world().RetrieveBody(pikmin.chase_target_body)) {
+  if (Body* chase_target = pikmin.world().RetrieveBody(pikmin.chase_target_body)) {
     pikmin.target = Vec2{chase_target->position.x, chase_target->position.z};
     RunToTarget(pikmin);
   }
 }
 
 void DealDamageToTarget(PikminState& pikmin) {
-  if (Body* chase_target = pikmin.game->world().RetrieveBody(pikmin.attack_target_body)) {
+  if (Body* chase_target = pikmin.world().RetrieveBody(pikmin.attack_target_body)) {
     if (HealthState* enemy_health = pikmin.game->RetrieveHealth(chase_target->owner)) {
       enemy_health->DealDamage(5);
     } else {
