@@ -46,7 +46,6 @@ class DrawableEntity {
   numeric_types::fixed scale() const;
   void set_scale(numeric_types::fixed new_scale);
 
-  void RotateToXZDirection(Vec2 direction);
   numeric_types::Brads AngleTo(const DrawableEntity* destination);
   void RotateToFace(numeric_types::Brads target_angle, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));
   void RotateToFace(const DrawableEntity* destination, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));

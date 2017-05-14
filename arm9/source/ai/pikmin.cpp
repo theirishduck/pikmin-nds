@@ -7,6 +7,7 @@
 #include "particle_library.h"
 #include "particle.h"
 #include "particle_library.h"
+#include "vector_utils.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"
@@ -139,7 +140,7 @@ void FaceTarget(PikminState& pikmin) {
   Vec2 new_velocity = new_direction * movement_speed;
   pikmin.body->velocity.x = new_velocity.x;
   pikmin.body->velocity.z = new_velocity.y;
-  pikmin.entity->RotateToXZDirection(new_velocity);
+  pikmin.entity->set_rotation(0_brad, AngleFromNormalizedVec2(new_direction), 0_brad);
 }
 
 void RunToTarget(PikminState& pikmin) {

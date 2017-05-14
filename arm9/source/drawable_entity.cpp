@@ -59,18 +59,6 @@ void DrawableEntity::set_scale(fixed new_scale) {
   current_.scale = new_scale;
 }
 
-void DrawableEntity::RotateToXZDirection(Vec2 direction) {
-  // Rotate the entity so that it faces towards the provided vector
-  if (direction.Length() > 0_f) {
-    direction = direction.Normalize();
-    if (direction.y <= 0_f) {
-      set_rotation(0_brad, Brads::Raw(acosLerp(direction.x.data_)), 0_brad);
-    } else {
-      set_rotation(0_brad, Brads::Raw(-acosLerp(direction.x.data_)), 0_brad);
-    }
-  }
-}
-
 DrawState& DrawableEntity::GetCachedState() {
   return cached_;
 }
