@@ -265,7 +265,7 @@ void LoadTextures(PikminGame& game) {
 
 void SetupDemoStage(PikminGame& game) {
   //load in the test level
-  DrawableEntity* sandbox = new DrawableEntity();
+  Drawable* sandbox = new Drawable();
   sandbox->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
   game.engine().AddEntity(sandbox);
   game.world().SetHeightmap(checkerboard_height_bin);

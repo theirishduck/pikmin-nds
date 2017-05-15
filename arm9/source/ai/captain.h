@@ -15,8 +15,8 @@ namespace captain_ai {
 struct CaptainState : PikminGameState {
   numeric_types::Brads current_angle = numeric_types::Brads::Raw(0);
   pikmin_ai::PikminState* held_pikmin;
-  DrawableEntity* cursor;
-  DrawableEntity* whistle;
+  Drawable* cursor;
+  Drawable* whistle;
   physics::Body* whistle_body;
   physics::Body* cursor_body;
   int whistle_timer = 0;

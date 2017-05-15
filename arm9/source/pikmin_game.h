@@ -2,7 +2,7 @@
 #define PIKMIN_GAME_H
 
 #include "handle.h"
-#include "drawable_entity.h"
+#include "drawable.h"
 #include "multipass_engine.h"
 
 #include "ai/captain.h"
@@ -137,11 +137,11 @@ private:
   VramAllocator<Sprite> sprite_allocator_ = VramAllocator<Sprite>(SPRITE_GFX_SUB, 32 * 1024);
   DsgxAllocator dsgx_allocator_;
   const u32 kMaxEntities = 256;
-  std::list<DrawableEntity*> entities_;
+  std::list<Drawable*> entities_;
 
   ui::UIState ui_;
 
-  DrawableEntity* allocate_entity();
+  Drawable* allocate_entity();
   MultipassEngine& engine_;
 
   template <typename StateType>

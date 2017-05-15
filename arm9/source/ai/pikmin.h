@@ -42,7 +42,7 @@ struct PikminState : PikminGameState {
   squad_ai::SquadState* current_squad{nullptr};
 
   //parent: used for being thrown (and later chewed?)
-  DrawableEntity* parent{nullptr};
+  Drawable* parent{nullptr};
   Vec3 parent_initial_location;
   Vec3 child_offset;
 

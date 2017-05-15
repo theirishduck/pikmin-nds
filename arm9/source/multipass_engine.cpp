@@ -65,11 +65,11 @@ bool MultipassEngine::IsPaused() {
   return paused_;
 }
 
-void MultipassEngine::AddEntity(DrawableEntity* entity) {
+void MultipassEngine::AddEntity(Drawable* entity) {
   entities_.push_back(entity);
 }
 
-void MultipassEngine::RemoveEntity(DrawableEntity* entity) {
+void MultipassEngine::RemoveEntity(Drawable* entity) {
   entities_.remove(entity);
 }
 

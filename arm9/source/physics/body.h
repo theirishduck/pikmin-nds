@@ -7,8 +7,6 @@
 #include "vector.h"
 #include <array>
 
-class DrawableEntity;
-
 namespace physics {
 
 struct Body;

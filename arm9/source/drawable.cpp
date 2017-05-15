@@ -1,4 +1,4 @@
-#include "drawable_entity.h"
+#include "drawable.h"
 
 #include <cstdio>
 
@@ -11,7 +11,7 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 using numeric_types::Brads;
 
-DrawableEntity::DrawableEntity() {
+Drawable::Drawable() {
   //zero out the cached matrix to initialize it
   for (int i = 1; i < 13; i++) {
     cached_matrix_[i] = 0;
@@ -23,41 +23,41 @@ DrawableEntity::DrawableEntity() {
   current_.scale = 1.0_f;
 }
 
-Vec3 DrawableEntity::position() const {
+Vec3 Drawable::position() const {
   return current_.position;
 }
 
-void DrawableEntity::set_position(Vec3 pos) {
+void Drawable::set_position(Vec3 pos) {
   current_.position = pos;
 }
 
-Rotation DrawableEntity::rotation() const {
+Rotation Drawable::rotation() const {
   return current_.rotation;
 }
 
-void DrawableEntity::set_rotation(nt::Brads x, nt::Brads y, nt::Brads z) {
+void Drawable::set_rotation(nt::Brads x, nt::Brads y, nt::Brads z) {
   current_.rotation.x = x;
   current_.rotation.y = y;
   current_.rotation.z = z;
 }
 
-void DrawableEntity::set_rotation(Rotation rotation) {
+void Drawable::set_rotation(Rotation rotation) {
   current_.rotation = rotation;
 }
 
-fixed DrawableEntity::scale() const {
+fixed Drawable::scale() const {
   return current_.scale;
 }
 
-void DrawableEntity::set_scale(fixed new_scale) {
+void Drawable::set_scale(fixed new_scale) {
   current_.scale = new_scale;
 }
 
-DrawState& DrawableEntity::GetCachedState() {
+DrawState& Drawable::GetCachedState() {
   return cached_;
 }
 
-void DrawableEntity::SetCache() {
+void Drawable::SetCache() {
   cached_ = current_;
 
   //return;
@@ -84,24 +84,24 @@ void DrawableEntity::SetCache() {
   cached_matrix_[12] = cached_.position.z.data_;
 }
 
-void DrawableEntity::set_actor(Dsgx* actor) {
+void Drawable::set_actor(Dsgx* actor) {
   current_.actor = actor;
   current_.current_mesh = actor->DefaultMesh();
 }
 
-Dsgx* DrawableEntity::actor() {
+Dsgx* Drawable::actor() {
   return current_.actor;
 }
 
-void DrawableEntity::set_mesh(const char* mesh_name) {
+void Drawable::set_mesh(const char* mesh_name) {
   current_.current_mesh = current_.actor->MeshByName(mesh_name);
 }
 
-Mesh* DrawableEntity::mesh() {
+Mesh* Drawable::mesh() {
   return current_.current_mesh;
 }
 
-void DrawableEntity::ApplyTransformation() {
+void Drawable::ApplyTransformation() {
   if (cached_.rotation.x.data_ or cached_.rotation.z.data_ or cached_.scale != 1.0_f) {
     // sub-optimal case. This is correct, but slow; I don't know how to
     // improve arbitrary rotation yet. -Nick
@@ -139,7 +139,7 @@ void DrawableEntity::ApplyTransformation() {
   }
 }
 
-void DrawableEntity::Draw() {
+void Drawable::Draw() {
   if (cached_.actor == nullptr or cached_.current_mesh == nullptr) {
     return;
   }
@@ -155,7 +155,7 @@ void DrawableEntity::Draw() {
 
 }
 
-void DrawableEntity::Update() {
+void Drawable::Update() {
   // Update the animation if one is playing.
   if (current_.animation) {
     current_.animation_frame++;
@@ -166,7 +166,7 @@ void DrawableEntity::Update() {
   }
 }
 
-bool DrawableEntity::InsideViewFrustrum() {
+bool Drawable::InsideViewFrustrum() {
   // Determine if this object is in the view frustrum using a BOX_TEST
   glPushMatrix();
   ApplyTransformation();
@@ -186,7 +186,7 @@ bool DrawableEntity::InsideViewFrustrum() {
   return result;
 }
 
-numeric_types::fixed DrawableEntity::GetRealModelZ() {
+numeric_types::fixed Drawable::GetRealModelZ() {
   // Avoid clobbering the render state for this poll by pushing the current
   // matrix before performing the position test.
   glPushMatrix();
@@ -202,12 +202,12 @@ numeric_types::fixed DrawableEntity::GetRealModelZ() {
   return result;
 }
 
-void DrawableEntity::SetAnimation(std::string name) {
+void Drawable::SetAnimation(std::string name) {
   current_.animation = current_.actor->GetAnimation(name, current_.current_mesh);
   current_.animation_frame = 0;
 }
 
-void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {
+void Drawable::RotateToFace(Brads target_angle, Brads rate) {
   auto delta = target_angle - current_.rotation.y;
 
   // clamp the delta so that it is within -180, 180
@@ -229,7 +229,7 @@ void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {
   current_.rotation.y += delta;
 }
 
-Brads DrawableEntity::AngleTo(const DrawableEntity* destination) {
+Brads Drawable::AngleTo(const Drawable* destination) {
   auto difference = Vec2{destination->position().x, destination->position().z} -
       Vec2{position().x, position().z};
   if (difference.Length2() > 0_f) {
@@ -242,6 +242,6 @@ Brads DrawableEntity::AngleTo(const DrawableEntity* destination) {
   return 0_brad;
 }
 
-void DrawableEntity::RotateToFace(const DrawableEntity* destination, Brads rate) {
+void Drawable::RotateToFace(const Drawable* destination, Brads rate) {
   RotateToFace(AngleTo(destination), rate);
 }

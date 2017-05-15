@@ -6,7 +6,7 @@
 #include "vector.h"
 
 class PikminGame;
-class DrawableEntity;
+class Drawable;
 
 namespace physics {
   class World;
@@ -18,7 +18,7 @@ struct PikminGameState : ObjectState {
   bool active = false; // Used by the allocator to flag unused slots
   bool dead = false;
   PikminGame* game = nullptr;
-  DrawableEntity* entity = nullptr;
+  Drawable* entity = nullptr;
   physics::Body* body;
 
   Vec3 position() const;

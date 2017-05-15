@@ -27,9 +27,9 @@ struct DrawState {
 // Root for anything that the various Graphics Engines may use;
 // intended to be inherited from to create game objects with
 // custom logic.
-class DrawableEntity {
+class Drawable {
  public:
-  DrawableEntity();
+  Drawable();
   DrawState& GetCachedState();
   void SetCache();
 
@@ -43,9 +43,9 @@ class DrawableEntity {
   numeric_types::fixed scale() const;
   void set_scale(numeric_types::fixed new_scale);
 
-  numeric_types::Brads AngleTo(const DrawableEntity* destination);
+  numeric_types::Brads AngleTo(const Drawable* destination);
   void RotateToFace(numeric_types::Brads target_angle, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));
-  void RotateToFace(const DrawableEntity* destination, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));
+  void RotateToFace(const Drawable* destination, numeric_types::Brads rate = numeric_types::Brads::Raw(degreesToAngle(180)));
 
   bool InsideViewFrustrum();
 

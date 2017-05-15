@@ -89,11 +89,11 @@ DsgxAllocator* PikminGame::ActorAllocator() {
   return &dsgx_allocator_;
 }
 
-DrawableEntity* PikminGame::allocate_entity() {
+Drawable* PikminGame::allocate_entity() {
   if (entities_.size() >= kMaxEntities) {
     return nullptr;
   }
-  entities_.push_back(new DrawableEntity());
+  entities_.push_back(new Drawable());
   engine_.AddEntity(entities_.back());
   return entities_.back();
 }
@@ -460,7 +460,7 @@ const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> Pikmin
       treasure->pikmin_affinity = PikminType::kRedPikmin;
       treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
       treasure->body->radius = 2_f;
-      
+
       treasure->weight = 1;
       treasure->carry_slots = 2;
       treasure->pikmin_seeds = 2;

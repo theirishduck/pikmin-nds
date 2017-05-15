@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-#include "drawable_entity.h"
+#include "drawable.h"
 #include "entities/camera.h"
 #include "physics/world.h"
 #include "debug/profiler.h"
@@ -15,7 +15,7 @@ struct EntityContainer {
   template <typename FixedT, int FixedF>
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
-  DrawableEntity* entity;
+  Drawable* entity;
   Fixed<s32, 12> near_z;
   Fixed<s32, 12> far_z;
   bool operator<(const EntityContainer& other) const {
@@ -26,13 +26,13 @@ struct EntityContainer {
 class MultipassEngine {
  public:
   MultipassEngine();
-  void DrawEntity(DrawableEntity entity);
+  void DrawEntity(Drawable entity);
 
   void Update();
   void Draw();
 
-  void AddEntity(DrawableEntity* entity);
-  void RemoveEntity(DrawableEntity* entity);
+  void AddEntity(Drawable* entity);
+  void RemoveEntity(Drawable* entity);
 
   numeric_types::Brads DPadDirection();
   numeric_types::Brads CameraAngle();
@@ -71,7 +71,7 @@ class MultipassEngine {
 
   std::priority_queue<EntityContainer> draw_list_;
 
-  std::list<DrawableEntity*> entities_;
+  std::list<Drawable*> entities_;
   std::vector<EntityContainer> overlap_list_;
   std::vector<EntityContainer> pass_list_;
 

@@ -3,7 +3,7 @@
 #include "captain.h"
 #include "trig.h"
 
-#include "drawable_entity.h"
+#include "drawable.h"
 
 #include <algorithm>
 
