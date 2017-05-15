@@ -17,7 +17,7 @@ World::World() {
 World::~World() {
 }
 
-BodyHandle World::AllocateBody(Handle owner) {
+Body* World::AllocateBody(Handle owner) {
   // This is a fairly naive implementation.
 
   // Note: A return value of 0 (Null) indicates failure.
@@ -53,13 +53,10 @@ BodyHandle World::AllocateBody(Handle owner) {
       bodies_[i].handle.generation = current_generation_;
       bodies_[i].handle.type = World::kBody;
 
-      return handle;
+      return &bodies_[i];
     }
   }
-  BodyHandle handle;
-  handle.body = nullptr;
-  handle.generation = -1;
-  return handle;
+  return nullptr;
 }
 
 void World::FreeBody(Body* body) {

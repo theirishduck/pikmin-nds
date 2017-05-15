@@ -95,7 +95,7 @@ bool HasNewParent(const PikminState& pikmin) {
 
 void StoreParentLocation(PikminState& pikmin) {
   if (pikmin.parent) {
-    pikmin.parent_initial_location = pikmin.parent->body_handle().body->position;
+    pikmin.parent_initial_location = pikmin.parent->position();
     pikmin.child_offset = pikmin.parent_initial_location
         - pikmin.position();
   }
@@ -104,7 +104,7 @@ void StoreParentLocation(PikminState& pikmin) {
 
 void FollowParent(PikminState& pikmin) {
   if (pikmin.parent) {
-    pikmin.set_position(pikmin.parent->body_handle().body->position
+    pikmin.set_position(pikmin.parent->position()
         + pikmin.child_offset);
   }
 }

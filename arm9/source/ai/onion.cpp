@@ -27,7 +27,7 @@ void InitAlways(OnionState& onion) {
 
   // Setup collision for feet
   for (int i = 0; i < 3; i++) {
-    onion.feet[i] = onion.game->world().AllocateBody(onion.handle).body;
+    onion.feet[i] = onion.game->world().AllocateBody(onion.handle);
     onion.feet[i]->radius = 2.1_f;
     onion.feet[i]->height = 1.0_f;
     onion.feet[i]->collision_group = ONION_FEET_GROUP;
@@ -73,7 +73,7 @@ void HandleWithdrawingPikmin(OnionState& onion) {
       // Setup some animation data on the pikmin, so it can slide away from
       // the onion toward one of the feet
       fixed travel_frames = 30_f;
-      pikmin->entity->body_handle().body->affected_by_gravity = false;
+      pikmin->body->affected_by_gravity = false;
       pikmin->starting_state = pikmin_ai::PikminNode::kSlideDownFromOnion;
       pikmin->entity->RotateToFace(onion.entity);
       auto onion_position = onion.position();

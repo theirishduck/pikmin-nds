@@ -8,7 +8,7 @@ namespace physics {
 
 class World {
   public:
-    BodyHandle AllocateBody(Handle owner = Handle{});
+    Body* AllocateBody(Handle owner = Handle{});
     void FreeBody(Body* body);
     Body* RetrieveBody(Handle handle);
 

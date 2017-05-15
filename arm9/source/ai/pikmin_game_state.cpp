@@ -20,3 +20,7 @@ void PikminGameState::set_velocity(Vec3 velocity) {
 physics::World& PikminGameState::world() const {
   return game->world();
 }
+
+void PikminGameState::Update() {
+  entity->set_position(body->position);
+}

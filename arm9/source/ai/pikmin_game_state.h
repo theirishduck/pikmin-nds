@@ -28,6 +28,7 @@ struct PikminGameState : ObjectState {
 
   physics::World& world() const;
 
+  void Update();
 };
 
 #endif

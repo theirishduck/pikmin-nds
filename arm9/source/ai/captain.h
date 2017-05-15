@@ -6,6 +6,10 @@
 #include "onion.h"
 #include "squad.h"
 
+namespace physics {
+  struct Body;
+}
+
 namespace captain_ai {
 
 struct CaptainState : PikminGameState {
@@ -13,6 +17,8 @@ struct CaptainState : PikminGameState {
   pikmin_ai::PikminState* held_pikmin;
   DrawableEntity* cursor;
   DrawableEntity* whistle;
+  physics::Body* whistle_body;
+  physics::Body* cursor_body;
   int whistle_timer = 0;
   squad_ai::SquadState squad;
 

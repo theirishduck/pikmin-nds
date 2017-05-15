@@ -5,8 +5,6 @@
 
 #include "dsgx.h"
 #include "vector.h"
-#include "physics/body.h"
-#include "physics/world.h"
 
 struct Rotation {
   numeric_types::Brads x;
@@ -31,8 +29,7 @@ struct DrawState {
 // custom logic.
 class DrawableEntity {
  public:
-  DrawableEntity(physics::World& world);
-  virtual ~DrawableEntity();
+  DrawableEntity();
   DrawState& GetCachedState();
   void SetCache();
 
@@ -57,9 +54,7 @@ class DrawableEntity {
   void set_mesh(const char* mesh_name);
   Mesh* mesh();
 
-  physics::BodyHandle body_handle();
-
-  virtual void Update();
+  void Update();
   inline void ApplyTransformation();
   void Draw();
 
@@ -70,13 +65,10 @@ class DrawableEntity {
   bool important{true};
 
  private:
-  physics::World& world_;
   DrawState current_{};
   DrawState cached_{};
 
   s32 cached_matrix_[13]; //one extra entry for size; for DMA transfers
- protected:
-  physics::BodyHandle body_;
 };
 
 #endif  // DRAWABLE_ENTITY_H
