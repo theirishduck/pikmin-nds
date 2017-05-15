@@ -289,7 +289,7 @@ void SetupDemoStage(PikminGame& game) {
   auto fire_spout = game.RetrieveFireSpout(game.Spawn("Hazard:FireSpout"));
   if (fire_spout) { fire_spout->set_position(Vec3{64_f, 0_f, -64_f}); }
 
-  auto pellet = game.RetrieveTreasure(game.Spawn("Corpse:Pellet"));
+  auto pellet = game.RetrieveTreasure(game.Spawn("Corpse:Pellet:Red"));
   if (pellet) { pellet->set_position(Vec3{54_f, 0_f, -64_f}); }
 }
 

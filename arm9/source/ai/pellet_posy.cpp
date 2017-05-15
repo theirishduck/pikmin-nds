@@ -13,8 +13,7 @@ namespace posy_ai {
 
 void InitAlways(PosyState& posy) {
   posy.entity->set_actor(posy.game->ActorAllocator()->Retrieve("pellet_posy"));
-
-  posy.detection = posy.game->world().AllocateBody(posy.handle);
+  posy.detection = posy.world().AllocateBody(posy.handle);
   posy.detection->position = posy.position();
   posy.detection->radius = 10_f;
   posy.detection->height = 5_f;
@@ -29,8 +28,9 @@ void InitAlways(PosyState& posy) {
     return;
   }
   posy.health_state = health_state;
+  posy.health_state->health = 25;
+  posy.health_state->max_health = 25;
   posy.old_health = posy.health_state->health;
-
   posy.body->owner = posy.health_state->handle;
 }
 
@@ -47,11 +47,11 @@ void StoreCurrentHealth(PosyState& posy) {
 }
 
 void GoodbyeCruelWorld(PosyState& posy) {
-  posy.game->world().FreeBody(posy.detection);
+  posy.world().FreeBody(posy.detection);
   posy.dead = true;
 
   // Spawn in the pellet
-  auto pellet = posy.game->RetrieveTreasure(posy.game->Spawn("Corpse:Pellet"));
+  auto pellet = posy.game->RetrieveTreasure(posy.game->Spawn("Corpse:Pellet:Red"));
   pellet->set_position(posy.position());
 }
 

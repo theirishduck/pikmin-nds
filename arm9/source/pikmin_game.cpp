@@ -454,13 +454,15 @@ const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> Pikmin
   {"Static", [](PikminGame* game) -> PikminGameState* {
     return game->RetrieveStatic(game->SpawnObject(game->statics, PikminGame::kStatic));
   }},
-  {"Corpse:Pellet", [](PikminGame* game) -> PikminGameState* {
+  {"Corpse:Pellet:Red", [](PikminGame* game) -> PikminGameState* {
     auto treasure = game->RetrieveTreasure(game->SpawnObject(game->treasures, PikminGame::kTreasure));
     if (treasure) {
+      treasure->pikmin_affinity = PikminType::kRedPikmin;
       treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
       treasure->body->radius = 2_f;
-      treasure->cost = 5;
-      treasure->max_pikmin = 10;
+      treasure->cost = 1;
+      treasure->max_pikmin = 2;
+      treasure->pikmin_seeds = 2;
     }
     return treasure;
   }},

@@ -17,20 +17,20 @@ using physics::Body;
 namespace treasure_ai {
 
 void TreasureState::UpdateDetectionBody() {
-  if (RoomForMorePikmin() and  !this->detection_active and this->carryable) {
-    this->detection = this->game->world().AllocateBody(this->handle);
-    this->detection->position = this->position();
-    this->detection->radius = 10_f;
-    this->detection->height = 5_f;
-    this->detection->is_sensor = true;
-    this->detection->collision_group = DETECT_GROUP;
-    this->detection_active = true;
+  if (RoomForMorePikmin() and  !detection_active and carryable) {
+    detection = world().AllocateBody(handle);
+    detection->position = position();
+    detection->radius = 10_f;
+    detection->height = 5_f;
+    detection->is_sensor = true;
+    detection->collision_group = DETECT_GROUP;
+    detection_active = true;
     return;
   }
-  if (!RoomForMorePikmin() and this->detection_active) {
+  if (!RoomForMorePikmin() and detection_active) {
     // Disable the detection radius so pikmin stop attempting to chase us
-    this->game->world().FreeBody(this->detection);
-    this->detection_active = false;
+    world().FreeBody(detection);
+    detection_active = false;
     return;
   }
 }
@@ -205,7 +205,7 @@ void PrepareForRetrieval(TreasureState& treasure) {
   treasure.set_position(destination->position());
   // Kill the targeting radius, so pikmin stop trying to carry us
   if (treasure.detection_active) {
-    treasure.game->world().FreeBody(treasure.detection);
+    treasure.world().FreeBody(treasure.detection);
     treasure.detection = nullptr;
   }
   // Dislodge all the pikmin carrying us
