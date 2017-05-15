@@ -453,8 +453,8 @@ const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> Pikmin
       treasure->pikmin_affinity = PikminType::kRedPikmin;
       treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
       treasure->entity->body_handle().body->radius = 2_f;
-      treasure->cost = 1;
-      treasure->max_pikmin = 2;
+      treasure->weight = 1;
+      treasure->carry_slots = 2;
       treasure->pikmin_seeds = 2;
     }
     return treasure;

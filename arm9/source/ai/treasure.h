@@ -16,8 +16,8 @@ namespace treasure_ai {
   };
 
 struct TreasureState : PikminGameState {
-  int cost{3};
-  int max_pikmin{3};
+  int weight{3};
+  int carry_slots{3};
   DestinationType destination{DestinationType::kNone};
   int lift_timer{0};
   bool is_corpse{true}; // Corpses go to onions, treasures go to the ship

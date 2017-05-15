@@ -37,7 +37,7 @@ void TreasureState::UpdateDetectionBody() {
 
 bool TreasureState::AddPikmin(PikminState* pikmin) {
   if (RoomForMorePikmin()) {
-    for (int i = 0; i < max_pikmin; i++) {
+    for (int i = 0; i < carry_slots; i++) {
       if (active_pikmin[i] == nullptr) {
         active_pikmin[i] = pikmin;
         num_active_pikmin++;
@@ -51,7 +51,7 @@ bool TreasureState::AddPikmin(PikminState* pikmin) {
 }
 
 void TreasureState::RemovePikmin(PikminState* pikmin) {
-  for (int i = 0; i < max_pikmin; i++) {
+  for (int i = 0; i < carry_slots; i++) {
     if (active_pikmin[i] == pikmin) {
       active_pikmin[i] = nullptr;
       num_active_pikmin--;
@@ -63,11 +63,11 @@ void TreasureState::RemovePikmin(PikminState* pikmin) {
 }
 
 bool TreasureState::RoomForMorePikmin() {
-  return num_active_pikmin < max_pikmin;
+  return num_active_pikmin < carry_slots;
 }
 
 bool TreasureState::Moving() {
-  return num_active_pikmin >= cost;
+  return num_active_pikmin >= weight;
 }
 
 void Init(TreasureState& treasure) {
@@ -83,7 +83,7 @@ void Init(TreasureState& treasure) {
 
 int CountOfType(TreasureState& treasure, PikminType type) {
   int count = 0;
-  for (int i = 0; i < treasure.max_pikmin; i++) {
+  for (int i = 0; i < treasure.carry_slots; i++) {
     if (treasure.active_pikmin[i] != nullptr) {
       if (treasure.active_pikmin[i]->type == type) {
         count++;
@@ -130,8 +130,8 @@ void UpdatePikminPositions(TreasureState& treasure) {
 
   Brads clockwise_angle = 0_brad;
   Brads delta = 360_brad /
-      fixed::FromInt(treasure.max_pikmin);
-  for (int i = 0; i < treasure.max_pikmin; i++) {
+      fixed::FromInt(treasure.carry_slots);
+  for (int i = 0; i < treasure.carry_slots; i++) {
     if (treasure.active_pikmin[i] != nullptr) {
       Body* pikmin_body = treasure.active_pikmin[i]->body;
       pikmin_body->position.x = trig::CosLerp(clockwise_angle);
