@@ -13,7 +13,6 @@
 #include "debug/utilities.h"
 #include "particle_library.h"
 
-#include "entities/level.h"
 #include "ai/captain.h"
 #include "ai/onion.h"
 #include "ai/fire_spout.h"
@@ -22,8 +21,6 @@
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
-
-using entities::Level;
 
 using captain_ai::CaptainState;
 
@@ -268,7 +265,7 @@ void LoadTextures(PikminGame& game) {
 
 void SetupDemoStage(PikminGame& game) {
   //load in the test level
-  Level* sandbox = new Level(game.world());
+  DrawableEntity* sandbox = new DrawableEntity();
   sandbox->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
   game.engine().AddEntity(sandbox);
   game.world().SetHeightmap(checkerboard_height_bin);

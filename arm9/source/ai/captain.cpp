@@ -26,24 +26,22 @@ const fixed kYellowPikminThrowHeight = 2.2_f;
 const int kWhistleExpandFrames = 8;
 
 void HandleWhistle(CaptainState& captain) {
-  auto whistle_body = captain.whistle->body_handle().body;
-  auto cursor_body = captain.cursor->body_handle().body;
-  whistle_body->position = cursor_body->position;
+  captain.whistle_body->position = captain.cursor_body->position;
 
   // Do a bit of cheating and handle the whistle here for now
   if (keysHeld() & KEY_B) {
     if (captain.whistle_timer < 8) {
       captain.whistle_timer++;
       //turn the whistle on
-      whistle_body->collision_group = WHISTLE_GROUP;
+      captain.whistle_body->collision_group = WHISTLE_GROUP;
     }
   } else if (captain.whistle_timer > 0) {
     captain.whistle_timer--;
     //turn the whistle back off
-    whistle_body->collision_group = 0;
+    captain.whistle_body->collision_group = 0;
   }
 
-  whistle_body->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
+  captain.whistle_body->radius = fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames);
   captain.whistle->set_scale(fixed::FromInt(captain.whistle_timer) * 10_f / fixed::FromInt(kWhistleExpandFrames));
   captain.whistle->set_rotation(0_brad, captain.whistle->rotation().y + 3_brad, 0_brad);
 }
@@ -68,19 +66,19 @@ void InitAlways(CaptainState& captain) {
 
   //Initialize the cursor
   captain.cursor->set_actor(captain.game->ActorAllocator()->Retrieve("cursor"));
-  auto cursor_body = captain.cursor->body_handle().body;
-  cursor_body->ignores_walls = 1;
-  cursor_body->position = captain.body->position + Vec3{0_f,0_f,5_f};
-  cursor_body->is_sensor = 1;
+  captain.cursor_body = captain.game->world().AllocateBody();
+  captain.cursor_body->ignores_walls = 1;
+  captain.cursor_body->position = captain.body->position + Vec3{0_f,0_f,5_f};
+  captain.cursor_body->is_sensor = 1;
 
   //Initialize the whistle
   captain.whistle->set_actor(captain.game->ActorAllocator()->Retrieve("whistle"));
-  auto whistle_body = captain.whistle->body_handle().body;
+  captain.whistle_body = captain.game->world().AllocateBody();
 
-  whistle_body->height = 20.0_f;
-  whistle_body->is_sensor = 1;
-  whistle_body->owner = captain.handle;
-  whistle_body->is_very_important = 1;
+  captain.whistle_body->height = 20.0_f;
+  captain.whistle_body->is_sensor = 1;
+  captain.whistle_body->owner = captain.handle;
+  captain.whistle_body->is_very_important = 1;
 }
 
 bool DpadActive(const CaptainState& captain) {
@@ -99,9 +97,8 @@ void StopCaptain(CaptainState& captain) {
   // (but ignore Y so that we keep falling)
   captain.body->velocity.x = 0_f;
   captain.body->velocity.z = 0_f;
-  auto cursor_body = captain.cursor->body_handle().body;
-  cursor_body->velocity.x = 0_f;
-  cursor_body->velocity.z = 0_f;
+  captain.cursor_body->velocity.x = 0_f;
+  captain.cursor_body->velocity.z = 0_f;
 }
 
 void IdleAlways(CaptainState& captain) {
@@ -121,19 +118,18 @@ void MoveCaptain(CaptainState& captain) {
   captain.body->velocity.z *= kRunSpeed;
 
   // Move the cursor in the same direction, at a faster rate
-  auto cursor_body = captain.cursor->body_handle().body;
-  cursor_body->velocity.x = captain.body->velocity.x * kCursorSpeedMultiplier;
-  cursor_body->velocity.z = captain.body->velocity.z * kCursorSpeedMultiplier;
+  captain.cursor_body->velocity.x = captain.body->velocity.x * kCursorSpeedMultiplier;
+  captain.cursor_body->velocity.z = captain.body->velocity.z * kCursorSpeedMultiplier;
 
   // Clamp the cursor to a certain distance from the captain
   Vec2 captain_xz = Vec2{captain.body->position.x, captain.body->position.z};
-  Vec2 cursor_xz = Vec2{cursor_body->position.x, cursor_body->position.z};
+  Vec2 cursor_xz = Vec2{captain.cursor_body->position.x, captain.cursor_body->position.z};
   fixed distance = (cursor_xz - captain_xz).Length();
   if (distance > kCursorMaxDistance) {
     cursor_xz = (cursor_xz - captain_xz).Normalize() * kCursorMaxDistance;
     cursor_xz += captain_xz;
-    cursor_body->position.x = cursor_xz.x;
-    cursor_body->position.z = cursor_xz.y;
+    captain.cursor_body->position.x = cursor_xz.x;
+    captain.cursor_body->position.z = cursor_xz.y;
   }
 
   // Rotate the cursor so that it faces away from the captain
@@ -143,9 +139,9 @@ void MoveCaptain(CaptainState& captain) {
   HandleWhistle(captain);
 
   // Handle collision with certain kinds of sensors
-  if (captain.entity->body_handle().body->result_groups & ONION_BEAM_GROUP) {
+  if (captain.body->result_groups & ONION_BEAM_GROUP) {
     onion_ai::OnionState* current_onion =
-        captain.game->RetrieveOnion(captain.entity->body_handle().body->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
+        captain.game->RetrieveOnion(captain.body->FirstCollisionWith(ONION_BEAM_GROUP).body->owner);
     captain.active_onion = current_onion;
   } else {
     captain.active_onion = nullptr;
@@ -189,7 +185,7 @@ void ThrowPikmin(CaptainState& captain) {
   }
 
   fixed pikmin_travel_time = pikmin_y_velocity * 2_f / GRAVITY_CONSTANT;
-  Vec3 distance_to_cursor = captain.cursor->body_handle().body->position -
+  Vec3 distance_to_cursor = captain.cursor_body->position -
       captain.position();
 
   fixed pikmin_x_velocity = distance_to_cursor.x / pikmin_travel_time;

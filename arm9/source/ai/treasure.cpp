@@ -18,7 +18,7 @@ namespace treasure_ai {
 
 void TreasureState::UpdateDetectionBody() {
   if (RoomForMorePikmin() and  !detection_active and carryable) {
-    detection = world().AllocateBody(handle).body;
+    detection = world().AllocateBody(handle);
     detection->position = position();
     detection->radius = 10_f;
     detection->height = 5_f;
@@ -212,7 +212,7 @@ void PrepareForRetrieval(TreasureState& treasure) {
   treasure.carryable = false;
   // Remove ourselves from physics calculations, and prepare to rise into the
   // onion
-  treasure.entity->body_handle().body->affected_by_gravity = false;
+  treasure.body->affected_by_gravity = false;
   treasure.set_velocity(Vec3{0_f, 0.2_f, 0_f});
 }
 

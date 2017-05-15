@@ -11,7 +11,7 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::fixed;
 using numeric_types::Brads;
 
-DrawableEntity::DrawableEntity(physics::World& world) : world_(world) {
+DrawableEntity::DrawableEntity() {
   //zero out the cached matrix to initialize it
   for (int i = 1; i < 13; i++) {
     cached_matrix_[i] = 0;
@@ -21,12 +21,6 @@ DrawableEntity::DrawableEntity(physics::World& world) : world_(world) {
   //MATRIX_MUL4x3
   cached_matrix_[0] = 0x19;
   current_.scale = 1.0_f;
-
-  body_ = world_.AllocateBody();
-}
-
-DrawableEntity::~DrawableEntity() {
-  world_.FreeBody(body_.body);
 }
 
 Vec3 DrawableEntity::position() const {
@@ -57,18 +51,6 @@ fixed DrawableEntity::scale() const {
 
 void DrawableEntity::set_scale(fixed new_scale) {
   current_.scale = new_scale;
-}
-
-void DrawableEntity::RotateToXZDirection(Vec2 direction) {
-  // Rotate the entity so that it faces towards the provided vector
-  if (direction.Length() > 0_f) {
-    direction = direction.Normalize();
-    if (direction.y <= 0_f) {
-      set_rotation(0_brad, Brads::Raw(acosLerp(direction.x.data_)), 0_brad);
-    } else {
-      set_rotation(0_brad, Brads::Raw(-acosLerp(direction.x.data_)), 0_brad);
-    }
-  }
 }
 
 DrawState& DrawableEntity::GetCachedState() {
@@ -182,11 +164,6 @@ void DrawableEntity::Update() {
       current_.animation_frame = 0;
     }
   }
-
-  //set the current position to our body's physics position
-  if (body_.IsValid()) {
-    set_position(body_.body->position);
-  }
 }
 
 bool DrawableEntity::InsideViewFrustrum() {
@@ -228,10 +205,6 @@ numeric_types::fixed DrawableEntity::GetRealModelZ() {
 void DrawableEntity::SetAnimation(std::string name) {
   current_.animation = current_.actor->GetAnimation(name, current_.current_mesh);
   current_.animation_frame = 0;
-}
-
-physics::BodyHandle DrawableEntity::body_handle() {
-  return body_;
 }
 
 void DrawableEntity::RotateToFace(Brads target_angle, Brads rate) {

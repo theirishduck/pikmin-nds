@@ -7,6 +7,7 @@
 #include "particle_library.h"
 #include "particle.h"
 #include "particle_library.h"
+#include "vector_utils.h"
 
 #include "dsgx.h"
 #include "multipass_engine.h"
@@ -94,7 +95,7 @@ bool HasNewParent(const PikminState& pikmin) {
 
 void StoreParentLocation(PikminState& pikmin) {
   if (pikmin.parent) {
-    pikmin.parent_initial_location = pikmin.parent->body_handle().body->position;
+    pikmin.parent_initial_location = pikmin.parent->position();
     pikmin.child_offset = pikmin.parent_initial_location
         - pikmin.position();
   }
@@ -103,7 +104,7 @@ void StoreParentLocation(PikminState& pikmin) {
 
 void FollowParent(PikminState& pikmin) {
   if (pikmin.parent) {
-    pikmin.set_position(pikmin.parent->body_handle().body->position
+    pikmin.set_position(pikmin.parent->position()
         + pikmin.child_offset);
   }
 }
@@ -139,7 +140,7 @@ void FaceTarget(PikminState& pikmin) {
   Vec2 new_velocity = new_direction * movement_speed;
   pikmin.body->velocity.x = new_velocity.x;
   pikmin.body->velocity.z = new_velocity.y;
-  pikmin.entity->RotateToXZDirection(new_velocity);
+  pikmin.entity->set_rotation(0_brad, AngleFromNormalizedVec2(new_direction), 0_brad);
 }
 
 void RunToTarget(PikminState& pikmin) {

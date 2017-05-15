@@ -362,7 +362,7 @@ void ApplyOnionDelta(UIState& ui) {
         auto pikmin = captain->squad.pikmin[squad_index];
         // Have this pikmin randomly target one of the onion's feet, and
         // set its collision group accordingly
-        pikmin->entity->body_handle().body->sensor_groups = ONION_FEET_GROUP;
+        pikmin->body->sensor_groups = ONION_FEET_GROUP;
         Vec3 onion_foot_position = captain->active_onion->feet[rand() % 3]->position;
         pikmin->target = Vec2{onion_foot_position.x, onion_foot_position.z};
         pikmin->has_target = true;

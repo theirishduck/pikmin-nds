@@ -13,8 +13,7 @@ namespace posy_ai {
 
 void InitAlways(PosyState& posy) {
   posy.entity->set_actor(posy.game->ActorAllocator()->Retrieve("pellet_posy"));
-
-  posy.detection = posy.world().AllocateBody(posy.handle).body;
+  posy.detection = posy.world().AllocateBody(posy.handle);
   posy.detection->position = posy.position();
   posy.detection->radius = 10_f;
   posy.detection->height = 5_f;

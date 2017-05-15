@@ -93,7 +93,7 @@ DrawableEntity* PikminGame::allocate_entity() {
   if (entities_.size() >= kMaxEntities) {
     return nullptr;
   }
-  entities_.push_back(new DrawableEntity(world_));
+  entities_.push_back(new DrawableEntity());
   engine_.AddEntity(entities_.back());
   return entities_.back();
 }
@@ -118,12 +118,10 @@ Handle PikminGame::SpawnObject(std::array<StateType, size>& object_list, int typ
 
   new_object.active = true;
 
-  // Perform allocation; similar to InitObject, minus the allocation for the
-  // state
   new_object.entity = allocate_entity();
-  new_object.body = new_object.entity->body_handle().body;
-  new_object.body->owner = new_object.handle;
+  new_object.body = world_.AllocateBody(new_object.handle);
   new_object.game = this;
+
   const bool too_many_objects = new_object.entity == nullptr;
   if (too_many_objects) {
     return Handle();
@@ -142,6 +140,7 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
       engine_.RemoveEntity(object_to_delete.entity);
       entities_.remove(object_to_delete.entity);
       delete object_to_delete.entity;
+      world_.FreeBody(object_to_delete.body);
       current_generation_++;
     } else {
       // Invalid handle! Stale, possibly?
@@ -306,6 +305,9 @@ void PikminGame::Step() {
     if (i->active) {
       captain_ai::machine.RunLogic(*i);
       squad_ai::machine.RunLogic((*i).squad);
+      i->Update();
+      i->whistle->set_position(i->whistle_body->position);
+      i->cursor->set_position(i->cursor_body->position);
       if (i->dead) {
         RemoveCaptain(i->handle);
       }
@@ -316,6 +318,7 @@ void PikminGame::Step() {
   for (auto i = pikmin.begin(); i != pikmin.end(); i++) {
     if (i->active) {
       pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
+      i->Update();
       if (i->dead) {
         RemoveObject(i->handle, pikmin);
       }
@@ -324,11 +327,13 @@ void PikminGame::Step() {
 
   for (unsigned int o = 0; o < onions.size(); o++) {
     onion_ai::machine.RunLogic(onions[o]);
+    onions[o].Update();
   }
 
   for (unsigned int p = 0; p < posies.size(); p++) {
     if (posies[p].active) {
       posy_ai::machine.RunLogic(posies[p]);
+      posies[p].Update();
       if (posies[p].dead) {
         RemoveObject(posies[p].handle, posies);
       }
@@ -338,6 +343,7 @@ void PikminGame::Step() {
   for (unsigned int f = 0; f < fire_spouts.size(); f++) {
     if (fire_spouts[f].active) {
       fire_spout_ai::machine.RunLogic(fire_spouts[f]);
+      fire_spouts[f].Update();
       if (fire_spouts[f].dead) {
         RemoveObject(fire_spouts[f].handle, fire_spouts);
       }
@@ -347,6 +353,7 @@ void PikminGame::Step() {
   for (unsigned int t = 0; t < treasures.size(); t++) {
     if (treasures[t].active) {
       treasure_ai::machine.RunLogic(treasures[t]);
+      treasures[t].Update();
       if (treasures[t].dead) {
         RemoveObject<TreasureState>(treasures[t].handle, treasures);
       }
@@ -452,7 +459,8 @@ const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> Pikmin
     if (treasure) {
       treasure->pikmin_affinity = PikminType::kRedPikmin;
       treasure->entity->set_actor(treasure->game->ActorAllocator()->Retrieve("pellet"));
-      treasure->entity->body_handle().body->radius = 2_f;
+      treasure->body->radius = 2_f;
+      
       treasure->weight = 1;
       treasure->carry_slots = 2;
       treasure->pikmin_seeds = 2;
