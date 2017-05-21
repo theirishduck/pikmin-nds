@@ -163,37 +163,37 @@ enum OnionNode {
 }
 
 Edge<OnionState> init[] {
-  {Trigger::kAlways, nullptr, InitAlways, OnionNode::kIdle},
+  {Trigger::kAlways, kNoGuard, InitAlways, OnionNode::kIdle},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> idle[] {
   {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {Trigger::kAlways, nullptr, HandleWithdrawingPikmin, OnionNode::kIdle},  // Loopback
+  {Trigger::kAlways, kNoGuard, HandleWithdrawingPikmin, OnionNode::kIdle},  // Loopback
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> bounce[] {
   {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {Trigger::kLastFrame, nullptr, nullptr, OnionNode::kWindUp},
+  {Trigger::kLastFrame, kNoGuard, kNoAction, OnionNode::kWindUp},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> wind_up[] {
   {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {Trigger::kLastFrame, nullptr, nullptr, OnionNode::kEject},
+  {Trigger::kLastFrame, kNoGuard, kNoAction, OnionNode::kEject},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> wind_down[] {
   {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {Trigger::kLastFrame, nullptr, nullptr, OnionNode::kIdle},
+  {Trigger::kLastFrame, kNoGuard, kNoAction, OnionNode::kIdle},
   END_OF_EDGES(OnionState)
 };
 
 Edge<OnionState> eject_seeds[] {
   {Trigger::kAlways, SeedsIncreased, UpdateSeedCounter, OnionNode::kBounce},
-  {Trigger::kAlways, NoMoreSeeds, nullptr, OnionNode::kWindDown},
+  {Trigger::kAlways, NoMoreSeeds, kNoAction, OnionNode::kWindDown},
   {Trigger::kAlways, Every40Frames, EjectSeeds, OnionNode::kEject},  // Loopback
   END_OF_EDGES(OnionState)
 };

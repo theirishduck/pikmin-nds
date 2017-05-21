@@ -308,7 +308,7 @@ Edge<CaptainState> idle[] {
   {Trigger::kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrab},
   {Trigger::kAlways, DpadActive, MoveCaptain, CaptainNode::kRun},
   {Trigger::kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kIdle},
-  {Trigger::kAlways, nullptr, IdleAlways, CaptainNode::kIdle},  // Loopback
+  {Trigger::kAlways, kNoGuard, IdleAlways, CaptainNode::kIdle},  // Loopback
   END_OF_EDGES(CaptainState)
 };
 
@@ -316,7 +316,7 @@ Edge<CaptainState> running[] {
   {Trigger::kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrabRun},
   {Trigger::kAlways, DpadInactive, StopCaptain, CaptainNode::kIdle},
   {Trigger::kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kRun},
-  {Trigger::kAlways, nullptr, MoveCaptain, CaptainNode::kRun},  // Loopback
+  {Trigger::kAlways, kNoGuard, MoveCaptain, CaptainNode::kRun},  // Loopback
   END_OF_EDGES(CaptainState)
 };
 
@@ -326,7 +326,7 @@ Edge<CaptainState> grab[] {
   {Trigger::kAlways, RedButtonPressed, SwitchTo<PikminType::kRedPikmin>, CaptainNode::kGrab},
   {Trigger::kAlways, YellowButtonPressed, SwitchTo<PikminType::kYellowPikmin>, CaptainNode::kGrab},
   {Trigger::kAlways, BlueButtonPressed, SwitchTo<PikminType::kBluePikmin>, CaptainNode::kGrab},
-  {Trigger::kAlways, nullptr, IdleAlways, CaptainNode::kGrab},  // Loopback
+  {Trigger::kAlways, kNoGuard, IdleAlways, CaptainNode::kGrab},  // Loopback
   END_OF_EDGES(CaptainState)
 };
 
@@ -336,7 +336,7 @@ Edge<CaptainState> grab_run[] {
   {Trigger::kAlways, RedButtonPressed, SwitchTo<PikminType::kRedPikmin>, CaptainNode::kGrabRun},
   {Trigger::kAlways, YellowButtonPressed, SwitchTo<PikminType::kYellowPikmin>, CaptainNode::kGrabRun},
   {Trigger::kAlways, BlueButtonPressed, SwitchTo<PikminType::kBluePikmin>, CaptainNode::kGrabRun},
-  {Trigger::kAlways, nullptr, MoveCaptain, CaptainNode::kGrabRun},  // Loopback
+  {Trigger::kAlways, kNoGuard, MoveCaptain, CaptainNode::kGrabRun},  // Loopback
   END_OF_EDGES(CaptainState)
 };
 
@@ -344,8 +344,8 @@ Edge<CaptainState> throw_pikmin[] {
   {Trigger::kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrab},
   {Trigger::kAlways, DpadActive, MoveCaptain, CaptainNode::kThrowRun},
   {Trigger::kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kIdle},
-  {Trigger::kLastFrame, nullptr, IdleAlways, CaptainNode::kIdle},
-  {Trigger::kAlways, nullptr, IdleAlways, CaptainNode::kThrow},  // Loopback
+  {Trigger::kLastFrame, kNoGuard, IdleAlways, CaptainNode::kIdle},
+  {Trigger::kAlways, kNoGuard, IdleAlways, CaptainNode::kThrow},  // Loopback
   END_OF_EDGES(CaptainState)
 };
 
@@ -353,8 +353,8 @@ Edge<CaptainState> throw_pikmin_while_running[] {
   {Trigger::kAlways, ActionDownNearPikmin, GrabPikmin, CaptainNode::kGrabRun},
   {Trigger::kAlways, DpadInactive, StopCaptain, CaptainNode::kThrow},
   {Trigger::kAlways, DismissPressedWithSquad, DismissSquad, CaptainNode::kRun},
-  {Trigger::kLastFrame, nullptr, MoveCaptain, CaptainNode::kRun},
-  {Trigger::kAlways, nullptr, MoveCaptain, CaptainNode::kThrowRun},  // Loopback
+  {Trigger::kLastFrame, kNoGuard, MoveCaptain, CaptainNode::kRun},
+  {Trigger::kAlways, kNoGuard, MoveCaptain, CaptainNode::kThrowRun},  // Loopback
   END_OF_EDGES(CaptainState)
 };
 

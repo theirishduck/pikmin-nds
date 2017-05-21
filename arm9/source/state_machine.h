@@ -23,6 +23,9 @@ enum class Trigger {
   kEndOfList,
 };
 
+#define kNoGuard nullptr
+#define kNoAction nullptr
+
 template<typename T>
 struct Edge {
   Trigger trigger{Trigger::kAlways};

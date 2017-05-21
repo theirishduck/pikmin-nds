@@ -116,7 +116,7 @@ Edge<FireSpoutState> flame_off[] {
 Edge<FireSpoutState> flame_on[] {
   {Trigger::kAlways, FlameTimerExpired, FlameOff, 1},
   {Trigger::kAlways, OutOfHealth, KillSelf, 3},
-  {Trigger::kAlways, nullptr, SpawnFireParticle, 2}, // Loopback
+  {Trigger::kAlways, kNoGuard, SpawnFireParticle, 2}, // Loopback
   END_OF_EDGES(FireSpoutState)
 };
 

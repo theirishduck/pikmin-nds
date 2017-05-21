@@ -259,26 +259,26 @@ enum TreasureNode {
 }
 
 Edge<TreasureState> init[] {
-  {Trigger::kAlways, nullptr, Init, TreasureNode::kIdle},
+  {Trigger::kAlways, kNoGuard, Init, TreasureNode::kIdle},
   END_OF_EDGES(TreasureState)
 };
 
 Edge<TreasureState> idle[] {
   {Trigger::kAlways, LiftTimerSatisfied, SetDestinationType, TreasureNode::kMoving},
-  {Trigger::kAlways, nullptr, IdleAlways, TreasureNode::kIdle},
+  {Trigger::kAlways, kNoGuard, IdleAlways, TreasureNode::kIdle},
   END_OF_EDGES(TreasureState)
 };
 
 Edge<TreasureState> moving[] {
   {Trigger::kAlways, LiftTimerReset, ClearDestinationType, TreasureNode::kIdle},
   {Trigger::kAlways, DestinationReached, PrepareForRetrieval, TreasureNode::kTractorBeam},
-  {Trigger::kAlways, nullptr, MoveTowardTarget, TreasureNode::kMoving},  // Loopback
+  {Trigger::kAlways, kNoGuard, MoveTowardTarget, TreasureNode::kMoving},  // Loopback
   END_OF_EDGES(TreasureState)
 };
 
 Edge<TreasureState> tractor_beam[] {
-  {Trigger::kLastFrame, nullptr, CollectTreasure, TreasureNode::kIdle}, // Destroy Self
-  {Trigger::kAlways, nullptr, RiseIntoDestination, TreasureNode::kTractorBeam},  // Loopback
+  {Trigger::kLastFrame, kNoGuard, CollectTreasure, TreasureNode::kIdle}, // Destroy Self
+  {Trigger::kAlways, kNoGuard, RiseIntoDestination, TreasureNode::kTractorBeam},  // Loopback
   END_OF_EDGES(TreasureState)
 };
 
