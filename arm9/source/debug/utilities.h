@@ -12,14 +12,6 @@
 class PikminGame;
 
 namespace debug {
-
-template <typename T>
-void nocashValue(std::string name, T value) {
-  std::ostringstream oss;
-  oss << name << ": " << value;
-  nocashMessage(oss.str().c_str());
-}
-
 std::string to_string(int number);
 
 void DrawCrosshair(Vec3 p, rgb color = RGB5(31, 31, 31));
