@@ -5,6 +5,7 @@
 #include <nds.h>
 
 #include "ai/captain.h"
+#include "debug/messages.h"
 #include "debug/utilities.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"
@@ -36,6 +37,14 @@ void PrintTitle(const char* title) {
 
 void InitAlways(DebugUiState& debug_ui) {
   debug_ui.current_spawner = PikminGame::SpawnNames().first;
+}
+
+void UpdateDebugMessages(DebugUiState& debug_ui) {
+  ClearConsole();
+  auto messages = debug::Messages();
+  for (auto message : messages) {
+    printf((message + "\n").c_str());
+  }
 }
 
 void UpdateDebugValues(DebugUiState& debug_ui) {
@@ -168,6 +177,7 @@ bool DebugSwitcherPressed(const DebugUiState&  debug_ui) {
 namespace DebugUiNode {
 enum DebugUiNode {
   kInit = 0,
+  kDebugMessages,
   kDebugTimings,
   kDebugAi,
   kDebugValues,
@@ -177,7 +187,13 @@ enum DebugUiNode {
 }
 
 Edge<DebugUiState> init[] = {
-  Edge<DebugUiState>{Trigger::kAlways, nullptr, InitAlways, DebugUiNode::kDebugTimings},
+  Edge<DebugUiState>{Trigger::kAlways, nullptr, InitAlways, DebugUiNode::kDebugMessages},
+  END_OF_EDGES(DebugUiState)
+};
+
+Edge<DebugUiState> debug_messages[] = {
+  Edge<DebugUiState>{Trigger::kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugTimings},
+  Edge<DebugUiState>{Trigger::kAlways, nullptr, UpdateDebugMessages, DebugUiNode::kDebugMessages}, //Loopback
   END_OF_EDGES(DebugUiState)
 };
 
@@ -206,13 +222,14 @@ Edge<DebugUiState> debug_toggles[] = {
 };
 
 Edge<DebugUiState> debug_spawners[] = {
-  Edge<DebugUiState>{Trigger::kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugTimings},
+  Edge<DebugUiState>{Trigger::kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugMessages},
   Edge<DebugUiState>{Trigger::kAlways, nullptr, UpdateDebugSpawners, DebugUiNode::kDebugSpawners}, //Loopback
   END_OF_EDGES(DebugUiState)
 };
 
 Node<DebugUiState> node_list[] {
   {"Init", true, init},
+  {"Messages", true, debug_messages},
   {"Timing", true, debug_timings},
   {"Ai", true, debug_ai},
   {"Values", true, debug_values},

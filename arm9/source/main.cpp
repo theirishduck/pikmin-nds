@@ -10,6 +10,7 @@
 
 #include "multipass_engine.h"
 #include "pikmin_game.h"
+#include "debug/messages.h"
 #include "debug/utilities.h"
 #include "particle_library.h"
 
@@ -359,6 +360,7 @@ MultipassEngine g_engine;
 PikminGame g_game(g_engine);
 
 int main() {
+  debug::Log("Hello World!");
   Init(g_game);
   GameLoop(g_game);
   return 0;
