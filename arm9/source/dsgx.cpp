@@ -3,6 +3,7 @@
 #include <cstdio>
 
 #include <string>
+#include "debug/messages.h"
 #include "debug/utilities.h"
 
 using namespace std;
@@ -25,10 +26,10 @@ Dsgx::Dsgx(u32* data, const u32 length):
   CollectAnimations();
 
   // Print out a crapton of debug info
-  //nocashMessage("==DSGX Data== ");
-  //debug::nocashValue("Number of meshes", meshes_.size());
+  //debug::Log("== DSGX Data ==");
+  //debug::Log("Number of meshes" + debug::to_string(meshes_.size()));
   //for (auto mesh : meshes_) {
-  //  debug::nocashValue("-- Mesh: " + mesh.first, " --");
+  //  debug::Log("-- Mesh: " + mesh.first + " --");
   //}
 }
 
@@ -90,17 +91,17 @@ void Dsgx::CollectAnimations() {
                 aref, anim);
               meshes_[kv.first] = kv.second;
               found_reference = true;
-              //debug::nocashValue("Added ANIM", anim.animation_name);
-              //debug::nocashValue("To Mesh   ", anim.mesh_name);
+              //debug::Log("Added ANIM" + anim.animation_name);
+              //debug::Log("To Mesh   " + anim.mesh_name);
             }
           }
         }
       }
     }
     if (!found_reference) {
-        nocashMessage("No AREF found for ANIM: ");
-        nocashMessage(anim.animation_name);
-        nocashMessage(anim.data_type);
+        debug::Log("No AREF found for ANIM: " + std::string(anim.animation_name) + std::string(anim.data_type));
+        //debug::Log(anim.animation_name);
+        //debug::Log(anim.data_type);
     }
   }
 }
@@ -147,8 +148,7 @@ void Dsgx::BoneChunk(u32* data) {
     bone.num_offsets = *data;
     data++;
 
-    //nocashMessage(bone.name);
-    //debug::nocashNumber(bone.num_offsets);
+    //debug::Log(bone.name + ": " + debug::to_string(bone.num_offsets) + " offsets");
 
     bone.offsets = data;
     data += bone.num_offsets;
@@ -177,7 +177,7 @@ void Dsgx::TextureChunk(u32* data) {
 
   u32 num_textures = *data;
   data++;
-  //nocashMessage("Loading Textures...");
+  //debug::Log("Loading Textures...");
 
   for (u32 i = 0; i < num_textures; i++) {
     TextureParam texture;
@@ -192,7 +192,7 @@ void Dsgx::TextureChunk(u32* data) {
 
     meshes_[mesh_name].textures.push_back(texture);
 
-    //nocashMessage(texture.name);
+    //debug::Log(texture.name);
   }
 }
 
@@ -222,9 +222,9 @@ void Dsgx::ArefChunk(u32* data) {
 
   animation_references_.push_back(aref);
 
-  nocashMessage("Loaded AREF: ");
-  nocashMessage(aref.data_type);
-  nocashMessage(aref.mesh_name);
+  debug::Log("Loaded AREF: ");
+  debug::Log(aref.data_type);
+  debug::Log(aref.mesh_name);
 }
 
 void Dsgx::AnimChunk(u32* data) {
@@ -264,10 +264,9 @@ Mesh* Dsgx::DefaultMesh() {
 
 Animation* Dsgx::GetAnimation(string name, Mesh* mesh) {
   if (mesh->animations.count(name) == 0) {
-    printf("Couldn't find animation: %s", name.c_str());
-    debug::nocashValue("Could not load ANIM: ", name);
-    debug::nocashValue("From mesh: ", mesh->name);
-    debug::nocashValue("With total anims: ", mesh->animations.size());
+    debug::Log("Could not load ANIM: " + name);
+    debug::Log("From mesh: " + std::string(mesh->name));
+    debug::Log("With total anims: " + debug::to_string(mesh->animations.size()));
     return nullptr;  // The requested animation doesn't exist.
   }
   //debug::nocashValue("Switched to ANIM", name);

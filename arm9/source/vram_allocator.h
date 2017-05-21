@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include "debug/messages.h"
 #include "debug/utilities.h"
 
 struct Texture {
@@ -49,27 +50,22 @@ class VramAllocator {
       this->end_ = cpu_base + size / sizeof(u16);
       this->next_element_ = cpu_base;
       this->alignment_ = alignment;
-      //nocashMessage("Constructor called with size: ");
-      //debug::nocashNumber(size);
+      //debug::Log("Constructor called with size: " + debug::to_string(size));
     }
     ~VramAllocator() {}
 
     Metadata Load(std::string name, const u8* data, u32 size, Metadata metadata) {
       if (loaded_assets.count(name) > 0) {
-        //nocashMessage("Already loaded!");
+        //debug::Log("Already loaded!");
         // this is already loaded! Just return a reference to the data
         return loaded_assets[name];
       }
 
       if (next_element_ + size / sizeof(u16) > end_) {
-        nocashMessage("Not enough room for:");
-        nocashMessage(name.c_str());
-        nocashMessage("next element was:");
-        debug::nocashNumber((int)next_element_);
-        nocashMessage("size was:");
-        debug::nocashNumber((int)size);
-        nocashMessage("end was:");
-        debug::nocashNumber((int)end_);
+        debug::Log("Not enough room for: " + name);
+        debug::Log("next element was: " + debug::to_string((int)next_element_));
+        debug::Log("size was: " + debug::to_string((int)size));
+        debug::Log("end was: " + debug::to_string((int)end_));
         return T{}; // we don't have enough room for this object! and there was
                   // panic. much panic.
       }
@@ -86,8 +82,7 @@ class VramAllocator {
       loaded_assets[name] = metadata;
       loaded_assets[name].offset = destination;
 
-      //nocashMessage("Loaded Texture: ");
-      //nocashMessage(name.c_str());
+      //debug::Log("Loaded Texture: " + name);
       //debug::nocashNumber(destination - base_);
 
       // return the address we just copied data to, for immediate use
@@ -100,8 +95,7 @@ class VramAllocator {
         dmaCopy(data, destination.offset, size);
         return loaded_assets[name];
       } else {
-        nocashMessage("Couldn't replace; doesn't exist!");
-        nocashMessage(name.c_str());
+        debug::Log("Couldn't replace; doesn't exist! (" + name + ")");
         return T{};
       }
     }
@@ -109,8 +103,7 @@ class VramAllocator {
       if (loaded_assets.count(name) > 0) {
         return loaded_assets[name];
       } else {
-        nocashMessage("Bad Retrieve!!");
-        nocashMessage(name.c_str());
+        debug::Log("Bad Retrieve: " + name);
         return T{}; // bad things! panicing!
       }
     }

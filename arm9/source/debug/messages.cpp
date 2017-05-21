@@ -17,7 +17,7 @@ void Log(string message) {
 
   // Pass this message to nocashMessage, which will print it
   // to stdout in desmume, and collect it in a GUI in no$gba
-  nocashMessage(("[LOG] " + message).c_str());
+  nocashMessage(("[LOG] " + message + "\n").c_str());
 
   // TODO: Write this message out to a file on the SD card? No real need to
   // implement this right away, but could be useful down the line.

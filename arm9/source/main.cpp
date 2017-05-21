@@ -173,16 +173,14 @@ void LoadFileWithMetadata(T* vram_allocator, typename T::Metadata metadata, stri
     if (fread(buffer.data(), 1, size, file)) {
       vram_allocator->Load(
         identifier, (u8*)buffer.data(), size, metadata);
-      //nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
-      //debug::nocashNumber(size);
     } else {
-      nocashMessage("NitroFS Read FAILED for");
-      nocashMessage(filename.c_str());
+      debug::Log("NitroFS Read FAILED for");
+      debug::Log(filename.c_str());
     }
     fclose(file);
   } else {
-    nocashMessage("NitroFS Open FAILED for");
-    nocashMessage(filename.c_str());
+    debug::Log("NitroFS Open FAILED for");
+    debug::Log(filename.c_str());
   }
 }
 
@@ -198,16 +196,14 @@ void LoadDsgxFile(DsgxAllocator* dsgx_allocator, string filename, string identif
     if (fread(buffer.data(), 1, size, file)) {
       dsgx_allocator->Load(
         identifier, (u8*)buffer.data(), size);
-      //nocashMessage(("NitroFS LOADED: '" + filename + "'").c_str());
-      //debug::nocashNumber(size);
     } else {
-      nocashMessage("NitroFS Read FAILED for");
-      nocashMessage(filename.c_str());
+      debug::Log("NitroFS Read FAILED for");
+      debug::Log(filename.c_str());
     }
     fclose(file);
   } else {
-    nocashMessage("NitroFS Open FAILED for");
-    nocashMessage(filename.c_str());
+    debug::Log("NitroFS Open FAILED for");
+    debug::Log(filename.c_str());
   }
 }
 
@@ -220,7 +216,7 @@ void LoadTexturesFromNitroFS(PikminGame& game) {
     if (texture_extension_formats.count(extension) > 0) {
       metadata.format = texture_extension_formats[extension];
     } else {
-      //nocashMessage(("Skipping extension: " + extension).c_str());
+      //debug::Log(("Skipping extension: " + extension).c_str());
       continue;
     }
     if (texture_extension_is_transparent.count(extension) > 0) {
@@ -305,9 +301,9 @@ void InitCaptain(PikminGame& game) {
 void Init(PikminGame& game) {
   // filesystem testing stuff
   if (nitroFSInit(NULL)) {
-    //nocashMessage("Filesystem SUCCESS");
+    //debug::Log("Filesystem SUCCESS");
   } else {
-    nocashMessage("Filesystem FAILURE");
+    debug::Log("Filesystem FAILURE");
   }
 
   InitMainScreen();

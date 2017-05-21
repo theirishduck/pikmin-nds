@@ -1,5 +1,6 @@
 #include "debug/utilities.h"
 #include <cstdio>
+#include <sstream>
 #include <nds.h>
 #include <map>
 
@@ -13,6 +14,12 @@ void debug::nocashNumber(int num) {
   char buffer[20];
   sprintf(buffer, "%i", num);
   nocashMessage(buffer);
+}
+
+std::string debug::to_string(int number) {
+  std::stringstream ss;
+  ss << number;
+  return ss.str();
 }
 
 void debug::DrawLine(Vec2 p1, Vec2 p2, rgb color) {
