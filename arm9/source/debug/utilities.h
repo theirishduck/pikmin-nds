@@ -13,9 +13,6 @@ class PikminGame;
 
 namespace debug {
 
-//some quick functions to make nocash debugging a bit easier
-void nocashNumber(int num);
-
 template <typename T>
 void nocashValue(std::string name, T value) {
   std::ostringstream oss;

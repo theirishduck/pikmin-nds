@@ -10,12 +10,6 @@
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
-void debug::nocashNumber(int num) {
-  char buffer[20];
-  sprintf(buffer, "%i", num);
-  nocashMessage(buffer);
-}
-
 std::string debug::to_string(int number) {
   std::stringstream ss;
   ss << number;
