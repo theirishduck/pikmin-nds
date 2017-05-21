@@ -385,7 +385,6 @@ bool DebugButtonPressed(const UIState&  ui) {
 }
 
 void UpdateDebugScreen(UIState& ui) {
-  //printf("Update Debug Screen!\n");
   debug_ui::machine.RunLogic(ui.debug_state);
   ui.game->DebugDictionary().Set("Debug Active: ", (int)ui.debug_screen_active);
 }

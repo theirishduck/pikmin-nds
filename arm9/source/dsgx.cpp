@@ -16,7 +16,6 @@ Dsgx::Dsgx(u32* data, const u32 length):
     meshes_{},
     bone_animations_{} {
   u32 seek = 0;
-  // printf("length of Dsgx: %u\n", length);
   while (seek < (length >> 2)) {
     int const chunk_size = ProcessChunk(&data[seek]);
     seek += chunk_size;
@@ -306,7 +305,7 @@ void Dsgx::ApplyAnimation(Animation* animation, u32 frame, Mesh* mesh) {
 
 BoneAnimation* Dsgx::GetBoneAnimation(string name) {
   if (bone_animations_.count(name) == 0) {
-    printf("Couldn't find bone animation: %s", name.c_str());
+    debug::Log("Couldn't find bone animation: " + name);
     return nullptr;  // The requested animation doesn't exist.
   }
 
