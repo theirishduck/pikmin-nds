@@ -145,7 +145,7 @@ void FaceTarget(PikminState& pikmin) {
 
 void RunToTarget(PikminState& pikmin) {
   // Only update the angle every so often, as this is expensive!
-  if ((pikmin.handle.id + pikmin.game->engine().FrameCounter()) % 4 == 0) {
+  if (((pikmin.handle.id + pikmin.game->engine().FrameCounter()) & 0x3) == 0) {
     FaceTarget(pikmin);
   }
 }

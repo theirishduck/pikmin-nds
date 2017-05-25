@@ -320,12 +320,13 @@ void PikminGame::Step() {
   }
 
   ai_profilers_["Pikmin"].ClearTimingData();
-  for (auto i = pikmin.begin(); i != pikmin.end(); i++) {
-    if (i->active) {
-      pikmin_ai::machine.RunLogic(*i, &ai_profilers_["Pikmin"]);
-      i->Update();
-      if (i->dead) {
-        RemoveObject(i->handle, pikmin);
+  for (unsigned int i = 0; i < pikmin.size(); i++) {
+    if (pikmin[i].active) {
+      //pikmin_ai::machine.RunLogic(pikmin[i], &ai_profilers_["Pikmin"]);
+      pikmin_ai::machine.RunLogic(pikmin[i]);
+      pikmin[i].Update();
+      if (pikmin[i].dead) {
+        RemoveObject(pikmin[i].handle, pikmin);
       }
     }
   }

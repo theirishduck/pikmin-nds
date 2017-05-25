@@ -54,7 +54,6 @@ void MultipassEngine::SetCamera(Vec3 position, Vec3 subject, Brads fov) {
   current_camera_position_ = position;
   current_camera_subject_ = subject;
   current_camera_fov_ = fov;
-  debug::Log("Camera gets set!");
 }
 
 void MultipassEngine::PauseEngine() {
