@@ -26,7 +26,7 @@ struct CameraState : ObjectState {
   numeric_types::Brads target_fov;
 
   bool high_camera{false};
-  unsigned int zoom_step;
+  unsigned int zoom_step{1};
 
   Handle follow_captain;
 };

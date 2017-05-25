@@ -23,7 +23,6 @@ void InitAlways(CameraState& camera) {
   camera.target_distance = 17_f;
   camera.target_height = 0.5_f;
   camera.target_fov = camera.current_fov;
-  camera.zoom_step = 0;
 }
 
 void TweenValues(CameraState& camera) {
