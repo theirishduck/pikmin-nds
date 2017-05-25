@@ -298,13 +298,7 @@ bool PikminGame::IsPaused() {
   return paused_;
 }
 
-void PikminGame::Step() {
-  ui::machine.RunLogic(ui_);
-
-  if (paused_) {
-    return;
-  }
-
+void PikminGame::RunAi() {
   engine_.DebugProfiler().StartTopic(tAI);
   for (auto i = captains.begin(); i != captains.end(); i++) {
     if (i->active) {
@@ -369,14 +363,31 @@ void PikminGame::Step() {
   camera_ai::machine.RunLogic(camera_);
 
   engine_.DebugProfiler().EndTopic(tAI);
+}
 
-  engine_.DebugProfiler().StartTopic(tPhysicsUpdate);
-  world_.Update();
-  engine_.DebugProfiler().EndTopic(tPhysicsUpdate);
+void PikminGame::Step() {
+  current_frame_++;
+  if (current_frame_ % 2 == 0) {
+    // On even frames, run AI
+    ui::machine.RunLogic(ui_);
 
-  // Update some debug details about the world
-  DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());
-  DebugDictionary().Set("Physics: Total Collisions: ", world().TotalCollisions());
+    if (paused_) {
+      return;
+    }
+
+    RunAi();
+  } else {
+    // On odd frames, run the World, and update the engine bits
+    engine_.Update();
+
+    engine_.DebugProfiler().StartTopic(tPhysicsUpdate);
+    world_.Update();
+    engine_.DebugProfiler().EndTopic(tPhysicsUpdate);
+
+    // Update some debug details about the world
+    DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());
+    DebugDictionary().Set("Physics: Total Collisions: ", world().TotalCollisions());
+  }
 }
 
 Handle PikminGame::ActiveCaptain() {

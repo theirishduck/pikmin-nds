@@ -318,10 +318,6 @@ void Init(PikminGame& game) {
   glPushMatrix();
 }
 
-void RunLogic(PikminGame& game) {
-  game.Step();
-}
-
 //returns a random vector from -1 to 1 in all directions
 Vec3 RandomVector() {
   return Vec3{
@@ -332,20 +328,14 @@ Vec3 RandomVector() {
 }
 
 void GameLoop(PikminGame& game) {
-  int frame_counter = 0;
   for (;;) {
-    frame_counter++;
     touchPosition touchXY;
     touchRead(&touchXY);
 
     //start debug timings for this loop
     game.engine().DebugProfiler().StartTimer();
 
-    if (frame_counter % 2 == 0) {
-      RunLogic(game);
-    } else {
-      game.engine().Update();
-    }
+    game.Step();
     game.engine().Draw();
 
     oamUpdate(&oamSub);

@@ -148,6 +148,8 @@ private:
   Drawable* allocate_entity();
   MultipassEngine& engine_;
 
+  void RunAi();
+
   template <typename StateType>
   void CleanupObject(StateType* object) {
     engine_.RemoveEntity(object->entity);
@@ -178,6 +180,8 @@ private:
   int tPhysicsUpdate;
   // Debug AI Profiler
   std::map<std::string, debug::AiProfiler> ai_profilers_;
+
+  int current_frame_{0};
 };
 
 #endif  // GAME_H
