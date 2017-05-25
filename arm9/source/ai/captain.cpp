@@ -107,7 +107,8 @@ void IdleAlways(CaptainState& captain) {
 
 void MoveCaptain(CaptainState& captain) {
   auto engine = captain.game->engine();
-  Brads dpad_angle = engine.CameraAngle() + engine.DPadDirection() - 90_brad;
+  auto camera = captain.game->camera();
+  Brads dpad_angle = camera.current_angle + engine.DPadDirection() - 90_brad;
   captain.current_angle = dpad_angle;
   captain.entity->RotateToFace(captain.current_angle, 20_brad);
 

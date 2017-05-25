@@ -15,14 +15,20 @@ namespace camera_ai {
 void InitAlways(CameraState& camera) {
   // Sensible Defaults
   camera.current_subject  = Vec3{0_f, 0_f, 10_f};
-  camera.current_fov = 70_f;
+  camera.current_distance = 17_f;
+  camera.current_height = 0.5_f;
+  camera.current_fov = 70_brad;
+
   camera.target_subject = camera.current_subject;
+  camera.target_distance = 17_f;
+  camera.target_height = 0.5_f;
   camera.target_fov = camera.current_fov;
-  camera.zoom_step = 0_f;
+  camera.zoom_step = 0;
 }
 
 void TweenValues(CameraState& camera) {
   camera.current_subject  = camera.current_subject  * 0.75_f + camera.target_subject  * 0.25_f;
+  camera.current_distance = camera.current_distance * 0.75_f + camera.target_distance * 0.25_f;
   camera.current_height   = camera.current_height   * 0.75_f + camera.target_height   * 0.25_f;
   camera.current_fov      = camera.current_fov      * 0.75_f + camera.target_fov      * 0.25_f;
 
@@ -52,10 +58,17 @@ void TweenValues(CameraState& camera) {
 }
 
 void UpdateFollowCamera(CameraState& camera) {
-  CaptainState* captain = camera.game->RetrieveCaptain(camera.follow_captain_entity);
+  CaptainState* captain = camera.game->RetrieveCaptain(camera.follow_captain);
   if (captain) {
     // Set our position to just above the Captain's current location
     camera.target_subject = captain->entity->position() + Vec3{0_f,2.5_f,0_f};
+    camera.target_distance = 30_f + (fixed::FromInt(camera.zoom_step) * 14_f);
+    camera.target_fov = 30_brad;
+    if (camera.high_camera) {
+      camera.target_height = 2.2_f;
+    } else {
+      camera.target_height = 0.6_f;
+    }
     TweenValues(camera);
 
     // Derive the camera's location from our current tweened values
@@ -64,12 +77,12 @@ void UpdateFollowCamera(CameraState& camera) {
     camera_position.z.data_ = sinLerp(camera.current_angle.data_);
     camera_position.y = camera.current_height;
     camera_position = camera_position.Normalize();
-    camera_position *= 45_f;
+    camera_position *= camera.current_distance;
 
     camera_position += camera.current_subject;
 
     // Finally, write out the camera values to the renderer
-    // TODO: THIS
+    camera.game->engine().SetCamera(camera_position, camera.current_subject, camera.current_fov);
   }
 }
 
@@ -79,43 +92,37 @@ void UpdateLazyFollowCamera(CameraState& camera) {
 }
 
 bool FocusCursorPressed(const CameraState& camera) {
-  return (keysDown() & KEY_L) or (keysHeld() & KEY_L);
+  return (keysDown() & KEY_L);
 }
 
 bool FocusCursorReleased(const CameraState& camera) {
-  return !(keysDown() & KEY_L) or (keysHeld() & KEY_L);
+  return !(keysHeld() & KEY_L);
 }
 
 bool ZoomPressed(const CameraState& camera) {
-  return (keysDown() & KEY_R) or (keysHeld() & KEY_R);
+  return (keysDown() & KEY_R);
 }
 
 bool HeightPressed(const CameraState& camera) {
-  return (keysDown() & KEY_X) or (keysHeld() & KEY_X);
+  return (keysDown() & KEY_X);
 }
 
 void CenterBehindSubject(CameraState& camera) {
-  CaptainState* captain = camera.game->RetrieveCaptain(camera.follow_captain_entity);
+  CaptainState* captain = camera.game->RetrieveCaptain(camera.follow_captain);
   if (captain) {
       camera.target_angle = captain->entity->AngleTo(captain->cursor);
   }
 }
 
 void IncrementZoomLevel(CameraState& camera) {
-  camera.zoom_step = camera.zoom_step + 1_f;
-  if (camera.zoom_step > 2_f) {
-    camera.zoom_step = 0_f;
+  camera.zoom_step = camera.zoom_step + 1;
+  if (camera.zoom_step > 2) {
+    camera.zoom_step = 0;
   }
-  camera.target_fov = 70_f - (10_f * camera.zoom_step);
 }
 
 void ToggleHeightLevel(CameraState& camera) {
   camera.high_camera = !(camera.high_camera);
-  if (camera.high_camera) {
-    camera.target_height = 2.0_f;
-  } else {
-    camera.target_height = 0.5_f;
-  }
 }
 
 

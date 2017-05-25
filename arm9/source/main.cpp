@@ -293,7 +293,7 @@ void SetupDemoStage(PikminGame& game) {
 void InitCaptain(PikminGame& game) {
   CaptainState* captain = game.RetrieveCaptain(game.SpawnCaptain());
   if (captain) {
-    game.engine().camera()->FollowCaptain(captain);
+    game.camera().follow_captain = captain->handle;
     captain->set_position(Vec3{64_f,0_f,-62_f});
   }
 }

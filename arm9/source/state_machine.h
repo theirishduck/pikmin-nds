@@ -3,6 +3,7 @@
 
 #include <functional>
 #include "debug/ai_profiler.h"
+#include "drawable.h"
 
 template<typename T>
 using GuardFunction = bool (*)(T const&);
@@ -13,6 +14,7 @@ struct ObjectState {
   int current_node = 0;
   int frames_alive = 0;
   int frames_at_this_node = 0;
+  Drawable* entity = nullptr;
 };
 
 enum class Trigger {

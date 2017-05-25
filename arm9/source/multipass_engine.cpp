@@ -37,6 +37,9 @@ MultipassEngine::MultipassEngine() {
     ss << "Engine: Pass: " << i + 1;
     tPassUpdate[i] = debug_profiler_.RegisterTopic(ss.str());
   }
+
+  SetCamera(Vec3{0_f, 10_f, 0_f}, Vec3{64_f, 0_f, -62_f}, 45_brad);
+  CacheCamera();
 }
 
 void MultipassEngine::EnableEffectsLayer(bool enabled) {
@@ -47,8 +50,11 @@ debug::Profiler& MultipassEngine::DebugProfiler() {
   return debug_profiler_;
 }
 
-Camera* MultipassEngine::camera() {
-  return &camera_;
+void MultipassEngine::SetCamera(Vec3 position, Vec3 subject, Brads fov) {
+  current_camera_position_ = position;
+  current_camera_subject_ = subject;
+  current_camera_fov_ = fov;
+  debug::Log("Camera gets set!");
 }
 
 void MultipassEngine::PauseEngine() {
@@ -89,8 +95,6 @@ void MultipassEngine::Update() {
   debug_profiler_.StartTopic(tParticleUpdate);
   UpdateParticles();
   debug_profiler_.EndTopic(tParticleUpdate);
-
-  camera_.Update();
 
   frame_counter_++;
 }
@@ -133,10 +137,6 @@ Brads MultipassEngine::DPadDirection()  {
   return last_angle_;
 }
 
-Brads MultipassEngine::CameraAngle() {
-  return camera_.GetAngle();
-}
-
 void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   // Setup a projection matrix that, critically, does not scale Z-values. This
   // ensures that no matter how the near and far plane are set, the resulting
@@ -173,16 +173,30 @@ void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   glMatrixMode(GL_MODELVIEW);
 }
 
+void MultipassEngine::CacheCamera() {
+  cached_camera_position_ = current_camera_position_;
+  cached_camera_subject_ = current_camera_subject_;
+  cached_camera_fov_ = current_camera_fov_;
+}
+
+void MultipassEngine::ApplyCameraTransform() {
+  gluLookAt(
+      (float)cached_camera_position_.x, (float)cached_camera_position_.y,
+      (float)cached_camera_position_.z, (float)cached_camera_subject_.x,
+      (float)cached_camera_subject_.y,  (float)cached_camera_subject_.z,
+      0.0f, 1.0f, 0.0f);
+}
+
 void MultipassEngine::GatherDrawList() {
   // Set the projection matrix to a full frustrum so that the list can be sorted
   // without having to accout for errors caused by the clip plane.
   // 256 will be our backplane because it's a good largeish number which
   // reduces rouding errors.
-  ClipFriendlyPerspective(0.1_f, 256.0_f, FIELD_OF_VIEW);
+  ClipFriendlyPerspective(0.1_f, 256.0_f, cached_camera_fov_);
 
   // Reset to the identity matrix in prep for calculations.
   glLoadIdentity();
-  camera_.ApplyTransform();
+  ApplyCameraTransform();
 
   for (auto entity : entities_) {
     // Cache the object so its render information stays the same across
@@ -324,7 +338,7 @@ void MultipassEngine::InitFrame() {
   // Cache everything needed to draw this frame, as it may span multiple
   // passes and the state of these changing in the middle of a frame can cause
   // tearing.
-  camera_.SetCache();
+  CacheCamera();
   GatherDrawList();
 
   // Ensure the overlap list is empty.
@@ -432,10 +446,10 @@ void MultipassEngine::SetupDividingPlane() {
 
   // Set up the matrices for the render based on the near and far plane
   // calculations.
-  //ClipFriendlyPerspective(near_plane_, far_plane_, FIELD_OF_VIEW);
-  ClipFriendlyPerspective(0.1_f, far_plane_, FIELD_OF_VIEW);
+  //ClipFriendlyPerspective(near_plane_, far_plane_, cached_camera_fov_);
+  ClipFriendlyPerspective(0.1_f, far_plane_, cached_camera_fov_);
   glLoadIdentity();
-  camera_.ApplyTransform();
+  ApplyCameraTransform();
 }
 
 bool MultipassEngine::ValidateDividingPlane() {
@@ -498,9 +512,9 @@ void MultipassEngine::DrawPassList() {
 }
 
 void MultipassEngine::DrawEffects() {
-  ClipFriendlyPerspective(0.1_f, 768.0_f, FIELD_OF_VIEW);
+  ClipFriendlyPerspective(0.1_f, 768.0_f, cached_camera_fov_);
   glLoadIdentity();
-  camera_.ApplyTransform();
+  ApplyCameraTransform();
   //if (debug_flags["Draw Physics Circles"]) {
   //  world_.DebugCircles();
   //}
@@ -531,7 +545,7 @@ void MultipassEngine::Draw() {
     DrawPassList();
 
     debug_profiler_.StartTopic(tParticleDraw);
-    DrawParticles(camera_.Position(), camera_.Target());
+    DrawParticles(cached_camera_position_, cached_camera_subject_);
     debug_profiler_.EndTopic(tParticleDraw);
 
     // Reset the polygon format after all that drawing

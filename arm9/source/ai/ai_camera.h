@@ -15,18 +15,20 @@ struct CameraState : ObjectState {
 
   Vec3 current_subject;
   numeric_types::fixed current_height;
+  numeric_types::fixed current_distance;
   numeric_types::Brads current_angle;
-  numeric_types::fixed current_fov;
+  numeric_types::Brads current_fov;
 
   Vec3 target_subject;
   numeric_types::fixed target_height;
+  numeric_types::fixed target_distance;
   numeric_types::Brads target_angle;
-  numeric_types::fixed target_fov;
+  numeric_types::Brads target_fov;
 
   bool high_camera{false};
-  numeric_types::fixed zoom_step;
+  unsigned int zoom_step;
 
-  Handle follow_captain_entity;
+  Handle follow_captain;
 };
 
 extern StateMachine<CameraState> machine;

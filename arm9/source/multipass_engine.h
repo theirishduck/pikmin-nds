@@ -7,7 +7,6 @@
 #include <string>
 
 #include "drawable.h"
-#include "entities/camera.h"
 #include "physics/world.h"
 #include "debug/profiler.h"
 
@@ -35,14 +34,13 @@ class MultipassEngine {
   void RemoveEntity(Drawable* entity);
 
   numeric_types::Brads DPadDirection();
-  numeric_types::Brads CameraAngle();
-
-  Camera* camera();
 
   unsigned int FrameCounter();
   void PauseEngine();
   void UnpauseEngine();
   bool IsPaused();
+
+  void SetCamera(Vec3 position, Vec3 subject, numeric_types::Brads fov);
 
   debug::Profiler& DebugProfiler();
 
@@ -58,6 +56,9 @@ class MultipassEngine {
   void ClearDrawList();
   void SetVRAMforPass(int pass);
   void DrawClearPlane();
+
+  void CacheCamera();
+  void ApplyCameraTransform();
 
   void InitFrame();
   void GatherPassList();
@@ -83,7 +84,13 @@ class MultipassEngine {
   Fixed<s32, 12> near_plane_;
   Fixed<s32, 12> far_plane_;
 
-  Camera camera_;
+  Vec3 current_camera_position_;
+  Vec3 current_camera_subject_;
+  numeric_types::Brads current_camera_fov_;
+
+  Vec3 cached_camera_position_;
+  Vec3 cached_camera_subject_;
+  numeric_types::Brads cached_camera_fov_;
 
   unsigned int frame_counter_{0};
 

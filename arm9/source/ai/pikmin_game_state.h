@@ -18,7 +18,6 @@ struct PikminGameState : ObjectState {
   bool active = false; // Used by the allocator to flag unused slots
   bool dead = false;
   PikminGame* game = nullptr;
-  Drawable* entity = nullptr;
   physics::Body* body;
 
   Vec3 position() const;

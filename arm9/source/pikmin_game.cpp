@@ -47,6 +47,7 @@ int PikminGame::TotalPikmin() {
 }
 
 PikminGame::PikminGame(MultipassEngine& engine) : engine_{engine} {
+  camera_.game = this;
   ui_.game = this;
   ui_.debug_state.game = this;
 
@@ -71,6 +72,10 @@ MultipassEngine& PikminGame::engine() {
 
 physics::World& PikminGame::world() {
   return world_;
+}
+
+camera_ai::CameraState& PikminGame::camera() {
+  return camera_;
 }
 
 VramAllocator<Texture>* PikminGame::TextureAllocator() {
@@ -359,6 +364,8 @@ void PikminGame::Step() {
       }
     }
   }
+
+  camera_ai::machine.RunLogic(camera_);
 
   engine_.DebugProfiler().EndTopic(tAI);
 

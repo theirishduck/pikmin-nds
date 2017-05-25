@@ -5,6 +5,7 @@
 #include "drawable.h"
 #include "multipass_engine.h"
 
+#include "ai/ai_camera.h"
 #include "ai/captain.h"
 #include "ai/fire_spout.h"
 #include "ai/health.h"
@@ -126,6 +127,8 @@ class PikminGame {
   void RemoveCaptain(Handle handle);
   Handle ActiveCaptain();
 
+  camera_ai::CameraState& camera();
+
 private:
   physics::World world_;
   int current_generation_ = 0;
@@ -140,6 +143,7 @@ private:
   std::list<Drawable*> entities_;
 
   ui::UIState ui_;
+  camera_ai::CameraState camera_;
 
   Drawable* allocate_entity();
   MultipassEngine& engine_;
