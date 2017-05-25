@@ -253,7 +253,7 @@ void SwitchTo(CaptainState& captain) {
 }
 
 bool DismissPressedWithSquad(const CaptainState& captain) {
-  if ((keysDown() & KEY_X) and captain.squad.squad_size > 0) {
+  if ((keysDown() & KEY_Y) and captain.squad.squad_size > 0) {
     return true;
   }
   return false;
