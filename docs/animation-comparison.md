@@ -1,11 +1,11 @@
-=== Hardware Run of 100 Pikmin w/ various Animation Systems ===
+# Hardware Run of 100 Pikmin w/ various Animation Systems
 
 Recently, we rewrote the animation system to support vertex+normal animations,
 in addition to the standard pre-computed bone transform style. We expected this
 to be a performance improvement, and it turns out that it was instead very
 enlightening.
 
-We performed 5 tests in both the DesMuMe emulator, and on a real Nintendo DS
+We performed 5 tests in both the DeSmuME emulator, and on a real Nintendo DS
 unit. For each test, I spawned Olimar in the center, ran to the right in a
 straight line to the Red Onion, and immediately withdrew 100 Pikmin. As soon as
 those pikmin finished emerging and settling down into the squad, I read off the
@@ -22,21 +22,21 @@ The 5 animation modes used were as follows:
 
 The draw times are as follows:
 
-DesMuMe:
-          Pass 1 - Pass 2 - Pass 3 - Pass 4 - TOTAL
-Old-Bone  176k   - 198k   - 198k   - 25k    - 597k
-New-Bone  197k   - 225k   - 224k   - 25k    - 671k
-Vtx+Norm  195k   - 220k   - 220k   - 27k    - 662k
-Vtx Only  144k   - 159k   - 161k   - 23k    - 487k
-No-Anims  85k    - 91k    - 91k    - 17k    - 284k
+| DeSmuME  | Pass 1 | Pass 2 | Pass 3 | Pass 4 | TOTAL |
+| -------- | -----: | -----: | -----: | -----: | ----: |
+| Old-Bone | 176k   | 198k   | 198k   | 25k    | 597k  |
+| New-Bone | 197k   | 225k   | 224k   | 25k    | 671k  |
+| Vtx+Norm | 195k   | 220k   | 220k   | 27k    | 662k  |
+| Vtx Only | 144k   | 159k   | 161k   | 23k    | 487k  |
+| No-Anims | 85k    | 91k    | 91k    | 17k    | 284k  |
 
-Real NDS Unit:
-          Pass 1 - Pass 2 - Pass 3 - Pass 4 - TOTAL
-Old-Bone  168k   - 190k   - 190k   - 24k    - 572k
-New-Bone  151k   - 171k   - 172k   - 21k    - 515k
-Vtx+Norm  184k   - 207k   - 210k   - 24k    - 625k
-Vtx Only  119k   - 130k   - 130k   - 20k    - 399k
-No-Anims  73k    - 80k    - 79k    - 14k    - 246k
+| Hardware | Pass 1 | Pass 2 | Pass 3 | Pass 4 | TOTAL |
+| -------- | -----: | -----: | -----: | -----: | ----: |
+| Old-Bone | 168k   | 190k   | 190k   | 24k    | 572k  |
+| New-Bone | 151k   | 171k   | 172k   | 21k    | 515k  |
+| Vtx+Norm | 184k   | 207k   | 210k   | 24k    | 625k  |
+| Vtx Only | 119k   | 130k   | 130k   | 20k    | 399k  |
+| No-Anims | 73k    | 80k    | 79k    | 14k    | 246k  |
 
 These results are really surprising for a number of reasons. Despite what I
 thought was increased complexity, the new animation system handles bones better
