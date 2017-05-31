@@ -32,21 +32,31 @@ Fortunately, AI for every entity does not need to be run every frame - instead, 
 
 ## Building and running
 
-Pikmin NDS is built using devkitARM portion of [devkitPro](http://devkitpro.org/), which runs on Windows, Linux, and Mac. It has been tested on r41 and r42, but should build on r43 as well. After installing devkitARM, `cd` into the project directory and run `make`. This will produce an NDS ROM titled `pikmin-nds.nds`.
+Pikmin NDS is built using devkitARM portion of [devkitPro](http://devkitpro.org/), which runs on Windows, Linux, and Mac. It has been tested on r41 and r42, but should build on r43 as well. It requires several additional tools and libraries, notably these include [Blender](https://www.blender.org/) to convert models, our [dsgx-converter](https://github.com/zeta0134/dsgx-converter) project, and the python libraries [docopt](https://github.com/docopt/docopt), [Pillow](https://github.com/python-pillow/Pillow), [euclid3](https://github.com/euclid3/euclid3), and [hy v0.11.1](https://github.com/hylang/hy).
 
-An alternative method for compiling, more suitable for development, uses [docker](http://docs.docker.com/mac/started). **Warning**, this will download quite a few packages to set up the developmental envirnment (only the first time). To compile this way, execute `build.sh` as the root user. For example, under debian based systems you would run the following:
-```
-sudo apt-get install docker.io
-sudo sh build.sh
-```
+While it's quite possible to install these dependencies manually on most platforms, we choose to use a Docker image to simplify cross platform development. Official build instructions basically boil down to: Install Docker for your platform, then run ./build.sh and wait. If you'd like to build without docker, check out the Dockerfile for the specific dependencies to install, and the expected build paths.
 
-This ROM can be run in [no$gba](http://problemkaputt.de/gba.htm) or in [DeSmuME](http://desmume.org/), or run on real hardware using flash carts. If you don't intend to be developing the software and want to run it in an emulator, the gaming version of no$gba is recommended; the debug version of no$gba is prone to rapid slowdowns, and DeSmuME is less accurate in its emulation.
+### Windows Professional (With Hyper-V)
+
+On Windows versions which support Hyper-V (Professional, Enterprise, etc) you can install the [Docker Community Edition](https://www.docker.com/community-edition). After doing so, open a command shell in the project directory, and run `build.bat` which will produce `pikmin-nds.nds`.
+
+### Windows Home (Without Hyper-V)
+
+For Home versions of Windows, you can install the older [Docker Toolbox](https://www.docker.com/products/docker-toolbox), which uses VirtualBox. After doing so, open the Docker Quickstart terminal, navigate to the project directory, and run `build.sh` which will produce `pikmin-nds.nds`.
+
+### Linux
+
+Most distributions have docker support added to their package managers already, popular package names include `docker`, `docker-engine`, and `docker.io`. Once you've installed docker, you'll usually need to add your local user to the `docker` group and then reboot your computer. After you've done that, navigate to the project directory, and run `build.sh` which will produce `pikmin-nds.nds`.
+
+### Running
+
+The ROM can be run in [no$gba](http://problemkaputt.de/gba.htm) or in [DeSmuME](http://desmume.org/), or run on real hardware using flash carts. If you don't intend to be developing the software and want to run it in an emulator, the gaming version of no$gba is recommended; the debug version of no$gba is prone to rapid slowdowns, and DeSmuME is less accurate in its emulation.
 
 ## Usage notes
 
 ### Run speed
 
-Emulators and real hardware differ greatly in their hardware timings - this can cause significant issues, particularly if a pass takes longer than a frame to render. In particular, no$'s graphics hardware related timings are too fast.
+Emulators and real hardware differ greatly in their hardware timings - this can cause significant differences, especially if a pass takes longer than a single hardware frame to render. In particular, no$gba's graphics hardware related timings are too fast.
 
 ### Emulation bugs
 
