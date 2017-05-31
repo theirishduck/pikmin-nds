@@ -46,7 +46,7 @@ For Home versions of Windows, you can install the older [Docker Toolbox](https:/
 
 ### Linux
 
-Most distributions have docker support added to their package managers already. You can find official instructions for distributions which Docker supports [here](https://docs.docker.com/engine/installation/) Afterwards, navigate to the project directory, and run `build.sh` which will produce `pikmin-nds.nds`.
+Most distributions have docker support added to their package managers already. Follow [Docker's official instructions](https://docs.docker.com/engine/installation/) for your distribution. Afterwards, navigate to the project directory, and run `build.sh` which will produce `pikmin-nds.nds`.
 
 ### Running
 
