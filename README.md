@@ -34,7 +34,7 @@ Fortunately, AI for every entity does not need to be run every frame - instead, 
 
 Pikmin NDS is built using devkitARM portion of [devkitPro](http://devkitpro.org/), which runs on Windows, Linux, and Mac. It has been tested on r41 and r42, but should build on r43 as well. It requires several additional tools and libraries, notably these include [Blender](https://www.blender.org/) to convert models, our [dsgx-converter](https://github.com/zeta0134/dsgx-converter) project, and the python libraries [docopt](https://github.com/docopt/docopt), [Pillow](https://github.com/python-pillow/Pillow), [euclid3](https://github.com/euclid3/euclid3), and [hy v0.11.1](https://github.com/hylang/hy).
 
-While it's quite possible to install these dependencies manually on most platforms, we choose to use a Docker image to simplify cross platform development. Official build instructions basically boil down to: Install Docker for your platform, then run ./build.sh and wait. If you'd like to build without docker, check out the Dockerfile for the specific dependencies to install, and the expected build paths.
+While it's quite possible to install these dependencies manually on most platforms, we choose to use a [Docker](https://www.docker.com/) image to simplify cross platform development. Official build instructions basically boil down to: Install Docker for your platform, then run ./build.sh and wait. If you'd like to build without docker, check out the Dockerfile anyway for the specific dependencies to install, and the expected build paths.
 
 ### Windows Professional (With Hyper-V)
 
@@ -46,7 +46,7 @@ For Home versions of Windows, you can install the older [Docker Toolbox](https:/
 
 ### Linux
 
-Most distributions have docker support added to their package managers already, popular package names include `docker`, `docker-engine`, and `docker.io`. Once you've installed docker, you'll usually need to add your local user to the `docker` group and then reboot your computer. After you've done that, navigate to the project directory, and run `build.sh` which will produce `pikmin-nds.nds`.
+Most distributions have docker support added to their package managers already. You can find official instructions for distributions which Docker supports [here](https://docs.docker.com/engine/installation/) Afterwards, navigate to the project directory, and run `build.sh` which will produce `pikmin-nds.nds`.
 
 ### Running
 
