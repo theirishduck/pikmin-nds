@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <string>
-#include <sstream>
+//#include <sstream
 
 #include <vector>
 
@@ -32,11 +32,11 @@ MultipassEngine::MultipassEngine() {
   tParticleDraw =   debug_profiler_.RegisterTopic("Engine: Particle Drawing");
   tFrameInit =      debug_profiler_.RegisterTopic("Engine: Frame Init");
   tPassInit =       debug_profiler_.RegisterTopic("Engine: Pass Init");
-  for (int i = 0; i < 9; i++) {
+  /*for (int i = 0; i < 9; i++) {
     std::stringstream ss;
     ss << "Engine: Pass: " << i + 1;
     tPassUpdate[i] = debug_profiler_.RegisterTopic(ss.str());
-  }
+  }*/
 
   SetCamera(Vec3{0_f, 10_f, 0_f}, Vec3{64_f, 0_f, -62_f}, 45_brad);
   CacheCamera();

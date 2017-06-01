@@ -20,7 +20,7 @@ Options:
 
 import sys, os, logging, traceback, math
 sys.path.append("/opt/dsgx-converter")
-sys.path.append("/usr/local/lib/python3.2/dist-packages")
+sys.path.append("/usr/local/lib/python3.4/dist-packages")
 try:
     from model import dsgx, model
     from docopt import docopt

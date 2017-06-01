@@ -155,7 +155,7 @@ void UpdateTriangleShape(SquadState& squad) {
 
     fixed rank_size = fixed::FromInt(rank_count - 1) * kSquadSpacing;
     Vec2 rank_start = {(rank_size * 0.5_f), fixed::FromInt(rank) * kSquadSpacing};
-    Vec2 rank_delta = {-kSquadSpacing, 0_f};
+    Vec2 rank_delta = {-1_f * kSquadSpacing, 0_f};
     if (rank % 2 == 0) {
       // Every other frame, reverse the direction
       rank_start.x *= -1_f;
@@ -235,7 +235,7 @@ void UpdateCircleShape(SquadState& squad) {
 
     fixed rank_size = fixed::FromInt(rank_count - 1) * kSquadSpacing;
     Vec2 rank_start = {(rank_size * 0.5_f), fixed::FromInt(rank) * kSquadSpacing};
-    Vec2 rank_delta = {-kSquadSpacing, 0_f};
+    Vec2 rank_delta = {-1_f * kSquadSpacing, 0_f};
     if (rank % 2 == 0) {
       // Every other frame, reverse the direction
       rank_start.x *= -1_f;

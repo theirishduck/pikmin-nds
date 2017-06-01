@@ -118,7 +118,7 @@ struct Vector2 {
   Vector2<T, F> Rotate(numeric_types::Brads angle) const {
     return Vector2<T, F>{
       x * trig::CosLerp(angle) - y * trig::SinLerp(angle),
-      -x * trig::SinLerp(angle) - y * trig::CosLerp(angle),
+      Fixed<s32,12>::FromInt(-1) * x * trig::SinLerp(angle) - y * trig::CosLerp(angle),
     };
   }
 

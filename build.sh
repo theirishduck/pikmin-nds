@@ -8,4 +8,4 @@ docker build \
   -t pikmin-nds .
 
 # run the dockerfile on this directory, which will build the project
-docker run -i --rm -v $(pwd):/source pikmin-nds
+docker run -i -t --rm -v $(pwd):/source pikmin-nds "$@"
