@@ -69,6 +69,8 @@ class MultipassEngine {
   bool LastPass();
   void DrawEffects();
 
+  void WaitForVBlank();
+
   std::priority_queue<EntityContainer> draw_list_;
 
   std::list<Drawable*> entities_;

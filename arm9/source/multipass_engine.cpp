@@ -12,6 +12,7 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/input.h>
 
+#include "debug/messages.h"
 #include "debug/utilities.h"
 
 #include "particle.h"
@@ -32,12 +33,9 @@ MultipassEngine::MultipassEngine() {
   tParticleDraw =   debug_profiler_.RegisterTopic("Engine: Particle Drawing");
   tFrameInit =      debug_profiler_.RegisterTopic("Engine: Frame Init");
   tPassInit =       debug_profiler_.RegisterTopic("Engine: Pass Init");
-  /*for (int i = 0; i < 9; i++) {
-    std::stringstream ss;
-    ss << "Engine: Pass: " << i + 1;
-    tPassUpdate[i] = debug_profiler_.RegisterTopic(ss.str());
-  }*/
-
+  for (int i = 0; i < 9; i++) {
+    tPassUpdate[i] = debug_profiler_.RegisterTopic("Engine: Pass: " + std::to_string(i + 1));
+  }
   SetCamera(Vec3{0_f, 10_f, 0_f}, Vec3{64_f, 0_f, -62_f}, 45_brad);
   CacheCamera();
 }
@@ -68,6 +66,15 @@ void MultipassEngine::UnpauseEngine() {
 
 bool MultipassEngine::IsPaused() {
   return paused_;
+}
+
+void MultipassEngine::WaitForVBlank() {
+  //debug::Log("REG_VCOUNT before: " + std::to_string(REG_VCOUNT));
+  //swiWaitForVBlank();
+  //debug::Log("REG_VCOUNT after: " + std::to_string(REG_VCOUNT));
+  while (REG_VCOUNT != 192) {
+    continue;
+  }
 }
 
 void MultipassEngine::AddEntity(Drawable* entity) {
@@ -415,7 +422,7 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
     }
 
     GFX_FLUSH = 0;
-    swiWaitForVBlank();
+    WaitForVBlank();
     return false;
   }
   return true;
@@ -471,7 +478,7 @@ bool MultipassEngine::ValidateDividingPlane() {
 
       GFX_FLUSH = 0;
       debug_profiler_.StartTopic(tIdle);
-      swiWaitForVBlank();
+      WaitForVBlank();
       debug_profiler_.EndTopic(tIdle);
 
       SetVRAMforPass(current_pass_);
@@ -481,7 +488,7 @@ bool MultipassEngine::ValidateDividingPlane() {
 
       ClearDrawList();
       GFX_FLUSH = 0;
-      swiWaitForVBlank();
+      WaitForVBlank();
     }
     return false;
   }
@@ -555,8 +562,8 @@ void MultipassEngine::Draw() {
 
   GFX_FLUSH = GL_WBUFFERING;
   debug_profiler_.StartTopic(tIdle);
-  swiWaitForVBlank();
 
+  WaitForVBlank();
 
   if (debug_flags["Render First Pass Only"]) {
     // Empty the draw list; limiting the frame to one pass.
