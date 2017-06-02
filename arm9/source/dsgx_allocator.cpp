@@ -28,11 +28,11 @@ Dsgx* DsgxAllocator::Load(string name, const u8* data, u32 size) {
   if (next_element_ + size / sizeof(u8) > end_) {
     debug::Log("Not enough room for:");
     debug::Log(name.c_str());
-    debug::Log("next element was: " + debug::to_string((int)next_element_));
+    debug::Log("next element was: " + std::to_string((int)next_element_));
     //debug::nocashNumber((int)next_element_);
-    debug::Log("size was: " + debug::to_string((int)size));
+    debug::Log("size was: " + std::to_string((int)size));
     //debug::nocashNumber((int)size);
-    debug::Log("end was: " + debug::to_string((int)end_));
+    debug::Log("end was: " + std::to_string((int)end_));
     //debug::nocashNumber((int)end_);
     return nullptr; // we don't have enough room for this object! and there was
               // panic. much panic.

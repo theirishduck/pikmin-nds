@@ -265,7 +265,7 @@ Animation* Dsgx::GetAnimation(string name, Mesh* mesh) {
   if (mesh->animations.count(name) == 0) {
     debug::Log("Could not load ANIM: " + name);
     debug::Log("From mesh: " + std::string(mesh->name));
-    debug::Log("With total anims: " + debug::to_string(mesh->animations.size()));
+    debug::Log("With total anims: " + std::to_string(mesh->animations.size()));
     return nullptr;  // The requested animation doesn't exist.
   }
   //debug::nocashValue("Switched to ANIM", name);

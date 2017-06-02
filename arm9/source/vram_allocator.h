@@ -63,9 +63,9 @@ class VramAllocator {
 
       if (next_element_ + size / sizeof(u16) > end_) {
         debug::Log("Not enough room for: " + name);
-        debug::Log("next element was: " + debug::to_string((int)next_element_));
-        debug::Log("size was: " + debug::to_string((int)size));
-        debug::Log("end was: " + debug::to_string((int)end_));
+        debug::Log("next element was: " + std::to_string((int)next_element_));
+        debug::Log("size was: " + std::to_string((int)size));
+        debug::Log("end was: " + std::to_string((int)end_));
         return T{}; // we don't have enough room for this object! and there was
                   // panic. much panic.
       }

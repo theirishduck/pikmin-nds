@@ -10,13 +10,6 @@
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
-std::string debug::to_string(int number) {
-  //std::stringstream ss;
-  //ss << number;
-  //return ss.str();
-  return "LOL";
-}
-
 void debug::DrawLine(Vec2 p1, Vec2 p2, rgb color) {
   DrawLine(Vec3{p1.x, 0_f, p1.y}, Vec3{p2.x, 0_f, p2.y}, color);
 }
