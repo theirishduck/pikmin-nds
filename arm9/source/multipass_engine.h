@@ -53,6 +53,7 @@ class MultipassEngine {
   void ClearDrawList();
   void SetVRAMforPass(int pass);
   void DrawClearPlane();
+  void BailAndResetFrame();
 
   void CacheCamera();
   void ApplyCameraTransform();

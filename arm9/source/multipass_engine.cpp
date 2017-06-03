@@ -156,11 +156,8 @@ void MultipassEngine::ApplyCameraTransform() {
 void MultipassEngine::GatherDrawList() {
   // Set the projection matrix to a full frustrum so that the list can be sorted
   // without having to accout for errors caused by the clip plane.
-  // 256 will be our backplane because it's a good largeish number which
-  // reduces rouding errors.
   ClipFriendlyPerspective(0.1_f, 256.0_f, cached_camera_fov_);
 
-  // Reset to the identity matrix in prep for calculations.
   glLoadIdentity();
   ApplyCameraTransform();
 
@@ -313,7 +310,6 @@ void MultipassEngine::InitFrame() {
   current_pass_ = 0;
   effects_drawn = false;
 
-  // consoleClear();
   debug_profiler_.EndTopic(tFrameInit);
 }
 
@@ -368,24 +364,17 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
   //   2. There is an object that exceeds the maximum polygon count per pass on
   //      its own, or there are too many objects in a perpendicular line to the
   //      camera's viewing angle.
-  // Either way, there's nothing that can be done to fix it, so bail on this
-  // frame and hope the next frame isn't as bad.
-  // At some point in the future, it may be possible to change the level of
-  // detail of some of the models to try to alleviate this problem.
   if (draw_list_.size() == initial_length) {
-    if (not draw_list_.empty()) {
-      //debug::Log("No progress made!");
-      // TODO(Nick) Move the action for this check outside of this function;
-      // it doesn't make sense for a simple check to have side effects.
-
-      ClearDrawList();
-    }
-
-    GFX_FLUSH = 0;
-    WaitForVBlank();
     return false;
   }
   return true;
+}
+
+void MultipassEngine::BailAndResetFrame() {
+  ClearDrawList();
+
+  GFX_FLUSH = 0;
+  WaitForVBlank();
 }
 
 void MultipassEngine::SetupDividingPlane() {
@@ -444,11 +433,7 @@ bool MultipassEngine::ValidateDividingPlane() {
       SetVRAMforPass(current_pass_);
       current_pass_++;
     } else {
-      //debug::Log("Near/Far plane equal! BAD!");
-
-      ClearDrawList();
-      GFX_FLUSH = 0;
-      WaitForVBlank();
+      BailAndResetFrame();
     }
     return false;
   }
@@ -499,6 +484,7 @@ void MultipassEngine::Draw() {
     GatherPassList();
 
     if (not ProgressMadeThisPass(initial_length)) {
+      BailAndResetFrame();
       return;
     }
 
