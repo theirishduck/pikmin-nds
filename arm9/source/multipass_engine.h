@@ -33,7 +33,6 @@ class MultipassEngine {
   void AddEntity(Drawable* entity);
   void RemoveEntity(Drawable* entity);
 
-  unsigned int FrameCounter();
   void PauseEngine();
   void UnpauseEngine();
   bool IsPaused();

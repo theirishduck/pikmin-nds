@@ -101,12 +101,6 @@ void MultipassEngine::Update() {
   debug_profiler_.StartTopic(tParticleUpdate);
   UpdateParticles();
   debug_profiler_.EndTopic(tParticleUpdate);
-
-  frame_counter_++;
-}
-
-unsigned int MultipassEngine::FrameCounter() {
-  return frame_counter_;
 }
 
 void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {

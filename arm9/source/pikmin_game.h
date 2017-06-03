@@ -63,6 +63,8 @@ class PikminGame {
   void UnpauseGame();
   bool IsPaused();
 
+  unsigned int CurrentFrame();
+
   MultipassEngine& engine();
   physics::World& world();
 
@@ -182,6 +184,7 @@ private:
   std::map<std::string, debug::AiProfiler> ai_profilers_;
 
   int current_frame_{0};
+  int current_step_{0};
 };
 
 #endif  // GAME_H

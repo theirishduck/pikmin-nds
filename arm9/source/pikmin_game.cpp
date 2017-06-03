@@ -103,6 +103,10 @@ Drawable* PikminGame::allocate_entity() {
   return entities_.back();
 }
 
+unsigned int PikminGame::CurrentFrame() {
+  return current_frame_;
+}
+
 template <typename StateType, unsigned int size>
 Handle PikminGame::SpawnObject(std::array<StateType, size>& object_list, int type) {
   unsigned int slot = 0;
@@ -366,8 +370,8 @@ void PikminGame::RunAi() {
 }
 
 void PikminGame::Step() {
-  current_frame_++;
-  if (current_frame_ % 2 == 0) {
+  current_step_++;
+  if (current_step_ % 2 == 0) {
     // On even frames, run AI
     ui::machine.RunLogic(ui_);
 
@@ -376,6 +380,7 @@ void PikminGame::Step() {
     }
 
     RunAi();
+    current_frame_++;
   } else {
     // On odd frames, run the World, and update the engine bits
     engine_.Update();
