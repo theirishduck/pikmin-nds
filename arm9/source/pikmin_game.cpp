@@ -371,7 +371,7 @@ void PikminGame::Step() {
     // On even frames, run AI
     ui::machine.RunLogic(ui_);
 
-    if (paused_) {
+    if (IsPaused()) {
       return;
     }
 
@@ -380,13 +380,15 @@ void PikminGame::Step() {
     // On odd frames, run the World, and update the engine bits
     engine_.Update();
 
-    engine_.DebugProfiler().StartTopic(tPhysicsUpdate);
-    world_.Update();
-    engine_.DebugProfiler().EndTopic(tPhysicsUpdate);
+    if (!IsPaused()) {
+      engine_.DebugProfiler().StartTopic(tPhysicsUpdate);
+      world_.Update();
+      engine_.DebugProfiler().EndTopic(tPhysicsUpdate);
 
-    // Update some debug details about the world
-    DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());
-    DebugDictionary().Set("Physics: Total Collisions: ", world().TotalCollisions());
+      // Update some debug details about the world
+      DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());
+      DebugDictionary().Set("Physics: Total Collisions: ", world().TotalCollisions());
+    }
   }
 }
 
