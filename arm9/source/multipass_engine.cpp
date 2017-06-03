@@ -109,40 +109,6 @@ unsigned int MultipassEngine::FrameCounter() {
   return frame_counter_;
 }
 
-Brads MultipassEngine::DPadDirection()  {
-  // Todo(Nick) This feels messy. Find a way to make this cleaner.
-
-  if (keysHeld() & KEY_RIGHT) {
-    if (keysHeld() & KEY_UP) {
-      return last_angle_ = 45_brad;
-    }
-    if (keysHeld() & KEY_DOWN) {
-      return last_angle_ = 315_brad;
-    }
-    return last_angle_ = 0_brad;
-  }
-
-  if (keysHeld() & KEY_LEFT) {
-    if (keysHeld() & KEY_UP) {
-      return last_angle_ = 135_brad;
-    }
-    if (keysHeld() & KEY_DOWN) {
-      return last_angle_ = 225_brad;
-    }
-    return last_angle_ = 180_brad;
-  }
-
-  if (keysHeld() & KEY_UP) {
-    return last_angle_ = 90_brad;
-  }
-
-  if (keysHeld() & KEY_DOWN) {
-    return last_angle_ = 270_brad;
-  }
-
-  return last_angle_;
-}
-
 void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   // Setup a projection matrix that, critically, does not scale Z-values. This
   // ensures that no matter how the near and far plane are set, the resulting

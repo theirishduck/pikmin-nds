@@ -33,8 +33,6 @@ class MultipassEngine {
   void AddEntity(Drawable* entity);
   void RemoveEntity(Drawable* entity);
 
-  numeric_types::Brads DPadDirection();
-
   unsigned int FrameCounter();
   void PauseEngine();
   void UnpauseEngine();
@@ -81,7 +79,6 @@ class MultipassEngine {
 
   int old_keys_;
   int keys_;
-  numeric_types::Brads last_angle_ = numeric_types::Brads::Raw(0);
 
   Fixed<s32, 12> near_plane_;
   Fixed<s32, 12> far_plane_;
