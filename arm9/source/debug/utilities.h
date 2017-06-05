@@ -1,13 +1,13 @@
 #ifndef DEBUG_UTILITIES_H
 #define DEBUG_UTILITIES_H
 
+#include <string>
+
 #include <nds/arm9/video.h>
 #include <nds/arm9/videoGL.h>
 
 #include "vector.h"
 #include "numeric_types.h"
-#include <string>
-#include <sstream>
 
 class PikminGame;
 

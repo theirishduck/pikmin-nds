@@ -1,9 +1,8 @@
 #ifndef AI_FIRE_SPOUT_H
 #define AI_FIRE_SPOUT_H
 
-#include "ai/pikmin_game_state.h"
-
 #include "ai/health.h"
+#include "ai/pikmin_game_state.h"
 
 namespace fire_spout_ai {
 

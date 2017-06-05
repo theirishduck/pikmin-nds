@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <functional>
+
 #include <nds.h>
 
 #include "ai/captain.h"

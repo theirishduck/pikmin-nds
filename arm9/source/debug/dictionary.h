@@ -1,8 +1,8 @@
 #ifndef DEBUG_DICTIONARY_H
 #define DEBUG_DICTIONARY_H
 
-#include <string>
 #include <map>
+#include <string>
 
 #include "numeric_types.h"
 #include "vector.h"

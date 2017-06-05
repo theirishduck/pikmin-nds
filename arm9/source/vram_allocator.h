@@ -1,11 +1,12 @@
 #ifndef VRAM_ALLOCATOR_H
 #define VRAM_ALLOCATOR_H
 
-#include <nds.h>
-
+#include <algorithm>
 #include <map>
 #include <string>
-#include <algorithm>
+
+#include <nds.h>
+
 #include "debug/messages.h"
 #include "debug/utilities.h"
 

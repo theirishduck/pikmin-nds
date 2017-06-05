@@ -1,10 +1,9 @@
 #ifndef AI_POSY_H
 #define AI_POSY_H
 
+#include "ai/health.h"
 #include "ai/pikmin_game_state.h"
 #include "physics/body.h"
-
-#include "ai/health.h"
 
 namespace posy_ai {
 

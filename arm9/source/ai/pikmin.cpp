@@ -1,3 +1,5 @@
+#include "pikmin.h"
+
 #include "ai/health.h"
 #include "ai/pikmin.h"
 #include "ai/captain.h"

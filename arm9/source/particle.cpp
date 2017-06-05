@@ -1,8 +1,9 @@
 #include "particle.h"
-#include "project_settings.h"
 
 #include <nds.h>
+
 #include "numeric_types.h"
+#include "project_settings.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

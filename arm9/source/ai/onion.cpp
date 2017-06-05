@@ -1,8 +1,8 @@
 #include "onion.h"
 
+#include "ai/pikmin.h"
 #include "dsgx.h"
 #include "pikmin_game.h"
-#include "ai/pikmin.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

@@ -1,9 +1,10 @@
 #ifndef DEBUG_PROFILER_H
 #define DEBUG_PROFILER_H
 
-#include <nds.h>
 #include <string>
 #include <vector>
+
+#include <nds.h>
 
 namespace debug {
 

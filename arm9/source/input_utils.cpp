@@ -1,5 +1,6 @@
 #include "input_utils.h"
-#include "nds.h"
+
+#include <nds.h>
 
 using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;

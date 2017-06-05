@@ -1,11 +1,12 @@
 #include "captain.h"
 
 #include <nds/arm9/input.h>
+
+#include "ai/onion.h"
 #include "dsgx.h"
 #include "input_utils.h"
 #include "pikmin_game.h"
 #include "trig.h"
-#include "ai/onion.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

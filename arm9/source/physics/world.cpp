@@ -1,9 +1,9 @@
 #include "world.h"
 
+#include "debug/utilities.h"
+#include "body.h"
 #include "numeric_types.h"
 #include "vector.h"
-#include "body.h"
-#include "debug/utilities.h"
 
 using physics::World;
 using physics::Body;

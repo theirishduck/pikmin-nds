@@ -4,14 +4,6 @@
 #include <list>
 #include <map>
 
-#include "drawable.h"
-#include "dsgx_allocator.h"
-#include "handle.h"
-#include "numeric_types.h"
-#include "ui.h"
-#include "vector.h"
-#include "vram_allocator.h"
-
 #include "ai/ai_camera.h"
 #include "ai/captain.h"
 #include "ai/fire_spout.h"
@@ -21,14 +13,18 @@
 #include "ai/pellet_posy.h"
 #include "ai/static.h"
 #include "ai/treasure.h"
-
 #include "debug/ai_profiler.h"
 #include "debug/utilities.h"
 #include "debug/dictionary.h"
-
 #include "physics/world.h"
-
 #include "render/multipass_renderer.h"
+#include "drawable.h"
+#include "dsgx_allocator.h"
+#include "handle.h"
+#include "numeric_types.h"
+#include "ui.h"
+#include "vector.h"
+#include "vram_allocator.h"
 
 struct PikminSave {
   int red_pikmin = 100;

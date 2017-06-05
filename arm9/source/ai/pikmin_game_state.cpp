@@ -1,4 +1,5 @@
 #include "pikmin_game_state.h"
+
 #include "pikmin_game.h"
 
 Vec3 PikminGameState::position() const {

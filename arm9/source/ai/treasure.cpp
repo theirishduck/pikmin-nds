@@ -1,9 +1,9 @@
 #include "treasure.h"
 
-#include "dsgx.h"
-#include "pikmin_game.h"
 #include "ai/onion.h"
 #include "physics/body.h"
+#include "dsgx.h"
+#include "pikmin_game.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

@@ -1,9 +1,10 @@
 #ifndef DSGX_ALLOCATOR_H
 #define DSGX_ALLOCATOR_H
 
-#include <nds.h>
 #include <map>
 #include <string>
+
+#include <nds.h>
 
 
 class Dsgx;

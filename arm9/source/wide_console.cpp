@@ -1,4 +1,7 @@
+#include "wide_console.h"
+
 #include <nds.h>
+
 #include <stdio.h>
 
 // Console Fonts

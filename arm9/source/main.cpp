@@ -1,24 +1,22 @@
-#include <stdio.h>
-#include <dirent.h>
-
 #include <array>
 #include <functional>
+#include <stdio.h>
+#include <dirent.h>
 #include <set>
 
-#include <nds.h>
 #include <filesystem.h>
-
-#include "render/multipass_renderer.h"
-#include "pikmin_game.h"
-#include "debug/messages.h"
-#include "debug/utilities.h"
-#include "particle_library.h"
+#include <nds.h>
 
 #include "ai/captain.h"
 #include "ai/onion.h"
 #include "ai/fire_spout.h"
 #include "ai/treasure.h"
 #include "ai/pellet_posy.h"
+#include "debug/messages.h"
+#include "debug/utilities.h"
+#include "render/multipass_renderer.h"
+#include "particle_library.h"
+#include "pikmin_game.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"

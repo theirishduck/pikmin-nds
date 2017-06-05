@@ -1,11 +1,12 @@
 #include "debug/utilities.h"
+
 #include <cstdio>
-//#include <sstream>
-#include <nds.h>
 #include <map>
 
-#include "pikmin_game.h"
+#include <nds.h>
+
 #include "ai/captain.h"
+#include "pikmin_game.h"
 
 using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;

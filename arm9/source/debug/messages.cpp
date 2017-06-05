@@ -1,6 +1,8 @@
 #include "messages.h"
-#include <nds.h>
+
 #include <deque>
+
+#include <nds.h>
 
 using std::string;
 

@@ -2,8 +2,8 @@
 #define AI_CAPTAIN_H
 
 #include "ai/pikmin_game_state.h"
-#include "pikmin.h"
 #include "onion.h"
+#include "pikmin.h"
 #include "squad.h"
 
 namespace physics {

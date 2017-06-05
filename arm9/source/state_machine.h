@@ -2,6 +2,7 @@
 #define STATE_MACHINE_H_
 
 #include <functional>
+
 #include "debug/ai_profiler.h"
 #include "drawable.h"
 

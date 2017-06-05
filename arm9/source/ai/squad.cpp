@@ -1,11 +1,11 @@
 #include "squad.h"
-#include "pikmin.h"
-#include "captain.h"
-#include "trig.h"
-
-#include "drawable.h"
 
 #include <algorithm>
+
+#include "captain.h"
+#include "drawable.h"
+#include "pikmin.h"
+#include "trig.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

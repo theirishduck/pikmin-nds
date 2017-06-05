@@ -1,11 +1,11 @@
 #ifndef DEBUG_AI_PROFILER_H
 #define DEBUG_AI_PROFILER_H
 
-#include <nds.h>
-
 #include <map>
 #include <string>
 #include <vector>
+
+#include <nds.h>
 
 namespace debug {
 

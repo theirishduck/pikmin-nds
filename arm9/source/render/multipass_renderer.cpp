@@ -1,9 +1,7 @@
-#include "project_settings.h"
 #include "render/multipass_renderer.h"
 
 #include <stdio.h>
 #include <string>
-
 #include <vector>
 
 #include <nds/interrupts.h>
@@ -13,7 +11,7 @@
 
 #include "debug/messages.h"
 #include "debug/utilities.h"
-
+#include "project_settings.h"
 #include "particle.h"
 
 using numeric_types::literals::operator"" _f;

@@ -1,11 +1,12 @@
 #ifndef PHYSICS_BODY_H
 #define PHYSICS_BODY_H
 
-#include "handle.h"
-#include "project_settings.h"
-#include "numeric_types.h"
-#include "vector.h"
 #include <array>
+
+#include "handle.h"
+#include "numeric_types.h"
+#include "project_settings.h"
+#include "vector.h"
 
 namespace physics {
 

@@ -1,9 +1,9 @@
 #include "fire_spout.h"
 
 #include "dsgx.h"
-#include "pikmin_game.h"
 #include "particle.h"
 #include "particle_library.h"
+#include "pikmin_game.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

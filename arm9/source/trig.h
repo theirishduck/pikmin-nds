@@ -1,8 +1,9 @@
 #ifndef TRIG_H
 #define TRIG_H
 
-#include "numeric_types.h"
 #include <nds.h>
+
+#include "numeric_types.h"
 
 namespace trig {
 

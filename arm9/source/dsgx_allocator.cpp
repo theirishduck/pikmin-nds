@@ -1,9 +1,10 @@
-#include "dsgx.h"
 #include "dsgx_allocator.h"
-#include "debug/messages.h"
-#include "debug/utilities.h"
 
 #include <string>
+
+#include "dsgx.h"
+#include "debug/messages.h"
+#include "debug/utilities.h"
 
 u8 dsgx_pool[DsgxAllocator::kPoolSize];  // 1 MB
 

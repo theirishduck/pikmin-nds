@@ -1,12 +1,14 @@
 #include "ui.h"
 
-#include <nds.h>
 #include <stdio.h>
-#include "debug/utilities.h"
 
+#include <nds.h>
+
+#include "ai/captain.h"
+#include "debug/utilities.h"
 #include "pikmin_game.h"
 #include "wide_console.h"
-#include "ai/captain.h"
+
 
 // Numbers and fonts
 #include "bubblefont_img_bin.h"

@@ -1,8 +1,9 @@
 #ifndef PARTICLE_LIBRARY_H
 #define PARTICLE_LIBRARY_H
 
-#include "vram_allocator.h"
 #include "numeric_types.h"
+#include "vram_allocator.h"
+
 struct Particle;
 
 namespace particle_library {

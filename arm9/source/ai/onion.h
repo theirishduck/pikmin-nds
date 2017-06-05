@@ -1,8 +1,8 @@
 #ifndef AI_ONION_H
 #define AI_ONION_H
 
-#include "ai/pikmin_game_state.h"
 #include "ai/pikmin.h"
+#include "ai/pikmin_game_state.h"
 
 namespace onion_ai {
 

@@ -1,13 +1,13 @@
 #ifndef MULTIPASS_RENDERER_H
 #define MULTIPASS_RENDERER_H
 
-#include <queue>
 #include <list>
 #include <map>
+#include <queue>
 #include <string>
 
-#include "drawable.h"
 #include "debug/profiler.h"
+#include "drawable.h"
 
 struct EntityContainer {
   template <typename FixedT, int FixedF>
