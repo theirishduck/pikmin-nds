@@ -1,4 +1,4 @@
-#include "ai/ai_camera.h"
+#include "ai/camera.h"
 #include "ai/captain.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"

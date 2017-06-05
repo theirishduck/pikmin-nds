@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 
-#include "ai/ai_camera.h"
+#include "ai/camera.h"
 #include "ai/captain.h"
 #include "ai/fire_spout.h"
 #include "ai/health.h"
