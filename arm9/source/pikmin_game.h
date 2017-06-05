@@ -1,9 +1,16 @@
 #ifndef PIKMIN_GAME_H
 #define PIKMIN_GAME_H
 
-#include "handle.h"
+#include <list>
+#include <map>
+
 #include "drawable.h"
-#include "multipass_engine.h"
+#include "dsgx_allocator.h"
+#include "handle.h"
+#include "numeric_types.h"
+#include "ui.h"
+#include "vector.h"
+#include "vram_allocator.h"
 
 #include "ai/ai_camera.h"
 #include "ai/captain.h"
@@ -15,19 +22,13 @@
 #include "ai/static.h"
 #include "ai/treasure.h"
 
-#include "physics/world.h"
-
-#include "ui.h"
-#include <list>
-#include <map>
-
 #include "debug/ai_profiler.h"
 #include "debug/utilities.h"
 #include "debug/dictionary.h"
-#include "numeric_types.h"
-#include "vector.h"
-#include "vram_allocator.h"
-#include "dsgx_allocator.h"
+
+#include "physics/world.h"
+
+#include "render/multipass_renderer.h"
 
 struct PikminSave {
   int red_pikmin = 100;
@@ -54,7 +55,7 @@ class PikminGame {
 
   using SpawnMap = std::map<std::string, std::function<PikminGameState*(PikminGame*)>>;
 
-  PikminGame(MultipassEngine& engine);
+  PikminGame(MultipassRenderer& engine);
   ~PikminGame();
 
   // Note: While paused, only the UI thread will run. All other logic
@@ -65,7 +66,7 @@ class PikminGame {
 
   unsigned int CurrentFrame();
 
-  MultipassEngine& engine();
+  MultipassRenderer& renderer();
   physics::World& world();
 
   template <typename StateType, unsigned int size>
@@ -148,13 +149,13 @@ private:
   camera_ai::CameraState camera_;
 
   Drawable* allocate_entity();
-  MultipassEngine& engine_;
+  MultipassRenderer& renderer_;
 
   void RunAi();
 
   template <typename StateType>
   void CleanupObject(StateType* object) {
-    engine_.RemoveEntity(object->entity);
+    renderer_.RemoveEntity(object->entity);
     entities_.remove(object->entity);
     delete object->entity;
     delete object;

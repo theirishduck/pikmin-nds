@@ -1,9 +1,8 @@
 #include "project_settings.h"
-#include "multipass_engine.h"
+#include "render/multipass_renderer.h"
 
 #include <stdio.h>
 #include <string>
-//#include <sstream
 
 #include <vector>
 
@@ -25,7 +24,7 @@ using numeric_types::Brads;
 
 using debug::Topic;
 
-MultipassEngine::MultipassEngine() {
+MultipassRenderer::MultipassRenderer() {
   // Initialize debug topics
   tIdle =           debug_profiler_.RegisterTopic("Engine: Idle");
   tEntityUpdate =   debug_profiler_.RegisterTopic("Engine: Entities");
@@ -40,35 +39,35 @@ MultipassEngine::MultipassEngine() {
   CacheCamera();
 }
 
-void MultipassEngine::EnableEffectsLayer(bool enabled) {
+void MultipassRenderer::EnableEffectsLayer(bool enabled) {
   effects_enabled = enabled;
 }
 
-debug::Profiler& MultipassEngine::DebugProfiler() {
+debug::Profiler& MultipassRenderer::DebugProfiler() {
   return debug_profiler_;
 }
 
-void MultipassEngine::SetCamera(Vec3 position, Vec3 subject, Brads fov) {
+void MultipassRenderer::SetCamera(Vec3 position, Vec3 subject, Brads fov) {
   current_camera_position_ = position;
   current_camera_subject_ = subject;
   current_camera_fov_ = fov;
 }
 
-void MultipassEngine::PauseEngine() {
+void MultipassRenderer::PauseEngine() {
   paused_ = true;
   setBrightness(1, -10);
 }
 
-void MultipassEngine::UnpauseEngine() {
+void MultipassRenderer::UnpauseEngine() {
   paused_ = false;
   setBrightness(1, 0);
 }
 
-bool MultipassEngine::IsPaused() {
+bool MultipassRenderer::IsPaused() {
   return paused_;
 }
 
-void MultipassEngine::WaitForVBlank() {
+void MultipassRenderer::WaitForVBlank() {
   //debug::Log("REG_VCOUNT before: " + std::to_string(REG_VCOUNT));
   //swiWaitForVBlank();
   //debug::Log("REG_VCOUNT after: " + std::to_string(REG_VCOUNT));
@@ -77,15 +76,15 @@ void MultipassEngine::WaitForVBlank() {
   }
 }
 
-void MultipassEngine::AddEntity(Drawable* entity) {
+void MultipassRenderer::AddEntity(Drawable* entity) {
   entities_.push_back(entity);
 }
 
-void MultipassEngine::RemoveEntity(Drawable* entity) {
+void MultipassRenderer::RemoveEntity(Drawable* entity) {
   entities_.remove(entity);
 }
 
-void MultipassEngine::Update() {
+void MultipassRenderer::Update() {
   scanKeys();
 
   if (paused_) {
@@ -139,13 +138,13 @@ void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   glMatrixMode(GL_MODELVIEW);
 }
 
-void MultipassEngine::CacheCamera() {
+void MultipassRenderer::CacheCamera() {
   cached_camera_position_ = current_camera_position_;
   cached_camera_subject_ = current_camera_subject_;
   cached_camera_fov_ = current_camera_fov_;
 }
 
-void MultipassEngine::ApplyCameraTransform() {
+void MultipassRenderer::ApplyCameraTransform() {
   gluLookAt(
       (float)cached_camera_position_.x, (float)cached_camera_position_.y,
       (float)cached_camera_position_.z, (float)cached_camera_subject_.x,
@@ -153,7 +152,7 @@ void MultipassEngine::ApplyCameraTransform() {
       0.0f, 1.0f, 0.0f);
 }
 
-void MultipassEngine::GatherDrawList() {
+void MultipassRenderer::GatherDrawList() {
   // Set the projection matrix to a full frustrum so that the list can be sorted
   // without having to accout for errors caused by the clip plane.
   ClipFriendlyPerspective(0.1_f, 256.0_f, cached_camera_fov_);
@@ -188,7 +187,7 @@ void MultipassEngine::GatherDrawList() {
   effects_enabled = debug_flags["Draw Effects Layer"];
 }
 
-void MultipassEngine::ClearDrawList() {
+void MultipassRenderer::ClearDrawList() {
   // Clear the draw list so that the next frame gets triggered.
   // It is emptied by looping because std::priority_queue does not provide
   // a clear function.
@@ -197,11 +196,11 @@ void MultipassEngine::ClearDrawList() {
   }
 }
 
-bool MultipassEngine::LastPass() {
+bool MultipassRenderer::LastPass() {
   return draw_list_.empty() and (effects_drawn or !effects_enabled);
 }
 
-void MultipassEngine::SetVRAMforPass(int pass) {
+void MultipassRenderer::SetVRAMforPass(int pass) {
   // VRAM banks A and B take turns being the display capture destination and the
   // texture used as the background for the next pass. The rear texture for the
   // first pass of each frame is not drawn because it is the start of a new
@@ -236,7 +235,7 @@ void MultipassEngine::SetVRAMforPass(int pass) {
   }
 }
 
-void MultipassEngine::DrawClearPlane() {
+void MultipassRenderer::DrawClearPlane() {
   if (current_pass_ == 0)
   {
     // Don't draw the rear-plane texture on the first pass; instead, the clear
@@ -286,7 +285,7 @@ void MultipassEngine::DrawClearPlane() {
   GFX_TEX_FORMAT = 0;
 }
 
-void MultipassEngine::InitFrame() {
+void MultipassRenderer::InitFrame() {
   // Initialize the debug counts for this pass
   for (int i = current_pass_; i < 9; i++) {
     debug_profiler_.ClearTopic(tPassUpdate[i]);
@@ -313,7 +312,7 @@ void MultipassEngine::InitFrame() {
   debug_profiler_.EndTopic(tFrameInit);
 }
 
-void MultipassEngine::GatherPassList() {
+void MultipassRenderer::GatherPassList() {
   debug_profiler_.StartTopic(tPassInit);
 
   // Build up the list of objects to render this pass.
@@ -358,7 +357,7 @@ void MultipassEngine::GatherPassList() {
   debug_profiler_.EndTopic(tPassInit);
 }
 
-bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
+bool MultipassRenderer::ProgressMadeThisPass(unsigned int initial_length) {
   // If nothing was moved from the draw list for the frame this pass, than means
   //   1. There were no objects to draw at all this frame, or
   //   2. There is an object that exceeds the maximum polygon count per pass on
@@ -370,14 +369,14 @@ bool MultipassEngine::ProgressMadeThisPass(unsigned int initial_length) {
   return true;
 }
 
-void MultipassEngine::BailAndResetFrame() {
+void MultipassRenderer::BailAndResetFrame() {
   ClearDrawList();
 
   GFX_FLUSH = 0;
   WaitForVBlank();
 }
 
-void MultipassEngine::SetupDividingPlane() {
+void MultipassRenderer::SetupDividingPlane() {
   // Now that the list of entities to render for this pass has been determined,
   // The near and far planes can be decided. For the first pass, the far plane
   // should be set as far back as possible, and for subsequent passes, the far
@@ -407,7 +406,7 @@ void MultipassEngine::SetupDividingPlane() {
   ApplyCameraTransform();
 }
 
-bool MultipassEngine::ValidateDividingPlane() {
+bool MultipassRenderer::ValidateDividingPlane() {
   if (near_plane_ == far_plane_) {
     // One of two things has happened:
     //   1. Most likely, the front of the screen has been reached; i.e. both the
@@ -440,7 +439,7 @@ bool MultipassEngine::ValidateDividingPlane() {
   return true;
 }
 
-void MultipassEngine::DrawPassList() {
+void MultipassRenderer::DrawPassList() {
   // Draw the entities for the pass.
   if (current_pass_ < 9) {
     debug_profiler_.StartTopic(tPassUpdate[current_pass_]);
@@ -462,7 +461,7 @@ void MultipassEngine::DrawPassList() {
   }
 }
 
-void MultipassEngine::DrawEffects() {
+void MultipassRenderer::DrawEffects() {
   ClipFriendlyPerspective(0.1_f, 768.0_f, cached_camera_fov_);
   glLoadIdentity();
   ApplyCameraTransform();
@@ -472,7 +471,7 @@ void MultipassEngine::DrawEffects() {
   effects_drawn = true;
 }
 
-void MultipassEngine::Draw() {
+void MultipassRenderer::Draw() {
   if (LastPass()) {
     InitFrame();
   }

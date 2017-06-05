@@ -68,7 +68,7 @@ void UpdateDebugTimings(DebugUiState& debug_ui) {
   PrintTitle("TIMING");
 
   // For every topic, output the timing on its own line
-  for (auto topic : debug_ui.game->engine().DebugProfiler().Topics()) {
+  for (auto topic : debug_ui.game->renderer().DebugProfiler().Topics()) {
     if (topic.timing.delta() > 0) {
       printf("%-32s %31lu", topic.name.c_str(), topic.timing.delta());
     } else {
@@ -83,7 +83,7 @@ void UpdateDebugToggles(DebugUiState& debug_ui) {
   ClearConsole();
   PrintTitle("Debug Toggles");
   int touch_offset = 16;
-  auto &debug_flags = debug_ui.game->engine().debug_flags;
+  auto &debug_flags = debug_ui.game->renderer().debug_flags;
   for (auto pair : debug_flags) {
     std::string toggleName = pair.first;
     bool toggleActive = pair.second;

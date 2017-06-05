@@ -81,7 +81,7 @@ void UpdateFollowCamera(CameraState& camera) {
     camera_position += camera.current_subject;
 
     // Finally, write out the camera values to the renderer
-    camera.game->engine().SetCamera(camera_position, camera.current_subject, camera.current_fov);
+    camera.game->renderer().SetCamera(camera_position, camera.current_subject, camera.current_fov);
   }
 }
 

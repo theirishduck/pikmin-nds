@@ -1,18 +1,16 @@
-#include "pikmin.h"
-#include "captain.h"
-#include "onion.h"
-#include "treasure.h"
+#include "ai/health.h"
+#include "ai/pikmin.h"
+#include "ai/captain.h"
+#include "ai/onion.h"
+#include "ai/treasure.h"
+
+#include "dsgx.h"
 #include "pikmin_game.h"
 #include "particle.h"
 #include "particle_library.h"
 #include "particle.h"
 #include "particle_library.h"
 #include "vector_utils.h"
-
-#include "dsgx.h"
-#include "multipass_engine.h"
-
-#include "ai/health.h"
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;

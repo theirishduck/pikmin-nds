@@ -3,7 +3,6 @@
 #include <nds/arm9/input.h>
 #include "dsgx.h"
 #include "input_utils.h"
-#include "multipass_engine.h"
 #include "pikmin_game.h"
 #include "trig.h"
 #include "ai/onion.h"
@@ -107,7 +106,6 @@ void IdleAlways(CaptainState& captain) {
 }
 
 void MoveCaptain(CaptainState& captain) {
-  auto engine = captain.game->engine();
   auto camera = captain.game->camera();
   Brads dpad_angle = camera.current_angle + input::DPadDirection() - 90_brad;
   captain.current_angle = dpad_angle;

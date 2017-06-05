@@ -8,7 +8,7 @@
 #include <nds.h>
 #include <filesystem.h>
 
-#include "multipass_engine.h"
+#include "render/multipass_renderer.h"
 #include "pikmin_game.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
@@ -264,7 +264,7 @@ void SetupDemoStage(PikminGame& game) {
   //load in the test level
   Drawable* sandbox = new Drawable();
   sandbox->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
-  game.engine().AddEntity(sandbox);
+  game.renderer().AddEntity(sandbox);
   game.world().SetHeightmap(checkerboard_height_bin);
 
   //spawn in an onion!
@@ -333,17 +333,17 @@ void GameLoop(PikminGame& game) {
     touchRead(&touchXY);
 
     //start debug timings for this loop
-    game.engine().DebugProfiler().StartTimer();
+    game.renderer().DebugProfiler().StartTimer();
 
     game.Step();
-    game.engine().Draw();
+    game.renderer().Draw();
 
     oamUpdate(&oamSub);
   }
 }
 
-MultipassEngine g_engine;
-PikminGame g_game(g_engine);
+MultipassRenderer g_renderer;
+PikminGame g_game(g_renderer);
 
 int main() {
   debug::Log("Hello World!");

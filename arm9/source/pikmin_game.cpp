@@ -1,16 +1,6 @@
 #include "pikmin_game.h"
 
-#include "debug/utilities.h"
 #include "dsgx.h"
-
-#include "ai/captain.h"
-#include "ai/fire_spout.h"
-#include "ai/onion.h"
-#include "ai/pellet_posy.h"
-#include "ai/pikmin.h"
-#include "ai/squad.h"
-#include "ai/static.h"
-#include "ai/treasure.h"
 
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
@@ -46,19 +36,19 @@ int PikminGame::TotalPikmin() {
   return total;
 }
 
-PikminGame::PikminGame(MultipassEngine& engine) : engine_{engine} {
+PikminGame::PikminGame(MultipassRenderer& renderer) : renderer_{renderer} {
   camera_.game = this;
   ui_.game = this;
   ui_.debug_state.game = this;
 
   // Setup initial debug flags
-  engine_.debug_flags["Draw Effects Layer"] = false;
-  engine_.debug_flags["Draw Physics Circles"] = false;
-  engine_.debug_flags["Skip VBlank"] = false;
-  engine_.debug_flags["Render First Pass Only"] = false;
+  renderer_.debug_flags["Draw Effects Layer"] = false;
+  renderer_.debug_flags["Draw Physics Circles"] = false;
+  renderer_.debug_flags["Skip VBlank"] = false;
+  renderer_.debug_flags["Render First Pass Only"] = false;
 
-  tAI = engine_.DebugProfiler().RegisterTopic("Game: AI / Logic");
-  tPhysicsUpdate = engine_.DebugProfiler().RegisterTopic("Game: Physics");
+  tAI = renderer_.DebugProfiler().RegisterTopic("Game: AI / Logic");
+  tPhysicsUpdate = renderer_.DebugProfiler().RegisterTopic("Game: Physics");
 
   ai_profilers_.emplace("Pikmin", debug::AiProfiler());
 }
@@ -66,8 +56,8 @@ PikminGame::PikminGame(MultipassEngine& engine) : engine_{engine} {
 PikminGame::~PikminGame() {
 }
 
-MultipassEngine& PikminGame::engine() {
-  return engine_;
+MultipassRenderer& PikminGame::renderer() {
+  return renderer_;
 }
 
 physics::World& PikminGame::world() {
@@ -99,7 +89,7 @@ Drawable* PikminGame::allocate_entity() {
     return nullptr;
   }
   entities_.push_back(new Drawable());
-  engine_.AddEntity(entities_.back());
+  renderer_.AddEntity(entities_.back());
   return entities_.back();
 }
 
@@ -146,7 +136,7 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
     if (handle.Matches(object_to_delete.handle)) {
       // similar to cleanup object, again minus the state allocation
       object_to_delete.active = false;
-      engine_.RemoveEntity(object_to_delete.entity);
+      renderer_.RemoveEntity(object_to_delete.entity);
       entities_.remove(object_to_delete.entity);
       delete object_to_delete.entity;
       world_.FreeBody(object_to_delete.body);
@@ -174,11 +164,11 @@ Handle PikminGame::SpawnCaptain() {
 void PikminGame::RemoveCaptain(Handle handle) {
   CaptainState* captain = RetrieveCaptain(handle);
   if (captain) {
-    engine_.RemoveEntity(captain->cursor);
+    renderer_.RemoveEntity(captain->cursor);
     entities_.remove(captain->cursor);
     delete captain->cursor;
 
-    engine_.RemoveEntity(captain->whistle);
+    renderer_.RemoveEntity(captain->whistle);
     entities_.remove(captain->whistle);
     delete captain->whistle;
 
@@ -290,12 +280,12 @@ TreasureState* PikminGame::RetrieveTreasure(Handle handle) {
 
 void PikminGame::PauseGame() {
   paused_ = true;
-  engine_.PauseEngine();
+  renderer_.PauseEngine();
 }
 
 void PikminGame::UnpauseGame() {
   paused_ = false;
-  engine_.UnpauseEngine();
+  renderer_.UnpauseEngine();
 }
 
 bool PikminGame::IsPaused() {
@@ -303,7 +293,7 @@ bool PikminGame::IsPaused() {
 }
 
 void PikminGame::RunAi() {
-  engine_.DebugProfiler().StartTopic(tAI);
+  renderer_.DebugProfiler().StartTopic(tAI);
   for (auto i = captains.begin(); i != captains.end(); i++) {
     if (i->active) {
       captain_ai::machine.RunLogic(*i);
@@ -366,7 +356,7 @@ void PikminGame::RunAi() {
 
   camera_ai::machine.RunLogic(camera_);
 
-  engine_.DebugProfiler().EndTopic(tAI);
+  renderer_.DebugProfiler().EndTopic(tAI);
 }
 
 void PikminGame::Step() {
@@ -383,12 +373,12 @@ void PikminGame::Step() {
     current_frame_++;
   } else {
     // On odd frames, run the World, and update the engine bits
-    engine_.Update();
+    renderer_.Update();
 
     if (!IsPaused()) {
-      engine_.DebugProfiler().StartTopic(tPhysicsUpdate);
+      renderer_.DebugProfiler().StartTopic(tPhysicsUpdate);
       world_.Update();
-      engine_.DebugProfiler().EndTopic(tPhysicsUpdate);
+      renderer_.DebugProfiler().EndTopic(tPhysicsUpdate);
 
       // Update some debug details about the world
       DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());

@@ -1,5 +1,5 @@
-#ifndef MULTIPASS_ENGINE_H
-#define MULTIPASS_ENGINE_H
+#ifndef MULTIPASS_RENDERER_H
+#define MULTIPASS_RENDERER_H
 
 #include <queue>
 #include <list>
@@ -7,7 +7,6 @@
 #include <string>
 
 #include "drawable.h"
-#include "physics/world.h"
 #include "debug/profiler.h"
 
 struct EntityContainer {
@@ -22,9 +21,9 @@ struct EntityContainer {
   }
 };
 
-class MultipassEngine {
+class MultipassRenderer {
  public:
-  MultipassEngine();
+  MultipassRenderer();
   void DrawEntity(Drawable entity);
 
   void Update();
