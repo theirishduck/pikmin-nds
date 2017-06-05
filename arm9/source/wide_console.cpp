@@ -29,7 +29,7 @@ u16 _color_blend(u16 rgb5_a, u16 rgb5_b) {
 PrintConsole wide_console;
 void InitWideConsole() {
   swiWaitForVBlank();
-  vramSetBankH(VRAM_H_SUB_BG);
+  vramSetBankI(VRAM_I_SUB_BG_0x06208000);
   videoSetModeSub(MODE_5_2D);
 
   ConsoleFont YeshFont;
@@ -42,8 +42,8 @@ void InitWideConsole() {
   YeshFont.numColors = 16;
 
   s32 const kConsoleLayer{3};
-  s32 const kConsoleMapBase{12};
-  s32 const kConsoleTileBase{0};
+  s32 const kConsoleMapBase{16 + 4};
+  s32 const kConsoleTileBase{2};
   bool const kConsoleOnMainDisplay{true};
   bool const kLoadConsoleGraphics{true};
   consoleInit(&wide_console, kConsoleLayer, BgType_ExRotation, BgSize_ER_512x512,
@@ -54,6 +54,7 @@ void InitWideConsole() {
 
   swiWaitForVBlank();
   bgSetScale(wide_console.bgId, 1 << 9, 1 << 8);
+  bgExtPaletteEnableSub();
   bgUpdate();
 
   consoleSetFont(&wide_console, &YeshFont);
@@ -61,7 +62,7 @@ void InitWideConsole() {
   // Now we need to duplicate the font palette and colorize the entries
   u16 font_colors[] = {
     // Dark Colors
-    RGB5( 4, 4, 4), // black
+    RGB5( 8, 8, 8), // black
     RGB5(16, 8, 8), // red
     RGB5( 8,16, 8), // green
     RGB5(16,16, 8), // yellow
@@ -71,7 +72,7 @@ void InitWideConsole() {
     RGB5(16,16,16), // white
 
     // "Bright" Colors
-    RGB5( 8, 8, 8), // black
+    RGB5(12,12,12), // black
     RGB5(31,16,16), // red
     RGB5(16,31,16), // green
     RGB5(31,31,16), // yellow
@@ -81,12 +82,21 @@ void InitWideConsole() {
     RGB5(31,31,31), // white
   };
 
-  //for (int font_color = 0; font_color < 16; font_color++) {
+  // Map in VRAM bank H for extended palette memory, in CPU mode
+  vramSetBankH(VRAM_H_LCD);
+  u16* EXT_BG_SLOT_3 = (u16*)(0x6898000 + (0x2000 * 3));
+
+  // Copy in our palette 16 times, one for each palette entry
+  for (int font_color = 0; font_color < 16; font_color++) {
     u16* font_palette = (u16*)yesh1_stretched_256_pal_bin;
     for (int palette_color = 0; palette_color < 256; palette_color++) {
       BG_PALETTE_SUB[palette_color] = font_palette[palette_color];
+      EXT_BG_SLOT_3[(font_color * 256) + palette_color] = _color_blend(font_palette[palette_color], font_colors[font_color]);
     }
-  //}
+  }
+
+  // Finally, set bank H back to extended palette mode for use by the engine
+  vramSetBankH(VRAM_H_SUB_BG_EXT_PALETTE);
 
   // Go ahead and clear the console out for safety
   printf("\x1b[2J");
