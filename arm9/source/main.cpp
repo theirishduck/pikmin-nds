@@ -340,12 +340,12 @@ void GameLoop(PikminGame& game) {
   }
 }
 
-MultipassRenderer g_renderer;
-PikminGame g_game(g_renderer);
-
 int main() {
+  MultipassRenderer* renderer = new MultipassRenderer();
+  PikminGame* game = new PikminGame(*renderer);
+
   debug::Log("Hello World!");
-  Init(g_game);
-  GameLoop(g_game);
+  Init(*game);
+  GameLoop(*game);
   return 0;
 }
