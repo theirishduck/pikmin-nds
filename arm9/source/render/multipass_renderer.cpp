@@ -9,6 +9,8 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/input.h>
 
+#include "debug/draw.h"
+#include "debug/flags.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
 #include "project_settings.h"
@@ -182,7 +184,7 @@ void MultipassRenderer::GatherDrawList() {
     }
   }
 
-  effects_enabled = debug_flags["Draw Effects Layer"];
+  effects_enabled = debug::Flag("Draw Effects Layer");
 }
 
 void MultipassRenderer::ClearDrawList() {
@@ -463,9 +465,7 @@ void MultipassRenderer::DrawEffects() {
   ClipFriendlyPerspective(0.1_f, 768.0_f, cached_camera_fov_);
   glLoadIdentity();
   ApplyCameraTransform();
-  //if (debug_flags["Draw Physics Circles"]) {
-  //  world_.DebugCircles();
-  //}
+  debug::DrawEffects();
   effects_drawn = true;
 }
 
@@ -508,7 +508,7 @@ void MultipassRenderer::Draw() {
 
   WaitForVBlank();
 
-  if (debug_flags["Render First Pass Only"]) {
+  if (debug::Flag("Render First Pass Only")) {
     // Empty the draw list; limiting the frame to one pass.
     ClearDrawList();
   }
@@ -516,7 +516,7 @@ void MultipassRenderer::Draw() {
   SetVRAMforPass(current_pass_);
   current_pass_++;
 
-  if (debug_flags["Skip VBlank"]) {
+  if (debug::Flag("Skip VBlank")) {
     // Spin wait until scanline 0 so that the timing colors are visible.
     while (REG_VCOUNT != 0) {
       continue;
