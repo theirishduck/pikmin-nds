@@ -46,10 +46,12 @@ PikminGame::PikminGame(MultipassRenderer& renderer) : renderer_{renderer} {
   // Setup initial debug flags
   debug::RegisterFlag("Draw Effects Layer");
   debug::RegisterFlag("Draw Physics Circles");
+  debug::RegisterFlag("Draw Renderer Circles");
   debug::RegisterFlag("Skip VBlank");
   debug::RegisterFlag("Render First Pass Only");
 
   debug::RegisterWorld(&world_);
+  debug::RegisterRenderer(&renderer_);
 
   tAI = renderer_.DebugProfiler().RegisterTopic("Game: AI / Logic");
   tPhysicsUpdate = renderer_.DebugProfiler().RegisterTopic("Game: Physics");

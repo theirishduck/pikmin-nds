@@ -63,6 +63,8 @@ class Drawable {
   void SetAnimation(std::string name);
 
   bool important{true};
+  unsigned int overlaps{0};
+  bool visible{false};
 
  private:
   DrawState current_{};

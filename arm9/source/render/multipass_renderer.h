@@ -41,6 +41,8 @@ class MultipassRenderer {
   debug::Profiler& DebugProfiler();
 
   void EnableEffectsLayer(bool enabled);
+  void DebugCircles();
+
  private:
   bool paused_ = false;
   template <typename FixedT, int FixedF>

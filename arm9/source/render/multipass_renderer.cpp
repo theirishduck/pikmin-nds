@@ -180,7 +180,12 @@ void MultipassRenderer::GatherDrawList() {
         container.near_z = object_z;
       }
 
+      entity->visible = true;
+      entity->overlaps = 0;
+
       draw_list_.push(container);
+    } else {
+      entity->visible = false;
     }
   }
 
@@ -453,6 +458,7 @@ void MultipassRenderer::DrawPassList() {
     // If this object is not fully drawn, add it to the overlap list to be
     // redrawn in the next pass.
     if (container.near_z < near_plane_ /*and near_plane_ > floattof32(0.1)*/) {
+      container.entity->overlaps++;
       overlap_list_.push_back(container);
     }
   }
@@ -525,4 +531,22 @@ void MultipassRenderer::Draw() {
     swiIntrWait(1, IRQ_HBLANK);
   }
   debug_profiler_.EndTopic(tIdle);
+}
+
+void MultipassRenderer::DebugCircles() {
+  for (auto entity : entities_) {
+    if (entity->visible) {
+      rgb color = RGB5(31,31,31);
+
+      if (entity->overlaps > 0) {
+        color = RGB5(20, 12, 24);
+      }
+
+      DrawState& state = entity->GetCachedState();
+      auto center = state.current_mesh->bounding_center;
+      auto radius = state.current_mesh->bounding_radius;
+      center.y = 0_f; // move bounding circles to the bottom of their respective objects, for easier debugging
+      debug::DrawCircle(entity->position() + center, radius, color, 8);
+    }
+  }
 }
