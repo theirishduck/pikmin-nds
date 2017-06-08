@@ -9,6 +9,8 @@
 #include <nds/arm9/background.h>
 #include <nds/arm9/input.h>
 
+#include "debug/draw.h"
+#include "debug/flags.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
 #include "project_settings.h"
@@ -178,11 +180,16 @@ void MultipassRenderer::GatherDrawList() {
         container.near_z = object_z;
       }
 
+      entity->visible = true;
+      entity->overlaps = 0;
+
       draw_list_.push(container);
+    } else {
+      entity->visible = false;
     }
   }
 
-  effects_enabled = debug_flags["Draw Effects Layer"];
+  effects_enabled = debug::Flag("Draw Effects Layer");
 }
 
 void MultipassRenderer::ClearDrawList() {
@@ -451,6 +458,7 @@ void MultipassRenderer::DrawPassList() {
     // If this object is not fully drawn, add it to the overlap list to be
     // redrawn in the next pass.
     if (container.near_z < near_plane_ /*and near_plane_ > floattof32(0.1)*/) {
+      container.entity->overlaps++;
       overlap_list_.push_back(container);
     }
   }
@@ -463,9 +471,7 @@ void MultipassRenderer::DrawEffects() {
   ClipFriendlyPerspective(0.1_f, 768.0_f, cached_camera_fov_);
   glLoadIdentity();
   ApplyCameraTransform();
-  //if (debug_flags["Draw Physics Circles"]) {
-  //  world_.DebugCircles();
-  //}
+  debug::DrawEffects();
   effects_drawn = true;
 }
 
@@ -508,7 +514,7 @@ void MultipassRenderer::Draw() {
 
   WaitForVBlank();
 
-  if (debug_flags["Render First Pass Only"]) {
+  if (debug::Flag("Render First Pass Only")) {
     // Empty the draw list; limiting the frame to one pass.
     ClearDrawList();
   }
@@ -516,7 +522,7 @@ void MultipassRenderer::Draw() {
   SetVRAMforPass(current_pass_);
   current_pass_++;
 
-  if (debug_flags["Skip VBlank"]) {
+  if (debug::Flag("Skip VBlank")) {
     // Spin wait until scanline 0 so that the timing colors are visible.
     while (REG_VCOUNT != 0) {
       continue;
@@ -525,4 +531,22 @@ void MultipassRenderer::Draw() {
     swiIntrWait(1, IRQ_HBLANK);
   }
   debug_profiler_.EndTopic(tIdle);
+}
+
+void MultipassRenderer::DebugCircles() {
+  for (auto entity : entities_) {
+    if (entity->visible) {
+      rgb color = RGB5(31,31,31);
+
+      if (entity->overlaps > 0) {
+        color = RGB5(20, 12, 24);
+      }
+
+      DrawState& state = entity->GetCachedState();
+      auto center = state.current_mesh->bounding_center;
+      auto radius = state.current_mesh->bounding_radius;
+      center.y = 0_f; // move bounding circles to the bottom of their respective objects, for easier debugging
+      debug::DrawCircle(entity->position() + center, radius, color, 8);
+    }
+  }
 }

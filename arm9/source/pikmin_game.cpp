@@ -1,5 +1,7 @@
 #include "pikmin_game.h"
 
+#include "debug/draw.h"
+#include "debug/flags.h"
 #include "dsgx.h"
 
 using pikmin_ai::PikminState;
@@ -42,10 +44,14 @@ PikminGame::PikminGame(MultipassRenderer& renderer) : renderer_{renderer} {
   ui_.debug_state.game = this;
 
   // Setup initial debug flags
-  renderer_.debug_flags["Draw Effects Layer"] = false;
-  renderer_.debug_flags["Draw Physics Circles"] = false;
-  renderer_.debug_flags["Skip VBlank"] = false;
-  renderer_.debug_flags["Render First Pass Only"] = false;
+  debug::RegisterFlag("Draw Effects Layer");
+  debug::RegisterFlag("Draw Physics Circles");
+  debug::RegisterFlag("Draw Renderer Circles");
+  debug::RegisterFlag("Skip VBlank");
+  debug::RegisterFlag("Render First Pass Only");
+
+  debug::RegisterWorld(&world_);
+  debug::RegisterRenderer(&renderer_);
 
   tAI = renderer_.DebugProfiler().RegisterTopic("Game: AI / Logic");
   tPhysicsUpdate = renderer_.DebugProfiler().RegisterTopic("Game: Physics");

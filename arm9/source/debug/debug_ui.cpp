@@ -1,4 +1,4 @@
-#include "debug_ui.h"
+#include "debug/debug_ui.h"
 
 #include <cstdio>
 #include <functional>
@@ -6,6 +6,7 @@
 #include <nds.h>
 
 #include "ai/captain.h"
+#include "debug/flags.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
 #include "numeric_types.h"
@@ -84,7 +85,7 @@ void UpdateDebugToggles(DebugUiState& debug_ui) {
   ClearConsole();
   PrintTitle("Debug Toggles");
   int touch_offset = 16;
-  auto &debug_flags = debug_ui.game->renderer().debug_flags;
+  auto &debug_flags = debug::FlagList();
   for (auto pair : debug_flags) {
     std::string toggleName = pair.first;
     bool toggleActive = pair.second;
