@@ -27,14 +27,14 @@ using debug::Topic;
 
 MultipassRenderer::MultipassRenderer() {
   // Initialize debug topics
-  tIdle =           debug_profiler_.RegisterTopic("Engine: Idle");
-  tEntityUpdate =   debug_profiler_.RegisterTopic("Engine: Entities");
-  tParticleUpdate = debug_profiler_.RegisterTopic("Engine: Particle Updatess");
-  tParticleDraw =   debug_profiler_.RegisterTopic("Engine: Particle Drawing");
-  tFrameInit =      debug_profiler_.RegisterTopic("Engine: Frame Init");
-  tPassInit =       debug_profiler_.RegisterTopic("Engine: Pass Init");
+  tIdle =           debug::Profiler::RegisterTopic("Engine: Idle");
+  tEntityUpdate =   debug::Profiler::RegisterTopic("Engine: Entities");
+  tParticleUpdate = debug::Profiler::RegisterTopic("Engine: Particle Updatess");
+  tParticleDraw =   debug::Profiler::RegisterTopic("Engine: Particle Drawing");
+  tFrameInit =      debug::Profiler::RegisterTopic("Engine: Frame Init");
+  tPassInit =       debug::Profiler::RegisterTopic("Engine: Pass Init");
   for (int i = 0; i < 9; i++) {
-    tPassUpdate[i] = debug_profiler_.RegisterTopic("Engine: Pass: " + std::to_string(i + 1));
+    tPassUpdate[i] = debug::Profiler::RegisterTopic("Engine: Pass: " + std::to_string(i + 1));
   }
   SetCamera(Vec3{0_f, 10_f, 0_f}, Vec3{64_f, 0_f, -62_f}, 45_brad);
   CacheCamera();
@@ -42,10 +42,6 @@ MultipassRenderer::MultipassRenderer() {
 
 void MultipassRenderer::EnableEffectsLayer(bool enabled) {
   effects_enabled = enabled;
-}
-
-debug::Profiler& MultipassRenderer::DebugProfiler() {
-  return debug_profiler_;
 }
 
 void MultipassRenderer::SetCamera(Vec3 position, Vec3 subject, Brads fov) {
@@ -92,15 +88,15 @@ void MultipassRenderer::Update() {
     return;
   }
 
-  debug_profiler_.StartTopic(tEntityUpdate);
+  debug::Profiler::StartTopic(tEntityUpdate);
   for (auto entity : entities_) {
     entity->Update();
   }
-  debug_profiler_.EndTopic(tEntityUpdate);
+  debug::Profiler::EndTopic(tEntityUpdate);
 
-  debug_profiler_.StartTopic(tParticleUpdate);
+  debug::Profiler::StartTopic(tParticleUpdate);
   UpdateParticles();
-  debug_profiler_.EndTopic(tParticleUpdate);
+  debug::Profiler::EndTopic(tParticleUpdate);
 }
 
 void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
@@ -294,11 +290,11 @@ void MultipassRenderer::DrawClearPlane() {
 void MultipassRenderer::InitFrame() {
   // Initialize the debug counts for this pass
   for (int i = current_pass_; i < 9; i++) {
-    debug_profiler_.ClearTopic(tPassUpdate[i]);
+    debug::Profiler::ClearTopic(tPassUpdate[i]);
   }
 
   //debug::TimingColor(RGB5(0, 15, 0));
-  debug_profiler_.StartTopic(tFrameInit);
+  debug::Profiler::StartTopic(tFrameInit);
   // Handle everything that happens at the start of a frame. This includes
   // gathering the initial draw list, and setting up caches for subsequent
   // passes.
@@ -315,11 +311,11 @@ void MultipassRenderer::InitFrame() {
   current_pass_ = 0;
   effects_drawn = false;
 
-  debug_profiler_.EndTopic(tFrameInit);
+  debug::Profiler::EndTopic(tFrameInit);
 }
 
 void MultipassRenderer::GatherPassList() {
-  debug_profiler_.StartTopic(tPassInit);
+  debug::Profiler::StartTopic(tPassInit);
 
   // Build up the list of objects to render this pass.
   int polycount = 0;
@@ -360,7 +356,7 @@ void MultipassRenderer::GatherPassList() {
     objects_this_pass++;
   }
 
-  debug_profiler_.EndTopic(tPassInit);
+  debug::Profiler::EndTopic(tPassInit);
 }
 
 bool MultipassRenderer::ProgressMadeThisPass(unsigned int initial_length) {
@@ -431,9 +427,9 @@ bool MultipassRenderer::ValidateDividingPlane() {
       DrawClearPlane();
 
       GFX_FLUSH = 0;
-      debug_profiler_.StartTopic(tIdle);
+      debug::Profiler::StartTopic(tIdle);
       WaitForVBlank();
-      debug_profiler_.EndTopic(tIdle);
+      debug::Profiler::EndTopic(tIdle);
 
       SetVRAMforPass(current_pass_);
       current_pass_++;
@@ -448,7 +444,7 @@ bool MultipassRenderer::ValidateDividingPlane() {
 void MultipassRenderer::DrawPassList() {
   // Draw the entities for the pass.
   if (current_pass_ < 9) {
-    debug_profiler_.StartTopic(tPassUpdate[current_pass_]);
+    debug::Profiler::StartTopic(tPassUpdate[current_pass_]);
   }
 
   for (auto& container : pass_list_) {
@@ -464,7 +460,7 @@ void MultipassRenderer::DrawPassList() {
     }
   }
   if (current_pass_ < 9) {
-    debug_profiler_.EndTopic(tPassUpdate[current_pass_]);
+    debug::Profiler::EndTopic(tPassUpdate[current_pass_]);
   }
 }
 
@@ -500,9 +496,9 @@ void MultipassRenderer::Draw() {
 
     DrawPassList();
 
-    debug_profiler_.StartTopic(tParticleDraw);
+    debug::Profiler::StartTopic(tParticleDraw);
     DrawParticles(cached_camera_position_, cached_camera_subject_);
-    debug_profiler_.EndTopic(tParticleDraw);
+    debug::Profiler::EndTopic(tParticleDraw);
 
     // Reset the polygon format after all that drawing
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_BACK);
@@ -511,7 +507,7 @@ void MultipassRenderer::Draw() {
   DrawClearPlane();
 
   GFX_FLUSH = GL_WBUFFERING;
-  debug_profiler_.StartTopic(tIdle);
+  debug::Profiler::StartTopic(tIdle);
 
   WaitForVBlank();
 
@@ -531,7 +527,7 @@ void MultipassRenderer::Draw() {
     irqEnable(IRQ_HBLANK);
     swiIntrWait(1, IRQ_HBLANK);
   }
-  debug_profiler_.EndTopic(tIdle);
+  debug::Profiler::EndTopic(tIdle);
 }
 
 void MultipassRenderer::DebugCircles() {

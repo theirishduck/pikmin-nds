@@ -5,8 +5,8 @@
 #include <nds.h>
 
 #include "ai/captain.h"
+#include "debug/profiler.h"
 #include "debug/utilities.h"
-#include "render/multipass_renderer.h"
 #include "pikmin_game.h"
 #include "wide_console.h"
 
@@ -215,20 +215,19 @@ void InitNavPad(UIState& ui) {
 }
 
 void InitAlways(UIState& ui) {
-  ui.debug_topic_id = ui.game->renderer().DebugProfiler().RegisterTopic("Game: UI");
+  ui.debug_topic_id = debug::Profiler::RegisterTopic("Game: UI");
   InitNavPad(ui);
 }
 
 void UpdateNavPad(UIState& ui) {
-  //auto profiler = ui.game->renderer().DebugProfiler();
-  ui.game->renderer().DebugProfiler().StartTopic(ui.debug_topic_id);
+  debug::Profiler::StartTopic(ui.debug_topic_id);
   // Update pikmin counts
   BubbleNumber(100, 70,  168, ui.game->RetrieveCaptain(ui.game->ActiveCaptain())->squad.squad_size, 3);
   BubbleNumber(103, 114, 168, ui.game->PikminInField(), 3);
   BubbleNumber(106, 158, 168, ui.game->TotalPikmin(), 3);
   UpdatePikminSelector(ui, 109);
   UpdateMapIcons(ui);
-  ui.game->renderer().DebugProfiler().EndTopic(ui.debug_topic_id);
+  debug::Profiler::EndTopic(ui.debug_topic_id);
 }
 
 bool OpenOnionUI(const UIState& ui) {

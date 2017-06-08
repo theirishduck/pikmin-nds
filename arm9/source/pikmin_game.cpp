@@ -2,6 +2,7 @@
 
 #include "debug/draw.h"
 #include "debug/flags.h"
+#include "debug/profiler.h"
 #include "render/multipass_renderer.h"
 #include "dsgx.h"
 
@@ -54,8 +55,8 @@ PikminGame::PikminGame(MultipassRenderer& renderer) : renderer_{renderer} {
   debug::RegisterWorld(&world_);
   debug::RegisterRenderer(&renderer_);
 
-  tAI = renderer_.DebugProfiler().RegisterTopic("Game: AI / Logic");
-  tPhysicsUpdate = renderer_.DebugProfiler().RegisterTopic("Game: Physics");
+  tAI = debug::Profiler::RegisterTopic("Game: AI / Logic");
+  tPhysicsUpdate = debug::Profiler::RegisterTopic("Game: Physics");
 
   ai_profilers_.emplace("Pikmin", debug::AiProfiler());
 }
@@ -300,7 +301,7 @@ bool PikminGame::IsPaused() {
 }
 
 void PikminGame::RunAi() {
-  renderer_.DebugProfiler().StartTopic(tAI);
+  debug::Profiler::StartTopic(tAI);
   for (auto i = captains.begin(); i != captains.end(); i++) {
     if (i->active) {
       captain_ai::machine.RunLogic(*i);
@@ -363,7 +364,7 @@ void PikminGame::RunAi() {
 
   camera_ai::machine.RunLogic(camera_);
 
-  renderer_.DebugProfiler().EndTopic(tAI);
+  debug::Profiler::EndTopic(tAI);
 }
 
 void PikminGame::Step() {
@@ -383,9 +384,9 @@ void PikminGame::Step() {
     renderer_.Update();
 
     if (!IsPaused()) {
-      renderer_.DebugProfiler().StartTopic(tPhysicsUpdate);
+      debug::Profiler::StartTopic(tPhysicsUpdate);
       world_.Update();
-      renderer_.DebugProfiler().EndTopic(tPhysicsUpdate);
+      debug::Profiler::EndTopic(tPhysicsUpdate);
 
       // Update some debug details about the world
       DebugDictionary().Set("Physics: Bodies Overlapping: ", world().BodiesOverlapping());

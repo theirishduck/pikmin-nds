@@ -22,21 +22,19 @@ struct Topic {
   TimingResult timing;
 };
 
-class Profiler {
-public:
-  void StartTopic(int topic_id);
-  void EndTopic(int topic_id);
-  void ClearTopic(int topic_id);
+namespace Profiler {
 
-  void StartTimer();
+void StartTopic(int topic_id);
+void EndTopic(int topic_id);
+void ClearTopic(int topic_id);
 
-  int RegisterTopic(std::string name, u16 rgb5_color = 0xFFFF);
-  int GetTopicByName(std::string name);
-  std::vector<Topic>& Topics();
+void StartTimer();
 
-private:
-  std::vector<Topic> topics_;
-};
+int RegisterTopic(std::string name, u16 rgb5_color = 0xFFFF);
+int GetTopicByName(std::string name);
+std::vector<Topic>& Topics();
+
+} // namespace Profiler
 
 } // namespace debug
 

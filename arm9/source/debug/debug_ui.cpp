@@ -8,8 +8,8 @@
 #include "ai/captain.h"
 #include "debug/flags.h"
 #include "debug/messages.h"
+#include "debug/profiler.h"
 #include "debug/utilities.h"
-#include "render/multipass_renderer.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"
 
@@ -71,7 +71,7 @@ void UpdateDebugTimings(DebugUiState& debug_ui) {
   PrintTitle("TIMING");
 
   // For every topic, output the timing on its own line
-  for (auto topic : debug_ui.game->renderer().DebugProfiler().Topics()) {
+  for (auto topic : debug::Profiler::Topics()) {
     if (topic.timing.delta() > 0) {
       printf("%-32s %31lu", topic.name.c_str(), topic.timing.delta());
     } else {

@@ -331,7 +331,7 @@ void GameLoop(PikminGame& game) {
     touchRead(&touchXY);
 
     //start debug timings for this loop
-    game.renderer().DebugProfiler().StartTimer();
+    debug::Profiler::StartTimer();
 
     game.Step();
     game.renderer().Draw();

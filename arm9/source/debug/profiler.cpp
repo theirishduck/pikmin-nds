@@ -1,6 +1,12 @@
 #include "debug/profiler.h"
 
+#include <vector>
+
 namespace debug {
+
+namespace {
+  std::vector<Topic> topics_;
+}
 
 void Profiler::StartTopic(int topic_id) {
   topics_[topic_id].timing.start = cpuGetTiming();

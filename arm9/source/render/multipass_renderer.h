@@ -38,8 +38,6 @@ class MultipassRenderer {
 
   void SetCamera(Vec3 position, Vec3 subject, numeric_types::Brads fov);
 
-  debug::Profiler& DebugProfiler();
-
   void EnableEffectsLayer(bool enabled);
   void DebugCircles();
 
@@ -94,8 +92,6 @@ class MultipassRenderer {
 
   bool effects_enabled{false};
   bool effects_drawn{false};
-
-  debug::Profiler debug_profiler_;
 
   // Debug Topics
   int tEntityUpdate;
