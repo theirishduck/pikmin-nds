@@ -9,6 +9,7 @@
 #include "debug/flags.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
+#include "render/multipass_renderer.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"
 

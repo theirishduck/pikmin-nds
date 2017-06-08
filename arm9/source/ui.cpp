@@ -6,6 +6,7 @@
 
 #include "ai/captain.h"
 #include "debug/utilities.h"
+#include "render/multipass_renderer.h"
 #include "pikmin_game.h"
 #include "wide_console.h"
 

@@ -13,6 +13,7 @@
 #include "debug/flags.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
+#include "drawable.h"
 #include "project_settings.h"
 #include "particle.h"
 

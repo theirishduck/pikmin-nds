@@ -2,12 +2,13 @@
 #define MULTIPASS_RENDERER_H
 
 #include <list>
-#include <map>
 #include <queue>
-#include <string>
 
 #include "debug/profiler.h"
-#include "drawable.h"
+#include "numeric_types.h"
+#include "vector.h"
+
+class Drawable;
 
 struct EntityContainer {
   template <typename FixedT, int FixedF>
@@ -24,7 +25,6 @@ struct EntityContainer {
 class MultipassRenderer {
  public:
   MultipassRenderer();
-  void DrawEntity(Drawable entity);
 
   void Update();
   void Draw();

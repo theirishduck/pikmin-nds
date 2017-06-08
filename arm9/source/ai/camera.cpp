@@ -1,5 +1,6 @@
 #include "ai/camera.h"
 #include "ai/captain.h"
+#include "render/multipass_renderer.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"
 

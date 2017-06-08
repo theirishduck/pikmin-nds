@@ -2,6 +2,7 @@
 
 #include "debug/draw.h"
 #include "debug/flags.h"
+#include "render/multipass_renderer.h"
 #include "dsgx.h"
 
 using pikmin_ai::PikminState;

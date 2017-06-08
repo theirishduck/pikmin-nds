@@ -17,7 +17,6 @@
 #include "debug/utilities.h"
 #include "debug/dictionary.h"
 #include "physics/world.h"
-#include "render/multipass_renderer.h"
 #include "drawable.h"
 #include "dsgx_allocator.h"
 #include "handle.h"
@@ -25,6 +24,8 @@
 #include "ui.h"
 #include "vector.h"
 #include "vram_allocator.h"
+
+class MultipassRenderer;
 
 struct PikminSave {
   int red_pikmin = 100;
@@ -148,14 +149,6 @@ private:
   MultipassRenderer& renderer_;
 
   void RunAi();
-
-  template <typename StateType>
-  void CleanupObject(StateType* object) {
-    renderer_.RemoveEntity(object->entity);
-    entities_.remove(object->entity);
-    delete object->entity;
-    delete object;
-  }
 
   template <typename StateType>
   StateType* InitObject() {
