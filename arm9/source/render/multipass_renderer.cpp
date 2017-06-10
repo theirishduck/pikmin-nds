@@ -82,8 +82,6 @@ void MultipassRenderer::RemoveEntity(Drawable* entity) {
 }
 
 void MultipassRenderer::Update() {
-  scanKeys();
-
   if (paused_) {
     return;
   }
