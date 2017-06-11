@@ -11,12 +11,10 @@
 class Drawable;
 
 struct EntityContainer {
-  template <typename FixedT, int FixedF>
-  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
   Drawable* entity;
-  Fixed<s32, 12> near_z;
-  Fixed<s32, 12> far_z;
+  numeric_types::fixed near_z;
+  numeric_types::fixed far_z;
   bool operator<(const EntityContainer& other) const {
     return far_z < other.far_z;
   }
@@ -43,8 +41,6 @@ class MultipassRenderer {
 
  private:
   bool paused_ = false;
-  template <typename FixedT, int FixedF>
-  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
   void GatherDrawList();
   void ClearDrawList();
@@ -77,8 +73,8 @@ class MultipassRenderer {
   int old_keys_;
   int keys_;
 
-  Fixed<s32, 12> near_plane_;
-  Fixed<s32, 12> far_plane_;
+  numeric_types::fixed near_plane_;
+  numeric_types::fixed far_plane_;
 
   Vec3 current_camera_position_;
   Vec3 current_camera_subject_;
