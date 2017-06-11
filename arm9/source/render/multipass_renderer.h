@@ -5,6 +5,8 @@
 #include <queue>
 
 #include "debug/profiler.h"
+#include "render/strategy.h"
+#include "render/back_to_front.h"
 #include "numeric_types.h"
 #include "vector.h"
 
@@ -15,8 +17,8 @@ struct EntityContainer {
   using Fixed = numeric_types::Fixed<FixedT, FixedF>;
 
   Drawable* entity;
-  Fixed<s32, 12> near_z;
-  Fixed<s32, 12> far_z;
+  numeric_types::fixed near_z;
+  numeric_types::fixed far_z;
   bool operator<(const EntityContainer& other) const {
     return far_z < other.far_z;
   }
@@ -42,11 +44,10 @@ class MultipassRenderer {
   void DebugCircles();
 
  private:
-  bool paused_ = false;
-  template <typename FixedT, int FixedF>
-  using Fixed = numeric_types::Fixed<FixedT, FixedF>;
+  friend class render::Strategy;
+  friend class render::BackToFront;
+  void InitializeRender();
 
-  void GatherDrawList();
   void ClearDrawList();
   void SetVRAMforPass(int pass);
   void DrawClearPlane();
@@ -55,7 +56,6 @@ class MultipassRenderer {
   void CacheCamera();
   void ApplyCameraTransform();
 
-  void InitFrame();
   void GatherPassList();
   bool ProgressMadeThisPass(unsigned int initial_length);
   void SetupDividingPlane();
@@ -66,19 +66,21 @@ class MultipassRenderer {
 
   void WaitForVBlank();
 
-  std::priority_queue<EntityContainer> draw_list_;
+  void ClipFriendlyPerspective(numeric_types::fixed near, numeric_types::fixed far, numeric_types::Brads angle);
+
+  render::Strategy* current_strategy_;
+  bool paused_ = false;
 
   std::list<Drawable*> entities_;
+
+  std::priority_queue<EntityContainer> draw_list_;
   std::vector<EntityContainer> overlap_list_;
   std::vector<EntityContainer> pass_list_;
 
   int current_pass_{0};
 
-  int old_keys_;
-  int keys_;
-
-  Fixed<s32, 12> near_plane_;
-  Fixed<s32, 12> far_plane_;
+  numeric_types::fixed near_plane_;
+  numeric_types::fixed far_plane_;
 
   Vec3 current_camera_position_;
   Vec3 current_camera_subject_;
