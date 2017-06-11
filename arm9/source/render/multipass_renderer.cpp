@@ -38,6 +38,8 @@ MultipassRenderer::MultipassRenderer() {
   }
   SetCamera(Vec3{0_f, 10_f, 0_f}, Vec3{64_f, 0_f, -62_f}, 45_brad);
   CacheCamera();
+
+  current_strategy_ = new render::BackToFront();
 }
 
 void MultipassRenderer::EnableEffectsLayer(bool enabled) {
@@ -82,8 +84,6 @@ void MultipassRenderer::RemoveEntity(Drawable* entity) {
 }
 
 void MultipassRenderer::Update() {
-  scanKeys();
-
   if (paused_) {
     return;
   }
@@ -99,7 +99,7 @@ void MultipassRenderer::Update() {
   debug::Profiler::EndTopic(tParticleUpdate);
 }
 
-void ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
+void MultipassRenderer::ClipFriendlyPerspective(fixed near, fixed far, Brads angle) {
   // Setup a projection matrix that, critically, does not scale Z-values. This
   // ensures that no matter how the near and far plane are set, the resulting
   // z-coordinate is not stretched or squashed, and is more or less accurate.
@@ -147,46 +147,6 @@ void MultipassRenderer::ApplyCameraTransform() {
       (float)cached_camera_position_.z, (float)cached_camera_subject_.x,
       (float)cached_camera_subject_.y,  (float)cached_camera_subject_.z,
       0.0f, 1.0f, 0.0f);
-}
-
-void MultipassRenderer::GatherDrawList() {
-  // Set the projection matrix to a full frustrum so that the list can be sorted
-  // without having to accout for errors caused by the clip plane.
-  ClipFriendlyPerspective(0.1_f, 256.0_f, cached_camera_fov_);
-
-  glLoadIdentity();
-  ApplyCameraTransform();
-
-  for (auto entity : entities_) {
-    // Cache the object so its render information stays the same across
-    // multiple passes.
-    entity->SetCache();
-    DrawState& state = entity->GetCachedState();
-
-    if (entity->InsideViewFrustrum()) {
-      // Using the camera state, calculate the nearest and farthest points,
-      // which we'll later use to decide where the clipping planes should go.
-      EntityContainer container;
-      container.entity = entity;
-      fixed object_z = entity->GetRealModelZ();
-      if (entity->important) {
-        container.far_z  = object_z + state.current_mesh->bounding_radius;
-        container.near_z = object_z - state.current_mesh->bounding_radius;
-      } else {
-        container.far_z  = object_z;
-        container.near_z = object_z;
-      }
-
-      entity->visible = true;
-      entity->overlaps = 0;
-
-      draw_list_.push(container);
-    } else {
-      entity->visible = false;
-    }
-  }
-
-  effects_enabled = debug::Flag("Draw Effects Layer");
 }
 
 void MultipassRenderer::ClearDrawList() {
@@ -287,7 +247,7 @@ void MultipassRenderer::DrawClearPlane() {
   GFX_TEX_FORMAT = 0;
 }
 
-void MultipassRenderer::InitFrame() {
+void MultipassRenderer::InitializeRender() {
   // Initialize the debug counts for this pass
   for (int i = current_pass_; i < 9; i++) {
     debug::Profiler::ClearTopic(tPassUpdate[i]);
@@ -303,13 +263,15 @@ void MultipassRenderer::InitFrame() {
   // passes and the state of these changing in the middle of a frame can cause
   // tearing.
   CacheCamera();
-  GatherDrawList();
 
   // Ensure the overlap list is empty.
   overlap_list_.clear();
 
   current_pass_ = 0;
   effects_drawn = false;
+
+  current_strategy_->InitializeRender(*this);
+  effects_enabled = debug::Flag("Draw Effects Layer");
 
   debug::Profiler::EndTopic(tFrameInit);
 }
@@ -474,7 +436,7 @@ void MultipassRenderer::DrawEffects() {
 
 void MultipassRenderer::Draw() {
   if (LastPass()) {
-    InitFrame();
+    InitializeRender();
   }
 
   if (draw_list_.empty() and effects_enabled) {

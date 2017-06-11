@@ -371,6 +371,7 @@ void PikminGame::Step() {
   current_step_++;
   if (current_step_ % 2 == 0) {
     // On even frames, run AI
+    scanKeys();
     ui::machine.RunLogic(ui_);
 
     if (IsPaused()) {

@@ -12,7 +12,7 @@ namespace numeric_types {
 // of bits. F is the number of fractional bits.
 // Because this is a numeric type, all functions are defined inline in hopes
 // that the compiler will inline the short underlying functions.
-template <typename T, int F>
+template <typename T=s32, int F=12>
 class Fixed {
   template<typename T2, int F2>
   friend class Fixed;
