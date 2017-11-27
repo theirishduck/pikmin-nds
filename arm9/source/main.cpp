@@ -6,6 +6,7 @@
 
 #include <filesystem.h>
 #include <nds.h>
+#include <maxmod9.h>
 
 #include "ai/captain.h"
 #include "ai/onion.h"
@@ -20,6 +21,10 @@
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
+
+// Sound bank and enum header, for setup
+#include "soundbank.h"
+#include "soundbank_bin.h"
 
 using captain_ai::CaptainState;
 
@@ -314,6 +319,9 @@ void Init(PikminGame& game) {
   SetupDemoStage(game);
 
   glPushMatrix();
+
+  mmInitDefaultMem((mm_addr)soundbank_bin);
+  mmLoadEffect(SFX_FOOTSTEP_HARD);
 }
 
 //returns a random vector from -1 to 1 in all directions

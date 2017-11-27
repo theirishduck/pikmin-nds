@@ -245,3 +245,7 @@ Brads Drawable::AngleTo(const Drawable* destination) {
 void Drawable::RotateToFace(const Drawable* destination, Brads rate) {
   RotateToFace(AngleTo(destination), rate);
 }
+
+u32 Drawable::CurrentFrame() {
+  return current_.animation_frame;
+}

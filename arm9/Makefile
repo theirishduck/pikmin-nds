@@ -25,6 +25,7 @@ DATA		:= data
 BLEND := art
 TEXTURES := $(CURDIR)/art/textures
 NITRODIR := $(CURDIR)/nitrofs
+SOUND    :=  sound
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -46,7 +47,7 @@ LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lfilesystem -lfat -lnds9
+LIBS	:=	-lfilesystem -lfat -lmm9 -lnds9
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -71,7 +72,7 @@ export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*))) soundbank.bin
 BLENDFILES_BONE	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.bone.blend)))
 BLENDFILES_VERTEX	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.vertex.blend)))
 TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
@@ -102,6 +103,8 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_BONE:.bone.blend=.dsgx))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx)))
+
+export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(SOUND)/*.*)),$(CURDIR)/$(SOUND)/$(dir))
 
 .PHONY: $(BUILD) clean clean-nitrofs clean-actors
 
@@ -182,6 +185,13 @@ else
 $(ARM9ELF) :	$(OFILES)
 	@echo linking $(notdir $@)
 	@$(LD)  $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
+
+#---------------------------------------------------------------------------------
+# rule to build soundbank from music files
+#---------------------------------------------------------------------------------
+soundbank.bin soundbank.h : $(AUDIOFILES)
+#---------------------------------------------------------------------------------
+	@mmutil $^ -d -osoundbank.bin -hsoundbank.h
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data

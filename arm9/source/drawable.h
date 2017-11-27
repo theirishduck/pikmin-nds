@@ -61,6 +61,7 @@ class Drawable {
   numeric_types::fixed GetRealModelZ();
 
   void SetAnimation(std::string name);
+  u32 CurrentFrame();
 
   bool important{true};
   unsigned int overlaps{0};
