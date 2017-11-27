@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text eol=lf
+/arm9/art/*/* binary
+/arm9/data/* binary
+/arm9/sound/* binary
