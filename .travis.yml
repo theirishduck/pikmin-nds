@@ -1,25 +1,19 @@
 sudo: required
-
 services:
 - docker
-
 language: cpp
-
 before_install: docker build --build-arg external_username=$(id --user --name) --build-arg
   external_uid=$(id --user) --build-arg external_gid=$(id --group) -t pikmin-nds .
-
 script: docker run -i --rm -v $(pwd):/source pikmin-nds
-
 before_deploy:
-- mkdir release 
+- mkdir release
 - mv pikmin-nds.nds release/pikmin-$(date +%F)-$(git rev-parse --verify --short HEAD).nds
 - cd release
-
 deploy:
   provider: cloudfiles
   username: zeta0134
-  api_key:
-    secure: E8cDJYciblEggIETOGnZ6yY4KVzxMzuezoR18+4sUJ1VA4SR8vwrcVCtNYcIyNWytfhT0bJPmY2tMVKE5FyBRHl+K0ibDY5rVnlDbhawVJ9vbp+/qkMbrpiujBxkbRJZEBlkVNMSSrYooad93/zp8PK7Ng1GNnFnNZb4Xt8Di5IQzYrdgVIVmmoRCnzRcL6lG4q+xZxHUDP6huyr5/oAuUuoIkqODW75WgnIea4Ob8xoZb/sz/7QejQSCxTUtdLQK71JrI5upXB9vuJoHccrtG6uf2+voA+SjDNeRTSzWDysBgOBWee5ILJSSWZDLh42zaAVwZqqPovXoT/NSCS6XMoCPMqDAmmGFAQt1bBujz2Qz6rErxfZ57A2T6jg+lySXKNngCJvBLYqhgKUEOLW6jym9BI1irQ+WsRZCcbXIPYHgRQ/VfAoNOASpFKC+sYE+L2yNfiJEFQekMPrQuu6A+j46P3WUpzNC9pVsufcNMCX3Z2ZDBhXpuSfCg/53MW2UlRixIw0PVCaWbabs5y9tHpDi3BGGfsnyNhKyJV7UG6Ti1oSSLV+u7bnl5ajq5+Be48tETa8MhrkCu4mmRRU7zNSvnfowi+0fogsdiCAbK+vUOah3vvOvkbM8McWMagBV0Wuvz4u9RsgxknQ+0CYW8EVaVo8kBMpKr2icSfZPHI=
+  api-key:
+    secure: l49Bv4uvNxDmSebXuzACFD2Ftwe7d3nxfYZe308Tt0ffYXhN1xDhyMC3533EL0O2K358XRGKIbeYmwTwcRH6laFWEoSyquiYWm+B5JAnP4uE2mdUF0HLf/Zj8NLJtz9NQZOY+OXKQT1x4mcbfe0fH/5Ros2c5Oo4tuT7uBWj9Q1i20/ZWJZdmjI/qpi21c4CEqKXxBjSKz2WWF4ILkIgelnUIlgACj4+keMPeE29GBB2dKkotPo6Ige6T4ZacTpKXLWKDxK/jynPO9SEWCBv4ecboiZfoYgvGTWVAYoCnJztQ+iW3lj6Nl1qb+FwWETdKHM06lp29DBnQ9O6YCZL7axC3w8xMQURgnGM4//kRVurxQVOD0u7OxgrGX3Zi4NdJJE+SjKGWkw3fSATckZcnjAZ5PaLIj5mwtwjNGlgN3QZV0mP/YhTYJOleo7lGmxGLA7XVHW5UyWbASEGoi0b7qtxH743jHa4WrDRR/JfJI/L3VZz3lw09W5rqh1sDw9Y022SDjpAJp7ypdNCMUT9Is+tkufsJhn2PrrO+ZxRI57nqbCLHquy7uhWs7SZodYI42sYhTbd2bU95jArV2I4Yw6LpJwOwIxqdtDdGzgI4cv1wikrUaFTqou20U0iYJyxcu4sdT19/jwM31sPJ3iYFO/Qjc1M0GnVIS4gsUbddIw=
   region: DFW
   container: pikminds-builds
   on:
