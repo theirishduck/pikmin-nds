@@ -1,10 +1,17 @@
 #include "pikmin_game.h"
 
+#include <malloc.h>
+#include <unistd.h>
+
 #include "debug/draw.h"
 #include "debug/flags.h"
 #include "debug/profiler.h"
 #include "render/multipass_renderer.h"
 #include "dsgx.h"
+
+// External libnds memory management variables, for debugging
+extern u8 *fake_heap_end;   // current heap start
+extern u8 *fake_heap_start;   // current heap end 
 
 using pikmin_ai::PikminState;
 using pikmin_ai::PikminType;
@@ -394,6 +401,16 @@ void PikminGame::Step() {
       DebugDictionary().Set("Physics: Total Collisions: ", world().TotalCollisions());
     }
   }
+
+  // Update basic system level debug info:
+  struct mallinfo mi = mallinfo();
+  DebugDictionary().Set("Program Size: ", ((int)fake_heap_start) - 0x02000000);
+  DebugDictionary().Set("Heap Used: ", mi.uordblks);
+  DebugDictionary().Set("Heap Free: ", mi.fordblks + (fake_heap_end - (u8*)sbrk(0)));
+
+  DebugDictionary().Set("DSGX Size: ", DsgxAllocator::kPoolSize);
+  DebugDictionary().Set("DSGX Used: ", ActorAllocator()->Used());
+  DebugDictionary().Set("DSGX Free: ", ActorAllocator()->Free());
 }
 
 Handle PikminGame::ActiveCaptain() {

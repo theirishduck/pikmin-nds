@@ -16,6 +16,8 @@ class DsgxAllocator {
     Dsgx* Load(std::string name, const u8* data, u32 size);
     Dsgx* Retrieve(std::string name);
     void Reset();
+    int Used();
+    int Free();
 
     static const u32 kPoolSize = 1024 * 1024;
   private:

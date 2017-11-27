@@ -71,3 +71,11 @@ void DsgxAllocator::Reset() {
   }
   loaded_assets.clear();
 }
+
+int DsgxAllocator::Used() {
+  return (int)(next_element_ - base_);
+}
+
+int DsgxAllocator::Free() {
+  return (int)(end_ - next_element_);
+}
