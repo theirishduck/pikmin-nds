@@ -1,13 +1,12 @@
 #include "captain.h"
 
 #include <nds/arm9/input.h>
-#include <maxmod9.h>
-#include "soundbank.h"
 
 #include "ai/onion.h"
 #include "dsgx.h"
 #include "input_utils.h"
 #include "pikmin_game.h"
+#include "sfx.h"
 #include "trig.h"
 
 using numeric_types::literals::operator"" _f;
@@ -153,14 +152,7 @@ void MoveCaptain(CaptainState& captain) {
 
   // Play footsteps twice per animation:
   if (captain.entity->CurrentFrame() == 1 || captain.entity->CurrentFrame() == 9) {
-    mm_sound_effect footstep = {
-      { SFX_FOOTSTEP_HARD } ,      // id
-      (int)(1.0f * (1<<10)),  // rate
-      0,    // handle
-      255,  // volume
-      127,  // panning
-    };
-    mmEffectEx(&footstep);
+    sfx::PlaySound(sfx::kFootstep);
   }
 }
 
