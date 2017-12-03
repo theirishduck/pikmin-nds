@@ -1,5 +1,6 @@
 #include "world.h"
 
+#include "debug/profiler.h"
 #include "debug/utilities.h"
 #include "body.h"
 #include "numeric_types.h"
@@ -12,6 +13,13 @@ using numeric_types::fixed;
 using numeric_types::literals::operator"" _f;
 
 World::World() {
+  tMoveBodies =    debug::Profiler::RegisterTopic("Physics: Move Bodies");
+  tCollideBodies = debug::Profiler::RegisterTopic("Physics: Collide Bodies");
+  tCollideWorld =  debug::Profiler::RegisterTopic("Physics: Collide World");
+
+  tAA = debug::Profiler::RegisterTopic("Physics: Bodies: A vs A");
+  tAP = debug::Profiler::RegisterTopic("Physics: Bodies: A vs P");
+  tPP = debug::Profiler::RegisterTopic("Physics: Bodies: P vs P");
 }
 
 World::~World() {
@@ -342,6 +350,7 @@ void World::UpdateNeighbors() {
 void World::ProcessCollision() {
   UpdateNeighbors();
 
+  debug::Profiler::StartTopic(tAA);
   for (int a = 0; a < active_bodies_; a++) {
     Body& A = bodies_[active_[a]];
     for (int b = 0; b < MAX_PHYSICS_NEIGHBORS; b++) {
@@ -354,11 +363,12 @@ void World::ProcessCollision() {
       CollideObjectWithObject(A, bodies_[important_[i]]);
     }
   }
+  debug::Profiler::EndTopic(tAA);
 
   // Repeat this with pikmin, our special case heros
   // Pikmin need to collide against all active bodies, but not with each other*
   //   *except sometimes
-
+  debug::Profiler::StartTopic(tAP);
   for (int p = 0; p < active_pikmin_; p++) {
     Body& P = bodies_[pikmin_[p]];
     for (int a = 0; a < MAX_PHYSICS_NEIGHBORS; a++) {
@@ -371,10 +381,11 @@ void World::ProcessCollision() {
       CollidePikminWithObject(P, bodies_[important_[i]]);
     }
   }
+  debug::Profiler::EndTopic(tAP);
 
   // Finally, collide 1/8 of the pikmin against the rest of the group.
   // (This really doesn't need to be terribly accurate.)
-
+  debug::Profiler::StartTopic(tPP);
   for (int p1 = iteration %  8; p1 < active_pikmin_; p1 += 8) {
     Body& P1 = bodies_[pikmin_[p1]];
     for (int p2 = 0; p2 < active_pikmin_; p2++) {
@@ -382,6 +393,7 @@ void World::ProcessCollision() {
       CollidePikminWithPikmin(P1, P2);
     }
   }
+  debug::Profiler::EndTopic(tPP);
 }
 
 void World::Update() {
@@ -390,9 +402,18 @@ void World::Update() {
   if (rebuild_index_) {
     RebuildIndex();
   }
+  
+  debug::Profiler::StartTopic(tMoveBodies);
   MoveBodies();
+  debug::Profiler::EndTopic(tMoveBodies);
+
+  debug::Profiler::StartTopic(tCollideBodies);
   ProcessCollision();
+  debug::Profiler::EndTopic(tCollideBodies);
+
+  debug::Profiler::StartTopic(tCollideWorld);
   CollideBodiesWithLevel();
+  debug::Profiler::EndTopic(tCollideWorld);
 
   iteration++;
 }
@@ -510,3 +531,4 @@ void World::CollideBodyWithLevel(Body& body) {
     body.touching_ground = 0; //we're in the air
   }
 }
+

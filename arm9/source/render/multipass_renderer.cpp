@@ -33,7 +33,7 @@ MultipassRenderer::MultipassRenderer() {
   tParticleDraw =   debug::Profiler::RegisterTopic("Engine: Particle Drawing");
   tFrameInit =      debug::Profiler::RegisterTopic("Engine: Frame Init");
   tPassInit =       debug::Profiler::RegisterTopic("Engine: Pass Init");
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < 5; i++) {
     tPassUpdate[i] = debug::Profiler::RegisterTopic("Engine: Pass: " + std::to_string(i + 1));
   }
   SetCamera(Vec3{0_f, 10_f, 0_f}, Vec3{64_f, 0_f, -62_f}, 45_brad);
@@ -249,7 +249,7 @@ void MultipassRenderer::DrawClearPlane() {
 
 void MultipassRenderer::InitializeRender() {
   // Initialize the debug counts for this pass
-  for (int i = current_pass_; i < 9; i++) {
+  for (int i = current_pass_; i < 5; i++) {
     debug::Profiler::ClearTopic(tPassUpdate[i]);
   }
 

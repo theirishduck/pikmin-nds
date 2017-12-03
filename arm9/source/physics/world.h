@@ -68,6 +68,14 @@ class World {
     int current_neighbor_ = 0;
 
     int current_generation_ = 0;
+
+    // Debug Topic IDs
+    int tMoveBodies;
+    int tCollideBodies;
+    int tCollideWorld;
+    int tAA;
+    int tAP;
+    int tPP;
 };
 
 }  // namespace physics
