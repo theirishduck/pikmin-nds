@@ -12,6 +12,7 @@ RUN apt-get update && \
   cmake \
   curl \
   git \
+  golang \
   libfreetype6 \
   libjpeg-dev \
   libssl-dev  \
@@ -39,7 +40,9 @@ RUN curl -O http://download.blender.org/release/Blender2.74/blender-2.74-linux-g
   echo '/opt/blender-2.74-linux-glibc211-x86_64/lib' > /etc/ld.so.conf.d/blender.conf && \
   ldconfig
 
-ENV PATH $PATH:/opt/blender-2.74-linux-glibc211-x86_64
+RUN mkdir -p /opt/gopath/bin
+ENV GOPATH /opt/gopath
+ENV PATH $PATH:/opt/blender-2.74-linux-glibc211-x86_64:/opt/gopath/bin
 
 # Clone in the dsgx-converter project
 RUN mkdir /opt/dsgx-converter \
@@ -48,6 +51,14 @@ RUN mkdir /opt/dsgx-converter \
   && git reset --hard fd40a15f8035038e42c7f0329d06c583c24354e3 \
   && chmod +x /opt/dsgx-converter/model2dsgx.py \
   && ln -s /opt/dsgx-converter/model2dsgx.py /usr/local/bin/model2dsgx
+
+# Clone in the dtex texture converter
+
+RUN mkdir -p /opt/gopath/src/dtex \
+  && git clone https://github.com/cromo/dtex.git /opt/gopath/src/dtex \
+  && cd /opt/gopath/src/dtex \
+  && git reset --hard da3b6c0e877e05411d9d43973bfd665c2dcdafe7 \
+  && go get .
 
 ARG external_username
 ARG external_uid
