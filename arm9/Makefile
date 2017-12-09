@@ -138,43 +138,43 @@ $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.bone.blend
 
 $(NITRODIR)/textures/%.2bpp : $(TEXTURES)/%.2bpp.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to 2bpp palette at $(@:.2bpp=.pal)
-	hy ../tools/dtex.hy $< to 2bpp at $@
+	dtex $< to 2bpp palette at $(@:.2bpp=.pal)
+	dtex $< to 2bpp at $@
 
 $(NITRODIR)/textures/%.t2bpp : $(TEXTURES)/%.t2bpp.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to 2bpp palette at $(@:.t2bpp=.pal)
-	hy ../tools/dtex.hy $< to 2bpp at $@
+	dtex $< to 2bpp palette at $(@:.t2bpp=.pal)
+	dtex $< to 2bpp at $@
 
 $(NITRODIR)/textures/%.4bpp : $(TEXTURES)/%.4bpp.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to 4bpp palette at $(@:.4bpp=.pal)
-	hy ../tools/dtex.hy $< to 4bpp at $@
+	dtex $< to 4bpp palette at $(@:.4bpp=.pal)
+	dtex $< to 4bpp at $@
 
 $(NITRODIR)/textures/%.t4bpp : $(TEXTURES)/%.t4bpp.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to 4bpp palette at $(@:.t4bpp=.pal)
-	hy ../tools/dtex.hy $< to 4bpp at $@
+	dtex $< to 4bpp palette at $(@:.t4bpp=.pal)
+	dtex $< to 4bpp at $@
 
 $(NITRODIR)/textures/%.8bpp : $(TEXTURES)/%.8bpp.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to 8bpp palette at $(@:.8bpp=.pal)
-	hy ../tools/dtex.hy $< to 8bpp at $@
+	dtex $< to 8bpp palette at $(@:.8bpp=.pal)
+	dtex $< to 8bpp at $@
 
 $(NITRODIR)/textures/%.t8bpp : $(TEXTURES)/%.t8bpp.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to 8bpp palette at $(@:.t8bpp=.pal)
-	hy ../tools/dtex.hy $< to 8bpp at $@
+	dtex $< to 8bpp palette at $(@:.t8bpp=.pal)
+	dtex $< to 8bpp at $@
 
 $(NITRODIR)/textures/%.a3i5 : $(TEXTURES)/%.a3i5.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to a3i5 palette at $(@:.a3i5=.pal)
-	hy ../tools/dtex.hy $< to a3i5 at $@
+	dtex $< to a3i5 palette at $(@:.a3i5=.pal)
+	dtex $< to a3i5 at $@
 
 $(NITRODIR)/textures/%.a5i3 : $(TEXTURES)/%.a5i3.png
 	@mkdir -p $(NITRODIR)/textures
-	hy ../tools/dtex.hy $< to a5i3 palette at $(@:.a5i3=.pal)
-	hy ../tools/dtex.hy $< to a5i3 at $@
+	dtex $< to a5i3 palette at $(@:.a5i3=.pal)
+	dtex $< to a5i3 at $@
 
 #---------------------------------------------------------------------------------
 else
