@@ -24,12 +24,9 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 # Install the libraries that the dsgx-converter relies on
-# This also sets up Hy, a lisp that runs on Python. This is used for the texture
-# conversion tool.
 RUN pip3 install docopt
 RUN pip3 install euclid3
 RUN pip3 install Pillow
-RUN pip3 install hy==0.11.1
 
 # Install Blender, so that it can perform object exports
 # directly as part of the build
