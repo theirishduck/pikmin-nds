@@ -91,8 +91,9 @@ else
 endif
 #---------------------------------------------------------------------------------
 
-export OFILES	:=	$(addsuffix .o,$(BINFILES)) $(CPPFILES:.cpp=.o) \
-									$(CFILES:.c=.o) $(SFILES:.s=.o)
+export BINOFILES := $(addsuffix .o,$(BINFILES))
+export OFILES	:=	$(BINOFILES) $(CPPFILES:.cpp=.o) \
+						$(CFILES:.c=.o) $(SFILES:.s=.o)
 
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
@@ -109,14 +110,14 @@ export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(SOUND)/*.*)),$(CURDIR)/
 .PHONY: $(BUILD) clean clean-nitrofs clean-actors
 
 #---------------------------------------------------------------------------------
-$(BUILD): $(NITROFILES)
+$(BUILD): $(NITROFILES) $(addprefix $(CURDIR)/$(BUILD)/, $(BINOFILES))
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR)
+	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR) $(DATA)/soundbank.bin
 
 clean-nitrofs:
 	@rm -rf $(NITRODIR)
@@ -177,34 +178,38 @@ $(NITRODIR)/textures/%.a5i3 : $(TEXTURES)/%.a5i3.png
 	dtex $< to a5i3 at $@
 
 #---------------------------------------------------------------------------------
+# rule to build soundbank from music files
+#---------------------------------------------------------------------------------
+$(CURDIR)/$(DATA)/soundbank.bin $(CURDIR)/$(BUILD)/soundbank.h : $(AUDIOFILES)
+#---------------------------------------------------------------------------------
+	@mmutil $^ -d -o$(CURDIR)/$(DATA)/soundbank.bin -h$(CURDIR)/$(BUILD)/soundbank.h
+
+#---------------------------------------------------------------------------------
+# you need a rule like this for each extension you use as binary data
+#---------------------------------------------------------------------------------
+$(CURDIR)/$(BUILD)/%.bin.o $(CURDIR)/$(BUILD)/%_bin.h:	%.bin
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	@mkdir -p $(CURDIR)/$(BUILD)
+	@bin2s $< | arm-none-eabi-as -o $(CURDIR)/$(BUILD)/$(notdir $<).o
+	@echo "extern const u8" `(echo $(notdir $<) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"_end[];" > $(CURDIR)/$(BUILD)/`(echo $(notdir $<) | tr . _)`.h
+	@echo "extern const u8" `(echo $(notdir $<) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`"[];" >> $(CURDIR)/$(BUILD)/`(echo $(notdir $<) | tr . _)`.h
+	@echo "extern const u32" `(echo $(notdir $<) | sed -e 's/^\([0-9]\)/_\1/' | tr . _)`_size";" >> $(CURDIR)/$(BUILD)/`(echo $(notdir $<) | tr . _)`.h
+
+#---------------------------------------------------------------------------------
 else
 
 #---------------------------------------------------------------------------------
-# main targets
+# main target
 #---------------------------------------------------------------------------------
 $(ARM9ELF) :	$(OFILES)
 	@echo linking $(notdir $@)
 	@$(LD)  $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
 
+#%.dsgx.o %_dsgx.h:	%.dsgx
 #---------------------------------------------------------------------------------
-# rule to build soundbank from music files
-#---------------------------------------------------------------------------------
-soundbank.bin soundbank.h : $(AUDIOFILES)
-#---------------------------------------------------------------------------------
-	@mmutil $^ -d -osoundbank.bin -hsoundbank.h
-
-#---------------------------------------------------------------------------------
-# you need a rule like this for each extension you use as binary data
-#---------------------------------------------------------------------------------
-%.bin.o	%_bin.h:	%.bin
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
-
-%.dsgx.o %_dsgx.h:	%.dsgx
-#---------------------------------------------------------------------------------
-	@echo $(notdir $<)
-	@$(bin2o)
+#	@echo $(notdir $<)
+#	@$(bin2o)
 
 -include $(DEPSDIR)/*.d
 
