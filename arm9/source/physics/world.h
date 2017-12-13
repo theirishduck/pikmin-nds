@@ -39,6 +39,7 @@ class World {
     void Sleep(physics::Body* body);
     void CollideBodyWithLevel(physics::Body& body);
     void CollideBodiesWithLevel();
+    void CollideBodyWithTilemap(physics::Body& body, int max_depth);
     void CollideObjectWithObject(physics::Body& A, physics::Body& B);
     void CollidePikminWithObject(physics::Body& P, physics::Body& A);
     void CollidePikminWithPikmin(physics::Body& pikmin1, physics::Body& pikmin2);
@@ -46,6 +47,7 @@ class World {
     void AddNeighborToObject(Body& object, Body& new_neighbor);
 
     numeric_types::fixed HeightFromMap(const Vec3& position);
+    numeric_types::fixed HeightFromMap(int hx, int hz);
 
     physics::Body bodies_[MAX_PHYSICS_BODIES];
 

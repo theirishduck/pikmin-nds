@@ -1,10 +1,13 @@
 #include "world.h"
 
+#include "debug/messages.h"
 #include "debug/profiler.h"
 #include "debug/utilities.h"
 #include "body.h"
 #include "numeric_types.h"
 #include "vector.h"
+
+#include "stdlib.h"
 
 using physics::World;
 using physics::Body;
@@ -484,6 +487,15 @@ void World::SetHeightmap(const u8* raw_heightmap_data) {
 
 // Given a world position, figured out the level's height within the loaded
 // height map
+fixed World::HeightFromMap(int hx, int hz) {
+  if (hx < 0) {hx = 0;}
+  if (hz < 0) {hz = 0;}
+  if (hx >= heightmap_width) {hx = heightmap_width - 1;}
+  if (hz >= heightmap_height) {hz = heightmap_height - 1;}
+
+  return heightmap_data[hz * heightmap_width + hx];
+}
+
 fixed World::HeightFromMap(const Vec3& position) {
   // Figure out the body's "pixel" within the heightmap; we simply clamp to
   // integers to do this since one pixel is equivalent to one unit in the world
@@ -491,12 +503,7 @@ fixed World::HeightFromMap(const Vec3& position) {
   int hz = (int)position.z * -1;
 
   // Clamp the positions to the map edges, so we don't get weirdness
-  if (hx < 0) {hx = 0;}
-  if (hz < 0) {hz = 0;}
-  if (hx >= heightmap_width) {hx = heightmap_width - 1;}
-  if (hz >= heightmap_height) {hz = heightmap_height - 1;}
-
-  return heightmap_data[hz * heightmap_width + hx];
+  return HeightFromMap(hx, hz);
 }
 
 const fixed kWallThreshold = 2_f; //this seems reasonable
@@ -506,29 +513,128 @@ void World::CollideBodyWithLevel(Body& body) {
     return;
   }
 
+  if (!(body.ignores_walls)) {
+    CollideBodyWithTilemap(body, 4);
+  }
+
   fixed current_level_height = HeightFromMap(body.position);
   if (body.position.y < current_level_height) {
-    body.touching_ground = 1; //we touched the ground this frame
-    fixed old_level_height = HeightFromMap(body.old_position);
-    if (current_level_height - old_level_height > kWallThreshold && !(body.ignores_walls)) {
-      // Don't let this object cross the wall! move them back.
-      // Note: we ignore Y here to allow gravity to still take effect when
-      // running into walls.
-      body.position.x = body.old_position.x;
-      body.position.z = body.old_position.z;
-      // TODO: Reset xz velocity here?
-      if (body.position.y < old_level_height) {
-        body.position.y = old_level_height;
-      }
-    } else {
-      // Simple case: just adjust their height so they don't sink through the
-      // ground, and can walk up slopes and stuff.
-      body.position.y = current_level_height;
-      // Reset velocity to 0; we hit the ground
-      body.velocity.y = 0_f;
-    }
+    body.position.y = current_level_height;
+    body.velocity.y = 0_f;
+    body.touching_ground = 1;
   } else {
-    body.touching_ground = 0; //we're in the air
+    body.touching_ground = 0;
   }
 }
+
+void World::CollideBodyWithTilemap(Body& body, int max_depth) {
+  // Note: tiles are 1 "unit" wide for collision purposes. This simplifies life.
+  int tile_diff_x = ((int)body.position.x - (int)body.old_position.x);
+  int tile_diff_z = ((int)body.position.z - (int)body.old_position.z);
+  int tiles_traversed = abs(tile_diff_x) + abs(tile_diff_z) + 1;
+
+  if (tiles_traversed <= 1) {
+    // Early out: we didn't leave our starting tile this frame
+    return;
+  }
+
+  // Figure out our first intersection and step size for traversing the grid
+  Vec3 diff = body.old_position - body.position;
+
+  fixed intersect_x_step, intersect_z_step, next_intersect_x, next_intersect_z;
+  if (diff.x == 0_f) {
+    intersect_x_step = 0_f;
+    next_intersect_x = fixed::FromRaw(0x0FFFFFFF); // Effectively positive infinity
+  } else {
+    fixed x_fraction = body.position.x - fixed::FromInt((int)body.position.x);
+    if (diff.x > 0_f) {
+      intersect_x_step = 1_f / diff.x;
+      next_intersect_x = (1_f - x_fraction) * intersect_x_step;
+    } else {
+      intersect_x_step = -1_f / diff.x;
+      next_intersect_x = x_fraction * intersect_x_step;
+    }
+  }
+
+  if (diff.z == 0_f) {
+    intersect_z_step = 0_f;
+    next_intersect_z = fixed::FromRaw(0x0FFFFFFF); // Effectively positive infinity
+  } else {
+    fixed z_fraction = body.position.z - fixed::FromInt((int)body.position.z);
+    if (diff.z > 0_f) {
+      intersect_z_step = 1_f / diff.z;
+      next_intersect_z = (1_f - z_fraction) * intersect_z_step;
+    } else {
+      intersect_z_step = -1_f / diff.z;
+      next_intersect_z = z_fraction * intersect_z_step;
+    }
+  }
+
+  // Now, iterate over all the tiles this object would intersect, and perform height checks as we go
+  int tile_x = (int)body.old_position.x;
+  int tile_z = (int)body.old_position.z;
+
+  int step_x = (tile_diff_x > 0 ? 1 : -1);
+  int step_z = (tile_diff_z > 0 ? 1 : -1);
+  bool moved_x;
+
+  fixed current_level_height = HeightFromMap(body.old_position);
+
+  for (int i = 1; i < tiles_traversed; i++) {
+    if (next_intersect_x < next_intersect_z) {
+      tile_x += step_x;
+      next_intersect_x += intersect_x_step;
+      moved_x = true;
+    } else {
+      tile_z += step_z;
+      next_intersect_z += intersect_z_step;
+      moved_x = false;
+    }
+
+    // Check to see if this is a valid move, and otherwise handle the response
+    fixed new_level_height = HeightFromMap(tile_x, tile_z * -1);
+    if (body.position.y < new_level_height) {
+      if (new_level_height - current_level_height > kWallThreshold) {
+        // Wall collision here!
+        Vec3 intersection;
+        Vec3 new_position;
+        if (moved_x) {
+          fixed x_moved = next_intersect_x - intersect_x_step;          
+          intersection.x = body.old_position.x + (diff.x * x_moved);
+          intersection.y = body.old_position.y + (diff.y * x_moved);
+          intersection.z = body.old_position.z + (diff.z * x_moved);
+
+          new_position.x = intersection.x;
+          new_position.y = body.position.y;
+          new_position.z = body.position.z;
+        } else {          
+          fixed z_moved = next_intersect_z - intersect_z_step;
+          intersection.x = body.old_position.x + (diff.x * z_moved);
+          intersection.y = body.old_position.y + (diff.y * z_moved);
+          intersection.z = body.old_position.z + (diff.z * z_moved);
+
+          new_position.x = body.position.x;
+          new_position.y = body.position.y;
+          new_position.z = intersection.z;
+        }
+
+        body.old_position = intersection;
+        body.position = new_position;
+
+        if (max_depth > 1) {
+          CollideBodyWithTilemap(body, max_depth - 1);
+        }
+        return;
+      }
+    }
+    current_level_height = new_level_height;
+  }
+
+}
+
+
+
+
+
+
 
