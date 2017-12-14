@@ -55,6 +55,8 @@ LIBS	:=	-lfilesystem -lfat -lmm9 -lnds9
 #---------------------------------------------------------------------------------
 LIBDIRS	:=	$(LIBNDS)
 
+
+
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
 # rules for different file extensions
@@ -72,7 +74,7 @@ export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*))) soundbank.bin
+BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 BLENDFILES_BONE	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.bone.blend)))
 BLENDFILES_VERTEX	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.vertex.blend)))
 TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
@@ -103,7 +105,8 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_BONE:.bone.blend=.dsgx))) \
-				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx)))
+				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx))) \
+				$(NITRODIR)/soundbank.bin
 
 export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(SOUND)/*.*)),$(CURDIR)/$(SOUND)/$(dir))
 
@@ -117,7 +120,7 @@ $(BUILD): $(NITROFILES) $(addprefix $(CURDIR)/$(BUILD)/, $(BINOFILES))
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR) $(DATA)/soundbank.bin
+	@rm -fr $(BUILD) *.elf *.nds* *.bin $(NITRODIR)
 
 clean-nitrofs:
 	@rm -rf $(NITRODIR)
@@ -180,14 +183,16 @@ $(NITRODIR)/textures/%.a5i3 : $(TEXTURES)/%.a5i3.png
 #---------------------------------------------------------------------------------
 # rule to build soundbank from music files
 #---------------------------------------------------------------------------------
-$(CURDIR)/$(DATA)/soundbank.bin $(CURDIR)/$(BUILD)/soundbank.h : $(AUDIOFILES)
+$(NITRODIR)/soundbank.bin $(CURDIR)/$(BUILD)/soundbank.h : $(AUDIOFILES)
 #---------------------------------------------------------------------------------
-	@mmutil $^ -d -o$(CURDIR)/$(DATA)/soundbank.bin -h$(CURDIR)/$(BUILD)/soundbank.h
+	@echo "MAXMOD BUILD HERE"
+	@mkdir -p $(CURDIR)/$(BUILD)
+	mmutil $^ -d -o$(NITRODIR)/soundbank.bin -h$(CURDIR)/$(BUILD)/soundbank.h
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data
 #---------------------------------------------------------------------------------
-$(CURDIR)/$(BUILD)/%.bin.o $(CURDIR)/$(BUILD)/%_bin.h:	%.bin
+$(CURDIR)/$(BUILD)/%.bin.o $(CURDIR)/$(BUILD)/%_bin.h:	%.bin 
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	@mkdir -p $(CURDIR)/$(BUILD)
