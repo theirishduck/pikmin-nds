@@ -1,12 +1,10 @@
 #include <array>
 #include <functional>
 #include <stdio.h>
-#include <dirent.h>
 #include <set>
 
 #include <filesystem.h>
 #include <nds.h>
-#include <maxmod9.h>
 
 #include "ai/captain.h"
 #include "ai/onion.h"
@@ -16,15 +14,12 @@
 #include "debug/messages.h"
 #include "debug/utilities.h"
 #include "render/multipass_renderer.h"
+#include "file_utils.h"
 #include "particle_library.h"
 #include "pikmin_game.h"
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
-
-// Sound bank and enum header, for setup
-#include "soundbank.h"
-#include "soundbank_bin.h"
 
 using captain_ai::CaptainState;
 
@@ -115,23 +110,6 @@ void InitMainScreen() {
 	glMaterialShinyness();
 }
 
-vector<string> FilesInDirectory(string path) {
-  auto dir = opendir(path.c_str());
-  vector<string> directories;
-  if (dir) {
-    while (auto file_entry = readdir(dir)) {
-      if (strcmp(".", file_entry->d_name) == 0 or strcmp("..", file_entry->d_name) == 0) {
-        continue;
-      }
-      if (file_entry->d_type == DT_DIR) {
-        continue;
-      }
-      directories.push_back(file_entry->d_name);
-    }
-  }
-  return directories;
-}
-
 string BaseName(string full_filename) {
   auto index = full_filename.rfind(".");
   if (index != string::npos) {
@@ -163,50 +141,21 @@ set<string> texture_extension_is_transparent {
   "t2bpp",
   "t4bpp",
 };
+
 template<typename T>
 void LoadFileWithMetadata(T* vram_allocator, typename T::Metadata metadata, string filename, string identifier) {
-  // Load the file data into a temporary buffer
-  auto file = fopen(("/textures/" + filename).c_str(), "rb");
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    auto const size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    vector<char> buffer(size);
-    if (fread(buffer.data(), 1, size, file)) {
-      vram_allocator->Load(
-        identifier, (u8*)buffer.data(), size, metadata);
-    } else {
-      debug::Log("NitroFS Read FAILED for");
-      debug::Log(filename.c_str());
-    }
-    fclose(file);
-  } else {
-    debug::Log("NitroFS Open FAILED for");
-    debug::Log(filename.c_str());
+  vector<char> buffer = LoadEntireFile("/textures/" + filename);
+  if (buffer.size() > 0) {
+    vram_allocator->Load(
+      identifier, (u8*)buffer.data(), buffer.size(), metadata);
   }
 }
 
 void LoadDsgxFile(DsgxAllocator* dsgx_allocator, string filename, string identifier) {
-  // Load the file data into a temporary buffer
-  auto file = fopen(("/actors/" + filename).c_str(), "rb");
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    auto const size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    vector<char> buffer(size);
-    if (fread(buffer.data(), 1, size, file)) {
-      dsgx_allocator->Load(
-        identifier, (u8*)buffer.data(), size);
-    } else {
-      debug::Log("NitroFS Read FAILED for");
-      debug::Log(filename.c_str());
-    }
-    fclose(file);
-  } else {
-    debug::Log("NitroFS Open FAILED for");
-    debug::Log(filename.c_str());
+  vector<char> buffer = LoadEntireFile("/actors/" + filename);
+  if (buffer.size() > 0) {
+    dsgx_allocator->Load(
+        identifier, (u8*)buffer.data(), buffer.size());
   }
 }
 
@@ -228,7 +177,6 @@ void LoadTexturesFromNitroFS(PikminGame& game) {
       metadata.transparency = Texture::kDisplayed;
     }
 
-    // Load the file data into a temporary buffer
     LoadFileWithMetadata(game.TextureAllocator(), metadata, filename, filename);
 
     // Attempt to find and load a matching palette file, if one exists
@@ -318,10 +266,9 @@ void Init(PikminGame& game) {
   InitCaptain(game);
   SetupDemoStage(game);
 
-  glPushMatrix();
+  game.InitSound("/soundbank.bin");
 
-  mmInitDefaultMem((mm_addr)soundbank_bin);
-  mmLoadEffect(SFX_FOOTSTEP_HARD);
+  glPushMatrix();
 }
 
 //returns a random vector from -1 to 1 in all directions

@@ -2,12 +2,15 @@
 
 #include <malloc.h>
 #include <unistd.h>
+#include <maxmod9.h>
 
 #include "debug/draw.h"
 #include "debug/flags.h"
 #include "debug/profiler.h"
 #include "render/multipass_renderer.h"
 #include "dsgx.h"
+#include "file_utils.h"
+#include "soundbank.h"
 
 // External libnds memory management variables, for debugging
 extern u8 *fake_heap_end;   // current heap start
@@ -69,6 +72,12 @@ PikminGame::PikminGame(MultipassRenderer& renderer) : renderer_{renderer} {
 }
 
 PikminGame::~PikminGame() {
+}
+
+void PikminGame::InitSound(std::string soundbank_filename) {
+  soundbank_ = LoadEntireFile(soundbank_filename);
+  mmInitDefaultMem((u8*)soundbank_.data());
+  mmLoadEffect(SFX_FOOTSTEP_HARD);
 }
 
 MultipassRenderer& PikminGame::renderer() {

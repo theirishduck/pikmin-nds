@@ -83,6 +83,8 @@ class PikminGame {
   int TotalPikmin();
   std::array<pikmin_ai::PikminState, 100>& PikminList();
 
+  void InitSound(std::string soundbank_filename);
+
   PikminSave* CurrentSaveData();
 
   onion_ai::OnionState* Onion(pikmin_ai::PikminType type);
@@ -141,6 +143,7 @@ private:
   DsgxAllocator dsgx_allocator_;
   const u32 kMaxEntities = 256;
   std::list<Drawable*> entities_;
+  std::vector<char> soundbank_;
 
   ui::UIState ui_;
   camera_ai::CameraState camera_;
