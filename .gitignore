@@ -44,6 +44,7 @@ arm9/nitrofs/actors/
 .[#]*
 
 arm9/nitrofs
+soundbank.bin
 
 tools/olimar_low_poly.blend
 tools/olimar_low_poly.dsgx
