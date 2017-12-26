@@ -15,6 +15,7 @@
 #include "debug/utilities.h"
 #include "render/multipass_renderer.h"
 #include "file_utils.h"
+#include "level_loader.h"
 #include "particle_library.h"
 #include "pikmin_game.h"
 
@@ -212,11 +213,14 @@ void LoadTextures(PikminGame& game) {
 }
 
 void SetupDemoStage(PikminGame& game) {
-  //load in the test level
-  Drawable* sandbox = new Drawable();
-  sandbox->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
-  game.renderer().AddEntity(sandbox);
+  //load in the test level's collision map
   game.world().SetHeightmap(checkerboard_height_bin);
+
+  //the entire test level is one big static
+  auto level_static = game.RetrieveStatic(game.Spawn("Static"));
+  if (level_static) { 
+    level_static->entity->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
+  }
 
   //spawn in an onion!
   auto red_onion = game.RetrieveOnion(game.Spawn("Onion:Red"));
@@ -265,6 +269,8 @@ void Init(PikminGame& game) {
   particle_library::Init(game.TextureAllocator(), game.TexturePaletteAllocator());
   InitCaptain(game);
   SetupDemoStage(game);
+
+  LoadLevel(game, "/levels/demo_stage.level");
 
   game.InitSound("/soundbank.bin");
 
