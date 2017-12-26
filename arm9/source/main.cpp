@@ -223,6 +223,7 @@ void SetupDemoStage(PikminGame& game) {
   }
 
   //spawn in an onion!
+  /*
   auto red_onion = game.RetrieveOnion(game.Spawn("Onion:Red"));
   if (red_onion) { red_onion->set_position(Vec3{64_f, 0_f, -32_f}); }
 
@@ -243,6 +244,7 @@ void SetupDemoStage(PikminGame& game) {
 
   auto pellet = game.RetrieveTreasure(game.Spawn("Corpse:Pellet:Red"));
   if (pellet) { pellet->set_position(Vec3{54_f, 0_f, -64_f}); }
+  */
 }
 
 void InitCaptain(PikminGame& game) {

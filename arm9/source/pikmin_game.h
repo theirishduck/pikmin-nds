@@ -119,6 +119,8 @@ class PikminGame {
   std::array<treasure_ai::TreasureState, 16> treasures;
   treasure_ai::TreasureState* RetrieveTreasure(Handle handle);
 
+  PikminGameState* Retrieve(Handle handle);
+
   std::array<health_ai::HealthState, 128> health;
   Handle SpawnHealth();
   health_ai::HealthState* RetrieveHealth(Handle handle);

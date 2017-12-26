@@ -302,6 +302,23 @@ TreasureState* PikminGame::RetrieveTreasure(Handle handle) {
   return nullptr;
 }
 
+// Generic object return given a handle, for a few cases where we
+// need to access the object in a general way, and don't need any
+// of the specialized variables yet
+PikminGameState* PikminGame::Retrieve(Handle handle) {
+  switch (handle.type) {
+    case PikminGame::kCaptain:    return (PikminGameState*)RetrieveCaptain(handle);
+    case PikminGame::kHealth:     return (PikminGameState*)RetrieveHealth(handle);
+    case PikminGame::kPikmin:     return (PikminGameState*)RetrievePikmin(handle);
+    case PikminGame::kPelletPosy: return (PikminGameState*)RetrievePelletPosy(handle);
+    case PikminGame::kStatic:     return (PikminGameState*)RetrieveStatic(handle);
+    case PikminGame::kTreasure:   return (PikminGameState*)RetrieveTreasure(handle);
+    case PikminGame::kFireSpout:  return (PikminGameState*)RetrieveFireSpout(handle);
+    case PikminGame::kOnion:      return (PikminGameState*)RetrieveOnion(handle);
+    default: return nullptr;
+  };
+}
+
 void PikminGame::PauseGame() {
   paused_ = true;
   renderer_.PauseEngine();
