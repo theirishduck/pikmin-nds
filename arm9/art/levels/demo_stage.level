@@ -1,0 +1,15 @@
+spawn Static
+actor checker_test
+heightmap checkerboard
+spawn Onion:Red
+position 64.0 0.0 -32.0
+spawn Onion:Yellow
+position 96.0 0.0 -64.0
+spawn Onion:Blue
+position 64.0 0.0 -96.0
+spawn Enemy:PelletPosy
+position 44.0 0.0 -72.0
+spawn Hazard:FireSpout
+position 64.0 0.0 -64.0
+spawn Corpse:Pellet:Red
+position 54.0 0.0 -64.0

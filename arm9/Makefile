@@ -78,6 +78,7 @@ BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 BLENDFILES_BONE	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.bone.blend)))
 BLENDFILES_VERTEX	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.vertex.blend)))
 TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
+LEVELFILES   := $(foreach dir,$(BLEND)/levels,$(notdir $(wildcard $(dir)/*.level)))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -103,7 +104,8 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-export NITROFILES := $(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
+export NITROFILES := $(addprefix $(NITRODIR)/levels/,$(notdir $(LEVELFILES))) \
+				$(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_BONE:.bone.blend=.dsgx))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx))) \
 				$(NITRODIR)/soundbank.bin
@@ -128,9 +130,13 @@ clean-nitrofs:
 clean-actors:
 	@rm -rf $(NITRODIR)/actors
 
+$(NITRODIR)/levels/%.level : $(BLEND)/levels/%.level
+	@mkdir -p $(NITRODIR)/levels
+	cp -f $< $@
+
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.vertex.blend
-		@mkdir -p $(NITRODIR)/actors
-		bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=vertex --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
+	@mkdir -p $(NITRODIR)/actors
+	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=vertex --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
 
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.bone.blend
 	@mkdir -p $(NITRODIR)/actors
