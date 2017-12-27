@@ -7,10 +7,6 @@
 #include <nds.h>
 
 #include "ai/captain.h"
-#include "ai/onion.h"
-#include "ai/fire_spout.h"
-#include "ai/treasure.h"
-#include "ai/pellet_posy.h"
 #include "debug/messages.h"
 #include "debug/utilities.h"
 #include "render/multipass_renderer.h"
@@ -19,17 +15,7 @@
 #include "particle_library.h"
 #include "pikmin_game.h"
 
-// Level data and heightmaps
-#include "checkerboard_height_bin.h"
-#include "sandbox_height_bin.h"
-
 using captain_ai::CaptainState;
-
-using onion_ai::OnionState;
-using posy_ai::PosyState;
-using pikmin_ai::PikminType;
-using fire_spout_ai::FireSpoutState;
-using treasure_ai::TreasureState;
 
 using numeric_types::literals::operator"" _f;
 using numeric_types::literals::operator"" _brad;
