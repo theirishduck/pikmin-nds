@@ -188,7 +188,7 @@ void UpdateLevelSelect(DebugUiState& debug_ui) {
     printf((debug_ui.level_names[i] + "\n").c_str());
   }
 
-  if (keysDown() & KEY_DOWN && debug_ui.current_level < debug_ui.level_names.size()) {
+  if (keysDown() & KEY_DOWN && debug_ui.current_level < debug_ui.level_names.size() - 1) {
     debug_ui.current_level++;
   }
   if (keysDown() & KEY_UP && debug_ui.current_level > 0) {
