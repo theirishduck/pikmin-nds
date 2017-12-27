@@ -215,36 +215,6 @@ void LoadTextures(PikminGame& game) {
 void SetupDemoStage(PikminGame& game) {
   //load in the test level's collision map
   game.world().SetHeightmap(checkerboard_height_bin);
-
-  //the entire test level is one big static
-  auto level_static = game.RetrieveStatic(game.Spawn("Static"));
-  if (level_static) { 
-    level_static->entity->set_actor(game.ActorAllocator()->Retrieve("checker_test"));
-  }
-
-  //spawn in an onion!
-  /*
-  auto red_onion = game.RetrieveOnion(game.Spawn("Onion:Red"));
-  if (red_onion) { red_onion->set_position(Vec3{64_f, 0_f, -32_f}); }
-
-  //spawn in a yellow onion too!
-  auto yellow_onion = game.RetrieveOnion(game.Spawn("Onion:Yellow"));
-  if (yellow_onion) { yellow_onion->set_position(Vec3{96_f, 0_f, -64_f}); }
-
-  //spawn in a blue onion while we're at it
-  auto blue_onion = game.RetrieveOnion(game.Spawn("Onion:Blue"));
-  if (blue_onion) { blue_onion->set_position(Vec3{64_f, 0_f, -96_f}); }
-
-  //auto posy = g_game.SpawnObject<PosyState>();
-  auto posy = game.RetrievePelletPosy(game.Spawn("Enemy:PelletPosy"));
-  if (posy) { posy->set_position(Vec3{44_f, 0_f, -72_f}); }
-
-  auto fire_spout = game.RetrieveFireSpout(game.Spawn("Hazard:FireSpout"));
-  if (fire_spout) { fire_spout->set_position(Vec3{64_f, 0_f, -64_f}); }
-
-  auto pellet = game.RetrieveTreasure(game.Spawn("Corpse:Pellet:Red"));
-  if (pellet) { pellet->set_position(Vec3{54_f, 0_f, -64_f}); }
-  */
 }
 
 void InitCaptain(PikminGame& game) {
@@ -256,10 +226,7 @@ void InitCaptain(PikminGame& game) {
 }
 
 void Init(PikminGame& game) {
-  // filesystem testing stuff
-  if (nitroFSInit(NULL)) {
-    //debug::Log("Filesystem SUCCESS");
-  } else {
+  if (!(nitroFSInit(NULL))) {
     debug::Log("Filesystem FAILURE");
   }
 
@@ -277,15 +244,6 @@ void Init(PikminGame& game) {
   game.InitSound("/soundbank.bin");
 
   glPushMatrix();
-}
-
-//returns a random vector from -1 to 1 in all directions
-Vec3 RandomVector() {
-  return Vec3{
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12)),
-    fixed::FromRaw((rand() & ((1 << 13) - 1)) - (1 << 12))
-  };
 }
 
 void GameLoop(PikminGame& game) {
