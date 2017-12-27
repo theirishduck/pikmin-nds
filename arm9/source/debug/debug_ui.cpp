@@ -10,6 +10,7 @@
 #include "debug/messages.h"
 #include "debug/profiler.h"
 #include "debug/utilities.h"
+#include "file_utils.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"
 
@@ -40,6 +41,7 @@ void PrintTitle(const char* title) {
 
 void InitAlways(DebugUiState& debug_ui) {
   debug_ui.current_spawner = PikminGame::SpawnNames().first;
+  debug_ui.level_names = FilesInDirectory("/levels");
 }
 
 void UpdateDebugMessages(DebugUiState& debug_ui) {
@@ -173,6 +175,30 @@ void UpdateDebugAi(DebugUiState& debug_ui) {
   ResetColors();
 }
 
+void UpdateLevelSelect(DebugUiState& debug_ui) {
+  ClearConsole();
+  PrintTitle("Level Select");
+  
+  for (u8 i = 0; i < debug_ui.level_names.size(); i++) {
+    if (debug_ui.current_level == i) {
+      printf(" --> ");
+    } else {
+      printf("     ");
+    }
+    printf((debug_ui.level_names[i] + "\n").c_str());
+  }
+
+  if (keysDown() & KEY_DOWN && debug_ui.current_level < debug_ui.level_names.size()) {
+    debug_ui.current_level++;
+  }
+  if (keysDown() & KEY_UP && debug_ui.current_level > 0) {
+    debug_ui.current_level--;
+  }
+  if (keysDown() & KEY_A) {
+    debug_ui.game->LoadLevel("/levels/" + debug_ui.level_names[debug_ui.current_level]);
+  }
+}
+
 bool DebugSwitcherPressed(const DebugUiState&  debug_ui) {
   return keysDown() & KEY_START;
 }
@@ -181,6 +207,7 @@ namespace DebugUiNode {
 enum DebugUiNode {
   kInit = 0,
   kDebugMessages,
+  kDebugLevelSelect,
   kDebugTimings,
   kDebugAi,
   kDebugValues,
@@ -195,8 +222,14 @@ Edge<DebugUiState> init[] = {
 };
 
 Edge<DebugUiState> debug_messages[] = {
-  Edge<DebugUiState>{Trigger::kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugTimings},
+  Edge<DebugUiState>{Trigger::kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugLevelSelect},
   Edge<DebugUiState>{Trigger::kAlways, nullptr, UpdateDebugMessages, DebugUiNode::kDebugMessages}, //Loopback
+  END_OF_EDGES(DebugUiState)
+};
+
+Edge<DebugUiState> debug_level_select[] = {
+  Edge<DebugUiState>{Trigger::kAlways, DebugSwitcherPressed, nullptr, DebugUiNode::kDebugTimings},
+  Edge<DebugUiState>{Trigger::kAlways, nullptr, UpdateLevelSelect, DebugUiNode::kDebugLevelSelect}, //Loopback
   END_OF_EDGES(DebugUiState)
 };
 
@@ -233,6 +266,7 @@ Edge<DebugUiState> debug_spawners[] = {
 Node<DebugUiState> node_list[] {
   {"Init", true, init},
   {"Messages", true, debug_messages},
+  {"LevelSelect", true, debug_level_select},
   {"Timing", true, debug_timings},
   {"Ai", true, debug_ai},
   {"Values", true, debug_values},
