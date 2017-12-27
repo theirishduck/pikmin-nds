@@ -17,16 +17,17 @@ extern "C" void __sync_synchronize() {}
 
 void LoadLevel(PikminGame& game, std::string filename) {
 	FILE* file = fopen(filename.c_str(), "r");
-	char input_buffer[256];
+	char command_buffer[256];
+	char arg_buffer[256];
 	Handle last_handle;
 	PikminGameState* last_object{nullptr};
-	while (fscanf(file, "%s", input_buffer) > 0) {
-		if (strcmp(input_buffer, "spawn") == 0) {
-			fscanf(file, "%s", input_buffer);
-			debug::Log("Spawning: " + std::string(input_buffer));
-			last_handle = game.Spawn(input_buffer);
+	while (fscanf(file, "%s", command_buffer) > 0) {
+		if (strcmp(command_buffer, "spawn") == 0) {
+			fscanf(file, "%s", arg_buffer);
+			debug::Log("Spawning: " + std::string(arg_buffer));
+			last_handle = game.Spawn(arg_buffer);
 			last_object = game.Retrieve(last_handle);
-		} else if (strcmp(input_buffer, "position") == 0) {
+		} else if (strcmp(command_buffer, "position") == 0) {
 			float x, y, z;
 			fscanf(file, "%f %f %f", &x, &y, &z);
 
@@ -35,8 +36,11 @@ void LoadLevel(PikminGame& game, std::string filename) {
 			} else {
 				debug::Log("Tried to set position after invalid spawn, ignoring.");
 			}
+		} else if (strcmp(command_buffer, "actor") == 0) {
+			fscanf(file, "%s", arg_buffer);
+			last_object->entity->set_actor(game.ActorAllocator()->Retrieve(arg_buffer));
 		} else {
-			debug::Log("Unrecognized command: " + std::string(input_buffer));
+			debug::Log("Unrecognized command: " + std::string(command_buffer));
 		}
 	} 
 }
