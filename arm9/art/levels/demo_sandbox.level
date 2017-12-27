@@ -1,6 +1,8 @@
 spawn Static
 actor sandbox_test
 heightmap sandbox
+spawn Captain
+position 10.0 0.0 -10.0
 spawn Onion:Red
 position 0.0 0.0 -10.0
 spawn Onion:Yellow

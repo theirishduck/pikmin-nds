@@ -182,6 +182,7 @@ Handle PikminGame::SpawnCaptain() {
     captain->squad.captain = captain;
   } else {
     // How did we fail here?
+    debug::Log("Failed to spawn captain!");
   }
   return captain->handle;
 }
