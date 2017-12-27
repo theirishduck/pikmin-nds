@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "debug/messages.h"
+#include "file_utils.h"
 #include "numeric_types.h"
 #include "pikmin_game.h"
 
@@ -13,7 +14,8 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
 
-extern "C" void __sync_synchronize() {}
+const int kHeightmapBufferSize = 1024 * 256;
+u8 heightmap_buffer[kHeightmapBufferSize];
 
 void LoadLevel(PikminGame& game, std::string filename) {
 	FILE* file = fopen(filename.c_str(), "r");
@@ -39,6 +41,11 @@ void LoadLevel(PikminGame& game, std::string filename) {
 		} else if (strcmp(command_buffer, "actor") == 0) {
 			fscanf(file, "%s", arg_buffer);
 			last_object->entity->set_actor(game.ActorAllocator()->Retrieve(arg_buffer));
+		} else if (strcmp(command_buffer, "heightmap") == 0) {
+			fscanf(file, "%s", arg_buffer);
+			LoadEntireFileIntoMem("/heightmaps/" + std::string(arg_buffer) + ".height", (char*)heightmap_buffer, kHeightmapBufferSize);
+			game.world().SetHeightmap(heightmap_buffer);
+			debug::Log("Set heightmap: " + std::string(arg_buffer));
 		} else {
 			debug::Log("Unrecognized command: " + std::string(command_buffer));
 		}

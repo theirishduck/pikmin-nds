@@ -48,3 +48,28 @@ vector<char> LoadEntireFile(string filename) {
     return vector<char>(0);
   }
 }
+
+// Note: while this performs sanity checks on the file reading)
+void LoadEntireFileIntoMem(string filename, char* destination_buffer, int max_size) {
+  auto file = fopen(filename.c_str(), "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    auto const file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    if (file_size > max_size) {
+      debug::Log("Load into Mem failed for " + filename);
+      debug::Log("Attempted to read " + std::to_string(file_size) + "bytes");
+      debug::Log("Buffer can only hold " + std::to_string(max_size) + "bytes");
+      return;
+    }
+
+    if (fread(destination_buffer, 1, file_size, file)) {
+      // Done!      
+    } else {
+      debug::Log("NitroFS Read FAILED for " + filename);
+    }
+  } else {
+    debug::Log("NitroFS Open FAILED for " + filename);    
+  }
+}

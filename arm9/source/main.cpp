@@ -21,6 +21,7 @@
 
 // Level data and heightmaps
 #include "checkerboard_height_bin.h"
+#include "sandbox_height_bin.h"
 
 using captain_ai::CaptainState;
 
@@ -214,7 +215,7 @@ void LoadTextures(PikminGame& game) {
 
 void SetupDemoStage(PikminGame& game) {
   //load in the test level's collision map
-  game.world().SetHeightmap(checkerboard_height_bin);
+  //game.world().SetHeightmap(checkerboard_height_bin);
 }
 
 void InitCaptain(PikminGame& game) {
@@ -237,9 +238,7 @@ void Init(PikminGame& game) {
   LoadActors(game);
   particle_library::Init(game.TextureAllocator(), game.TexturePaletteAllocator());
   InitCaptain(game);
-  SetupDemoStage(game);
-
-  LoadLevel(game, "/levels/demo_stage.level");
+  LoadLevel(game, "/levels/demo_sandbox.level");
 
   game.InitSound("/soundbank.bin");
 

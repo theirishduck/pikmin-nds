@@ -79,6 +79,7 @@ BLENDFILES_BONE	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.bone.blen
 BLENDFILES_VERTEX	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.vertex.blend)))
 TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
 LEVELFILES   := $(foreach dir,$(BLEND)/levels,$(notdir $(wildcard $(dir)/*.level)))
+HEIGHTFILES   := $(foreach dir,$(BLEND)/heightmaps,$(notdir $(wildcard $(dir)/*.height)))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -105,6 +106,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export NITROFILES := $(addprefix $(NITRODIR)/levels/,$(notdir $(LEVELFILES))) \
+				$(addprefix $(NITRODIR)/heightmaps/,$(notdir $(HEIGHTFILES))) \
 				$(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_BONE:.bone.blend=.dsgx))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx))) \
@@ -129,6 +131,10 @@ clean-nitrofs:
 
 clean-actors:
 	@rm -rf $(NITRODIR)/actors
+
+$(NITRODIR)/heightmaps/%.height : $(BLEND)/heightmaps/%.height
+	@mkdir -p $(NITRODIR)/heightmaps
+	cp -f $< $@
 
 $(NITRODIR)/levels/%.level : $(BLEND)/levels/%.level
 	@mkdir -p $(NITRODIR)/levels
