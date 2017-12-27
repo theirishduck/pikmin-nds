@@ -1,6 +1,8 @@
 spawn Static
 actor checker_test
 heightmap checkerboard
+spawn Captain
+position 48.0 0.0 -64.0
 spawn Onion:Red
 position 64.0 0.0 -32.0
 spawn Onion:Yellow

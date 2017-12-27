@@ -9,6 +9,7 @@
 #include "debug/profiler.h"
 #include "render/multipass_renderer.h"
 #include "dsgx.h"
+#include "level_loader.h"
 #include "file_utils.h"
 #include "soundbank.h"
 
@@ -333,6 +334,56 @@ bool PikminGame::IsPaused() {
   return paused_;
 }
 
+void PikminGame::RemoveEverything() {
+  for (auto i = captains.begin(); i != captains.end(); i++) {
+    RemoveCaptain(i->handle);
+  }
+  for (unsigned int i = 0; i < pikmin.size(); i++) {
+    RemoveObject(pikmin[i].handle, pikmin);
+  }
+
+  for (unsigned int i = 0; i < onions.size(); i++) {
+    RemoveObject(onions[i].handle, onions); 
+  }
+
+  for (unsigned int i = 0; i < posies.size(); i++) {
+    RemoveObject(posies[i].handle, posies); 
+  }
+
+  for (unsigned int i = 0; i < fire_spouts.size(); i++) {
+    RemoveObject(fire_spouts[i].handle, fire_spouts); 
+  }
+
+  for (unsigned int i = 0; i < fire_spouts.size(); i++) {
+    RemoveObject(fire_spouts[i].handle, fire_spouts); 
+  }
+
+  for (unsigned int i = 0; i < statics.size(); i++) {
+    RemoveObject(statics[i].handle, statics); 
+  }
+
+  for (unsigned int i = 0; i < treasures.size(); i++) {
+    RemoveObject(treasures[i].handle, treasures); 
+  }
+}
+
+void PikminGame::LoadLevel(std::string filename) {
+  // Clean the slate!
+  RemoveEverything();
+  level_loader::LoadLevel(*this, filename);
+
+  // For now, always spawn a captain!
+  if (!captains[0].active) {
+    Spawn("Captain", Vec3{0_f,0_f,0_f});
+  }
+
+  // Grab our captain (if one exists) and make sure the camera is following him
+  CaptainState* captain = RetrieveCaptain(ActiveCaptain());
+  if (captain) {
+    camera().follow_captain = captain->handle;
+  }
+}
+
 void PikminGame::RunAi() {
   debug::Profiler::StartTopic(tAI);
   for (auto i = captains.begin(); i != captains.end(); i++) {
@@ -471,6 +522,9 @@ std::array<PikminState, 100>& PikminGame::PikminList() {
 }
 
 const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> PikminGame::spawn_ = {
+  {"Captain", [](PikminGame* game) -> PikminGameState* {
+    return game->RetrieveCaptain(game->SpawnCaptain());
+  }},
   {"Enemy:PelletPosy", [](PikminGame* game) -> PikminGameState* {
     return game->RetrievePelletPosy(game->SpawnObject(game->posies, PikminGame::kPelletPosy));
   }},

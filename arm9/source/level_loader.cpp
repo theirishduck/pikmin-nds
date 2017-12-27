@@ -14,6 +14,8 @@ using numeric_types::literals::operator"" _brad;
 using numeric_types::Brads;
 using numeric_types::fixed;
 
+namespace level_loader {
+
 const int kHeightmapBufferSize = 1024 * 256;
 u8 heightmap_buffer[kHeightmapBufferSize];
 
@@ -51,3 +53,5 @@ void LoadLevel(PikminGame& game, std::string filename) {
 		}
 	} 
 }
+
+} // namespace level_loader

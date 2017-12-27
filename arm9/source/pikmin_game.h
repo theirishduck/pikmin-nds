@@ -131,6 +131,9 @@ class PikminGame {
   void RemoveCaptain(Handle handle);
   Handle ActiveCaptain();
 
+  void RemoveEverything();
+  void LoadLevel(std::string filename);
+
   camera_ai::CameraState& camera();
 
 private:

@@ -199,19 +199,6 @@ void LoadTextures(PikminGame& game) {
   vramSetBankG(VRAM_G_TEX_PALETTE);
 }
 
-void SetupDemoStage(PikminGame& game) {
-  //load in the test level's collision map
-  //game.world().SetHeightmap(checkerboard_height_bin);
-}
-
-void InitCaptain(PikminGame& game) {
-  CaptainState* captain = game.RetrieveCaptain(game.SpawnCaptain());
-  if (captain) {
-    game.camera().follow_captain = captain->handle;
-    captain->set_position(Vec3{64_f,0_f,-62_f});
-  }
-}
-
 void Init(PikminGame& game) {
   if (!(nitroFSInit(NULL))) {
     debug::Log("Filesystem FAILURE");
@@ -223,8 +210,7 @@ void Init(PikminGame& game) {
   LoadTextures(game);
   LoadActors(game);
   particle_library::Init(game.TextureAllocator(), game.TexturePaletteAllocator());
-  InitCaptain(game);
-  LoadLevel(game, "/levels/demo_sandbox.level");
+  game.LoadLevel("/levels/demo_stage.level");
 
   game.InitSound("/soundbank.bin");
 
