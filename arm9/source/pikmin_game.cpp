@@ -172,12 +172,13 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
     if (handle.Matches(object_to_delete.handle)) {
       debug::Log("Removed object type " + std::to_string(handle.type) + " with ID " + std::to_string(handle.id));
       // similar to cleanup object, again minus the state allocation
-      object_to_delete.active = false;
       renderer_.RemoveEntity(object_to_delete.entity);
       entities_.remove(object_to_delete.entity);
       delete object_to_delete.entity;
       world_.FreeBody(object_to_delete.body);
       current_generation_++;
+      object_to_delete = StateType{};
+      object_to_delete.active = false;
     } else {
       debug::Log("Failed to remove object type " + std::to_string(handle.type) + ", handle does not match!");
       // Invalid handle! Stale, possibly?
@@ -351,6 +352,7 @@ bool PikminGame::IsPaused() {
 }
 
 void PikminGame::RemoveEverything() {
+  // Run a standard remove, then re-initialize all objects in inactive mode
   for (auto i = captains.begin(); i != captains.end(); i++) {
     RemoveCaptain(i->handle);
   }
@@ -370,10 +372,6 @@ void PikminGame::RemoveEverything() {
     RemoveObject(fire_spouts[i].handle, fire_spouts); 
   }
 
-  for (unsigned int i = 0; i < fire_spouts.size(); i++) {
-    RemoveObject(fire_spouts[i].handle, fire_spouts); 
-  }
-
   for (unsigned int i = 0; i < statics.size(); i++) {
     RemoveObject(statics[i].handle, statics); 
   }
@@ -381,6 +379,8 @@ void PikminGame::RemoveEverything() {
   for (unsigned int i = 0; i < treasures.size(); i++) {
     RemoveObject(treasures[i].handle, treasures); 
   }
+
+  world_.ResetWorld();
 }
 
 void PikminGame::LoadLevel(std::string filename) {
