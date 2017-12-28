@@ -46,6 +46,8 @@ void InitAlways(DebugUiState& debug_ui) {
 
 void UpdateDebugMessages(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
+  PrintTitle("LOG");
   auto messages = debug::Messages();
   for (auto message : messages) {
     printf((message + "\n").c_str());
@@ -54,6 +56,7 @@ void UpdateDebugMessages(DebugUiState& debug_ui) {
 
 void UpdateDebugValues(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
   PrintTitle("VALUES");
 
   int display_position = 2;
@@ -70,6 +73,7 @@ void UpdateDebugValues(DebugUiState& debug_ui) {
 
 void UpdateDebugTimings(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
   PrintTitle("TIMING");
 
   // For every topic, output the timing on its own line
@@ -86,7 +90,9 @@ void UpdateDebugTimings(DebugUiState& debug_ui) {
 
 void UpdateDebugToggles(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
   PrintTitle("Debug Toggles");
+
   int touch_offset = 16;
   auto &debug_flags = debug::FlagList();
   for (auto pair : debug_flags) {
@@ -119,6 +125,7 @@ void UpdateDebugToggles(DebugUiState& debug_ui) {
 
 void UpdateDebugSpawners(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
   PrintTitle("Spawn Objects");
 
   printf("+------+ +-%*s-+ +------+", 42, std::string(42, '-').c_str());
@@ -157,6 +164,7 @@ void UpdateDebugSpawners(DebugUiState& debug_ui) {
 
 void UpdateDebugAi(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
   PrintTitle("AI Profiler");
   PrintTitle("Pikmin");
 
@@ -177,6 +185,7 @@ void UpdateDebugAi(DebugUiState& debug_ui) {
 
 void UpdateLevelSelect(DebugUiState& debug_ui) {
   ClearConsole();
+  ResetColors();
   PrintTitle("Level Select");
   
   for (u8 i = 0; i < debug_ui.level_names.size(); i++) {
