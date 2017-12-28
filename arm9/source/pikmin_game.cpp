@@ -129,6 +129,7 @@ Handle PikminGame::SpawnObject(std::array<StateType, size>& object_list, int typ
     slot++;
   }
   if (slot >= object_list.size()) {
+    debug::Log("Failed to spawn object type " + std::to_string(type) + ", list size of " + std::to_string(object_list.size()) + " is full!");
     return Handle();
   }
 
@@ -148,17 +149,28 @@ Handle PikminGame::SpawnObject(std::array<StateType, size>& object_list, int typ
 
   const bool too_many_objects = new_object.entity == nullptr;
   if (too_many_objects) {
+    debug::Log("Failed to spawn object type " + std::to_string(type) + ", entity list is full!");
     return Handle();
   }
 
+  debug::Log("Spawned new object of type " + std::to_string(type) + " with ID " + std::to_string(slot) + "");
   return new_object.handle;
 }
 
 template <typename StateType, unsigned int size>
 void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object_list) {
+  if (handle.type == 0) {
+    //debug::Log("Refusing to remove handle with type 0 (kNone)");
+    return;
+  }
   if (handle.id < object_list.size()) {
     auto& object_to_delete = object_list[handle.id];
+    if (!object_to_delete.active) {
+      debug::Log("Refusing to remove inactive object, type: " + std::to_string(handle.type) + ", id: " + std::to_string(handle.id));
+      return;
+    }
     if (handle.Matches(object_to_delete.handle)) {
+      debug::Log("Removed object type " + std::to_string(handle.type) + " with ID " + std::to_string(handle.id));
       // similar to cleanup object, again minus the state allocation
       object_to_delete.active = false;
       renderer_.RemoveEntity(object_to_delete.entity);
@@ -167,12 +179,15 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
       world_.FreeBody(object_to_delete.body);
       current_generation_++;
     } else {
+      debug::Log("Failed to remove object type " + std::to_string(handle.type) + ", handle does not match!");
       // Invalid handle! Stale, possibly?
     }
   } else {
+    debug::Log("Failed to remove object type " + std::to_string(handle.type) + ", id " + std::to_string(handle.id) + " is invalid!");
     // Invalid ID!
   }
 }
+
 
 Handle PikminGame::SpawnCaptain() {
   CaptainState* captain = RetrieveCaptain(SpawnObject(captains, PikminGame::kCaptain));
