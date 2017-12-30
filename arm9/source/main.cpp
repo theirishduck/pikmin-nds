@@ -210,7 +210,7 @@ void Init(PikminGame& game) {
   LoadTextures(game);
   LoadActors(game);
   particle_library::Init(game.TextureAllocator(), game.TexturePaletteAllocator());
-  game.LoadLevel("/levels/demo_stage.level");
+  game.LoadLevel("/levels/demo_sandbox.level");
 
   game.InitSound("/soundbank.bin");
 

@@ -14,6 +14,7 @@ class World {
 
     void Update();
     void DebugCircles();
+    void ResetWorld();
 
     // Metrics
     int BodiesOverlapping();

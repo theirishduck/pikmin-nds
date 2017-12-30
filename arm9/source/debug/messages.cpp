@@ -13,7 +13,7 @@ std::deque<string> messages;
 void Log(string message) {
   // Add this message to our internal deque
   messages.push_back(message);
-  if (messages.size() > 32) {
+  if (messages.size() > 22) {
     messages.pop_front();
   }
 

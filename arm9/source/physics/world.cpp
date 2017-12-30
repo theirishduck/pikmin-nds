@@ -64,6 +64,11 @@ Body* World::AllocateBody(Handle owner) {
       bodies_[i].handle.generation = current_generation_;
       bodies_[i].handle.type = World::kBody;
 
+      // Clear out the neighbor list for newly created bodies, to avoid weirdness
+      for (int n = 0; n < MAX_PHYSICS_NEIGHBORS; n++) {
+        bodies_[i].neighbors[n].handle.generation = -1;
+      }
+
       return &bodies_[i];
     }
   }
@@ -73,6 +78,7 @@ Body* World::AllocateBody(Handle owner) {
 void World::FreeBody(Body* body) {
   body->owner = Handle{};
   body->active = 0;
+  body->handle.type = World::kNone;
   rebuild_index_ = true;
   current_generation_++;
 }
@@ -85,6 +91,13 @@ Body* World::RetrieveBody(Handle handle) {
     }
   }
   return nullptr;
+}
+
+void World::ResetWorld() {
+  for (int i = 0; i < MAX_PHYSICS_BODIES; i++) {
+    FreeBody(&bodies_[i]);
+  }
+  RebuildIndex();
 }
 
 void World::Wake(Body* body) {
