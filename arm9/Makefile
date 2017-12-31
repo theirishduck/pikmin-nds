@@ -77,9 +77,9 @@ SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 BLENDFILES_BONE	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.bone.blend)))
 BLENDFILES_VERTEX	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.vertex.blend)))
+BLENDFILES_LEVEL	:=	$(foreach dir,$(BLEND),$(notdir $(wildcard $(dir)/*.level.blend)))
 TEXTUREFILES := $(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.*.png)))
-LEVELFILES   := $(foreach dir,$(BLEND)/levels,$(notdir $(wildcard $(dir)/*.level)))
-HEIGHTFILES   := $(foreach dir,$(BLEND)/heightmaps,$(notdir $(wildcard $(dir)/*.height)))
+HEIGHTFILES   := $(foreach dir,$(BLEND)/heightmaps,$(notdir $(wildcard $(dir)/*.png)))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -105,11 +105,12 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-export NITROFILES := $(addprefix $(NITRODIR)/levels/,$(notdir $(LEVELFILES))) \
-				$(addprefix $(NITRODIR)/heightmaps/,$(notdir $(HEIGHTFILES))) \
+export NITROFILES := $(addprefix $(NITRODIR)/heightmaps/,$(notdir $(HEIGHTFILES:.png=.height))) \
 				$(addprefix $(NITRODIR)/textures/,$(notdir $(TEXTUREFILES:.png=))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_BONE:.bone.blend=.dsgx))) \
 				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_VERTEX:.vertex.blend=.dsgx))) \
+				$(addprefix $(NITRODIR)/actors/,$(notdir $(BLENDFILES_LEVEL:.level.blend=.dsgx))) \
+				$(addprefix $(NITRODIR)/levels/,$(notdir $(BLENDFILES_LEVEL:.level.blend=.level))) \
 				$(NITRODIR)/soundbank.bin
 
 export AUDIOFILES	:=	$(foreach dir,$(notdir $(wildcard $(SOUND)/*.*)),$(CURDIR)/$(SOUND)/$(dir))
@@ -132,19 +133,25 @@ clean-nitrofs:
 clean-actors:
 	@rm -rf $(NITRODIR)/actors
 
-$(NITRODIR)/heightmaps/%.height : $(BLEND)/heightmaps/%.height
+$(NITRODIR)/heightmaps/%.height : $(BLEND)/heightmaps/%.png
 	@mkdir -p $(NITRODIR)/heightmaps
-	cp -f $< $@
+	python3 ../tools/image-to-heightmap.py 32.0 $< $@
+	
 
-$(NITRODIR)/levels/%.level : $(BLEND)/levels/%.level
+$(NITRODIR)/levels/%.level : $(BLEND)/%.level.blend
 	@mkdir -p $(NITRODIR)/levels
-	cp -f $< $@
+	bash -c 'set -o pipefail; python3 ../tools/blender2level.py --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
+	
 
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.vertex.blend
 	@mkdir -p $(NITRODIR)/actors
 	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=vertex --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
 
 $(NITRODIR)/actors/%.dsgx : $(BLEND)/%.bone.blend
+	@mkdir -p $(NITRODIR)/actors
+	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=bone --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
+
+$(NITRODIR)/actors/%.dsgx : $(BLEND)/%.level.blend
 	@mkdir -p $(NITRODIR)/actors
 	bash -c 'set -o pipefail; python3 ../tools/blender2dsgx.py --animation=bone --vtx10 --output $@ $< 2>&1 | sed -f supress-blender-output.sed'
 
