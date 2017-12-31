@@ -462,6 +462,10 @@ void PikminGame::RunAi() {
     }
   }
 
+  for (unsigned int s = 0; s < statics.size(); s++) {
+    statics[s].Update();
+  }
+
   camera_ai::machine.RunLogic(camera_);
 
   debug::Profiler::EndTopic(tAI);
@@ -590,7 +594,14 @@ const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> Pikmin
     return game->RetrieveFireSpout(game->SpawnObject(game->fire_spouts, PikminGame::kFireSpout));
   }},
   {"Static", [](PikminGame* game) -> PikminGameState* {
-    return game->RetrieveStatic(game->SpawnObject(game->statics, PikminGame::kStatic));
+    auto static_object = game->RetrieveStatic(game->SpawnObject(game->statics, PikminGame::kStatic));
+    if (static_object) {
+      static_object->body->collides_with_level = false;
+      static_object->body->affected_by_gravity = false;
+      static_object->body->height = 0_f;
+    }
+    return static_object;
+
   }},
   {"Corpse:Pellet:Red", [](PikminGame* game) -> PikminGameState* {
     auto treasure = game->RetrieveTreasure(game->SpawnObject(game->treasures, PikminGame::kTreasure));
