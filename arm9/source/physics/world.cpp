@@ -513,7 +513,7 @@ fixed World::HeightFromMap(const Vec3& position) {
   // Figure out the body's "pixel" within the heightmap; we simply clamp to
   // integers to do this since one pixel is equivalent to one unit in the world
   int hx = (int)position.x;
-  int hz = (int)position.z * -1;
+  int hz = (int)position.z;
 
   // Clamp the positions to the map edges, so we don't get weirdness
   return HeightFromMap(hx, hz);
@@ -605,7 +605,7 @@ void World::CollideBodyWithTilemap(Body& body, int max_depth) {
     }
 
     // Check to see if this is a valid move, and otherwise handle the response
-    fixed new_level_height = HeightFromMap(tile_x, tile_z * -1);
+    fixed new_level_height = HeightFromMap(tile_x, tile_z);
     if (body.position.y < new_level_height) {
       if (new_level_height - current_level_height > kWallThreshold) {
         // Wall collision here!
