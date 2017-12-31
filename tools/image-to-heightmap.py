@@ -21,7 +21,7 @@ def main(args):
   output += struct.pack("<II", width, height)
 
   
-  for y in reversed(range(0,height)):
+  for y in range(0,height):
     for x in range(0,width):
       r,g,b = pixels[x,y][:3]
       greyscale_value = min(max(0, int((r + g + b) / 3)), 255)
@@ -36,7 +36,7 @@ def valid_command_line_arguments(args):
     return 3 <= len(args) <= 4
 
 def determine_output_filename(input_filename, args):
-    filename = substitute_extension(input_filename, ".bin")
+    filename = substitute_extension(input_filename, ".height")
     if len(args) >= 4:
         filename = args[3]
     return filename
