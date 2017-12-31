@@ -62,6 +62,7 @@ void InitAlways(CaptainState& captain) {
   captain.body->is_movable = 1;
   captain.body->collision_group = PLAYER_GROUP | WHISTLE_GROUP;
   captain.body->sensor_groups = ONION_BEAM_GROUP;
+  captain.body->ignores_walls = 0;
 
   //initialize our walking angle?
   captain.current_angle = 0_brad;
