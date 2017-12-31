@@ -16,7 +16,7 @@ using numeric_types::fixed;
 
 namespace level_loader {
 
-const int kHeightmapBufferSize = 1024 * 256;
+const int kHeightmapBufferSize = 1024 * 512;
 u8 heightmap_buffer[kHeightmapBufferSize];
 
 void LoadLevel(PikminGame& game, std::string filename) {
@@ -43,6 +43,9 @@ void LoadLevel(PikminGame& game, std::string filename) {
 		} else if (strcmp(command_buffer, "actor") == 0) {
 			fscanf(file, "%s", arg_buffer);
 			last_object->entity->set_actor(game.ActorAllocator()->Retrieve(arg_buffer));
+		} else if (strcmp(command_buffer, "mesh") == 0) {
+			fscanf(file, "%s", arg_buffer);
+			last_object->entity->set_mesh(arg_buffer);
 		} else if (strcmp(command_buffer, "heightmap") == 0) {
 			fscanf(file, "%s", arg_buffer);
 			LoadEntireFileIntoMem("/heightmaps/" + std::string(arg_buffer) + ".height", (char*)heightmap_buffer, kHeightmapBufferSize);
