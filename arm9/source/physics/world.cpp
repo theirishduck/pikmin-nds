@@ -76,11 +76,13 @@ Body* World::AllocateBody(Handle owner) {
 }
 
 void World::FreeBody(Body* body) {
-  body->owner = Handle{};
-  body->active = 0;
-  body->handle.type = World::kNone;
-  rebuild_index_ = true;
-  current_generation_++;
+  if (body) {
+    body->owner = Handle{};
+    body->active = 0;
+    body->handle.type = World::kNone;
+    rebuild_index_ = true;
+    current_generation_++;
+  }
 }
 
 Body* World::RetrieveBody(Handle handle) {

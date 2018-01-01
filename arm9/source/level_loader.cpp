@@ -36,7 +36,12 @@ void LoadLevel(PikminGame& game, std::string filename) {
 			fscanf(file, "%f %f %f", &x, &y, &z);
 
 			if (last_object) {
-				last_object->set_position(Vec3{fixed::FromFloat(x), fixed::FromFloat(y), fixed::FromFloat(z)});
+				auto position = Vec3{fixed::FromFloat(x), fixed::FromFloat(y), fixed::FromFloat(z)};
+				if (last_object->body) {
+					last_object->set_position(position);
+				} else {
+					last_object->entity->set_position(position);
+				}
 			} else {
 				debug::Log("Tried to set position after invalid spawn, ignoring.");
 			}

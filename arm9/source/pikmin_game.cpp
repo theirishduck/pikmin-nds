@@ -175,7 +175,9 @@ void PikminGame::RemoveObject(Handle handle, std::array<StateType, size>& object
       renderer_.RemoveEntity(object_to_delete.entity);
       entities_.remove(object_to_delete.entity);
       delete object_to_delete.entity;
-      world_.FreeBody(object_to_delete.body);
+      if (object_to_delete.body) {
+        world_.FreeBody(object_to_delete.body);
+      }
       current_generation_++;
       object_to_delete = StateType{};
       object_to_delete.active = false;
@@ -462,10 +464,6 @@ void PikminGame::RunAi() {
     }
   }
 
-  for (unsigned int s = 0; s < statics.size(); s++) {
-    statics[s].Update();
-  }
-
   camera_ai::machine.RunLogic(camera_);
 
   debug::Profiler::EndTopic(tAI);
@@ -596,9 +594,9 @@ const std::map<std::string, std::function<PikminGameState*(PikminGame*)>> Pikmin
   {"Static", [](PikminGame* game) -> PikminGameState* {
     auto static_object = game->RetrieveStatic(game->SpawnObject(game->statics, PikminGame::kStatic));
     if (static_object) {
-      static_object->body->collides_with_level = false;
-      static_object->body->affected_by_gravity = false;
-      static_object->body->height = 0_f;
+      // Statics don't actually need a physics body, so get rid of that here
+      game->world_.FreeBody(static_object->body);
+      static_object->body = nullptr;
     }
     return static_object;
 
