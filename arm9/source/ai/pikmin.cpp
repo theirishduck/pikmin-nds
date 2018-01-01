@@ -367,6 +367,7 @@ void AddToTreasure(PikminState& pikmin) {
     }
   }
   StopMoving(pikmin);
+  pikmin.body->affected_by_gravity = false;
 }
 
 void RemoveFromTreasure(PikminState& pikmin) {
@@ -375,15 +376,12 @@ void RemoveFromTreasure(PikminState& pikmin) {
     treasure->RemovePikmin(&pikmin);
     pikmin.active_treasure = Handle();
   }
+  pikmin.body->affected_by_gravity = true;
 }
 
 void WhistleOffTreasure(PikminState& pikmin) {
-  auto treasure = pikmin.game->RetrieveTreasure(pikmin.active_treasure);
-  if (treasure) {
-    treasure->RemovePikmin(&pikmin);
-    JoinSquad(pikmin);
-    pikmin.active_treasure = Handle();
-  }
+  RemoveFromTreasure(pikmin);
+  JoinSquad(pikmin);
 }
 
 bool TreasureMoving(const PikminState& pikmin) {
