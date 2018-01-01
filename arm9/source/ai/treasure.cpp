@@ -74,6 +74,7 @@ void Init(TreasureState& treasure) {
   treasure.UpdateDetectionBody();
 
   treasure.body->collision_group = TREASURE_GROUP;
+  treasure.body->affected_by_gravity = true;
 
   //initialize proper!
   for (int i = 0; i < 100; i++) {
@@ -186,6 +187,7 @@ void MoveTowardTarget(TreasureState& treasure) {
   auto new_velocity = destination->position() - treasure.position();
   new_velocity.y = 0_f;
   new_velocity = new_velocity.Normalize() * 0.2_f;
+  new_velocity.y = treasure.body->velocity.y;
   treasure.set_velocity(new_velocity);
   UpdatePikminPositions(treasure);
   if (treasure.detection_active) {
