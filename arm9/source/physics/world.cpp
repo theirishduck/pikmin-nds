@@ -493,11 +493,19 @@ void World::CollideBodiesWithLevel() {
   }
 }
 
+void World::GenerateHeightTable() {
+  fixed height_step = 32_f / 128_f;
+  for (int i = 0; i < 128; i++) {
+    height_table_[i] = height_step * fixed::FromInt(i);
+  }
+}
+
 void World::SetHeightmap(const u8* raw_heightmap_data) {
-  heightmap_data = (fixed*)(raw_heightmap_data + 8); // skip over width/height
+  heightmap_data = (u8*)(raw_heightmap_data + 8); // skip over width/height
   int* heightmap_coords = (int*)raw_heightmap_data;
   heightmap_width = heightmap_coords[0];
   heightmap_height = heightmap_coords[1];
+  GenerateHeightTable();
 }
 
 // Given a world position, figured out the level's height within the loaded
@@ -508,7 +516,8 @@ fixed World::HeightFromMap(int hx, int hz) {
   if (hx >= heightmap_width) {hx = heightmap_width - 1;}
   if (hz >= heightmap_height) {hz = heightmap_height - 1;}
 
-  return heightmap_data[hz * heightmap_width + hx];
+  u8 height_index = heightmap_data[hz * heightmap_width + hx] & 0x7F;
+  return height_table_[height_index];
 }
 
 fixed World::HeightFromMap(const Vec3& position) {

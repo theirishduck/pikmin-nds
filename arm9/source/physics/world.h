@@ -49,6 +49,8 @@ class World {
 
     numeric_types::fixed HeightFromMap(const Vec3& position);
     numeric_types::fixed HeightFromMap(int hx, int hz);
+    void GenerateHeightTable();
+    numeric_types::fixed height_table_[128];
 
     physics::Body bodies_[MAX_PHYSICS_BODIES];
 
@@ -62,7 +64,7 @@ class World {
     bool rebuild_index_ = true;
     int heightmap_width = 0;
     int heightmap_height = 0;
-    numeric_types::fixed* heightmap_data = nullptr;
+    u8* heightmap_data = nullptr;
 
     int iteration = 0;
     int bodies_overlapping_ = 0;
