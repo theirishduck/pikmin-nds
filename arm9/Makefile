@@ -135,7 +135,7 @@ clean-actors:
 
 $(NITRODIR)/heightmaps/%.height : $(BLEND)/heightmaps/%.png
 	@mkdir -p $(NITRODIR)/heightmaps
-	python3 ../tools/image-to-heightmap.py 32.0 $< $@
+	python3 ../tools/image-to-heightmap.py $< $@
 	
 
 $(NITRODIR)/levels/%.level : $(BLEND)/%.level.blend
